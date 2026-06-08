@@ -1,0 +1,175 @@
+.profileCard {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1B5FA6 0%, #0E3A5F 100%);
+  color: white;
+  font-weight: 700;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(27, 95, 166, 0.2);
+}
+
+.nameSection {
+  flex: 1;
+}
+
+.name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0 0 4px 0;
+}
+
+.email {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 12px 0;
+}
+
+.infoSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.infoGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.infoLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.infoLabel svg {
+  color: var(--color-primary);
+}
+
+.infoValue {
+  font-size: 14px;
+  color: var(--color-text-primary);
+  margin: 0;
+  padding-left: 24px;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.bhytSection {
+  margin-top: 12px;
+}
+
+.bhytTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bhytCard {
+  background: white;
+  border: 2px solid #1B5FA6;
+  border-radius: var(--radius-md);
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(27, 95, 166, 0.03) 0%, rgba(27, 95, 166, 0.06) 100%);
+}
+
+.bhytRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(27, 95, 166, 0.1);
+}
+
+.bhytRow:last-child {
+  border-bottom: none;
+}
+
+.bhytLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.bhytValue {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1B5FA6;
+  text-align: right;
+  word-break: break-word;
+}
+
+@media (max-width: 430px) {
+  .profileCard {
+    padding: 16px;
+  }
+
+  .header {
+    gap: 12px;
+  }
+
+  .avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+  }
+
+  .name {
+    font-size: 15px;
+  }
+
+  .email {
+    font-size: 11px;
+  }
+
+  .bhytCard {
+    padding: 12px;
+  }
+
+  .bhytRow {
+    padding: 8px 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .bhytValue {
+    text-align: left;
+  }
+}

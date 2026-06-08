@@ -1,0 +1,143 @@
+.page { padding: 20px 16px; }
+
+.greeting { margin-bottom: 24px; }
+
+.greetingTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.greetText { font-size: 14px; color: var(--color-text-secondary); }
+
+.userName {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  margin-top: 2px;
+}
+
+.date { font-size: 13px; color: var(--color-text-secondary); margin-top: 4px; }
+
+.iconBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--color-primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+}
+
+.section { margin-bottom: 20px; }
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.sectionTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.seeAll {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.metricsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.medicationCard {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  padding: 16px;
+}
+
+.medicationHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.medicationTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.medLink {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+/* ── Cute Mode additions ── */
+.contentWrap {
+  position: relative;
+  z-index: 1;
+}
+
+.iconBtnCute {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  animation: spinStar 6s linear infinite;
+}
+
+.cuteCatRow {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.medicationCardCute {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-border);
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(168,85,247,0.04) 0%, rgba(236,72,153,0.04) 100%);
+}
+
+.cuteMedHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.cuteMedLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cuteAstronautWrapper {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+}
+
+@keyframes spinStar {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

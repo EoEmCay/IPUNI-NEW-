@@ -1,0 +1,98 @@
+.userBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+  position: relative;
+}
+
+.userBtn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  transition: background 0.3s;
+}
+
+.menu {
+  position: fixed;
+  background: white;
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  z-index: 8999;
+  animation: slideDown 0.2s ease-out;
+  min-width: 180px;
+}
+
+.menuItem {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: background-color 0.15s;
+  text-align: left;
+}
+
+.menuItem:hover {
+  background-color: var(--color-surface);
+}
+
+.menuItem svg {
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+}
+
+.menuItem.logout {
+  color: var(--color-danger);
+  border-top: 1px solid var(--color-border);
+}
+
+.menuItem.logout:hover {
+  background-color: rgba(239, 68, 68, 0.05);
+}
+
+.menuItem.logout svg {
+  color: var(--color-danger);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 430px) {
+  .menu {
+    right: 0;
+  }
+}

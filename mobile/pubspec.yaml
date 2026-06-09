@@ -1,0 +1,45 @@
+name: ipuni
+description: "IPUNI — Ứng dụng theo dõi tiểu đường (Flutter, Android)."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  # Cần Dart 3.6+ (Flutter 3.27+) cho Color.withValues. Cài Flutter stable mới nhất.
+  sdk: ">=3.6.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # HTTP client + interceptors (tương đương axios)
+  dio: ^5.7.0
+
+  # State management (tương đương Zustand stores)
+  provider: ^6.1.2
+
+  # Routing + ProtectedRoute
+  go_router: ^14.6.2
+
+  # Lưu token + theme (tương đương localStorage)
+  shared_preferences: ^2.3.3
+
+  # Biểu đồ đường huyết (tương đương Recharts)
+  fl_chart: ^0.69.2
+
+  # Font Quicksand cho Cute Mode
+  google_fonts: ^6.2.1
+
+  # Định dạng ngày giờ tiếng Việt
+  intl: ^0.19.0
+
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  # assets:
+  #   - assets/images/

@@ -1,4 +1,4 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+// Using Ollama locally for AI vision instead of external API
 
 const DIABETES_KEYWORDS = [
   'metformin', 'glucophage', 'diamet', 'tiaphage', 'gluformin', 'glucofast',
@@ -106,41 +106,60 @@ function shapeResult(parsed) {
 }
 
 function parseAiJson(text) {
-  const trimmed = text.trim();
-  const jsonMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/);
-  return JSON.parse(jsonMatch ? jsonMatch[1].trim() : trimmed);
+  try {
+    const trimmed = text.trim();
+    const jsonMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/);
+    return JSON.parse(jsonMatch ? jsonMatch[1].trim() : trimmed);
+  } catch (error) {
+    console.error("parseAiJson error. Raw text from AI:", text);
+    throw error;
+  }
 }
 
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+
 async function analyzePrescription(imageBuffer, mimeType) {
-  if (!process.env.GEMINI_API_KEY) {
-    const err = new Error('GEMINI_API_KEY chưa được cấu hình trong file .env');
-    err.status = 503;
-    throw err;
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error('Thiếu GEMINI_API_KEY trong file .env');
   }
 
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-
-  const result = await model.generateContent([
-    { inlineData: { data: imageBuffer.toString('base64'), mimeType } },
-    PROMPT,
-  ]);
-
-  let parsed;
   try {
-    parsed = parseAiJson(result.response.text());
-  } catch {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: "gemini-3-pro-preview" });
+
+    const imageParts = [
+      {
+        inlineData: {
+          data: imageBuffer.toString("base64"),
+          mimeType
+        }
+      }
+    ];
+
+    console.log("Starting Gemini API call...");
+    const result = await model.generateContent([PROMPT, ...imageParts]);
+    console.log("Gemini API call finished.");
+    const response = await result.response;
+    const text = response.text();
+    console.log("Gemini response text length:", text.length);
+    
+    let parsed = parseAiJson(text);
+    return shapeResult(parsed);
+
+  } catch (error) {
+    console.error('Gemini API Error:', error);
     return {
       isPrescription: false,
       isDiabetesPrescription: false,
       medications: [],
       hasDiabetesDrugs: false,
       diabetesDrugs: [],
-      error: 'Không thể phân tích kết quả',
+      error: error.message.includes('GEMINI_API_KEY') 
+        ? 'Hệ thống thiếu API Key của Gemini. Vui lòng thêm GEMINI_API_KEY vào file .env'
+        : 'Không thể phân tích kết quả từ Gemini'
     };
   }
-
-  return shapeResult(parsed);
 }
 
 module.exports = { analyzePrescription, shapeResult, parseAiJson, isDiabetesDrug };

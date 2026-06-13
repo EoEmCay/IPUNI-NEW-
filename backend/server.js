@@ -29,6 +29,7 @@ app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 app.use(errorMiddleware);
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`DIA+ Backend running on http://localhost:${PORT}`);
 });
+server.timeout = 300000;

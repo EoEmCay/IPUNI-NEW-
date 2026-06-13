@@ -50,14 +50,15 @@ export default function ScanPrescriptionPage() {
       const data = res.data.data;
       setResult(data);
 
-      if (isFree && scansRemaining !== null) {
-        setScansRemaining(prev => Math.max(0, prev - 1));
-      }
-
       if (data.error) {
         showToast(data.error, 'error');
-      } else if (!data.isDiabetesPrescription) {
-        showToast('Đơn thuốc không thuộc bệnh đái tháo đường', 'error');
+      } else {
+        if (isFree && scansRemaining !== null) {
+          setScansRemaining(prev => Math.max(0, prev - 1));
+        }
+        if (!data.isDiabetesPrescription) {
+          showToast('Đơn thuốc không thuộc bệnh đái tháo đường', 'error');
+        }
       }
     } catch (err) {
       const msg = err.response?.data?.message || 'Lỗi kết nối đến server';

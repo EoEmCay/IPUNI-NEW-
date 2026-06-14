@@ -3,6 +3,7 @@ const fs = require('fs');
 const Tesseract = require('tesseract.js');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const Anthropic = require('@anthropic-ai/sdk');
+const logger = require('../../utils/logger');
 
 const DIABETES_KEYWORDS = [
   'metformin', 'glucophage', 'diamet', 'tiaphage', 'gluformin', 'glucofast',
@@ -25,39 +26,53 @@ const DIABETES_KEYWORDS = [
   'semaglutide', 'ozempic',
   'dulaglutide', 'trulicity',
   'exenatide', 'byetta',
+  // Added common brand names & combination drugs in Vietnam:
+  'janumet', 'glucovance', 'xigduo', 'synjardy', 'glyxambi', 'eucreas',
+  'vildarpin', 'sitagil', 'glimaryl', 'glimerax', 'panfor', 'meglucon',
+  'siofor', 'gliclada', 'tirzepatide', 'mounjaro', 'rybelsus', 'jardiance duo'
 ];
 
 function isDiabetesDrug(name) {
-  const lower = (name || '').toLowerCase();
+  const lower = (name || '').toLowerCase().trim();
   return DIABETES_KEYWORDS.some(k => lower.includes(k));
 }
 
-const PROMPT = `Convert OCR text to JSON. All Vietnamese values must be direct, short, no filler words.
-If isDiabetesPrescription is false, set medications to [].
+function isDiabetesDiagnosis(diagnosis) {
+  const lower = (diagnosis || '').toLowerCase().trim();
+  return lower.includes('đái tháo đường') || 
+         lower.includes('tiểu đường') || 
+         /\bđtđ\b/.test(lower) || 
+         lower.includes('diabetes') ||
+         lower.includes('sugar');
+}
+
+const PROMPT = `You are an expert medical assistant. Analyze the medical prescription (either from the image directly or from the OCR text provided) and convert it into a structured JSON object.
+All Vietnamese values must be direct, short, and contain no filler words.
+If isDiabetesPrescription is false, you should still attempt to parse the medications in the prescription.
 
 JSON Schema:
 {
-  "isPrescription": true/false,
-  "isDiabetesPrescription": true/false (true if diagnosis or medication is for diabetes),
-  "rejectionReason": "reason in Vietnamese" or null,
-  "doctorName": "name" or null,
-  "prescriptionDate": "YYYY-MM-DD" or null,
-  "diagnosis": "diagnosis" or null,
-  "doctorNotes": "doctor instructions" or null,
+  "isPrescription": true/false (true if the image/text represents a medical prescription),
+  "isDiabetesPrescription": true/false (true if the diagnosis, symptoms, or any of the medications are for diabetes/đái tháo đường/tiểu đường),
+  "rejectionReason": "Detailed reason in Vietnamese why this is not a prescription or not related to diabetes" or null,
+  "doctorName": "Doctor name" or null,
+  "prescriptionDate": "Prescription date in YYYY-MM-DD format" or null,
+  "diagnosis": "Detailed diagnosis in Vietnamese" or null,
+  "doctorNotes": "Doctor instructions/notes in Vietnamese" or null,
   "medications": [{
-    "name": "drug name only",
-    "dosage": "dosage",
-    "quantity": "quantity" or null,
-    "amountPerDose": "amount per dose",
+    "name": "Drug name only (e.g. Metformin, Galvus Met)",
+    "dosage": "Dosage (e.g. 500mg, 1000mg)",
+    "quantity": "Total quantity prescribed (e.g. 30 viên, 2 lọ)" or null,
+    "amountPerDose": "Amount per dose (e.g. 1 viên, 2 viên)",
     "timesPerDay": times_per_day_number,
-    "frequency": "frequency",
-    "times": ["HH:MM"] (Map: Sáng->07:00, Trưa->12:00, Chiều->15:00, Tối->19:00, Trước ngủ->22:00),
-    "instructions": "instructions",
-    "isDiabetesDrug": true/false,
+    "frequency": "Frequency description (e.g. 2 lần/ngày, 1 lần/ngày)",
+    "times": ["HH:MM"] (Map time keywords to HH:MM format. Sáng->07:00, Trưa->12:00, Chiều->15:00, Tối->19:00, Trước ngủ/Tối muộn->22:00. Adjust based on instructions),
+    "instructions": "Full usage instructions in Vietnamese",
+    "isDiabetesDrug": true/false (true if this medication is specifically for diabetes/lowering blood glucose/insulin),
     "detail": {
-      "purpose": "drug purpose",
-      "mechanism": "how it works",
-      "sideEffects": "side effects",
+      "purpose": "Brief drug purpose in Vietnamese",
+      "mechanism": "Brief mechanism of action in Vietnamese",
+      "sideEffects": "Common side effects in Vietnamese",
       "source": "ADA/Mayo Clinic/Vinmec/MedlinePlus"
     }
   }]
@@ -69,7 +84,9 @@ function shapeResult(parsed) {
 
   const keywordDiabetes = medications.some(m => isDiabetesDrug(m.name));
   const isDiabetesPrescription =
-    parsed.isDiabetesPrescription === true || (parsed.isDiabetesPrescription == null && keywordDiabetes);
+    parsed.isDiabetesPrescription === true || 
+    isDiabetesDiagnosis(parsed.diagnosis) ||
+    (parsed.isDiabetesPrescription == null && keywordDiabetes);
 
   const diabetesDrugs = medications
     .filter(m => m.isDiabetesDrug === true || isDiabetesDrug(m.name))
@@ -89,8 +106,6 @@ function shapeResult(parsed) {
     error: parsed.error || null,
   };
 }
-
-const logger = require('../../utils/logger');
 
 function parseAiJson(text) {
   let cleaned = text.trim();
@@ -143,96 +158,158 @@ function parseAiJson(text) {
   }
 }
 
-// Using Tesseract OCR and LLM (Gemini/Claude/Ollama) for AI analysis
+// Using LLM (Gemini/Claude) with direct image/multimodal input for best accuracy.
+// Tesseract OCR is kept as a robust fallback.
 async function analyzePrescription(imageBuffer, mimeType) {
-  const tessdataDir = path.join(__dirname, '../../../database/tessdata');
-  if (!fs.existsSync(tessdataDir)) {
-    fs.mkdirSync(tessdataDir, { recursive: true });
-  }
-
-  let ocrText = '';
-  try {
-    logger.info("[Quét đơn thuốc] Đang trích xuất chữ từ ảnh bằng Tesseract OCR...");
-    const ocrResult = await Tesseract.recognize(
-      imageBuffer,
-      'vie+eng',
-      {
-        cachePath: tessdataDir,
-        logger: m => {
-          if (m.status === 'recognizing text' && Math.round(m.progress * 100) % 25 === 0) {
-            logger.info(`[Tesseract OCR] Tiến trình: ${Math.round(m.progress * 100)}%`);
-          }
-        }
-      }
-    );
-    ocrText = ocrResult.data.text || '';
-    logger.info(`[Quét đơn thuốc] Trích xuất hoàn tất. Kích thước văn bản: ${ocrText.length} ký tự.`);
-  } catch (ocrError) {
-    logger.error("[Quét đơn thuốc] Lỗi khi nhận diện chữ bằng Tesseract OCR: " + ocrError.message);
-  }
-
-
   let text = '';
+  let imageBase64 = null;
   
+  if (imageBuffer) {
+    imageBase64 = imageBuffer.toString('base64');
+  }
+
   // 1. Dùng Gemini nếu có API Key (Khuyên dùng để đạt độ chính xác 100%)
   if (process.env.GEMINI_API_KEY) {
     try {
       const modelName = process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite';
-      logger.info(`[Quét đơn thuốc] Phát hiện GEMINI_API_KEY. Đang phân tích bằng Google Gemini (${modelName})...`);
+      logger.info(`[Quét đơn thuốc] Phát hiện GEMINI_API_KEY. Đang phân tích trực tiếp bằng hình ảnh với Google Gemini (${modelName})...`);
       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({ 
         model: modelName,
         generationConfig: { responseMimeType: 'application/json' }
       });
 
-      const prompt = `${PROMPT}
-      
-Dữ liệu chữ trích xuất từ Tesseract OCR cần phân tích và sắp xếp thành cấu trúc JSON:
----
-${ocrText}
----`;
+      const imagePart = {
+        inlineData: {
+          data: imageBase64,
+          mimeType: mimeType || 'image/jpeg'
+        }
+      };
 
-      // Tuyệt đối không gửi ảnh (imageBuffer) để tiết kiệm tối đa băng thông và token
-      const result = await model.generateContent([prompt]);
+      const result = await model.generateContent([
+        PROMPT,
+        imagePart
+      ]);
       text = result.response.text();
+      logger.info("[Quét đơn thuốc] Phân tích bằng Gemini trực tiếp qua hình ảnh thành công!");
     } catch (geminiError) {
-      logger.error("[Quét đơn thuốc] Lỗi khi gọi Gemini API: " + geminiError.message, geminiError);
+      logger.error("[Quét đơn thuốc] Lỗi khi gọi Gemini API trực tiếp qua hình ảnh: " + geminiError.message, geminiError);
     }
   }
-  
-  // 2. Dùng Anthropic Claude nếu có API Key
+
+  // 2. Dùng Anthropic Claude nếu có API Key và chưa có kết quả
   if (!text && process.env.ANTHROPIC_API_KEY) {
     try {
-      logger.info("[Quét đơn thuốc] Phát hiện ANTHROPIC_API_KEY. Đang phân tích bằng Anthropic Claude...");
+      logger.info("[Quét đơn thuốc] Phát hiện ANTHROPIC_API_KEY. Đang phân tích trực tiếp bằng hình ảnh với Anthropic Claude...");
       const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
       
-      const prompt = `${PROMPT}
-      
-Dữ liệu chữ trích xuất từ Tesseract OCR cần phân tích và sắp xếp thành cấu trúc JSON:
----
-${ocrText}
----`;
-
-      // Tuyệt đối không gửi ảnh để tiết kiệm tối đa băng thông và token
       const response = await anthropic.messages.create({
         model: 'claude-3-5-sonnet-20240620',
         max_tokens: 4000,
         messages: [
           {
             role: 'user',
-            content: prompt
+            content: [
+              {
+                type: 'text',
+                text: PROMPT
+              },
+              {
+                type: 'image',
+                source: {
+                  type: 'base64',
+                  media_type: mimeType || 'image/jpeg',
+                  data: imageBase64
+                }
+              }
+            ]
           }
         ]
       });
       text = response.content[0].text;
+      logger.info("[Quét đơn thuốc] Phân tích bằng Claude trực tiếp qua hình ảnh thành công!");
     } catch (claudeError) {
-      logger.error("[Quét đơn thuốc] Lỗi khi gọi Anthropic API: " + claudeError.message, claudeError);
+      logger.error("[Quét đơn thuốc] Lỗi khi gọi Anthropic API trực tiếp qua hình ảnh: " + claudeError.message, claudeError);
     }
   }
 
-  // 3. Nếu không có API Key nào được cấu hình
+  // 3. Dự phòng (Fallback): Dùng Tesseract OCR để trích xuất chữ và gửi Text cho LLM
   if (!text) {
-    throw new Error('Vui lòng cấu hình GEMINI_API_KEY trong file backend/.env để thực hiện quét đơn thuốc.');
+    logger.info("[Quét đơn thuốc] Đang kích hoạt Fallback: Trích xuất chữ từ ảnh bằng Tesseract OCR...");
+    const tessdataDir = path.join(__dirname, '../../../database/tessdata');
+    if (!fs.existsSync(tessdataDir)) {
+      fs.mkdirSync(tessdataDir, { recursive: true });
+    }
+
+    let ocrText = '';
+    try {
+      const ocrResult = await Tesseract.recognize(
+        imageBuffer,
+        'vie+eng',
+        {
+          cachePath: tessdataDir,
+          logger: m => {
+            if (m.status === 'recognizing text' && Math.round(m.progress * 100) % 25 === 0) {
+              logger.info(`[Tesseract OCR] Tiến trình: ${Math.round(m.progress * 100)}%`);
+            }
+          }
+        }
+      );
+      ocrText = ocrResult.data.text || '';
+      logger.info(`[Quét đơn thuốc] Trích xuất bằng Tesseract hoàn tất. Kích thước văn bản: ${ocrText.length} ký tự.`);
+    } catch (ocrError) {
+      logger.error("[Quét đơn thuốc] Lỗi khi nhận diện chữ bằng Tesseract OCR: " + ocrError.message);
+    }
+
+    if (ocrText) {
+      const promptWithOcr = `${PROMPT}
+      
+Dữ liệu chữ trích xuất từ Tesseract OCR cần phân tích và sắp xếp thành cấu trúc JSON:
+---
+${ocrText}
+---`;
+
+      if (process.env.GEMINI_API_KEY) {
+        try {
+          const modelName = process.env.GEMINI_MODEL || 'gemini-2.5-flash-lite';
+          logger.info(`[Quét đơn thuốc] Phân tích dữ liệu OCR bằng Google Gemini (${modelName})...`);
+          const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+          const model = genAI.getGenerativeModel({ 
+            model: modelName,
+            generationConfig: { responseMimeType: 'application/json' }
+          });
+          const result = await model.generateContent([promptWithOcr]);
+          text = result.response.text();
+        } catch (geminiError) {
+          logger.error("[Quét đơn thuốc] Lỗi khi gọi Gemini API với văn bản OCR: " + geminiError.message);
+        }
+      }
+
+      if (!text && process.env.ANTHROPIC_API_KEY) {
+        try {
+          logger.info("[Quét đơn thuốc] Phân tích dữ liệu OCR bằng Anthropic Claude...");
+          const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+          const response = await anthropic.messages.create({
+            model: 'claude-3-5-sonnet-20240620',
+            max_tokens: 4000,
+            messages: [
+              {
+                role: 'user',
+                content: promptWithOcr
+              }
+            ]
+          });
+          text = response.content[0].text;
+        } catch (claudeError) {
+          logger.error("[Quét đơn thuốc] Lỗi khi gọi Anthropic API với văn bản OCR: " + claudeError.message);
+        }
+      }
+    }
+  }
+
+  // 4. Nếu không có API Key nào hoặc phân tích thất bại hoàn toàn
+  if (!text) {
+    throw new Error('Vui lòng cấu hình GEMINI_API_KEY trong file backend/.env và đảm bảo ảnh đơn thuốc rõ nét.');
   }
 
   logger.info(`[Quét đơn thuốc] Kích thước nội dung phản hồi từ AI: ${text.length} ký tự.`);

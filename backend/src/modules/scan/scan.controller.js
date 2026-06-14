@@ -4,6 +4,8 @@ const db = require('../../config/database');
 
 async function analyzePrescription(req, res, next) {
   try {
+    req.setTimeout(300000);
+    console.log("Received scan request. File size:", req.file ? req.file.size : 'No file');
     if (!req.file) return sendError(res, 'Vui lòng chọn ảnh đơn thuốc', 400);
 
     const user = req.user;
@@ -27,11 +29,13 @@ async function analyzePrescription(req, res, next) {
 
     const result = await svc.analyzePrescription(req.file.buffer, req.file.mimetype);
 
-    // Track usage
-    await db('scan_usages').insert({
-      user_id: user.id,
-      result: result.isDiabetesPrescription ? 'success' : 'rejected',
-    });
+    // Track usage only if AI successfully processed it (no error)
+    if (!result.error) {
+      await db('scan_usages').insert({
+        user_id: user.id,
+        result: result.isDiabetesPrescription ? 'success' : 'rejected',
+      });
+    }
 
     sendSuccess(res, result, 'Phân tích đơn thuốc thành công');
   } catch (err) {

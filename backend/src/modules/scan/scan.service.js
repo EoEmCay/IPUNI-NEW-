@@ -116,48 +116,57 @@ function parseAiJson(text) {
   }
 }
 
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const axios = require('axios');
 
 async function analyzePrescription(imageBuffer, mimeType) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error('Thiếu GEMINI_API_KEY trong file .env');
-  }
+  const ollamaHost = process.env.OLLAMA_HOST || 'http://localhost:11434';
+  const modelName = 'llava-phi3';
 
   try {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-3-pro-preview" });
+    const base64Image = imageBuffer.toString('base64');
 
-    const imageParts = [
+    console.log(`Starting Ollama ${modelName} vision call...`);
+    console.log(`Ollama Host: ${ollamaHost}`);
+
+    const response = await axios.post(
+      `${ollamaHost}/api/generate`,
       {
-        inlineData: {
-          data: imageBuffer.toString("base64"),
-          mimeType
-        }
-      }
-    ];
+        model: modelName,
+        prompt: PROMPT,
+        images: [base64Image],
+        stream: false,
+        temperature: 0.3,
+      },
+      { timeout: 300000 }
+    );
 
-    console.log("Starting Gemini API call...");
-    const result = await model.generateContent([PROMPT, ...imageParts]);
-    console.log("Gemini API call finished.");
-    const response = await result.response;
-    const text = response.text();
-    console.log("Gemini response text length:", text.length);
-    
+    const text = response.data.response || '';
+    console.log('Ollama response text length:', text.length);
+
     let parsed = parseAiJson(text);
     return shapeResult(parsed);
 
   } catch (error) {
-    console.error('Gemini API Error:', error);
+    console.error('Ollama Error:', error.message);
+
+    if (error.code === 'ECONNREFUSED') {
+      return {
+        isPrescription: false,
+        isDiabetesPrescription: false,
+        medications: [],
+        hasDiabetesDrugs: false,
+        diabetesDrugs: [],
+        error: 'Ollama server không hoạt động. Vui lòng khởi chạy Ollama.'
+      };
+    }
+
     return {
       isPrescription: false,
       isDiabetesPrescription: false,
       medications: [],
       hasDiabetesDrugs: false,
       diabetesDrugs: [],
-      error: error.message.includes('GEMINI_API_KEY') 
-        ? 'Hệ thống thiếu API Key của Gemini. Vui lòng thêm GEMINI_API_KEY vào file .env'
-        : 'Không thể phân tích kết quả từ Gemini'
+      error: 'Lỗi phân tích từ Ollama: ' + (error.message || 'Unknown error')
     };
   }
 }

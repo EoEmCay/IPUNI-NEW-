@@ -34,8 +34,16 @@ export function useAuth() {
     return user;
   };
 
-  const register = async (cccd, phone, password, confirmPassword) => {
-    const res = await authService.register(cccd, phone, password, confirmPassword);
+  const demoLogin = async () => {
+    const res = await authService.demoLogin();
+    const { token, user } = res.data.data;
+    setAuth(token, user);
+    applyPlanTheme(user.plan);
+    return user;
+  };
+
+  const register = async (email, phone, password, confirmPassword, extras = {}) => {
+    const res = await authService.register(email, phone, password, confirmPassword, extras);
     const { token, user } = res.data.data;
     return { token, user };
   };
@@ -56,5 +64,5 @@ export function useAuth() {
     return res.data.data;
   };
 
-  return { user, token, isAuthenticated, login, googleMockLogin, logout, register, updateProfile, completeRegistration };
+  return { user, token, isAuthenticated, login, googleMockLogin, demoLogin, logout, register, updateProfile, completeRegistration };
 }

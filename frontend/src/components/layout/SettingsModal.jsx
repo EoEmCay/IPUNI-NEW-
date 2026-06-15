@@ -2,14 +2,12 @@ import { Sparkles, Bell, Shield, HelpCircle, Crown, ZoomIn } from 'lucide-react'
 import Modal from '../common/Modal';
 import useThemeStore from '../../store/themeStore';
 import useAccessibilityStore from '../../store/accessibilityStore';
-import { usePlan } from '../../hooks/usePlan';
 import { useT } from '../../hooks/useT';
 import styles from './SettingsModal.module.css';
 
 export default function SettingsModal({ onClose }) {
   const { isCuteMode, toggleCuteMode, isGoldMode } = useThemeStore();
   const { fontScale, setFontScale } = useAccessibilityStore();
-  const { isPro } = usePlan();
   const t = useT();
   const s = t.settings;
 
@@ -57,7 +55,6 @@ export default function SettingsModal({ onClose }) {
               <p className={styles.rowTitle}>{s.goldTheme}</p>
               <p className={styles.rowDesc}>{s.goldThemeDesc}</p>
             </div>
-            <span className={styles.goldBadge}>Pro</span>
           </div>
         ) : (
           <div className={styles.row}>

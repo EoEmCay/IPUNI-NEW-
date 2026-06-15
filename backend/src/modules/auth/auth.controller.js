@@ -14,8 +14,8 @@ async function login(req, res, next) {
 
 async function register(req, res, next) {
   try {
-    const { cccd, phone, password } = req.validatedBody;
-    const result = await authService.register(cccd, phone, password);
+    const { email, phone, password, name, diagnosis } = req.validatedBody;
+    const result = await authService.register(email, phone, password, { name, diagnosis });
     sendSuccess(res, result, 'Đăng ký thành công', 201);
   } catch (err) {
     if (err.status) return sendError(res, err.message, err.status);
@@ -49,4 +49,14 @@ async function googleMock(req, res, next) {
   }
 }
 
-module.exports = { login, register, getMe, logout, googleMock };
+async function demoLogin(req, res, next) {
+  try {
+    const result = await authService.demoLogin();
+    sendSuccess(res, result, 'Đăng nhập demo thành công');
+  } catch (err) {
+    if (err.status) return sendError(res, err.message, err.status);
+    next(err);
+  }
+}
+
+module.exports = { login, register, getMe, logout, googleMock, demoLogin };

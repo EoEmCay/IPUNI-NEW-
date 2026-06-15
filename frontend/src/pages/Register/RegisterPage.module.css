@@ -1,112 +1,451 @@
+/* ─── Keyframes ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes floatA {
+  0%, 100% { transform: translate(0, 0); }
+  50%       { transform: translate(10px, -16px); }
+}
+@keyframes floatB {
+  0%, 100% { transform: translate(0, 0); }
+  50%       { transform: translate(-8px, 12px); }
+}
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Page ─── */
 .page {
   min-height: 100vh;
-  background-color: #FAFAFA;
+  background: linear-gradient(160deg, #EBF5FF 0%, #F5FAFF 55%, #E8F2FD 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  position: relative;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+.orb1 {
+  position: absolute;
+  top: -100px;
+  right: -60px;
+  width: 340px;
+  height: 340px;
+  background: radial-gradient(circle, rgba(27, 95, 166, 0.09) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: floatA 9s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+.orb2 {
+  position: absolute;
+  bottom: -80px;
+  left: -60px;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(37, 117, 232, 0.07) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: floatB 11s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
 }
 
+/* ─── Container ─── */
 .container {
   width: 100%;
-  max-width: 480px;
-  background-color: #FAFAFA;
+  max-width: 420px;
   min-height: 100vh;
-  padding: 40px 24px;
+  padding: 36px 22px 36px;
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 1;
 }
 
-.logoSection {
+/* ─── Logo ─── */
+.logoWrap {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 20px;
   margin-bottom: 24px;
+  animation: scaleIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-
-.tagline {
-  font-size: 15px;
-  color: #6B7280;
-  text-align: center;
-  margin-top: 12px;
-  line-height: 1.5;
+.logoCard {
+  width: 72px;
+  height: 72px;
+  background: #ffffff;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 24px rgba(27, 95, 166, 0.14);
+  padding: 6px;
+  overflow: hidden;
 }
-
-.card {
-  background-color: white;
-  padding: 30px 24px;
-  border-radius: 20px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+.logoImg {
   width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.appName {
+  margin-top: 10px;
+  font-size: 22px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #1B5FA6 0%, #0F4280 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
 }
 
-.title {
-  font-size: 24px;
-  font-weight: 800;
-  color: #111827;
-  margin-bottom: 8px;
+/* ─── Card ─── */
+.card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 28px 24px 32px;
+  box-shadow: 0 12px 48px rgba(27, 95, 166, 0.10), 0 2px 10px rgba(27, 95, 166, 0.06);
+  animation: fadeUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #1B5FA6, #2575E8, #1B5FA6);
+  background-size: 200% 100%;
+  animation: shimmer 3s linear infinite;
+}
+
+.cardHeader {
+  margin-bottom: 24px;
   text-align: center;
 }
-
+.title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #0F172A;
+  margin-bottom: 6px;
+  letter-spacing: -0.3px;
+}
 .subtitle {
   font-size: 14px;
-  color: #6B7280;
-  margin-bottom: 24px;
-  text-align: center;
+  color: #64748B;
+  font-weight: 500;
 }
 
-.errorMsg {
-  background: #FEE2E2;
-  color: #DC2626;
-  padding: 12px 16px;
-  border-radius: 8px;
+.errorBox {
+  background: #FEF2F2;
+  color: #991B1B;
   font-size: 14px;
+  font-weight: 600;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border-left: 4px solid #EF4444;
   margin-bottom: 20px;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.form {
+/* ─── Sections ─── */
+.section {
+  margin-bottom: 24px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
+}
+.sectionLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1B5FA6;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+.sectionDot {
+  width: 8px;
+  height: 8px;
+  background: linear-gradient(135deg, #1B5FA6, #2575E8);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.sectionHint {
+  font-size: 13px;
+  color: #94A3B8;
+  font-weight: 500;
+  margin-top: -6px;
 }
 
-.field {
+/* ─── Fields ─── */
+.fieldWrap {
   display: flex;
   flex-direction: column;
+  gap: 7px;
+}
+.fieldLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
+  letter-spacing: 0.1px;
+}
+.optional {
+  font-size: 12px;
+  font-weight: 500;
+  color: #94A3B8;
+  margin-left: 4px;
+}
+.required {
+  color: #EF4444;
+  margin-left: 2px;
 }
 
-.fieldError {
-  display: block;
+/* plain input (no icon) */
+.input {
+  width: 100%;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 13px 15px;
+  font-size: 15px;
+  color: #0F172A;
+  background: #F8FAFC;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  font-weight: 500;
+}
+.input:focus {
+  border-color: #1B5FA6;
+  box-shadow: 0 0 0 4px rgba(27, 95, 166, 0.12);
+  background: #ffffff;
+}
+.input::placeholder {
+  color: #B0BAC9;
+  font-weight: 400;
+}
+.inputError {
+  border-color: #EF4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.10);
+}
+.input.inputError:focus {
+  border-color: #EF4444;
+}
+
+/* input with eye toggle */
+.inputBox {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 12px;
+  background: #F8FAFC;
+  overflow: hidden;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+.inputBox:focus-within {
+  border-color: #1B5FA6;
+  box-shadow: 0 0 0 4px rgba(27, 95, 166, 0.12);
+  background: #ffffff;
+}
+.inputBoxError {
+  border-color: #EF4444;
+}
+.inputInner {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 13px 14px;
+  font-size: 15px;
+  color: #0F172A;
+  font-family: inherit;
+  outline: none;
+  font-weight: 500;
+}
+.inputInner::placeholder {
+  color: #B0BAC9;
+  font-weight: 400;
+}
+.eyeBtn {
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #94A3B8;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+.eyeBtn:hover { color: #1B5FA6; }
+
+.fieldErr {
   font-size: 12px;
   color: #DC2626;
-  margin-top: -6px;
-  padding-left: 2px;
+  font-weight: 600;
 }
 
-.loginLink {
+/* ─── Password strength ─── */
+.strengthRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 2px;
+}
+.strengthBar {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+.strengthSegment {
+  height: 4px;
+  flex: 1;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+.strengthLabel {
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 70px;
+  text-align: right;
+  transition: color 0.3s ease;
+}
+
+/* ─── Diagnosis cards ─── */
+.diagnosisGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.diagnosisCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 14px 16px;
+  border: 2px solid #E2E8F0;
+  border-radius: 14px;
+  background: #F8FAFC;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  gap: 3px;
+}
+.diagnosisCard:hover {
+  border-color: rgba(27, 95, 166, 0.5);
+  background: #EDF5FF;
+  transform: translateY(-1px);
+}
+.diagnosisActive {
+  border-color: #1B5FA6 !important;
+  background: #EBF4FF !important;
+  box-shadow: 0 0 0 3px rgba(27, 95, 166, 0.12);
+}
+.diagnosisCheck {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #CBD5E1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+.diagnosisActive .diagnosisCheck {
+  background: #1B5FA6;
+  border-color: #1B5FA6;
+  color: white;
+}
+.diagnosisLabel {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0F172A;
+  padding-right: 32px;
+}
+.diagnosisActive .diagnosisLabel {
+  color: #1B5FA6;
+}
+.diagnosisDesc {
+  font-size: 12px;
+  color: #64748B;
+  font-weight: 500;
+}
+
+/* ─── Submit ─── */
+.submitBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 56px;
+  background: linear-gradient(135deg, #1B5FA6 0%, #0F4280 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+  box-shadow: 0 6px 20px rgba(27, 95, 166, 0.30);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+  letter-spacing: 0.2px;
+}
+.submitBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(27, 95, 166, 0.40);
+}
+.submitBtn:active:not(:disabled) { transform: scale(0.96); }
+.submitBtn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* ─── Login link ─── */
+.loginRow {
   text-align: center;
   font-size: 14px;
-  color: #6B7280;
+  color: #64748B;
   margin-top: 24px;
+  font-weight: 500;
 }
-
-.link {
-  color: #00A693;
-  font-weight: 600;
+.loginLink {
+  color: #1B5FA6;
+  font-weight: 700;
   text-decoration: none;
+  transition: color 0.2s;
 }
-
-.link:hover {
+.loginLink:hover {
+  color: #0F4280;
   text-decoration: underline;
 }
 
+/* ─── Footer ─── */
 .footer {
   text-align: center;
   font-size: 12px;
-  color: #9CA3AF;
-  margin-top: 32px;
-  margin-bottom: 20px;
+  color: #94A3B8;
+  margin-top: 24px;
+  font-weight: 500;
 }

@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { User, Settings, LogOut, Crown, Palette, Globe } from 'lucide-react';
+import { User, Settings, LogOut, Palette, Globe } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { usePlan } from '../../hooks/usePlan';
 import { useT } from '../../hooks/useT';
 import useLangStore from '../../store/langStore';
 
@@ -12,19 +11,16 @@ const LANG_FLAGS = [
 ];
 import UserProfileModal from './UserProfileModal';
 import SettingsModal from './SettingsModal';
-import UpgradeModal from './UpgradeModal';
 import GiaoDienModal from './GiaoDienModal';
 import styles from './UserMenu.module.css';
 
 export default function UserMenu() {
   const { user, logout } = useAuth();
-  const { isPro } = usePlan();
   const t = useT();
   const { lang, setLang } = useLangStore();
   const [isOpen, setIsOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [showUpgrade, setShowUpgrade] = useState(false);
   const [showGiaoDien, setShowGiaoDien] = useState(false);
   const menuRef = useRef(null);
   const buttonRef = useRef(null);
@@ -54,7 +50,6 @@ export default function UserMenu() {
   const closeAllModals = () => {
     setShowProfile(false);
     setShowSettings(false);
-    setShowUpgrade(false);
     setShowGiaoDien(false);
   };
 
@@ -67,12 +62,6 @@ export default function UserMenu() {
   const handleSettings = () => {
     closeAllModals();
     setShowSettings(true);
-    setIsOpen(false);
-  };
-
-  const handleUpgrade = () => {
-    closeAllModals();
-    setShowUpgrade(true);
     setIsOpen(false);
   };
 
@@ -95,20 +84,13 @@ export default function UserMenu() {
           onClick={handleToggle}
           title={user?.name || 'User'}
         >
-          <div className={`${styles.avatar} ${isPro ? styles.avatarPro : ''}`}>
+          <div className={styles.avatar}>
             {getInitials(user?.name)}
           </div>
-          {isPro && <Crown size={11} className={styles.proCrown} />}
         </button>
 
         {isOpen && (
           <div ref={menuRef} className={styles.menu}>
-            <button className={`${styles.menuItem} ${styles.upgradeItem}`} onClick={handleUpgrade}>
-              <Crown size={16} />
-              <span>{t.userMenu.upgrade}</span>
-              <span className={styles.upgradeBadge}>PRO</span>
-            </button>
-            <div className={styles.menuDivider} />
             <button className={styles.menuItem} onClick={handleProfile}>
               <User size={18} />
               <span>{t.userMenu.profile}</span>
@@ -129,12 +111,10 @@ export default function UserMenu() {
                 ))}
               </div>
             </div>
-            {isPro && (
-              <button className={`${styles.menuItem} ${styles.giaoDienItem}`} onClick={handleGiaoDien}>
-                <Palette size={18} />
-                <span>{t.userMenu.theme}</span>
-              </button>
-            )}
+            <button className={`${styles.menuItem} ${styles.giaoDienItem}`} onClick={handleGiaoDien}>
+              <Palette size={18} />
+              <span>{t.userMenu.theme}</span>
+            </button>
             <button className={styles.menuItem} onClick={handleSettings}>
               <Settings size={18} />
               <span>{t.userMenu.settings}</span>
@@ -153,10 +133,6 @@ export default function UserMenu() {
 
       {showSettings && (
         <SettingsModal onClose={() => setShowSettings(false)} />
-      )}
-
-      {showUpgrade && (
-        <UpgradeModal onClose={() => setShowUpgrade(false)} />
       )}
 
       {showGiaoDien && (

@@ -43,10 +43,12 @@ NODE_ENV=development
 ---
 
 ## 3. Tài khoản mẫu
-| Email | Mật khẩu | Vai trò |
+| CCCD / Email | Mật khẩu | Vai trò |
 |---|---|---|
-| khoi@example.com | admin | Bệnh nhân (type2_diabetes) - Demo |
-| admin@example.com | admin | Admin Pro |
+| `000000000001` hoặc `khoi@example.com` | admin | Bệnh nhân Plan Pro - Demo |
+| `000000000002` hoặc `admin@example.com` | admin | Admin Plan Pro |
+
+> Chạy `cd backend && npm run seed` để tạo tài khoản demo (sẽ **không xóa** dữ liệu người dùng thật).
 
 Đăng nhập bằng email **hoặc** CCCD. Token lưu tại `localStorage['diaplus_token']`.
 

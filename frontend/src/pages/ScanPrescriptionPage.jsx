@@ -1,21 +1,16 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import {
-  CheckCircle, AlertCircle, Pill, User, Calendar, FileText, Lock, Crown,
-  XCircle, ChevronDown, ChevronUp, Clock, Hash, Stethoscope, BookOpen, Info, Zap,
+  CheckCircle, AlertCircle, Pill, User, Calendar, FileText,
+  XCircle, ChevronDown, ChevronUp, Clock, Hash, Stethoscope, BookOpen, Info,
 } from 'lucide-react';
 import { scanService } from '../services/scan.service';
 import { medicationsService } from '../services/medications.service';
 import { useMedications } from '../hooks/useMedications';
 import { useToast } from '../hooks/useToast';
-import { usePlan } from '../hooks/usePlan';
-import UpgradeModal from '../components/layout/UpgradeModal';
 import ScanCamera from '../components/scan/ScanCamera';
 import styles from './ScanPrescriptionPage.module.css';
 
 export default function ScanPrescriptionPage() {
-  const { isFree, isPro } = usePlan();
-  const [showUpgrade, setShowUpgrade] = useState(false);
-  const [scansRemaining, setScansRemaining] = useState(null);
   const { fetchMedications } = useMedications();
   const { showToast } = useToast();
   const [imageFile, setImageFile] = useState(null);
@@ -38,12 +33,6 @@ export default function ScanPrescriptionPage() {
   const handleAnalyze = useCallback(async () => {
     if (!imageFile) return;
 
-    if (isFree && scansRemaining !== null && scansRemaining <= 0) {
-      setShowUpgrade(true);
-      showToast('Bạn đã dùng hết 3 lần chụp trong tháng này. Nâng cấp Pro để tiếp tục.', 'error');
-      return;
-    }
-
     setIsAnalyzing(true);
     try {
       const res = await scanService.analyzePrescription(imageFile);
@@ -52,24 +41,16 @@ export default function ScanPrescriptionPage() {
 
       if (data.error) {
         showToast(data.error, 'error');
-      } else {
-        if (isFree && scansRemaining !== null) {
-          setScansRemaining(prev => Math.max(0, prev - 1));
-        }
-        if (!data.isDiabetesPrescription) {
-          showToast('Đơn thuốc không thuộc bệnh đái tháo đường', 'error');
-        }
+      } else if (!data.isDiabetesPrescription) {
+        showToast('Đơn thuốc không thuộc bệnh đái tháo đường', 'error');
       }
     } catch (err) {
       const msg = err.response?.data?.message || 'Lỗi kết nối đến server';
-      if (msg.includes('hết')) {
-        setShowUpgrade(true);
-      }
       showToast(msg, 'error');
     } finally {
       setIsAnalyzing(false);
     }
-  }, [imageFile, showToast, isFree, scansRemaining]);
+  }, [imageFile, showToast]);
 
   const handleSaveOne = useCallback(async (med, index) => {
     setSavingIndex(index);
@@ -103,12 +84,6 @@ export default function ScanPrescriptionPage() {
     setExpandedIndex(null);
   }, [imageUrl]);
 
-  useEffect(() => {
-    if (isFree) {
-      setScansRemaining(3);
-    }
-  }, [isFree]);
-
   if (isAnalyzing) {
     return (
       <div className={styles.scanningOverlay}>
@@ -126,12 +101,6 @@ export default function ScanPrescriptionPage() {
       <div className={styles.header}>
         <div className={styles.headerTop}>
           <h1>Quét Đơn Thuốc</h1>
-          {isFree && scansRemaining !== null && (
-            <div className={`${styles.limitBadge} ${scansRemaining <= 1 ? styles.limitWarning : ''}`}>
-              <Zap size={13} />
-              {scansRemaining} lần còn lại
-            </div>
-          )}
         </div>
         <p>Chụp ảnh đơn thuốc để tự động nhận diện và lưu thuốc</p>
       </div>

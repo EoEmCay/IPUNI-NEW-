@@ -1,6 +1,5 @@
 const svc = require('./scan.service');
 const { sendSuccess, sendError } = require('../../utils/response.helper');
-const db = require('../../config/database');
 const { findMedicationInDatabase } = require('./scan.service');
 
 async function analyzePrescription(req, res, next) {
@@ -11,32 +10,7 @@ async function analyzePrescription(req, res, next) {
 
     const user = req.user;
 
-    // Check plan limit
-    if (user.plan === 'free') {
-      const thisMonth = await db('scan_usages')
-        .where('user_id', user.id)
-        .whereBetween('scanned_at', [
-          new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-          new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
-        ])
-        .count('* as count')
-        .first();
-
-      const usedCount = thisMonth?.count || 0;
-      if (usedCount >= 3) {
-        return sendError(res, 'Bạn đã dùng hết 3 lần chụp trong tháng này. Nâng cấp Pro để sử dụng không giới hạn.', 429);
-      }
-    }
-
     const result = await svc.analyzePrescription(req.file.buffer, req.file.mimetype);
-
-    // Track usage only if AI successfully processed it (no error)
-    if (!result.error) {
-      await db('scan_usages').insert({
-        user_id: user.id,
-        result: result.isDiabetesPrescription ? 'success' : 'rejected',
-      });
-    }
 
     sendSuccess(res, result, 'Phân tích đơn thuốc thành công');
   } catch (err) {

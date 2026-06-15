@@ -18,7 +18,7 @@ async function getProfile(userId) {
 }
 
 async function updateProfile(userId, data) {
-  const allowed = ['name', 'phone', 'address', 'date_of_birth', 'blood_type', 'allergies', 'insurance_number', 'insurance_expiry'];
+  const allowed = ['name', 'phone', 'address', 'date_of_birth', 'blood_type', 'allergies', 'insurance_number', 'insurance_expiry', 'diagnosis'];
   const update = Object.fromEntries(
     Object.entries(data).filter(([k]) => allowed.includes(k) && data[k] !== undefined)
   );

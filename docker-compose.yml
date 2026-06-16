@@ -21,7 +21,7 @@ services:
     env_file:
       - ./backend/.env
     volumes:
-      - ./backend/database:/app/database # Persist SQLite database
+      - diaplus_db:/app/database # Persist SQLite database in a Docker volume
     depends_on:
       - ollama
     restart: unless-stopped
@@ -48,3 +48,4 @@ services:
 
 volumes:
   ollama_data:
+  diaplus_db:

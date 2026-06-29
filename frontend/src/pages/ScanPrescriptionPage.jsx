@@ -5,12 +5,15 @@ import {
 } from 'lucide-react';
 import { scanService } from '../services/scan.service';
 import { medicationsService } from '../services/medications.service';
+import { scanHistoryService } from '../services/scanHistory.service';
 import { useMedications } from '../hooks/useMedications';
 import { useToast } from '../hooks/useToast';
 import ScanCamera from '../components/scan/ScanCamera';
 import styles from './ScanPrescriptionPage.module.css';
+import { useNavigate } from 'react-router-dom';
 
 export default function ScanPrescriptionPage() {
+  const navigate = useNavigate();
   const { fetchMedications } = useMedications();
   const { showToast } = useToast();
   const [imageFile, setImageFile] = useState(null);
@@ -46,6 +49,17 @@ export default function ScanPrescriptionPage() {
         showToast('Không tiếp nhận đơn thuốc này. Ảnh không phải là một đơn thuốc. Vui lòng chụp lại đơn thuốc đái tháo đường.', 'error');
       } else if (!data.isDiabetesPrescription) {
         showToast('Không tiếp nhận đơn thuốc này. Đây không phải đơn thuốc điều trị đái tháo đường (tiểu đường). DIA+ chỉ hỗ trợ phân tích đơn thuốc tiểu đường.', 'error');
+      } else {
+        // Save to history on success
+        const reader = new FileReader();
+        reader.readAsDataURL(imageFile);
+        reader.onloadend = async () => {
+          try {
+            await scanHistoryService.saveScan(data, reader.result);
+          } catch (e) {
+            console.error('Failed to save to history', e);
+          }
+        };
       }
     } catch (err) {
       const msg = err.response?.data?.message || 'Lỗi kết nối đến server';
@@ -113,6 +127,13 @@ export default function ScanPrescriptionPage() {
       <div className={styles.header}>
         <div className={styles.headerTop}>
           <h1>Quét Đơn Thuốc</h1>
+          <button 
+            className={styles.historyBtn} 
+            onClick={() => navigate('/scan-history')}
+            title="Lịch sử quét"
+          >
+            <Clock size={20} />
+          </button>
         </div>
         <p>Chụp ảnh đơn thuốc để tự động nhận diện và lưu thuốc</p>
       </div>

@@ -110,6 +110,14 @@ export const voiceAlertService = {
         
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'vi-VN';
+        
+        // Try to explicitly select a Vietnamese voice
+        const voices = window.speechSynthesis.getVoices();
+        const viVoice = voices.find(v => v.lang.includes('vi') || v.name.toLowerCase().includes('viet'));
+        if (viVoice) {
+          utterance.voice = viVoice;
+        }
+
         utterance.rate = 1.0;
         
         window.speechSynthesis.speak(utterance);

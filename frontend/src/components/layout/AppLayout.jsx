@@ -3,7 +3,6 @@ import useThemeStore from '../../store/themeStore';
 import TopBar from './TopBar';
 import BottomNav from './BottomNav';
 import VoiceAlertEngine from '../common/VoiceAlertEngine';
-import DemoTools from '../common/DemoTools';
 import styles from './AppLayout.module.css';
 
 export default function AppLayout({ children }) {
@@ -19,7 +18,6 @@ export default function AppLayout({ children }) {
         {children}
       </main>
       <VoiceAlertEngine />
-      <DemoTools />
       <BottomNav />
     </div>
   );

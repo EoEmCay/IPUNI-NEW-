@@ -1,4 +1,5 @@
-import { Sparkles, Bell, Shield, HelpCircle, Crown, ZoomIn } from 'lucide-react';
+import { Sparkles, Bell, Shield, HelpCircle, Crown, ZoomIn, Mic } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Modal from '../common/Modal';
 import useThemeStore from '../../store/themeStore';
 import useAccessibilityStore from '../../store/accessibilityStore';
@@ -10,6 +11,7 @@ export default function SettingsModal({ onClose }) {
   const { fontScale, setFontScale } = useAccessibilityStore();
   const t = useT();
   const s = t.settings;
+  const navigate = useNavigate();
 
   return (
     <Modal title={s.title} onClose={onClose}>
@@ -92,6 +94,18 @@ export default function SettingsModal({ onClose }) {
             </div>
           </div>
           <div className={styles.comingSoon}>{s.comingSoon}</div>
+        </div>
+
+        <div className={styles.row} style={{ cursor: 'pointer' }} onClick={() => { onClose(); navigate('/settings'); }}>
+          <div className={styles.rowLeft}>
+            <div className={styles.iconWrap} style={{ background: '#FFF0F5' }}>
+              <Mic size={18} color="#E11D48" />
+            </div>
+            <div>
+              <p className={styles.rowTitle}>Nhắc nhở bằng giọng nói</p>
+              <p className={styles.rowDesc}>Cài đặt giọng người nhà hoặc Google</p>
+            </div>
+          </div>
         </div>
 
         <div className={styles.divider} />

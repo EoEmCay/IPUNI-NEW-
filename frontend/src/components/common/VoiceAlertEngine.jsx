@@ -51,7 +51,7 @@ export default function VoiceAlertEngine() {
     });
 
     if (triggeredType && medsToTake.length > 0) {
-      voiceAlertService.playAlert(triggeredType);
+      voiceAlertService.playAlert(triggeredType, medsToTake);
       
       const msg = `Đã đến giờ uống thuốc: ${medsToTake.join(', ')}`;
       showToast(msg, 'success'); 

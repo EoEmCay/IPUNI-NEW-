@@ -109,10 +109,10 @@ JSON Schema:
     "instructions": "Full usage instructions in Vietnamese",
     "isDiabetesDrug": true/false (true if this medication is specifically for diabetes/lowering blood glucose/insulin),
     "detail": {
-      "purpose": "Brief drug purpose in Vietnamese",
-      "mechanism": "Brief mechanism of action in Vietnamese",
-      "sideEffects": "Common side effects in Vietnamese",
-      "source": "ADA/Mayo Clinic/Vinmec/MedlinePlus"
+      "purpose": "Brief drug purpose in Vietnamese (dựa theo Dược thư Quốc gia Việt Nam)",
+      "mechanism": "Brief mechanism of action in Vietnamese (dựa theo Dược thư Quốc gia Việt Nam)",
+      "sideEffects": "Common side effects in Vietnamese (dựa theo Dược thư Quốc gia Việt Nam)",
+      "source": "Mặc định luôn điền 'Dược thư Quốc gia Việt Nam (trungtamthuoc.com)'"
     }
   }]
 }`;

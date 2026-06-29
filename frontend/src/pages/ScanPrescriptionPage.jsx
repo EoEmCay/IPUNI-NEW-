@@ -130,9 +130,9 @@ export default function ScanPrescriptionPage() {
           <button 
             className={styles.historyBtn} 
             onClick={() => navigate('/scan-history')}
-            title="Lịch sử quét"
+            title="Xem lịch sử quét"
           >
-            <Clock size={20} />
+            Lịch sử
           </button>
         </div>
         <p>Chụp ảnh đơn thuốc để tự động nhận diện và lưu thuốc</p>

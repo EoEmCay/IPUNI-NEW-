@@ -1,4 +1,4 @@
-﻿/* ── Locked overlay ── */
+/* ── Locked overlay ── */
 .lockedPage {
   display: flex;
   flex-direction: column;
@@ -116,7 +116,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  position: relative;
+  padding: 0 4px;
 }
 
 .headerTop h1 {
@@ -710,18 +711,22 @@
 }
 
 .historyBtn {
+  position: absolute;
+  right: 0;
   background: transparent;
   border: none;
-  color: var(--primary-color);
-  padding: 8px;
-  border-radius: 50%;
+  color: var(--color-primary);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
+  font-size: 14px;
+  font-weight: 600;
 }
 
-.historyBtn:hover {
-  background: var(--surface-hover);
+.historyBtn:active {
+  opacity: 0.7;
 }

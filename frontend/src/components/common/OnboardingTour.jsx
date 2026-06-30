@@ -9,7 +9,9 @@ export default function OnboardingTour() {
   useEffect(() => {
     const forceTour = localStorage.getItem('diaplus_force_tour');
     if (forceTour) {
-      setRunTour(true);
+      setTimeout(() => {
+        setRunTour(true);
+      }, 500);
       localStorage.removeItem('diaplus_force_tour');
       localStorage.setItem('diaplus_has_seen_tour', 'true');
       return;

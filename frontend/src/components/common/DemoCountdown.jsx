@@ -45,9 +45,17 @@ export default function DemoCountdown() {
     return () => clearInterval(interval);
   }, [user, logout]);
 
-  if (!user) return <div className={styles.demoCountdown}><span>⏳ Đang tải User...</span></div>;
-  if (!user.is_demo) return <div className={styles.demoCountdown}><span>⏳ is_demo = false</span></div>;
-  if (timeLeft === null) return <div className={styles.demoCountdown}><span>⏳ Đang tính toán...</span></div>;
+  if (!user) {
+    return <div className={styles.demoCountdown}><span>⏳ Chờ User...</span></div>;
+  }
+  
+  if (!user.is_demo) {
+    return <div className={styles.demoCountdown} style={{background: '#666'}}><span>⏳ Không phải Demo</span></div>;
+  }
+
+  if (timeLeft === null) {
+    return <div className={styles.demoCountdown}><span>⏳ Đang tải...</span></div>;
+  }
 
   // Format timeLeft to mm:ss
   const minutes = Math.floor(timeLeft / 60000);

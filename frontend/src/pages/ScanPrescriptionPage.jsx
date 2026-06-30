@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { scanService } from '../services/scan.service';
 import { medicationsService } from '../services/medications.service';
+import { appointmentsService } from '../services/appointments.service';
 import { scanHistoryService } from '../services/scanHistory.service';
 import { voiceAlertService } from '../services/voiceAlert.service';
 import { useMedications } from '../hooks/useMedications';
@@ -89,6 +90,21 @@ export default function ScanPrescriptionPage() {
       );
       
       await Promise.all(promises);
+      
+      // Save doctor notes and visit info as a completed appointment if present
+      if (result.doctorNotes || result.doctorName) {
+        try {
+          await appointmentsService.create({
+            doctor_name: result.doctorName || 'Không rõ bác sĩ',
+            scheduled_at: result.prescriptionDate || new Date().toISOString().split('T')[0],
+            note: result.doctorNotes || 'Không có chỉ dẫn thêm',
+            status: 'completed'
+          });
+        } catch (e) {
+          console.error('Lỗi khi lưu ghi chú bác sĩ', e);
+        }
+      }
+
       setIsAllSaved(true);
       showToast(`Đã thêm ${result.medications.length} loại thuốc thành công!`, 'success');
       fetchMedications();

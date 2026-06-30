@@ -12,7 +12,9 @@ export default function VoiceAlertEngine() {
 
   useEffect(() => {
     fetchMedications();
-    
+  }, [fetchMedications]);
+
+  useEffect(() => {
     const checkMedicationTimes = () => {
       if (!medications || medications.length === 0) return;
 
@@ -53,7 +55,7 @@ export default function VoiceAlertEngine() {
     }, 30000);
     
     return () => clearInterval(interval);
-  }, [medications, fetchMedications, showToast]);
+  }, [medications, showToast]);
 
   return null;
 }

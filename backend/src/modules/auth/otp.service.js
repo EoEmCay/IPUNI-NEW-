@@ -30,8 +30,11 @@ async function sendOtp(email, password) {
   otpCache.set(email, { otpCode, expiresAt, password, wrongAttempts: 0 });
 
   try {
+    const senderEmail = process.env.BREVO_USER || process.env.MAIL_USER;
+    
+    // Gửi email OTP
     await transporter.sendMail({
-      from: `"DIA+" <${process.env.MAIL_USER}>`,
+      from: `"DIA+" <${senderEmail}>`,
       to: email,
       subject: 'Mã xác thực OTP đăng ký DIA+',
       html: `

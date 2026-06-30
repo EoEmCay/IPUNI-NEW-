@@ -30,7 +30,7 @@ app.use((req, res, next) => {
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 phút
-  max: 200, // Tạm thời nới lỏng lên 200 request / 15 phút để dễ test trên cùng 1 mạng WiFi
+  max: 1000, // Mở rộng lên 1000 request / 15 phút để chuẩn bị cho sự kiện tung demo 100 người
   message: { message: 'Too many requests from this IP, please try again after 15 minutes' },
   standardHeaders: true,
   legacyHeaders: false,

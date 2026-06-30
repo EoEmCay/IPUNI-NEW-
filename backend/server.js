@@ -16,15 +16,8 @@ const scanRoutes = require('./src/modules/scan/scan.routes');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-const allowedOrigins = ['http://localhost:5173', 'https://diaplus.com', 'http://localhost:3000'];
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: true,
   credentials: true
 }));
 app.use(express.json());

@@ -74,7 +74,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       // Gửi OTP trước, hiển thị modal chọn kênh
-      await authService.sendOtp(form.email);
+      await authService.sendOtp(form.email, form.password);
       setShowOtp(true);
     } catch (err) {
       setServerError(err?.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.');

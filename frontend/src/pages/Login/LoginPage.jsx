@@ -75,6 +75,7 @@ export default function LoginPage() {
     }
     setError('');
     setLoading(true);
+    setError('');
     try {
       await login(identifier.trim(), password);
       navigate('/');
@@ -111,6 +112,7 @@ export default function LoginPage() {
   const handleDemoLogin = async () => {
     setDemoLoading(true);
     try {
+      localStorage.setItem('diaplus_force_tour', 'true');
       await demoLogin();
       navigate('/');
     } catch (err) {

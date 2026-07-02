@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Settings, Mic, Square, Play, Trash2, HeartPulse, Activity, ZoomIn, Crown, Sparkles, Bell, Shield, HelpCircle, RefreshCw } from 'lucide-react';
+import { Settings, Mic, Square, Play, Trash2, HeartPulse, Activity, ZoomIn, Crown, Sparkles, Bell, Shield, HelpCircle } from 'lucide-react';
 import { voiceAlertService, ALERT_TYPES } from '../services/voiceAlert.service';
 import useThemeStore from '../store/themeStore';
 import useAccessibilityStore from '../store/accessibilityStore';
@@ -320,37 +320,6 @@ export default function SettingsPage() {
             </div>
           </div>
           <div style={{ fontSize: '12px', background: '#F1F5F9', color: '#64748B', padding: '4px 8px', borderRadius: '8px' }}>{s.comingSoon}</div>
-        </div>
-
-        <div className={styles.divider} style={{ margin: '24px 0', borderBottom: '1px solid #F1F5F9' }} />
-        
-        <p className={styles.sectionLabel} style={{ fontWeight: 'bold', fontSize: '14px', color: '#64748B', marginBottom: '16px', textTransform: 'uppercase' }}>
-          Hệ thống
-        </p>
-
-        <div 
-          className={styles.row} 
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', cursor: 'pointer' }}
-          onClick={() => {
-            if ('serviceWorker' in navigator) {
-              navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                for(let registration of registrations) {
-                  registration.unregister();
-                }
-              });
-            }
-            window.location.href = window.location.pathname + '?update=' + new Date().getTime();
-          }}
-        >
-          <div className={styles.rowLeft} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div className={styles.iconWrap} style={{ background: '#F0FDF4', padding: '8px', borderRadius: '12px' }}>
-              <RefreshCw size={18} color="#16A34A" />
-            </div>
-            <div>
-              <p className={styles.rowTitle} style={{ fontWeight: 600, fontSize: '16px', color: '#1E293B', margin: 0 }}>Tải bản cập nhật mới nhất</p>
-              <p className={styles.rowDesc} style={{ fontSize: '14px', color: '#64748B', margin: 0 }}>Khắc phục lỗi không thấy tính năng mới (Xoá Cache)</p>
-            </div>
-          </div>
         </div>
 
         <p style={{ textAlign: 'center', marginTop: '24px', color: '#94A3B8', fontSize: '12px' }}>{s.version}</p>

@@ -113,6 +113,20 @@ export default function ScanPrescriptionPage() {
         }
       }
 
+      // Automatically schedule next appointment if found in prescription
+      if (result.nextAppointmentDate) {
+        try {
+          await appointmentsService.create({
+            doctor_name: result.doctorName || 'Bác sĩ (Tái khám)',
+            scheduled_at: result.nextAppointmentDate,
+            note: 'Lịch tái khám theo đơn thuốc',
+            status: 'pending'
+          });
+        } catch (e) {
+          console.error('Lỗi khi lên lịch tái khám', e);
+        }
+      }
+
       setIsAllSaved(true);
       if (failCount === 0) {
         showToast(`Đã thêm thành công ${successCount} loại thuốc!`, 'success');

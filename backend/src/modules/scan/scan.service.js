@@ -97,6 +97,7 @@ JSON Schema:
   "rejectionReason": "Detailed reason in Vietnamese why this is not a prescription or not related to diabetes (e.g. Đây là kết quả xét nghiệm, không phải đơn thuốc)" or null,
   "doctorName": "Doctor name" or null,
   "prescriptionDate": "Prescription date in YYYY-MM-DD format" or null,
+  "nextAppointmentDate": "Next appointment date (ngày hẹn tái khám/lịch hẹn) in YYYY-MM-DD format" or null,
   "diagnosis": "Detailed diagnosis in Vietnamese" or null,
   "doctorNotes": "Doctor instructions/notes in Vietnamese" or null,
   "medications": [{
@@ -147,6 +148,7 @@ function shapeResult(parsed) {
     diabetesDrugs,
     doctorName: parsed.doctorName || null,
     prescriptionDate: parsed.prescriptionDate || null,
+    nextAppointmentDate: parsed.nextAppointmentDate || null,
     diagnosis: parsed.diagnosis || null,
     doctorNotes: parsed.doctorNotes || parsed.notes || null,
     error: parsed.error || null,

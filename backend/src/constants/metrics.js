@@ -4,7 +4,8 @@ const MEASUREMENT_TYPES = {
   GLUCOSE_FASTING: 'glucose_fasting',
   GLUCOSE_TOLERANCE: 'glucose_tolerance',
   HBAIC: 'hba1c',
-  C_PEPTIDE: 'c_peptide'
+  C_PEPTIDE: 'c_peptide',
+  BLOOD_PRESSURE: 'blood_pressure'
 };
 
 const MEASUREMENT_CATEGORIES = {

@@ -87,8 +87,9 @@ If isDiabetesPrescription is false, you should still attempt to parse the medica
 CRITICAL INSTRUCTIONS:
 - A valid medical prescription MUST contain a list of prescribed medications (drugs with names and dosages/frequencies).
 - You MUST extract ALL medications found in the prescription. Do NOT truncate, do NOT summarize, and do NOT skip any medication, even if there are more than 10 medications.
+- You MUST explicitly extract the Doctor's name (doctorName), the Prescription Date (prescriptionDate), the Next Appointment Date (nextAppointmentDate), and any Doctor's Notes/Instructions (doctorNotes) if present in the document.
+- Extract any patient health metrics (e.g. Glucose/Đường huyết, HbA1c, Blood Pressure/Huyết áp, Weight, Height) present in the document into the "metrics" array. Do NOT parse diagnostic parameters as medications.
 - If the document is a laboratory test result (kết quả xét nghiệm), diagnostic imaging report (kết quả siêu âm/chụp X-quang), referral letter, or if the text is unreadable/obstructed due to heavy watermarks, set "isPrescription" to false.
-- Do NOT parse diagnostic parameters (like glucose levels, HbA1c values, etc.) as medications.
 
 JSON Schema:
 {
@@ -115,6 +116,12 @@ JSON Schema:
       "mechanism": "Brief mechanism of action in Vietnamese (dựa theo Dược thư Quốc gia Việt Nam)",
       "source": "Mặc định luôn điền 'Dược thư Quốc gia Việt Nam (trungtamthuoc.com)'"
     }
+    }
+  }],
+  "metrics": [{
+    "measurement_type": "Must be one of: 'glucose_fasting', 'glucose_tolerance', 'hba1c', 'c_peptide', 'blood_pressure'",
+    "value": 120 (Numeric value. For blood pressure, put systolic here),
+    "value_diastolic": 80 (Numeric value for diastolic blood pressure, or null for other metrics)
   }]
 }`;
 
@@ -151,6 +158,7 @@ function shapeResult(parsed) {
     nextAppointmentDate: parsed.nextAppointmentDate || null,
     diagnosis: parsed.diagnosis || null,
     doctorNotes: parsed.doctorNotes || parsed.notes || null,
+    metrics: Array.isArray(parsed.metrics) ? parsed.metrics : [],
     error: parsed.error || null,
   };
 }

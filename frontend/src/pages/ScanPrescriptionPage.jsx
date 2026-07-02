@@ -8,6 +8,7 @@ import { medicationsService } from '../services/medications.service';
 import { appointmentsService } from '../services/appointments.service';
 import { scanHistoryService } from '../services/scanHistory.service';
 import { voiceAlertService } from '../services/voiceAlert.service';
+import { metricsService } from '../services/metrics.service';
 import { useMedications } from '../hooks/useMedications';
 import { useToast } from '../hooks/useToast';
 import ScanCamera from '../components/scan/ScanCamera';
@@ -124,6 +125,22 @@ export default function ScanPrescriptionPage() {
           });
         } catch (e) {
           console.error('Lỗi khi lên lịch tái khám', e);
+        }
+      }
+      // Save metrics if present
+      if (result.metrics && result.metrics.length > 0) {
+        for (const metric of result.metrics) {
+          try {
+            await metricsService.create({
+              measurement_type: metric.measurement_type,
+              value: metric.value,
+              value_diastolic: metric.value_diastolic,
+              measured_at: result.prescriptionDate ? new Date(result.prescriptionDate).toISOString() : new Date().toISOString(),
+              note: 'Trích xuất tự động từ đơn thuốc'
+            });
+          } catch (e) {
+            console.error('Lỗi khi lưu chỉ số', e);
+          }
         }
       }
 
@@ -253,6 +270,19 @@ export default function ScanPrescriptionPage() {
                       <Stethoscope size={13} /> Tái khám: {result.nextAppointmentDate}
                     </span>
                   )}
+                </div>
+              )}
+
+              {result.metrics && result.metrics.length > 0 && (
+                <div className={styles.metaRow} style={{ marginTop: '8px' }}>
+                  {result.metrics.map((m, i) => (
+                    <span key={i} className={styles.metaChip} style={{ background: '#F0FDF4', color: '#16A34A' }}>
+                      <Activity size={13} /> 
+                      {m.measurement_type === 'blood_pressure' ? `Huyết áp: ${m.value}/${m.value_diastolic} mmHg` : 
+                       m.measurement_type === 'glucose_fasting' ? `Đường huyết đói: ${m.value} mmol/L` : 
+                       `${m.measurement_type}: ${m.value}`}
+                    </span>
+                  ))}
                 </div>
               )}
 

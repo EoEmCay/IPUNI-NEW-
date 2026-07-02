@@ -236,16 +236,21 @@ export default function ScanPrescriptionPage() {
                 </div>
               </div>
 
-              {(result.doctorName || result.prescriptionDate) && (
+              {(result.doctorName || result.prescriptionDate || result.nextAppointmentDate) && (
                 <div className={styles.metaRow}>
                   {result.doctorName && (
                     <span className={styles.metaChip}>
-                      <User size={13} /> {result.doctorName}
+                      <User size={13} /> Bác sĩ: {result.doctorName}
                     </span>
                   )}
                   {result.prescriptionDate && (
                     <span className={styles.metaChip}>
-                      <Calendar size={13} /> {result.prescriptionDate}
+                      <Calendar size={13} /> Kê đơn: {result.prescriptionDate}
+                    </span>
+                  )}
+                  {result.nextAppointmentDate && (
+                    <span className={styles.metaChip} style={{ background: '#FEF3C7', color: '#B45309' }}>
+                      <Stethoscope size={13} /> Tái khám: {result.nextAppointmentDate}
                     </span>
                   )}
                 </div>

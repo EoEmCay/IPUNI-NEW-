@@ -80,7 +80,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className={styles.footer}>
         <div className={styles.logo}>DIA+</div>
-        <p>© 2026 IPUNI-NEW. All rights reserved.</p>
+        <p>© 2026 DIA+. All rights reserved.</p>
       </footer>
       {showModal && (
         <div className={styles.modalOverlay}>

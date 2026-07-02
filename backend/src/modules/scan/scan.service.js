@@ -266,7 +266,10 @@ ${ocrText}
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({ 
           model: modelName,
-          generationConfig: { responseMimeType: 'application/json' }
+          generationConfig: { 
+            responseMimeType: 'application/json',
+            maxOutputTokens: 8192
+          }
         });
         const result = await model.generateContent([promptWithOcr]);
         text = result.response.text();
@@ -335,7 +338,10 @@ ${ocrText}
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({ 
           model: modelName,
-          generationConfig: { responseMimeType: 'application/json' }
+          generationConfig: { 
+            responseMimeType: 'application/json',
+            maxOutputTokens: 8192
+          }
         });
 
         const imagePart = {

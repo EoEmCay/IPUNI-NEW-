@@ -6,7 +6,7 @@ const createAppointmentSchema = z.object({
   scheduled_at: z.string().min(1, 'Thời gian hẹn không được trống'),
   location: z.string().optional(),
   note: z.string().optional(),
-  status: z.enum(['upcoming', 'completed', 'cancelled']).optional().default('upcoming')
+  status: z.enum(['upcoming', 'completed', 'cancelled', 'pending']).optional().default('upcoming')
 });
 
 module.exports = { createAppointmentSchema };

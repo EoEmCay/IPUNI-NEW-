@@ -120,7 +120,7 @@ export default function ScanPrescriptionPage() {
             doctor_name: result.doctorName || 'Bác sĩ (Tái khám)',
             scheduled_at: result.nextAppointmentDate,
             note: 'Lịch tái khám theo đơn thuốc',
-            status: 'pending'
+            status: 'upcoming'
           });
         } catch (e) {
           console.error('Lỗi khi lên lịch tái khám', e);

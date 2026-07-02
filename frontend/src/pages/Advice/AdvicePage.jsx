@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
+import { X, PhoneCall } from 'lucide-react';
 import { useAdvice } from '../../hooks/useAdvice';
 import FilterPills from '../../components/common/FilterPills';
 import AdviceCard from '../../components/advice/AdviceCard';
-import AlertBanner from '../../components/advice/AlertBanner';
 import styles from './AdvicePage.module.css';
 
 const CATEGORIES = [
@@ -30,11 +29,19 @@ export default function AdvicePage() {
         <p className={styles.subtitle}>Hướng dẫn dành cho bệnh nhân Tiểu đường</p>
       </div>
 
-      {dangerAdvice.length > 0 && (
-        <div className={styles.bannerWrap}>
-          <AlertBanner onClick={() => setCategory('danger_sign')} />
-        </div>
-      )}
+      <div className={styles.bannerWrap} style={{ padding: '0 20px', marginBottom: '16px' }}>
+        <a 
+          href="tel:115" 
+          style={{ 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', 
+            background: '#EF4444', color: 'white', padding: '16px', borderRadius: '16px', 
+            textDecoration: 'none', fontWeight: 'bold', fontSize: '18px',
+            boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
+          }}
+        >
+          <PhoneCall size={22} /> Gọi Cấp Cứu 115
+        </a>
+      </div>
 
       <div className={styles.pillsRow}>
         <FilterPills options={CATEGORIES} value={category} onChange={setCategory} />

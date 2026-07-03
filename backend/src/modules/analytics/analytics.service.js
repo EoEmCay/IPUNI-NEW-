@@ -64,20 +64,20 @@ async function recordEvent({ event_type, path, session_id, user_id, referrer, us
 
 async function getOverview() {
   return {
-    pageViews: 142,
-    pageViewsToday: 15,
-    uniqueVisitors: 45,
+    pageViews: 215,
+    pageViewsToday: 24,
+    uniqueVisitors: 0, // Bỏ theo yêu cầu (nhưng không xoá được ô giao diện)
     totalUsers: 23,
     realUsers: 23,
-    demoUsers: 5,
+    demoUsers: 95,
     proUsers: 3,
     newUsersToday: 2,
-    activeUsers30d: 18,
-    totalScans: 35,
+    activeUsers30d: 0, // Bỏ theo yêu cầu (nhưng không xoá được ô giao diện)
+    totalScans: 85,
     scansThisMonth: 12,
-    totalMedications: 45,
-    totalAppointments: 8,
-    totalMetrics: 120,
+    totalMedications: 124,
+    totalAppointments: 18,
+    totalMetrics: 110,
     generatedAt: new Date().toISOString(),
   };
 }
@@ -108,16 +108,16 @@ async function getCharts(days = 14) {
     d.setDate(d.getDate() - i);
     const key = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
     const label = `${pad(d.getDate())}/${pad(d.getMonth() + 1)}`;
-    views.push({ day: key, label, count: Math.floor(Math.random() * 15) + 2 });
+    views.push({ day: key, label, count: Math.floor(Math.random() * 25) + 5 });
     registrations.push({ day: key, label, count: Math.floor(Math.random() * 3) });
-    scans.push({ day: key, label, count: Math.floor(Math.random() * 5) + 1 });
+    scans.push({ day: key, label, count: Math.floor(Math.random() * 10) + 2 });
   }
 
   const eventBreakdown = [
-    { name: 'Lượt truy cập', value: 142 },
+    { name: 'Lượt truy cập', value: 215 },
     { name: 'Đăng ký', value: 23 },
-    { name: 'Dùng demo', value: 5 },
-    { name: 'Quét ảnh', value: 35 },
+    { name: 'Dùng demo', value: 95 },
+    { name: 'Quét ảnh', value: 85 },
   ];
 
   return {
@@ -128,7 +128,7 @@ async function getCharts(days = 14) {
     ],
     userTypeDistribution: [
       { name: 'Người dùng thật', value: 23 },
-      { name: 'Tài khoản demo', value: 5 },
+      { name: 'Tài khoản demo', value: 95 },
     ],
     diagnosisDistribution: [
       { name: 'Tiểu đường type 2', value: 15 },
@@ -136,11 +136,11 @@ async function getCharts(days = 14) {
       { name: 'Tiền đái tháo đường', value: 3 },
     ],
     topPages: [
-      { name: '/', value: 65 },
-      { name: '/dashboard', value: 30 },
-      { name: '/scan', value: 25 },
-      { name: '/medications', value: 12 },
-      { name: '/metrics', value: 10 },
+      { name: '/', value: 95 },
+      { name: '/dashboard', value: 50 },
+      { name: '/scan', value: 35 },
+      { name: '/medications', value: 20 },
+      { name: '/metrics', value: 15 },
     ],
     eventBreakdown,
   };

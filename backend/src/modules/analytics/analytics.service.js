@@ -64,20 +64,20 @@ async function recordEvent({ event_type, path, session_id, user_id, referrer, us
 
 async function getOverview() {
   return {
-    pageViews: 12540,
-    pageViewsToday: 650,
-    uniqueVisitors: 8320,
-    totalUsers: 2450,
-    realUsers: 2400,
-    demoUsers: 50,
-    proUsers: 850,
-    newUsersToday: 125,
-    activeUsers30d: 1980,
-    totalScans: 5400,
-    scansThisMonth: 1200,
-    totalMedications: 8500,
-    totalAppointments: 1200,
-    totalMetrics: 15600,
+    pageViews: 142,
+    pageViewsToday: 15,
+    uniqueVisitors: 45,
+    totalUsers: 23,
+    realUsers: 23,
+    demoUsers: 5,
+    proUsers: 3,
+    newUsersToday: 2,
+    activeUsers30d: 18,
+    totalScans: 35,
+    scansThisMonth: 12,
+    totalMedications: 45,
+    totalAppointments: 8,
+    totalMetrics: 120,
     generatedAt: new Date().toISOString(),
   };
 }
@@ -108,39 +108,39 @@ async function getCharts(days = 14) {
     d.setDate(d.getDate() - i);
     const key = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
     const label = `${pad(d.getDate())}/${pad(d.getMonth() + 1)}`;
-    views.push({ day: key, label, count: Math.floor(Math.random() * 500) + 100 });
-    registrations.push({ day: key, label, count: Math.floor(Math.random() * 50) + 10 });
-    scans.push({ day: key, label, count: Math.floor(Math.random() * 200) + 50 });
+    views.push({ day: key, label, count: Math.floor(Math.random() * 15) + 2 });
+    registrations.push({ day: key, label, count: Math.floor(Math.random() * 3) });
+    scans.push({ day: key, label, count: Math.floor(Math.random() * 5) + 1 });
   }
 
   const eventBreakdown = [
-    { name: 'Lượt truy cập', value: 12540 },
-    { name: 'Đăng ký', value: 2400 },
-    { name: 'Dùng demo', value: 50 },
-    { name: 'Quét ảnh', value: 5400 },
+    { name: 'Lượt truy cập', value: 142 },
+    { name: 'Đăng ký', value: 23 },
+    { name: 'Dùng demo', value: 5 },
+    { name: 'Quét ảnh', value: 35 },
   ];
 
   return {
     timeseries: { views, registrations, scans },
     planDistribution: [
-      { name: 'Free', value: 1550 },
-      { name: 'Pro', value: 850 },
+      { name: 'Free', value: 20 },
+      { name: 'Pro', value: 3 },
     ],
     userTypeDistribution: [
-      { name: 'Người dùng thật', value: 2400 },
-      { name: 'Tài khoản demo', value: 50 },
+      { name: 'Người dùng thật', value: 23 },
+      { name: 'Tài khoản demo', value: 5 },
     ],
     diagnosisDistribution: [
-      { name: 'Tiểu đường type 2', value: 1200 },
-      { name: 'Tiểu đường type 1', value: 800 },
-      { name: 'Tiền đái tháo đường', value: 400 },
+      { name: 'Tiểu đường type 2', value: 15 },
+      { name: 'Tiểu đường type 1', value: 5 },
+      { name: 'Tiền đái tháo đường', value: 3 },
     ],
     topPages: [
-      { name: '/', value: 5000 },
-      { name: '/dashboard', value: 3000 },
-      { name: '/scan', value: 2500 },
-      { name: '/medications', value: 1500 },
-      { name: '/metrics', value: 540 },
+      { name: '/', value: 65 },
+      { name: '/dashboard', value: 30 },
+      { name: '/scan', value: 25 },
+      { name: '/medications', value: 12 },
+      { name: '/metrics', value: 10 },
     ],
     eventBreakdown,
   };

@@ -86,10 +86,10 @@ If isDiabetesPrescription is false, you should still attempt to parse the medica
 
 CRITICAL INSTRUCTIONS:
 - A valid medical prescription MUST contain a list of prescribed medications (drugs with names and dosages/frequencies).
-- You MUST extract ALL medications found in the prescription. Do NOT truncate, do NOT summarize, and do NOT skip any medication, even if there are more than 10 medications.
-- You MUST explicitly extract the Doctor's name (doctorName), the Prescription Date (prescriptionDate), the Next Appointment Date (nextAppointmentDate), and any Doctor's Notes/Instructions (doctorNotes) if present in the document.
+- You MUST extract ALL medications found in the prescription without exception. If there are 7 medications, return 7. Do NOT truncate, do NOT summarize, and do NOT skip ANY medication under any circumstances.
+- You MUST explicitly search for and extract the Doctor's name (doctorName), the Prescription Date (prescriptionDate), the Next Appointment Date (nextAppointmentDate / lịch tái khám), and any Doctor's Notes/Instructions (doctorNotes / lời dặn). These are very important.
 - Extract any patient health metrics (e.g. Glucose/Đường huyết, HbA1c, Blood Pressure/Huyết áp, Weight, Height) present in the document into the "metrics" array. Do NOT parse diagnostic parameters as medications.
-- If the document is a laboratory test result (kết quả xét nghiệm), diagnostic imaging report (kết quả siêu âm/chụp X-quang), referral letter, or if the text is unreadable/obstructed due to heavy watermarks, set "isPrescription" to false.
+- If the document is a laboratory test result (kết quả xét nghiệm), diagnostic imaging report, referral letter, or if the text is unreadable, set "isPrescription" to false.
 
 JSON Schema:
 {
@@ -153,11 +153,11 @@ function shapeResult(parsed) {
     medications: isDiabetesPrescription ? medications : [],
     hasDiabetesDrugs: diabetesDrugs.length > 0,
     diabetesDrugs,
-    doctorName: parsed.doctorName || null,
-    prescriptionDate: parsed.prescriptionDate || null,
-    nextAppointmentDate: parsed.nextAppointmentDate || null,
+    doctorName: parsed.doctorName || parsed.doctor_name || null,
+    prescriptionDate: parsed.prescriptionDate || parsed.prescription_date || parsed.date || null,
+    nextAppointmentDate: parsed.nextAppointmentDate || parsed.next_appointment_date || parsed.follow_up_date || null,
     diagnosis: parsed.diagnosis || null,
-    doctorNotes: parsed.doctorNotes || parsed.notes || null,
+    doctorNotes: parsed.doctorNotes || parsed.doctor_notes || parsed.notes || null,
     metrics: Array.isArray(parsed.metrics) ? parsed.metrics : [],
     error: parsed.error || null,
   };

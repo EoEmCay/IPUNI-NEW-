@@ -1,4 +1,43 @@
 const vi = {
+  // Scan Page
+  scan: {
+    analyzing: 'Đang phân tích đơn thuốc...',
+    analyzingHint: 'Thường mất 5–15 giây',
+    title: 'Quét Đơn Thuốc',
+    historyTitle: 'Xem lịch sử quét',
+    history: 'Lịch sử',
+    subtitle: 'Chụp ảnh đơn thuốc để tự động nhận diện và lưu thuốc',
+    analyzeBtn: 'Phân Tích Đơn Thuốc',
+    retakeBtn: 'Chụp lại',
+    scanAnotherBtn: 'Quét đơn thuốc khác',
+    capture: 'Chụp',
+    gallery: 'Thư viện',
+    cameraFallbackDesc: 'Chọn ảnh đơn thuốc từ thư viện để AI tự động nhận diện',
+    captureBtn: 'Chụp ảnh',
+    cameraError: 'Camera web bị lỗi — hãy thử dùng camera hệ thống',
+  },
+
+  // Landing Page
+  landing: {
+    badge: 'Trợ lý sức khỏe thông minh',
+    title1: 'Quản lý tiểu đường',
+    title2: 'Dễ dàng hơn bao giờ hết',
+    subtitle: 'DIA+ giúp bạn theo dõi đường huyết, nhắc nhở uống thuốc và phân tích đơn thuốc tự động bằng AI.',
+    cta: 'Bắt đầu miễn phí',
+    featuresTitle: 'Tính năng nổi bật',
+    feature1Title: 'Quét đơn thuốc bằng AI',
+    feature1Desc: 'Tự động nhận diện tên thuốc, công dụng, liều dùng chỉ qua một bức ảnh chụp.',
+    feature2Title: 'Nhắc nhở thông minh',
+    feature2Desc: 'Tự động nhắc giờ uống thuốc bằng giọng nói tiếng Việt thân thiện.',
+    feature3Title: 'Theo dõi chỉ số',
+    feature3Desc: 'Lưu trữ và theo dõi đường huyết, HbA1c, huyết áp dễ dàng.',
+    modalTitle: 'Bạn muốn bắt đầu như thế nào?',
+    choice1Title: 'Đăng ký / Đăng nhập',
+    choice1Desc: 'Tôi muốn tạo tài khoản hoặc đăng nhập bằng tài khoản của tôi',
+    choice2Title: 'Trải nghiệm nhanh (Demo)',
+    choice2Desc: 'Khám phá ngay các tính năng bằng tài khoản dùng thử',
+  },
+
   // Nav
   nav: {
     home: 'Tổng quan',

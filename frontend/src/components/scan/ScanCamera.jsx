@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { Camera, Upload, ImagePlus } from 'lucide-react';
+import { useT } from '../../hooks/useT';
 import styles from './ScanCamera.module.css';
 
 export default function ScanCamera({ onImageScan }) {
@@ -10,6 +11,7 @@ export default function ScanCamera({ onImageScan }) {
   const [cameraReady, setCameraReady] = useState(false);
   const [cameraFailed, setCameraFailed] = useState(false);
   const streamRef = useRef(null);
+  const { t } = useT();
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
@@ -84,14 +86,14 @@ export default function ScanCamera({ onImageScan }) {
           <div className={styles.controls}>
             <button onClick={handleCapture} className={styles.captureBtn}>
               <Camera size={24} />
-              Chụp
+              {t('scan.capture')}
             </button>
             <button
               onClick={() => fileInputRef.current?.click()}
               className={styles.uploadBtnSmall}
             >
               <Upload size={20} />
-              Thư viện
+              {t('scan.gallery')}
             </button>
           </div>
         </div>
@@ -104,8 +106,8 @@ export default function ScanCamera({ onImageScan }) {
             <div className={styles.fallbackIcon}>
               <ImagePlus size={48} />
             </div>
-            <h3>Quét Đơn Thuốc</h3>
-            <p>Chọn ảnh đơn thuốc từ thư viện để AI tự động nhận diện</p>
+            <h3>{t('scan.title')}</h3>
+            <p>{t('scan.cameraFallbackDesc')}</p>
             <div style={{ display: 'flex', gap: '12px', width: '100%', maxWidth: '300px' }}>
               <button
                 onClick={() => cameraInputRef.current?.click()}
@@ -113,7 +115,7 @@ export default function ScanCamera({ onImageScan }) {
                 style={{ flex: 1, padding: '12px 0', justifyContent: 'center' }}
               >
                 <Camera size={20} />
-                Chụp ảnh
+                {t('scan.captureBtn')}
               </button>
               <button
                 onClick={() => fileInputRef.current?.click()}
@@ -121,12 +123,12 @@ export default function ScanCamera({ onImageScan }) {
                 style={{ flex: 1, padding: '12px 0', justifyContent: 'center', backgroundColor: 'var(--color-bg-secondary)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
               >
                 <Upload size={20} />
-                Thư viện
+                {t('scan.gallery')}
               </button>
             </div>
             {cameraFailed && (
               <span className={styles.cameraNote}>
-                Camera web bị lỗi — hãy thử dùng camera hệ thống
+                {t('scan.cameraError')}
               </span>
             )}
           </div>

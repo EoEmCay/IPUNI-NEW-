@@ -11,6 +11,7 @@ import { voiceAlertService } from '../services/voiceAlert.service';
 import { metricsService } from '../services/metrics.service';
 import { useMedications } from '../hooks/useMedications';
 import { useToast } from '../hooks/useToast';
+import { useT } from '../hooks/useT';
 import ScanCamera from '../components/scan/ScanCamera';
 import styles from './ScanPrescriptionPage.module.css';
 import { useNavigate } from 'react-router-dom';
@@ -19,6 +20,7 @@ export default function ScanPrescriptionPage() {
   const navigate = useNavigate();
   const { fetchMedications } = useMedications();
   const { showToast } = useToast();
+  const { t } = useT();
   const [imageFile, setImageFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -182,8 +184,8 @@ export default function ScanPrescriptionPage() {
       <div className={styles.scanningOverlay}>
         <div className={styles.scanningContent}>
           <div className={styles.scanningSpinner} />
-          <p>Đang phân tích đơn thuốc...</p>
-          <span className={styles.scanningHint}>Thường mất 5–15 giây</span>
+          <p>{t('scan.analyzing')}</p>
+          <span className={styles.scanningHint}>{t('scan.analyzingHint')}</span>
         </div>
       </div>
     );
@@ -193,16 +195,16 @@ export default function ScanPrescriptionPage() {
     <div className={styles.page}>
       <div className={`${styles.header} tour-step-5`}>
         <div className={styles.headerTop}>
-          <h1>Quét Đơn Thuốc</h1>
+          <h1>{t('scan.title')}</h1>
           <button 
             className={styles.historyBtn} 
             onClick={() => navigate('/scan-history')}
-            title="Xem lịch sử quét"
+            title={t('scan.historyTitle')}
           >
-            Lịch sử
+            {t('scan.history')}
           </button>
         </div>
-        <p>Chụp ảnh đơn thuốc để tự động nhận diện và lưu thuốc</p>
+        <p>{t('scan.subtitle')}</p>
       </div>
 
       {!imageUrl ? (
@@ -214,11 +216,11 @@ export default function ScanPrescriptionPage() {
             <div className={styles.imageActions}>
               {!result && (
                 <button onClick={handleAnalyze} className={styles.analyzeBtn}>
-                  Phân Tích Đơn Thuốc
+                  {t('scan.analyzeBtn')}
                 </button>
               )}
               <button onClick={handleRetake} className={styles.retakeBtn}>
-                Chụp lại
+                {t('scan.retakeBtn')}
               </button>
             </div>
           </div>
@@ -238,7 +240,7 @@ export default function ScanPrescriptionPage() {
                 </p>
               </div>
               <button onClick={handleRetake} className={styles.scanAgainBtn}>
-                Quét đơn thuốc khác
+                {t('scan.scanAnotherBtn')}
               </button>
             </div>
           )}
@@ -429,7 +431,7 @@ export default function ScanPrescriptionPage() {
               </p>
 
               <button onClick={handleRetake} className={styles.scanAgainBtn}>
-                Quét đơn thuốc khác
+                {t('scan.scanAnotherBtn')}
               </button>
             </div>
           )}
@@ -441,7 +443,7 @@ export default function ScanPrescriptionPage() {
                 <p>{result.error}</p>
               </div>
               <button onClick={handleRetake} className={styles.scanAgainBtn}>
-                Chụp lại
+                {t('scan.retakeBtn')}
               </button>
             </div>
           )}

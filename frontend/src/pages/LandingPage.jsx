@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Activity, Camera, Brain, Sparkles, ChevronRight, Play, BookOpen, X } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import useAuthStore from '../store/authStore';
+import { useT } from '../hooks/useT';
 import styles from './LandingPage.module.css';
 
 export default function LandingPage() {
   const navigate = useNavigate();
   const { demoLogin } = useAuth();
   const { isAuthenticated } = useAuthStore();
+  const { t } = useT();
   const [showModal, setShowModal] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
 
@@ -24,7 +26,7 @@ export default function LandingPage() {
       <nav className={styles.nav}>
         <div className={styles.logo}>DIA+</div>
         <button onClick={() => setShowModal(true)} className={styles.loginBtn}>
-          Đăng nhập
+          {t('auth.loginBtn')}
         </button>
       </nav>
 
@@ -32,47 +34,47 @@ export default function LandingPage() {
       <header className={styles.hero}>
         <div className={styles.heroContent}>
           <div className={styles.badge}>
-            <Sparkles size={16} /> <span>Trợ lý sức khỏe thông minh</span>
+            <Sparkles size={16} /> <span>{t('landing.badge')}</span>
           </div>
           <h1 className={styles.title}>
-            Quản lý tiểu đường<br />
-            <span className={styles.highlight}>Dễ dàng hơn bao giờ hết</span>
+            {t('landing.title1')}<br />
+            <span className={styles.highlight}>{t('landing.title2')}</span>
           </h1>
           <p className={styles.subtitle}>
-            DIA+ giúp bạn theo dõi đường huyết, nhắc nhở uống thuốc và phân tích đơn thuốc tự động bằng AI.
+            {t('landing.subtitle')}
           </p>
           <button onClick={() => setShowModal(true)} className={styles.ctaBtn}>
-            Bắt đầu miễn phí <ChevronRight size={20} />
+            {t('landing.cta')} <ChevronRight size={20} />
           </button>
         </div>
       </header>
 
       {/* Features Section */}
       <section className={styles.features}>
-        <h2 className={styles.sectionTitle}>Tính năng nổi bật</h2>
+        <h2 className={styles.sectionTitle}>{t('landing.featuresTitle')}</h2>
         <div className={styles.grid}>
           <div className={styles.card}>
             <div className={styles.iconWrap} style={{ background: '#EEF2FF', color: '#4F46E5' }}>
               <Camera size={28} />
             </div>
-            <h3>Quét đơn thuốc bằng AI</h3>
-            <p>Tự động nhận diện tên thuốc, công dụng, liều dùng chỉ qua một bức ảnh chụp.</p>
+            <h3>{t('landing.feature1Title')}</h3>
+            <p>{t('landing.feature1Desc')}</p>
           </div>
           
           <div className={styles.card}>
             <div className={styles.iconWrap} style={{ background: '#FEF3C7', color: '#D97706' }}>
               <Brain size={28} />
             </div>
-            <h3>Nhắc nhở thông minh</h3>
-            <p>Tự động nhắc giờ uống thuốc bằng giọng nói tiếng Việt thân thiện.</p>
+            <h3>{t('landing.feature2Title')}</h3>
+            <p>{t('landing.feature2Desc')}</p>
           </div>
 
           <div className={styles.card}>
             <div className={styles.iconWrap} style={{ background: '#DCFCE7', color: '#16A34A' }}>
               <Activity size={28} />
             </div>
-            <h3>Theo dõi chỉ số</h3>
-            <p>Lưu trữ và theo dõi đường huyết, HbA1c, huyết áp dễ dàng.</p>
+            <h3>{t('landing.feature3Title')}</h3>
+            <p>{t('landing.feature3Desc')}</p>
           </div>
         </div>
       </section>
@@ -86,7 +88,7 @@ export default function LandingPage() {
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
             <button className={styles.closeModal} onClick={() => setShowModal(false)}><X size={20}/></button>
-            <h2 className={styles.modalTitle}>Bạn muốn bắt đầu như thế nào?</h2>
+            <h2 className={styles.modalTitle}>{t('landing.modalTitle')}</h2>
             
             <button 
               className={styles.choiceBtn}
@@ -99,8 +101,8 @@ export default function LandingPage() {
                 <Play size={24} />
               </div>
               <div className={styles.choiceText}>
-                <h3>Đăng ký / Đăng nhập</h3>
-                <p>Tôi muốn tạo tài khoản hoặc đăng nhập bằng tài khoản của tôi</p>
+                <h3>{t('landing.choice1Title')}</h3>
+                <p>{t('landing.choice1Desc')}</p>
               </div>
             </button>
 
@@ -123,8 +125,8 @@ export default function LandingPage() {
                 <Sparkles size={24} />
               </div>
               <div className={styles.choiceText}>
-                <h3>{demoLoading ? 'Đang vào...' : 'Trải nghiệm nhanh (Demo)'}</h3>
-                <p>Khám phá ngay các tính năng bằng tài khoản dùng thử</p>
+                <h3>{demoLoading ? t('common.loading') : t('landing.choice2Title')}</h3>
+                <p>{t('landing.choice2Desc')}</p>
               </div>
             </button>
           </div>

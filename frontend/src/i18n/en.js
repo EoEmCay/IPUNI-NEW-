@@ -1,4 +1,43 @@
 const en = {
+  // Scan Page
+  scan: {
+    analyzing: 'Analyzing prescription...',
+    analyzingHint: 'Usually takes 5-15 seconds',
+    title: 'Scan Prescription',
+    historyTitle: 'View scan history',
+    history: 'History',
+    subtitle: 'Take a photo of your prescription to automatically recognize and save medications',
+    analyzeBtn: 'Analyze Prescription',
+    retakeBtn: 'Retake',
+    scanAnotherBtn: 'Scan another prescription',
+    capture: 'Capture',
+    gallery: 'Gallery',
+    cameraFallbackDesc: 'Choose a prescription image from your gallery for AI recognition',
+    captureBtn: 'Take Photo',
+    cameraError: 'Web camera error — try using the system camera',
+  },
+
+  // Landing Page
+  landing: {
+    badge: 'Smart Health Assistant',
+    title1: 'Diabetes Management',
+    title2: 'Easier than ever',
+    subtitle: 'DIA+ helps you track blood glucose, reminds you to take medication, and automatically analyzes prescriptions using AI.',
+    cta: 'Start for free',
+    featuresTitle: 'Key Features',
+    feature1Title: 'AI Prescription Scan',
+    feature1Desc: 'Automatically extract medication name, usage, and dosage from a single photo.',
+    feature2Title: 'Smart Reminders',
+    feature2Desc: 'Automatic medication reminders with friendly voice alerts.',
+    feature3Title: 'Track Metrics',
+    feature3Desc: 'Easily store and track blood glucose, HbA1c, and blood pressure.',
+    modalTitle: 'How would you like to start?',
+    choice1Title: 'Sign up / Log in',
+    choice1Desc: 'Create an account or log in with your existing account',
+    choice2Title: 'Quick Demo',
+    choice2Desc: 'Explore features instantly with a trial account',
+  },
+
   // Nav
   nav: {
     home: 'Overview',

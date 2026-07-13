@@ -11,7 +11,7 @@ export default function ScanCamera({ onImageScan }) {
   const [cameraReady, setCameraReady] = useState(false);
   const [cameraFailed, setCameraFailed] = useState(false);
   const streamRef = useRef(null);
-  const { t } = useT();
+  const t = useT();
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
@@ -49,7 +49,7 @@ export default function ScanCamera({ onImageScan }) {
 
   const handleCapture = () => {
     if (!videoRef.current || !canvasRef.current) return;
-    const context = canvasRef.current.getContext('2d');
+    const context = canvasRef.current.getContext.2d;
     canvasRef.current.width = videoRef.current.videoWidth || 430;
     canvasRef.current.height = videoRef.current.videoHeight || 600;
     context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
@@ -86,14 +86,14 @@ export default function ScanCamera({ onImageScan }) {
           <div className={styles.controls}>
             <button onClick={handleCapture} className={styles.captureBtn}>
               <Camera size={24} />
-              {t('scan.capture')}
+              {t.scan.capture}
             </button>
             <button
               onClick={() => fileInputRef.current?.click()}
               className={styles.uploadBtnSmall}
             >
               <Upload size={20} />
-              {t('scan.gallery')}
+              {t.scan.gallery}
             </button>
           </div>
         </div>
@@ -106,8 +106,8 @@ export default function ScanCamera({ onImageScan }) {
             <div className={styles.fallbackIcon}>
               <ImagePlus size={48} />
             </div>
-            <h3>{t('scan.title')}</h3>
-            <p>{t('scan.cameraFallbackDesc')}</p>
+            <h3>{t.scan.title}</h3>
+            <p>{t.scan.cameraFallbackDesc}</p>
             <div style={{ display: 'flex', gap: '12px', width: '100%', maxWidth: '300px' }}>
               <button
                 onClick={() => cameraInputRef.current?.click()}
@@ -115,7 +115,7 @@ export default function ScanCamera({ onImageScan }) {
                 style={{ flex: 1, padding: '12px 0', justifyContent: 'center' }}
               >
                 <Camera size={20} />
-                {t('scan.captureBtn')}
+                {t.scan.captureBtn}
               </button>
               <button
                 onClick={() => fileInputRef.current?.click()}
@@ -123,12 +123,12 @@ export default function ScanCamera({ onImageScan }) {
                 style={{ flex: 1, padding: '12px 0', justifyContent: 'center', backgroundColor: 'var(--color-bg-secondary)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
               >
                 <Upload size={20} />
-                {t('scan.gallery')}
+                {t.scan.gallery}
               </button>
             </div>
             {cameraFailed && (
               <span className={styles.cameraNote}>
-                {t('scan.cameraError')}
+                {t.scan.cameraError}
               </span>
             )}
           </div>

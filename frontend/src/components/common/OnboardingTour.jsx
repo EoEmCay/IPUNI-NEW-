@@ -4,6 +4,7 @@ import 'driver.js/dist/driver.css';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Modal from './Modal';
 import useAuthStore from '../../store/authStore';
+import { useT } from '../../hooks/useT';
 import './OnboardingTour.css';
 
 export default function OnboardingTour() {
@@ -11,6 +12,7 @@ export default function OnboardingTour() {
   const user = useAuthStore(state => state.user);
   const navigate = useNavigate();
   const location = useLocation();
+  const t = useT();
   
   useEffect(() => {
     if (user === null) return;
@@ -48,82 +50,42 @@ export default function OnboardingTour() {
   const steps = [
     {
       element: '.tour-step-1',
-      popover: {
-        title: 'Thanh công cụ',
-        description: 'Ở đây có biểu tượng sách để xem lời khuyên sức khỏe từ chuyên gia, và biểu tượng loa chuông để nhận thông báo nhắc nhở uống thuốc.',
-        side: 'bottom',
-        align: 'start'
-      },
+      popover: { title: t.tour.step1Title, description: t.tour.step1Desc, side: 'bottom', align: 'start' },
       route: '/dashboard'
     },
     {
       element: '.tour-step-2',
-      popover: {
-        title: 'Chỉ số sức khỏe',
-        description: 'Đây là vùng theo dõi chỉ số sức khỏe. Nơi này hiển thị những lần đo gần nhất mà bạn đã lưu lại như Glucose và Huyết áp.',
-        side: 'bottom',
-        align: 'start'
-      },
+      popover: { title: t.tour.step2Title, description: t.tour.step2Desc, side: 'bottom', align: 'start' },
       route: '/dashboard'
     },
     {
       element: '.tour-step-3',
-      popover: {
-        title: 'Thuốc hôm nay',
-        description: 'Phần này giúp bạn xem danh sách thuốc cần uống trong ngày và đánh dấu Đã uống hoặc Chưa uống để theo dõi.',
-        side: 'bottom',
-        align: 'start'
-      },
+      popover: { title: t.tour.step3Title, description: t.tour.step3Desc, side: 'bottom', align: 'start' },
       route: '/dashboard'
     },
     {
       element: '.tour-step-4',
-      popover: {
-        title: 'Tính năng Chỉ số',
-        description: 'Nhập chỉ số đường huyết mỗi khi bạn đo và theo dõi biểu đồ xu hướng qua thời gian.',
-        side: 'bottom',
-        align: 'start'
-      },
+      popover: { title: t.tour.step4Title, description: t.tour.step4Desc, side: 'bottom', align: 'start' },
       route: '/metrics'
     },
     {
       element: '.tour-step-5',
-      popover: {
-        title: 'Chụp ảnh AI',
-        description: 'Chụp hoặc tải ảnh đơn thuốc, kết quả xét nghiệm liên quan đến tiểu đường để AI tự động phân tích và lưu trữ.',
-        side: 'bottom',
-        align: 'start'
-      },
+      popover: { title: t.tour.step5Title, description: t.tour.step5Desc, side: 'bottom', align: 'start' },
       route: '/scan'
     },
     {
       element: '.tour-step-6',
-      popover: {
-        title: 'Quản lý Thuốc',
-        description: 'Tab này hiển thị toàn bộ danh sách thuốc bạn đang sử dụng cùng liều lượng và trạng thái.',
-        side: 'bottom',
-        align: 'start'
-      },
+      popover: { title: t.tour.step6Title, description: t.tour.step6Desc, side: 'bottom', align: 'start' },
       route: '/medications'
     },
     {
       element: '.tour-step-7',
-      popover: {
-        title: 'Lịch khám Bác sĩ',
-        description: 'Xem lịch tái khám tiếp theo và chuẩn bị các thông tin cần thiết.',
-        side: 'bottom',
-        align: 'start'
-      },
+      popover: { title: t.tour.step7Title, description: t.tour.step7Desc, side: 'bottom', align: 'start' },
       route: '/appointments'
     },
     {
       element: '.tour-step-8',
-      popover: {
-        title: 'Cài đặt nhắc nhở',
-        description: 'Bạn có thể tự ghi âm giọng nói của người thân để làm âm báo nhắc uống thuốc, giúp cảm giác thân thiện hơn thay vì giọng máy.',
-        side: 'bottom',
-        align: 'start'
-      },
+      popover: { title: t.tour.step8Title, description: t.tour.step8Desc, side: 'bottom', align: 'start' },
       route: '/settings'
     }
   ];
@@ -143,10 +105,10 @@ export default function OnboardingTour() {
       animate: true,
       allowClose: false,
       overlayColor: 'rgba(0, 0, 0, 0.75)',
-      nextBtnText: 'Tiếp theo',
-      prevBtnText: 'Quay lại',
-      doneBtnText: 'Hoàn tất',
-      progressText: 'Bước {{current}} / {{total}}',
+      nextBtnText: t.tour.nextBtn,
+      prevBtnText: t.tour.prevBtn,
+      doneBtnText: t.tour.doneBtn,
+      progressText: t.tour.progressText,
       onNextClick: (el, step, opts) => {
         const nextIndex = driverObj.getActiveIndex() + 1;
         if (nextIndex < steps.length) {
@@ -198,23 +160,23 @@ export default function OnboardingTour() {
   return (
     <>
       {showChoice && (
-        <Modal title="Chào mừng đến với DIA+" onClose={() => handleChoice(false)}>
+        <Modal title={t.tour.modalTitle} onClose={() => handleChoice(false)}>
           <div style={{ textAlign: 'center', padding: '10px 0' }}>
             <p style={{ marginBottom: 20, color: '#444' }}>
-              Bạn muốn bắt đầu sử dụng ngay hay xem qua hướng dẫn các tính năng?
+              {t.tour.modalDesc}
             </p>
             <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
               <button 
                 onClick={() => handleChoice(false)}
                 style={{ padding: '10px 20px', borderRadius: 20, border: '1px solid #ccc', background: '#fff', cursor: 'pointer' }}
               >
-                Tự trải nghiệm
+                {t.tour.btnSkip}
               </button>
               <button 
                 onClick={() => handleChoice(true)}
                 style={{ padding: '10px 20px', borderRadius: 20, border: 'none', background: '#1B5FA6', color: '#fff', cursor: 'pointer', fontWeight: 'bold' }}
               >
-                Hướng dẫn dùng app
+                {t.tour.btnStart}
               </button>
             </div>
           </div>

@@ -9,20 +9,20 @@ import styles from './SettingsPage.module.css';
 const ALERT_CONFIG = [
   {
     id: ALERT_TYPES.MED_ALL,
-    title: 'Nhắc uống thuốc',
-    desc: 'Phát khi đến giờ uống thuốc (tự động đọc tên thuốc)',
+    titleKey: 'medAlertTitle',
+    descKey: 'medAlertDesc',
     icon: <Settings size={18} />
   },
   {
     id: ALERT_TYPES.SUGAR_HIGH,
-    title: 'Cảnh báo đường huyết TĂNG',
-    desc: 'Phát khi đường huyết sát ngưỡng nguy hiểm',
+    titleKey: 'sugarHighTitle',
+    descKey: 'sugarHighDesc',
     icon: <Activity size={18} />
   },
   {
     id: ALERT_TYPES.SUGAR_LOW,
-    title: 'Cảnh báo đường huyết GIẢM',
-    desc: 'Phát khi đường huyết quá thấp',
+    titleKey: 'sugarLowTitle',
+    descKey: 'sugarLowDesc',
     icon: <Activity size={18} />
   }
 ];
@@ -79,7 +79,7 @@ export default function SettingsPage() {
       setRecordingId(alertType);
     } catch (err) {
       console.error("Error accessing microphone:", err);
-      alert("Không thể truy cập Micro. Vui lòng cấp quyền trong cài đặt trình duyệt.");
+      alert(s.micError || "Cannot access Microphone. Please grant permission in browser settings.");
     }
   };
 
@@ -104,7 +104,7 @@ export default function SettingsPage() {
   };
 
   const deleteVoice = async (alertType) => {
-    if (window.confirm("Bạn có chắc muốn xóa giọng nói này?")) {
+    if (window.confirm(s.deleteConfirm || "Are you sure you want to delete this voice?")) {
       await voiceAlertService.deleteVoice(alertType);
       loadSettings();
     }
@@ -120,9 +120,9 @@ export default function SettingsPage() {
       <div className={styles.header}>
         <div className={styles.headerTop}>
           <Settings size={24} />
-          <h1>Cài đặt giọng nói</h1>
+          <h1>{s.voiceTitle || 'Voice Settings'}</h1>
         </div>
-        <p>Ghi âm giọng nói của người nhà để tạo sự thân thuộc khi ứng dụng nhắc nhở</p>
+        <p>{s.voiceDesc || 'Record a family member\'s voice to create familiarity when the app reminds you'}</p>
       </div>
 
       <div className={styles.alertList}>
@@ -135,10 +135,10 @@ export default function SettingsPage() {
           return (
             <div key={item.id} className={styles.alertCard}>
               <div className={styles.alertHeader}>
-                <h3 className={styles.alertTitle}>{item.title}</h3>
+                <h3 className={styles.alertTitle}>{s[item.titleKey]}</h3>
                 {hasVoice && (
                   <div className={styles.toggleGroup}>
-                    <span>Dùng giọng người nhà</span>
+                    <span>{s.useCustomVoice || 'Use family voice'}</span>
                     <label className={styles.switch}>
                       <input 
                         type="checkbox" 
@@ -150,7 +150,7 @@ export default function SettingsPage() {
                   </div>
                 )}
               </div>
-              <p className={styles.alertDesc}>{item.desc}</p>
+              <p className={styles.alertDesc}>{s[item.descKey]}</p>
               
               <div className={styles.controls}>
                 <div className={styles.recordGroup}>

@@ -20,7 +20,7 @@ export default function ScanPrescriptionPage() {
   const navigate = useNavigate();
   const { fetchMedications } = useMedications();
   const { showToast } = useToast();
-  const { t } = useT();
+  const t = useT();
   const [imageFile, setImageFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -92,7 +92,7 @@ export default function ScanPrescriptionPage() {
             times: med.times && med.times.length > 0 ? med.times : ['07:00'],
             instructions: med.instructions || '',
             doctor_name: result.doctorName || med.doctor_name || '',
-            prescribed_at: result.prescriptionDate || new Date().toISOString().split('T')[0],
+            prescribed_at: result.prescriptionDate || new Date().toISOString().split.T[0],
             is_active: 1,
           });
           successCount++;
@@ -107,7 +107,7 @@ export default function ScanPrescriptionPage() {
         try {
           await appointmentsService.create({
             doctor_name: result.doctorName || 'Không rõ bác sĩ',
-            scheduled_at: result.prescriptionDate || new Date().toISOString().split('T')[0],
+            scheduled_at: result.prescriptionDate || new Date().toISOString().split.T[0],
             note: result.doctorNotes || 'Không có chỉ dẫn thêm',
             status: 'completed'
           });
@@ -184,8 +184,8 @@ export default function ScanPrescriptionPage() {
       <div className={styles.scanningOverlay}>
         <div className={styles.scanningContent}>
           <div className={styles.scanningSpinner} />
-          <p>{t('scan.analyzing')}</p>
-          <span className={styles.scanningHint}>{t('scan.analyzingHint')}</span>
+          <p>{t.scan.analyzing}</p>
+          <span className={styles.scanningHint}>{t.scan.analyzingHint}</span>
         </div>
       </div>
     );
@@ -195,16 +195,16 @@ export default function ScanPrescriptionPage() {
     <div className={styles.page}>
       <div className={`${styles.header} tour-step-5`}>
         <div className={styles.headerTop}>
-          <h1>{t('scan.title')}</h1>
+          <h1>{t.scan.title}</h1>
           <button 
             className={styles.historyBtn} 
             onClick={() => navigate('/scan-history')}
-            title={t('scan.historyTitle')}
+            title={t.scan.historyTitle}
           >
-            {t('scan.history')}
+            {t.scan.history}
           </button>
         </div>
-        <p>{t('scan.subtitle')}</p>
+        <p>{t.scan.subtitle}</p>
       </div>
 
       {!imageUrl ? (
@@ -216,11 +216,11 @@ export default function ScanPrescriptionPage() {
             <div className={styles.imageActions}>
               {!result && (
                 <button onClick={handleAnalyze} className={styles.analyzeBtn}>
-                  {t('scan.analyzeBtn')}
+                  {t.scan.analyzeBtn}
                 </button>
               )}
               <button onClick={handleRetake} className={styles.retakeBtn}>
-                {t('scan.retakeBtn')}
+                {t.scan.retakeBtn}
               </button>
             </div>
           </div>
@@ -240,7 +240,7 @@ export default function ScanPrescriptionPage() {
                 </p>
               </div>
               <button onClick={handleRetake} className={styles.scanAgainBtn}>
-                {t('scan.scanAnotherBtn')}
+                {t.scan.scanAnotherBtn}
               </button>
             </div>
           )}
@@ -431,7 +431,7 @@ export default function ScanPrescriptionPage() {
               </p>
 
               <button onClick={handleRetake} className={styles.scanAgainBtn}>
-                {t('scan.scanAnotherBtn')}
+                {t.scan.scanAnotherBtn}
               </button>
             </div>
           )}
@@ -443,7 +443,7 @@ export default function ScanPrescriptionPage() {
                 <p>{result.error}</p>
               </div>
               <button onClick={handleRetake} className={styles.scanAgainBtn}>
-                {t('scan.retakeBtn')}
+                {t.scan.retakeBtn}
               </button>
             </div>
           )}

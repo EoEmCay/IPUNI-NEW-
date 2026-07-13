@@ -22,7 +22,7 @@ export default function LandingPage() {
       // Background ping to wake up the Render backend from sleep (cold start)
       // This ensures that when the user clicks demoLogin, it's blazing fast
       // We don't care if it returns 404, we just want to hit the server
-      api.get./health.catch(() => {});
+      api.get('/health').catch(() => {});
     }
   }, [isAuthenticated, navigate]);
 

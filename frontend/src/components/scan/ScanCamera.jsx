@@ -49,7 +49,7 @@ export default function ScanCamera({ onImageScan }) {
 
   const handleCapture = () => {
     if (!videoRef.current || !canvasRef.current) return;
-    const context = canvasRef.current.getContext.2d;
+    const context = canvasRef.current.getContext('2d');
     canvasRef.current.width = videoRef.current.videoWidth || 430;
     canvasRef.current.height = videoRef.current.videoHeight || 600;
     context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);

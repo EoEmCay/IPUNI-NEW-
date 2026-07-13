@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import useAuthStore from './store/authStore';
 import { authService } from './services/auth.service';
 import AppLayout from './components/layout/AppLayout';
+import MobileWrapper from './components/layout/MobileWrapper';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/Login/LoginPage';
 import RegisterPage from './pages/Register/RegisterPage';
@@ -33,63 +34,87 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />} />
-      <Route path="/register" element={isAuthenticated ? <Navigate to="/" replace /> : <RegisterPage />} />
       <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : (
+        <MobileWrapper>
+          <LoginPage />
+        </MobileWrapper>
+      )} />
+      <Route path="/register" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : (
+        <MobileWrapper>
+          <RegisterPage />
+        </MobileWrapper>
+      )} />
       <Route path="/dashboard" element={
         <ProtectedRoute>
-          <AppLayout>
-            <DashboardPage />
-          </AppLayout>
+          <MobileWrapper>
+            <AppLayout>
+              <DashboardPage />
+            </AppLayout>
+          </MobileWrapper>
         </ProtectedRoute>
       } />
       <Route path="/metrics" element={
         <ProtectedRoute>
-          <AppLayout>
-            <MetricsPage />
-          </AppLayout>
+          <MobileWrapper>
+            <AppLayout>
+              <MetricsPage />
+            </AppLayout>
+          </MobileWrapper>
         </ProtectedRoute>
       } />
       <Route path="/medications" element={
         <ProtectedRoute>
-          <AppLayout>
-            <MedicationsPage />
-          </AppLayout>
+          <MobileWrapper>
+            <AppLayout>
+              <MedicationsPage />
+            </AppLayout>
+          </MobileWrapper>
         </ProtectedRoute>
       } />
       <Route path="/appointments" element={
         <ProtectedRoute>
-          <AppLayout>
-            <AppointmentsPage />
-          </AppLayout>
+          <MobileWrapper>
+            <AppLayout>
+              <AppointmentsPage />
+            </AppLayout>
+          </MobileWrapper>
         </ProtectedRoute>
       } />
       <Route path="/advice" element={
         <ProtectedRoute>
-          <AppLayout>
-            <AdvicePage />
-          </AppLayout>
+          <MobileWrapper>
+            <AppLayout>
+              <AdvicePage />
+            </AppLayout>
+          </MobileWrapper>
         </ProtectedRoute>
       } />
       <Route path="/scan" element={
         <ProtectedRoute>
-          <AppLayout>
-            <ScanPrescriptionPage />
-          </AppLayout>
+          <MobileWrapper>
+            <AppLayout>
+              <ScanPrescriptionPage />
+            </AppLayout>
+          </MobileWrapper>
         </ProtectedRoute>
       } />
       <Route path="/scan-history" element={
         <ProtectedRoute>
-          <AppLayout>
-            <ScanHistoryPage />
-          </AppLayout>
+          <MobileWrapper>
+            <AppLayout>
+              <ScanHistoryPage />
+            </AppLayout>
+          </MobileWrapper>
         </ProtectedRoute>
       } />
       <Route path="/settings" element={
         <ProtectedRoute>
-          <AppLayout>
-            <SettingsPage />
-          </AppLayout>
+          <MobileWrapper>
+            <AppLayout>
+              <SettingsPage />
+            </AppLayout>
+          </MobileWrapper>
         </ProtectedRoute>
       } />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
@@ -99,10 +124,8 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <div className="app-container">
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
-    </div>
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   );
 }

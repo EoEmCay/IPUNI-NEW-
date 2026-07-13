@@ -24,13 +24,6 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  -webkit-tap-highlight-color: transparent;
-
-  /* Safe area variables */
-  --sait: env(safe-area-inset-top, 0px);
-  --saib: env(safe-area-inset-bottom, 0px);
-  --sail: env(safe-area-inset-left, 0px);
-  --sair: env(safe-area-inset-right, 0px);
 
   @media (max-width: 1024px) {
     font-size: 16px;
@@ -59,27 +52,6 @@
 
 body {
   margin: 0;
-  padding: 0;
-  width: 100vw;
-  height: 100vh;
-  /* Chống kéo nảy (bounce) làm lộ nền xám của safari trên iOS */
-  overscroll-behavior-y: none;
-  background-color: var(--bg);
-}
-
-* {
-  box-sizing: border-box;
-}
-
-/* Tối ưu tương tác chạm trên Mobile */
-button, 
-a, 
-select, 
-input[type="button"], 
-input[type="submit"] {
-  touch-action: manipulation;
-  user-select: none;
-  -webkit-user-select: none;
 }
 
 #root {

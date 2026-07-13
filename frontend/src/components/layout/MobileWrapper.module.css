@@ -1,0 +1,10 @@
+.mobileWrapper {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+  background-color: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}

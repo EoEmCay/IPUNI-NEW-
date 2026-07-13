@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { updateTokenCache } from '../services/api';
 
 const useAuthStore = create((set) => ({
   user: null,
@@ -7,6 +8,7 @@ const useAuthStore = create((set) => ({
 
   setAuth: (token, user) => {
     localStorage.setItem('diaplus_token', token);
+    updateTokenCache(token);
     set({ token, user, isAuthenticated: true });
   },
 
@@ -14,6 +16,7 @@ const useAuthStore = create((set) => ({
 
   logout: () => {
     localStorage.removeItem('diaplus_token');
+    updateTokenCache(null);
     set({ token: null, user: null, isAuthenticated: false });
   },
 }));

@@ -5,9 +5,13 @@ const api = axios.create({
   timeout: 30000,
 });
 
+let cachedToken = null;
+
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('diaplus_token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  if (!cachedToken) {
+    cachedToken = localStorage.getItem('diaplus_token');
+  }
+  if (cachedToken) config.headers.Authorization = `Bearer ${cachedToken}`;
   return config;
 });
 
@@ -15,12 +19,17 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
+      cachedToken = null;
       localStorage.removeItem('diaplus_token');
       window.location.href = '/login';
     }
     return Promise.reject(err);
   }
 );
+
+export function updateTokenCache(token) {
+  cachedToken = token;
+}
 
 export default api;
 

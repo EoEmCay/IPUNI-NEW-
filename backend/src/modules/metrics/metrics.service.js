@@ -25,12 +25,23 @@ async function getLatestByType(userId) {
   const types = ['glucose_fasting', 'glucose_postmeal', 'hba1c', 'c_peptide', 'blood_pressure'];
   const results = {};
 
-  for (const type of types) {
-    results[type] = await db('metrics')
-      .where({ user_id: userId, measurement_type: type })
-      .orderBy('measured_at', 'desc')
-      .first();
-  }
+  // Fetch all in ONE query instead of 5 separate queries (N+1 optimization)
+  const allMetrics = await db('metrics')
+    .where('user_id', userId)
+    .whereIn('measurement_type', types)
+    .orderBy('measured_at', 'desc');
+
+  const seen = {};
+  allMetrics.forEach(metric => {
+    if (!seen[metric.measurement_type]) {
+      results[metric.measurement_type] = metric;
+      seen[metric.measurement_type] = true;
+    }
+  });
+
+  types.forEach(type => {
+    if (!results[type]) results[type] = null;
+  });
 
   return results;
 }

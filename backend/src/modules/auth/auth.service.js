@@ -124,7 +124,6 @@ async function demoLogin() {
   });
   
   // Không nạp dữ liệu thuốc mặc định nữa, để màn hình trống cho demo quét đơn thuốc
-
   const user = await db('users').where({ id: userId }).first();
   const token = signToken(user);
   return {

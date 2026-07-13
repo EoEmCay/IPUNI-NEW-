@@ -1,0 +1,84 @@
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.iconWrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #EEF4FF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--color-primary);
+}
+
+.info { flex: 1; }
+
+.name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.dosage {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+
+.frequency {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-top: 2px;
+}
+
+.instructions {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-top: 6px;
+  background: #F8FAFC;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border-left: 3px solid var(--color-primary-light);
+}
+
+.doctor {
+  font-size: 12px;
+  color: #94A3B8;
+  margin-top: 4px;
+}
+
+.detailBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 8px;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.statusSelect {
+  align-self: flex-start;
+  padding: 6px 10px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1.5px solid;
+  flex-shrink: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}

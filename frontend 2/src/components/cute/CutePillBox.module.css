@@ -1,0 +1,134 @@
+.container {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.blurGlow {
+  position: absolute;
+  width: 80%;
+  height: 80%;
+  background-color: #fbcfe8;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.4;
+  z-index: 0;
+}
+
+.sphere {
+  position: absolute;
+  border-radius: 50%;
+  box-shadow: inset -5px -5px 15px rgba(0,0,0,0.1), inset 5px 5px 15px rgba(255,255,255,0.8);
+  transition: transform 0.1s ease-out;
+}
+
+.sphereBlue {
+  top: 10%;
+  right: 15%;
+  width: 40px;
+  height: 40px;
+  background-color: #93c5fd;
+  opacity: 0.8;
+}
+
+.sphereYellow {
+  top: 15%;
+  right: 25%;
+  width: 24px;
+  height: 24px;
+  background-color: #fef08a;
+  opacity: 0.7;
+}
+
+.sphereOrange {
+  bottom: 10%;
+  left: 15%;
+  width: 48px;
+  height: 48px;
+  background-color: #fed7aa;
+  opacity: 0.8;
+}
+
+.iconSvg {
+  position: absolute;
+}
+
+.iconMoon {
+  top: 28%;
+  left: 45%;
+  color: #fde047;
+  opacity: 0.6;
+}
+
+.iconMoonRotated {
+  bottom: 30%;
+  left: 22%;
+  color: #d8b4fe;
+  opacity: 0.5;
+  transform: rotate(-45deg);
+}
+
+.iconStar1 {
+  top: 35%;
+  left: 25%;
+  color: #facc15;
+  opacity: 0.4;
+}
+
+.iconStar2 {
+  bottom: 25%;
+  right: 28%;
+  color: #facc15;
+  opacity: 0.4;
+}
+
+.iconHeart {
+  top: 45%;
+  right: 18%;
+  color: #f472b6;
+  opacity: 0.5;
+}
+
+.heroSection {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 250px;
+}
+
+.heroImage {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 15px 15px rgba(0,0,0,0.1));
+  mix-blend-mode: multiply; /* Blends colors nicely */
+  -webkit-mask-image: radial-gradient(circle at center, black 60%, transparent 100%);
+  mask-image: radial-gradient(circle at center, black 60%, transparent 100%);
+}
+
+.textOverlay {
+  position: absolute;
+  bottom: -30px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.7s;
+}
+
+.heroSection:hover .textOverlay {
+  opacity: 1;
+}
+
+.textOverlay p {
+  color: #9d7bb0;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 14px;
+}

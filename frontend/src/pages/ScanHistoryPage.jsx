@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Clock, Pill, Image as ImageIcon, X, Trash2 } from 'lucide-react';
 import { scanHistoryService } from '../services/scanHistory.service';
+import { useT } from '../hooks/useT';
 import styles from './ScanHistoryPage.module.css';
 
 export default function ScanHistoryPage() {
+  const t = useT();
   const navigate = useNavigate();
   const [history, setHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -27,7 +29,7 @@ export default function ScanHistoryPage() {
 
   const handleDelete = async (id, e) => {
     if (e) e.stopPropagation();
-    if (window.confirm('Bạn có chắc muốn xóa lịch sử quét này?')) {
+    if (window.confirm(t.scanHistory.deleteConfirm)) {
       await scanHistoryService.deleteScan(id);
       loadHistory();
       if (selectedScan && selectedScan.id === id) {
@@ -48,19 +50,19 @@ export default function ScanHistoryPage() {
           <button className={styles.backBtn} onClick={() => navigate('/scan')}>
             <ChevronLeft size={24} />
           </button>
-          <h1>Lịch Sử Quét</h1>
+          <h1>{t.scanHistory.title}</h1>
         </div>
-        <p>Xem lại các đơn thuốc đã quét trên thiết bị này</p>
+        <p>{t.scanHistory.subtitle}</p>
       </div>
 
       {isLoading ? (
         <div className={styles.emptyState}>
-          <p>Đang tải...</p>
+          <p>{t.scanHistory.loading}</p>
         </div>
       ) : history.length === 0 ? (
         <div className={styles.emptyState}>
           <ImageIcon size={48} />
-          <p>Chưa có lịch sử quét nào</p>
+          <p>{t.scanHistory.empty}</p>
         </div>
       ) : (
         <div className={styles.historyList}>
@@ -72,11 +74,11 @@ export default function ScanHistoryPage() {
                   <Clock size={12} /> {formatDate(scan.date)}
                 </div>
                 <h3 className={styles.cardTitle}>
-                  {scan.result?.doctorName ? `Bác sĩ: ${scan.result.doctorName}` : 'Không rõ bác sĩ'}
+                  {scan.result?.doctorName ? `${t.scanHistory.doctorPrefix} ${scan.result.doctorName}` : t.scanHistory.unknownDoctor}
                 </h3>
                 <div className={styles.cardMeta}>
                   <span className={styles.metaItem}>
-                    <Pill size={14} /> {scan.result?.medications?.length || 0} thuốc
+                    <Pill size={14} /> {scan.result?.medications?.length || 0} {t.scanHistory.medCount}
                   </span>
                 </div>
               </div>
@@ -89,7 +91,7 @@ export default function ScanHistoryPage() {
         <div className={styles.modalOverlay} onClick={() => setSelectedScan(null)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <h2>Chi tiết đơn thuốc</h2>
+              <h2>{t.scanHistory.detailTitle}</h2>
               <div className={styles.modalHeaderActions}>
                 <button 
                   className={styles.trashBtn} 
@@ -106,14 +108,14 @@ export default function ScanHistoryPage() {
             <div className={styles.modalBody}>
               <img src={selectedScan.image} alt="Original Prescription" className={styles.modalImage} />
               
-              <h3>Kết quả nhận diện</h3>
+              <h3>{t.scanHistory.resultTitle}</h3>
               <div className={styles.medList}>
                 {selectedScan.result?.medications?.map((med, idx) => (
                   <div key={idx} className={styles.medItem}>
                     <h4 className={styles.medItemName}>{med.name}</h4>
                     <div className={styles.medItemMeta}>
-                      {med.dosage && <span>Liều lượng: {med.dosage}</span>}
-                      {med.instructions && <span>Cách dùng: {med.instructions}</span>}
+                      {med.dosage && <span>{t.scanHistory.dosage} {med.dosage}</span>}
+                      {med.instructions && <span>{t.scanHistory.instructions} {med.instructions}</span>}
                     </div>
                   </div>
                 ))}

@@ -1,0 +1,19 @@
+.wrap {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.text {
+  font-weight: 800;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+.onDark { color: #fff; }
+.onLight { color: var(--color-primary); }
+
+/* Kích thước chữ theo size */
+.sm .text { font-size: 22px; }
+.md .text { font-size: 30px; }
+.lg .text { font-size: 44px; }

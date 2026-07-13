@@ -1,0 +1,91 @@
+.wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  overflow: visible;
+  padding: 0;
+  margin-top: -8px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* Soft glow halo behind the cat */
+.glow {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, rgba(186, 215, 255, 0.3) 0%, rgba(168, 85, 247, 0.08) 50%, transparent 75%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 1; /* Behind the metric cards (which have z-index: 2) */
+  border-radius: 50%;
+}
+
+/* Cat image container */
+.catContainer {
+  position: relative;
+  z-index: 3; /* Above the metric cards */
+  width: 100%;
+  max-width: 325px; /* Increased by 25% from 260px */
+}
+
+.catImage {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: floatCat 4s ease-in-out infinite;
+}
+
+.catImage:hover {
+  transform: scale(1.06) translateY(-8px);
+}
+
+@keyframes floatCat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* Heartbeat line */
+.heartbeatContainer {
+  position: relative;
+  z-index: 4; /* Must be higher than catContainer (z-index: 3) to sit ON TOP of the cat */
+  width: 60%;
+  max-width: 180px; /* Constrain the width so it doesn't stretch too wide */
+  margin: 0 auto; /* Center it */
+  opacity: 0.9;
+  animation: pulseOpacity 3s ease-in-out infinite;
+  margin-top: -130px; /* Pull it way up through the image's transparent padding */
+  pointer-events: none; /* Make sure it doesn't block clicks on the cat if any */
+}
+
+.heartSvg {
+  width: 100%;
+  height: 35px; /* Shorter height so it's not too tall */
+  display: block;
+}
+
+/* Caption */
+.label {
+  font-size: 12px; /* Slightly smaller text */
+  font-weight: 700;
+  color: #9b87c2;
+  margin-top: -2px;
+  font-family: 'Quicksand', sans-serif;
+  letter-spacing: 0.6px;
+  position: relative;
+  z-index: 4; /* Same as heartbeat line, ON TOP of the cat */
+}
+
+@keyframes pulseOpacity {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}

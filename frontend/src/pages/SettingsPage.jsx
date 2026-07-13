@@ -78,7 +78,6 @@ export default function SettingsPage() {
       mediaRecorder.start();
       setRecordingId(alertType);
     } catch (err) {
-      console.error("Error accessing microphone:", err);
       alert(s.micError || "Cannot access Microphone. Please grant permission in browser settings.");
     }
   };
@@ -187,7 +186,7 @@ export default function SettingsPage() {
           <Settings size={24} />
           <h1>{s.title || 'Cài đặt chung'}</h1>
         </div>
-        <p>Tùy chỉnh trải nghiệm của bạn</p>
+        <p>{s.subtitle || 'Tùy chỉnh trải nghiệm của bạn'}</p>
       </div>
 
       <div className={styles.settingsGroup} style={{ background: 'white', padding: '20px', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', marginBottom: '30px' }}>
@@ -219,7 +218,7 @@ export default function SettingsPage() {
                   color: fontScale === actualScale ? '#1B5FA6' : '#64748B',
                   cursor: 'pointer'
                 }}
-                aria-label={`Mức phóng to ${lvl}`}
+                aria-label={`${s.zoomLevel || 'Mức phóng to'} ${lvl}`}
               >
                 {lvl}x
               </button>

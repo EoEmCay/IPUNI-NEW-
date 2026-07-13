@@ -65,8 +65,10 @@ const lo = {
     viewPrescription: 'ເບິ່ງໃບສັ່ງຢາ',
     viewPrescriptionCute: 'ເບິ່ງໃບສັ່ງຢາ 💊',
     noMeds: 'ຍັງບໍ່ມີໃບສັ່ງຢາ',
-    noMedsSubtitle: 'ທ່ານໝໍຍັງບໍ່ໄດ້ສັ່ງຢາ.',
-    addMetric: 'ເພີ່ມຕົວຊີ້ວັດ',
+    noMedsSubtitle: 'ທ່ານໝໍຍັງບໍ່ໄດ້ສັ່ງຢາໃດໆ.',
+    addMetric: 'ເພີ່ມຄ່າວັດແທກ',
+    moreMedsCute: 'ແລະ ອີກ {{count}} ປະເພດຢາທີ່ລໍຖ້າໃຫ້ທ່ານກິນ 🐾',
+    moreMeds: 'ຍັງເຫຼືອຢາອີກ {{count}} ປະເພດທີ່ຍັງບໍ່ໄດ້ກິນ',
   },
 
   // Metrics page
@@ -75,8 +77,9 @@ const lo = {
     subtitle: 'ບັນທຶກແລະເບິ່ງກຣາຟສຸຂະພາບ',
     addBtn: 'ເພີ່ມຕົວຊີ້ວັດ',
     days7: '7 ວັນ',
-    days14: '14 ວັນ',
-    days30: '30 ວັນ',
+    days14: '14 ມື້',
+    days30: '30 ມື້',
+    days90: '90 ມື້',
     noData: 'ຍັງບໍ່ມີຂໍ້ມູນ',
     noDataSubtitle: 'ກະລຸນາເພີ່ມຕົວຊີ້ວັດທຳອິດ.',
     glucoseLabel: 'ນ້ຳຕານ',
@@ -150,6 +153,7 @@ const lo = {
     statusCancelled: 'ຍົກເລີກ',
     doctorNote: 'ຫມາຍເຫດຂອງທ່ານໝໍ',
     retakeSchedule: 'ນັດໝາຍຕິດຕາມ',
+    doctorDetailBtn: 'ລາຍລະອຽດແພດ',
   },
 
   // Advice page
@@ -157,10 +161,12 @@ const lo = {
     title: 'ຄຳແນະນຳສຸຂະພາບ',
     subtitle: 'ຄຳແນະນຳດ້ານອາຫານແລະວິຖີຊີວິດ',
     allAdvice: 'ທັງໝົດ',
-    shouldEat: 'ອາຫານທີ່ບໍ່ຄວນກິນ',
-    shouldAvoid: 'ອາຫານທີ່ຄວນຫຼີກ',
+    shouldEat: 'ຄວນກິນ',
+    shouldAvoid: 'ຄວນຫຼີກລ້ຽງ',
     exercise: 'ອອກກຳລັງກາຍ',
-    danger: 'ການເຕືອນ',
+    danger: 'ອັນຕະລາຍ',
+    alertBannerTitle: '⚠️ ສັນຍານເຕືອນໄພທີ່ຄວນຮູ້',
+    alertBannerSub: 'ຮັບຮູ້ ແລະ ຮັບມືກັບນໍ້າຕານໃນເລືອດຕໍ່າ/ສູງກະທັນຫັນ',
   },
 
   // Auth
@@ -209,10 +215,12 @@ const lo = {
 
   // Settings
   settings: {
-    title: 'ການຕັ້ງຄ່າ',
+    title: 'ຕັ້ງຄ່າ',
+    subtitle: 'ປັບແຕ່ງປະສົບການຂອງທ່ານ',
     sectionDisplay: 'ການສະແດງຜົນ',
-    fontSizeTitle: 'ຂະໜາດໂຕໜັງສື (ຂະຫຍາຍ)',
-    fontSizeDesc: 'ຂະຫຍາຍໂຕໜັງສືທັງໝົດໃຫ້ອ່ານງ່າຍຂຶ້ນ',
+    fontSizeTitle: 'ຂະໜາດຕົວໜັງສື (ຊູມ)',
+    fontSizeDesc: 'ຂະຫຍາຍຕົວໜັງສືທັງໝົດເພື່ອໃຫ້ອ່ານງ່າຍຂຶ້ນ',
+    zoomLevel: 'ລະດັບການຊູມ',
     sectionTheme: 'ຮູບລັກສະນະ',
     cuteMode: 'ໂໝດໜ້າຮັກ',
     cuteModeDesc: 'ໜ້າຕາສີພາສເທລ ດູໜ້າຮັກ',
@@ -269,6 +277,150 @@ const lo = {
     btnStart: 'Take a tour',
   },
 
+  // Upgrade
+  upgrade: {
+    title: 'ອັບເກຣດບັນຊີ',
+    subtitle: 'ປົດລັອກຄຸນສົມບັດທັງໝົດເພື່ອການດູແລສຸຂະພາບທີ່ດີກວ່າ',
+    freePlan: 'ຟຣີ',
+    forever: 'ຕະຫຼອດໄປ',
+    month: 'ເດືອນ',
+    popular: 'ຍອດນິຍົມ',
+    currentPlan: 'ກຳລັງໃຊ້',
+    btnCurrent: 'ແພັກເກດປັດຈຸບັນ',
+    btnUpgrade: 'ອັບເກຣດດຽວນີ້',
+    securePayment: 'ການຈ່າຍເງິນທີ່ປອດໄພ · ຍົກເລີກໄດ້ທຸກເວລາ · ບໍ່ຕໍ່ອາຍຸອັດຕະໂນມັດ',
+    payTitle: 'ຊຳລະເງິນຜ່ານ',
+    paySubtitle: 'ອັບເກຣດເປັນແພັກເກດ',
+    bankLabel: 'ທະນາຄານ',
+    accountLabel: 'ເລກບັນຊີ',
+    ownerLabel: 'ຊື່ບັນຊີ',
+    amountLabel: 'ຈຳນວນເງິນ',
+    contentLabel: 'ເນື້ອຫາການໂອນ',
+    copy: 'ສຳເນົາ',
+    copied: 'ສຳເນົາແລ້ວ',
+    back: 'ກັບຄືນ',
+    payNote: 'ຫຼັງຈາກໂອນເງິນສຳເລັດ, ບັນຊີຂອງທ່ານຈະຖືກອັບເກຣດພາຍໃນ',
+    hours24: '24 ຊົ່ວໂມງ',
+    fFree1: 'ຕິດຕາມຕົວຊີ້ວັດນໍ້າຕານໃນເລືອດ',
+    fFree2: 'ການຈັດການຢາພື້ນຖານ',
+    fFree3: 'ນັດໝາຍທ່ານໝໍ',
+    fFree4: 'ຄຳແນະນຳດ້ານສຸຂະພາບ',
+    fFree5: 'ໂໝດໜ້າຮັກ',
+    fPro1: 'ຄຸນສົມບັດຟຣີທັງໝົດ',
+    fPro2: 'ເຄື່ອງສະແກນໃບສັ່ງຢາ AI (ບໍ່ຈຳກັດ)',
+    fPro3: 'ຕາຕະລາງ HbA1c ແລະ ແນວໂນ້ມ',
+    fPro4: 'ແຈ້ງເຕືອນການກິນຢາອັດສະລິຍະ',
+    fPro5: 'ໃຫ້ຄຳປຶກສາດ້ານໂພຊະນາການ AI',
+    fPro6: 'ຊິ້ງຂໍ້ມູນອຸປະກອນວັດແທກ',
+    fPro7: 'ແບ່ງປັນກັບທ່ານໝໍ',
+    fPro8: 'ສະໜັບສະໜູນບຸລິມະສິດ 24/7',
+    fPro9: 'ປົດລັອກທຸກ A-Styles (100+ ຮູບແບບ & ຕົວແທນ)'
+  },
+
+  // User Profile
+  profile: {
+    notUpdated: 'ຍັງບໍ່ໄດ້ອັບເດດ',
+    saveError: 'ເກີດຂໍ້ຜິດພາດໃນການບັນທຶກ',
+    title: 'ຂໍ້ມູນສ່ວນຕົວ',
+    edit: 'ແກ້ໄຂ',
+    fullName: 'ຊື່ ແລະ ນາມສະກຸນ',
+    phone: 'ເບີໂທລະສັບ',
+    address: 'ທີ່ຢູ່',
+    dob: 'ວັນເດືອນປີເກີດ',
+    idCard: 'ເລກບັດປະຈຳຕົວ',
+    medicalInfo: 'ຂໍ້ມູນທາງການແພດ & ປະກັນໄພ',
+    insuranceNo: 'ເລກປະກັນໄພ',
+    insuranceExp: 'ວັນໝົດອາຍຸປະກັນໄພ',
+    bloodType: 'ໝວດເລືອດ',
+    allergies: 'ອາການແພ້',
+    none: 'ບໍ່ມີ',
+    basicInfo: 'ຂໍ້ມູນພື້ນຖານ',
+    cancel: 'ຍົກເລີກ',
+    saving: 'ກຳລັງບັນທຶກ...',
+    saveChanges: 'ບັນທຶກການປ່ຽນແປງ',
+    placeholderName: 'John Doe',
+    placeholderAddress: '123 ຖະໜົນຫຼັກ, ວຽງຈັນ',
+    placeholderId: 'ເລກບັດ 12 ໂຕ',
+    placeholderInsurance: 'INS2024001234',
+    placeholderAllergies: 'ເພນີຊີລິນ, ອາຫານທະເລ, ລະອອງເກສອນ...',
+  },
+
+  // Doctor Detail
+  doctorDetail: {
+    title: 'ຂໍ້ມູນທ່ານໝໍ',
+    fullName: 'ຊື່ ແລະ ນາມສະກຸນ',
+    degree: 'ລະດັບການສຶກສາ',
+    jobTitle: 'ຕຳແໜ່ງ',
+    workplace: 'ສະຖານທີ່ເຮັດວຽກ',
+    workHistory: 'ປະຫວັດການເຮັດວຽກ',
+    contact: 'ຕິດຕໍ່',
+  },
+
+  // OTP Verify Modal
+  otp: {
+    enter6Digits: 'ກະລຸນາປ້ອນທັງໝົດ 6 ຕົວເລກ',
+    incorrectCode: 'ລະຫັດບໍ່ຖືກຕ້ອງ. ກະລຸນາລອງໃໝ່.',
+    preparing: 'ກຳລັງກະກຽມ',
+    verifyingSecurity: 'ຢືນຢັນຄວາມປອດໄພຂອງບັນຊີທ່ານ',
+    enterOtp: 'ປ້ອນລະຫັດ OTP',
+    codeSentTo: 'ສົ່ງລະຫັດໄປທີ່',
+    codeExpired: 'ລະຫັດໝົດອາຍຸ',
+    newCodeSent: '✓ ສົ່ງລະຫັດໃໝ່ແລ້ວ',
+    verifying: 'ກຳລັງຢືນຢັນ...',
+    confirm: 'ຢືນຢັນ',
+    notReceived: 'ບໍ່ໄດ້ຮັບລະຫັດ?',
+    sending: 'ກຳລັງສົ່ງ...',
+    resend: 'ສົ່ງລະຫັດຄືນໃໝ່',
+  },
+
+  // Mock Google Login Modal
+  mockGoogle: {
+    invalidEmail: 'ກະລຸນາປ້ອນອີເມວທີ່ຖືກຕ້ອງ',
+    loginFailed: 'ການເຂົ້າສູ່ລະບົບ Google ລົ້ມເຫລວ',
+    title: 'ເຂົ້າສູ່ລະບົບ (ຈຳລອງ)',
+    subtitle: 'ໃຊ້ບັນຊີ Google ຂອງທ່ານ',
+    placeholder: 'ອີເມວ ຫຼື ເບີໂທລະສັບ',
+    infoText: 'ນີ້ແມ່ນໜ້າຈໍຈຳລອງການເຂົ້າສູ່ລະບົບ Google. ລະບົບຈະສ້າງບັນຊີອັດຕະໂນມັດໂດຍອີງໃສ່ອີເມວນີ້.',
+    cancel: 'ຍົກເລີກ',
+    processing: 'ກຳລັງປະມວນຜົນ...',
+    next: 'ຕໍ່ໄປ',
+  },
+
+  // Terms Modal
+  terms: {
+    titleTerms: 'ເງື່ອນໄຂການນຳໃຊ້',
+    titlePrivacy: 'ນະໂຍບາຍຄວາມເປັນສ່ວນຕົວ',
+    descTerms: 'ກະລຸນາອ່ານເງື່ອນໄຂການນຳໃຊ້ຢ່າງລະມັດລະວັງ. ເລື່ອນລົງລຸ່ມສຸດເພື່ອສືບຕໍ່.',
+    descPrivacy: 'ນະໂຍບາຍຄວາມເປັນສ່ວນຕົວຂອງແພລດຟອມແພດ DIA+',
+    agreeText: 'ຂ້າພະເຈົ້າໄດ້ອ່ານ ແລະ ຕົກລົງເຫັນດີກັບເງື່ອນໄຂການນຳໃຊ້ ແລະ ນະໂຍບາຍຄວາມເປັນສ່ວນຕົວ.',
+    continue: 'ສືບຕໍ່',
+    complete: 'ສຳເລັດ & ເລີ່ມນຳໃຊ້',
+  },
+
+  // Notifications Modal
+  notifications: {
+    title: 'ການແຈ້ງເຕືອນ',
+    empty: 'ຍັງບໍ່ມີການແຈ້ງເຕືອນ',
+    medications: 'ຢາທີ່ຕ້ອງກິນ',
+    appointments: 'ນັດໝາຍແພດ',
+  },
+
+  // Scan History Page
+  scanHistory: {
+    title: 'ປະຫວັດການສະແກນ',
+    subtitle: 'ທົບທວນຄືນໃບສັ່ງຢາທີ່ສະແກນໃນອຸປະກອນນີ້',
+    loading: 'ກຳລັງໂຫຼດ...',
+    empty: 'ຍັງບໍ່ມີປະຫວັດການສະແກນ',
+    deleteConfirm: 'ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບປະຫວັດການສະແກນນີ້?',
+    doctorPrefix: 'ທ່ານໝໍ:',
+    unknownDoctor: 'ບໍ່ຮູ້ຊື່ທ່ານໝໍ',
+    medCount: 'ປະເພດຢາ',
+    detailTitle: 'ລາຍລະອຽດໃບສັ່ງຢາ',
+    resultTitle: 'ຜົນການວິເຄາະ',
+    dosage: 'ປະລິມານ:',
+    instructions: 'ວິທີໃຊ້:',
+  },
+
   // Common
   common: {
     loading: 'ກຳລັງໂຫຼດ...',
@@ -280,12 +432,18 @@ const lo = {
     add: 'ເພີ່ມ',
     back: 'ກັບຄືນ',
     success: 'ສຳເລັດ!',
-    error: 'ເກີດຂໍ້ຜິດພາດ',
+    error: 'ມີຂໍ້ຜິດພາດບາງຢ່າງ',
+    demoExpired: 'ສະບັບທົດລອງສິ້ນສຸດແລ້ວ (30 ນາທີ). ຂໍ້ມູນຂອງທ່ານຖືກອະນາໄມແລ້ວ. ກະລຸນາລົງທະບຽນເພື່ອສືບຕໍ່ນຳໃຊ້.',
+    demoLoading: '⏳ ກຳລັງໂຫຼດ...',
+    medReminderMsg: 'ຮອດເວລາກິນຢາແລ້ວ:',
+    medReminderTitle: 'ແຈ້ງເຕືອນການກິນຢາ (Diaplus)',
+    medReminderToastTitle: '⏰ ຮອດເວລາກິນຢາແລ້ວ!',
+    medCountToTake: 'ປະເພດຢາທີ່ຕ້ອງກິນ',
   },
 
   // Days of week
   days: ['ວັນອາທິດ', 'ວັນຈັນ', 'ວັນອັງຄານ', 'ວັນພຸດ', 'ວັນພະຫັດ', 'ວັນສຸກ', 'ວັນເສົາ'],
-  months: ['ມกະລະຄົມ', 'ກຸມພະ', 'ມີນາ', 'ເມສາ', 'ພຶດສະພາ', 'ມິຖຸນາ', 'ກໍລະກົດ', 'ສິງຫາ', 'ກັນຍາ', 'ຕຸລາ', 'ພະຈິກ', 'ທັນວາ'],
+  months: ['ມກະລະຄົມ', 'ກຸມພະ', 'ມີນາ', 'ເມສາ', 'ພຶດສະພາ', 'ມິຖຸນາ', 'ກໍລະກົດ', 'ສິງຫາ', 'ກັນຍາ', 'ຕຸລາ', 'ພະຈິກ', 'ທັນວາ'],
   dateFormat: (d, m, y) => `${d}/${m}/${y}`,
 };
 

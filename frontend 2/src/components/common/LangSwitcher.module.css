@@ -1,0 +1,53 @@
+.wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.flagBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, border-color 0.15s, background 0.15s;
+  padding: 0;
+}
+
+.flagBtn:hover {
+  transform: scale(1.12);
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.active {
+  border-color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+  transform: scale(1.08);
+}
+
+.flag {
+  font-size: 18px;
+  line-height: 1;
+  display: block;
+}
+
+:global([data-theme="gold"]) .flagBtn {
+  background: rgba(201, 146, 26, 0.15);
+  border-color: transparent;
+}
+
+:global([data-theme="gold"]) .flagBtn:hover {
+  background: rgba(201, 146, 26, 0.3);
+}
+
+:global([data-theme="gold"]) .active {
+  border-color: #FFD700;
+  background: rgba(201, 146, 26, 0.3);
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.25);
+}

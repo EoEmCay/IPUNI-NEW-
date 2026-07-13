@@ -1,0 +1,35 @@
+.demoCountdown {
+  background-color: rgba(255, 59, 48, 0.9);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 auto;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.demoCountdown strong {
+  font-weight: 700;
+  font-family: monospace;
+  font-size: 14px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (max-width: 430px) {
+  .demoCountdown {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+  .demoCountdown strong {
+    font-size: 12px;
+  }
+}

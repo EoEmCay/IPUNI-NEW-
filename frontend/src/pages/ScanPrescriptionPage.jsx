@@ -12,6 +12,7 @@ import { metricsService } from '../services/metrics.service';
 import { useMedications } from '../hooks/useMedications';
 import { useToast } from '../hooks/useToast';
 import { useT } from '../hooks/useT';
+import useLangStore from '../store/langStore';
 import ScanCamera from '../components/scan/ScanCamera';
 import styles from './ScanPrescriptionPage.module.css';
 import { useNavigate } from 'react-router-dom';
@@ -21,6 +22,7 @@ export default function ScanPrescriptionPage() {
   const { fetchMedications } = useMedications();
   const { showToast } = useToast();
   const t = useT();
+  const lang = useLangStore((s) => s.lang);
   const [imageFile, setImageFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -45,7 +47,7 @@ export default function ScanPrescriptionPage() {
 
     setIsAnalyzing(true);
     try {
-      const res = await scanService.analyzePrescription(imageFile);
+      const res = await scanService.analyzePrescription(imageFile, lang);
       const data = res.data.data;
       setResult(data);
 

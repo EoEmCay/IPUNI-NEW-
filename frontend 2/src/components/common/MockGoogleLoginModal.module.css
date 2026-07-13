@@ -1,0 +1,144 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.modal {
+  background: #fff;
+  width: 100%;
+  max-width: 440px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.header {
+  padding: 40px 40px 10px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 400;
+  color: #202124;
+  margin: 16px 0 8px;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #202124;
+  margin: 0;
+  font-weight: 400;
+}
+
+.content {
+  padding: 24px 40px 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.inputGroup {
+  margin-bottom: 8px;
+}
+
+.input {
+  width: 100%;
+  border: 1px solid #dadce0;
+  border-radius: 4px;
+  padding: 13px 15px;
+  font-size: 16px;
+  color: #202124;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  border: 2px solid #1a73e8;
+  padding: 12px 14px; /* Adjust for border width change to avoid jumping */
+}
+
+.infoText {
+  font-size: 14px;
+  color: #5f6368;
+  line-height: 1.5;
+  margin-bottom: 32px;
+  margin-top: 8px;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.btnSecondary {
+  background: transparent;
+  border: none;
+  color: #1a73e8;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.btnSecondary:hover {
+  background: #f8faff;
+}
+
+.btnPrimary {
+  background: #1a73e8;
+  border: none;
+  color: white;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px 24px;
+  border-radius: 4px;
+  height: 36px;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.btnPrimary:hover {
+  background: #1b66c9;
+  box-shadow: 0 1px 2px 0 rgba(60,64,67,0.3), 0 1px 3px 1px rgba(60,64,67,0.15);
+}
+
+.btnPrimary:disabled {
+  background: #8ab4f8;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.errorMsg {
+  color: #d93025;
+  font-size: 12px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useT } from '../../hooks/useT';
 import styles from './MockGoogleLoginModal.module.css';
 
 export default function MockGoogleLoginModal({ onClose, onLogin }) {
+  const t = useT();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -9,7 +11,7 @@ export default function MockGoogleLoginModal({ onClose, onLogin }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !email.includes('@')) {
-      setError('Vui lòng nhập email hợp lệ');
+      setError(t.mockGoogle.invalidEmail);
       return;
     }
     setError('');
@@ -17,7 +19,7 @@ export default function MockGoogleLoginModal({ onClose, onLogin }) {
     try {
       await onLogin(email);
     } catch (err) {
-      setError(err?.response?.data?.message || 'Đăng nhập Google thất bại');
+      setError(err?.response?.data?.message || t.mockGoogle.loginFailed);
       setLoading(false);
     }
   };
@@ -27,8 +29,8 @@ export default function MockGoogleLoginModal({ onClose, onLogin }) {
       <div className={styles.modal}>
         <div className={styles.header}>
           <img src="/logo-moi.png" alt="Google" style={{ width: '100px', objectFit: 'contain', mixBlendMode: 'multiply' }} />
-          <h2 className={styles.title}>Đăng nhập (Giả lập)</h2>
-          <p className={styles.subtitle}>Sử dụng tài khoản Google của bạn</p>
+          <h2 className={styles.title}>{t.mockGoogle.title}</h2>
+          <p className={styles.subtitle}>{t.mockGoogle.subtitle}</p>
         </div>
         
         <form onSubmit={handleSubmit} className={styles.content}>
@@ -37,19 +39,19 @@ export default function MockGoogleLoginModal({ onClose, onLogin }) {
             <input 
               type="email" 
               className={styles.input} 
-              placeholder="Email hoặc số điện thoại" 
+              placeholder={t.mockGoogle.placeholder} 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoFocus
             />
           </div>
           <p className={styles.infoText}>
-            Đây là giao diện mô phỏng đăng nhập bằng Google. Hệ thống sẽ tạo tài khoản tự động dựa trên email này.
+            {t.mockGoogle.infoText}
           </p>
           <div className={styles.footer}>
-            <button type="button" onClick={onClose} className={styles.btnSecondary}>Huỷ</button>
+            <button type="button" onClick={onClose} className={styles.btnSecondary}>{t.mockGoogle.cancel}</button>
             <button type="submit" disabled={loading} className={styles.btnPrimary}>
-              {loading ? 'Đang xử lý...' : 'Tiếp theo'}
+              {loading ? t.mockGoogle.processing : t.mockGoogle.next}
             </button>
           </div>
         </form>

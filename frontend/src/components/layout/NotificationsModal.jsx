@@ -1,8 +1,10 @@
 import { X, Bell, Pill, Calendar } from 'lucide-react';
 import ReactDOM from 'react-dom';
+import { useT } from '../../hooks/useT';
 import styles from './NotificationsModal.module.css';
 
 export default function NotificationsModal({ isOpen, onClose, medications, appointments, hasNotifications }) {
+  const t = useT();
   if (!isOpen) return null;
 
   return ReactDOM.createPortal(
@@ -10,7 +12,7 @@ export default function NotificationsModal({ isOpen, onClose, medications, appoi
       <div className={styles.overlay} onClick={onClose} />
       <div className={styles.modal}>
         <div className={styles.header}>
-          <h2>Thông báo</h2>
+          <h2>{t.notifications.title}</h2>
           <button onClick={onClose} className={styles.closeBtn}>
             <X size={20} />
           </button>
@@ -20,14 +22,14 @@ export default function NotificationsModal({ isOpen, onClose, medications, appoi
           {!hasNotifications ? (
             <div className={styles.emptyState}>
               <Bell size={48} />
-              <p>Chưa có thông báo gì hết</p>
+              <p>{t.notifications.empty}</p>
             </div>
           ) : (
             <>
               {medications.length > 0 && (
                 <div className={styles.section}>
                   <h3 className={styles.sectionTitle}>
-                    <Pill size={16} /> Thuốc cần uống
+                    <Pill size={16} /> {t.notifications.medications}
                   </h3>
                   <div className={styles.list}>
                     {medications.map(med => (
@@ -53,7 +55,7 @@ export default function NotificationsModal({ isOpen, onClose, medications, appoi
               {appointments.length > 0 && (
                 <div className={styles.section}>
                   <h3 className={styles.sectionTitle}>
-                    <Calendar size={16} /> Lịch hẹn bác sĩ
+                    <Calendar size={16} /> {t.notifications.appointments}
                   </h3>
                   <div className={styles.list}>
                     {appointments.map(appt => (

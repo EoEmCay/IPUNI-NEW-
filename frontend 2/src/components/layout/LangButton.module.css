@@ -1,0 +1,87 @@
+.btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: opacity 0.15s;
+}
+
+.btn:hover {
+  opacity: 0.8;
+}
+
+.flagImg {
+  width: 26px;
+  height: 18px;
+  object-fit: cover;
+  border-radius: 3px;
+  display: block;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+}
+
+/* Dropdown */
+.dropdown {
+  position: fixed;
+  z-index: 8999;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  min-width: 170px;
+  animation: fadeDown 0.15s ease-out;
+}
+
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  transition: background 0.12s;
+  text-align: left;
+}
+
+.option:hover {
+  background: var(--color-bg);
+}
+
+.optionActive {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.optionFlagImg {
+  width: 28px;
+  height: 19px;
+  object-fit: cover;
+  border-radius: 3px;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.optionLabel {
+  flex: 1;
+}
+
+.check {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-primary);
+}

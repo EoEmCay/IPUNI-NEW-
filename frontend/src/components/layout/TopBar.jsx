@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import UserMenu from './UserMenu';
 import NotificationsModal from './NotificationsModal';
 import MedicationReminderToast from '../common/MedicationReminderToast';
-import useThemeStore from '../../store/themeStore';
 import { useNotifications } from '../../hooks/useNotifications';
+import { useT } from '../../hooks/useT';
 import Logo from '../common/Logo';
 import DemoCountdown from '../common/DemoCountdown';
 import styles from './TopBar.module.css';
@@ -13,6 +13,7 @@ export default function TopBar() {
   const navigate = useNavigate();
   const { isCuteMode } = useThemeStore();
   const { isOpen, medications, appointments, hasNotifications, isTimeToDrink, upcomingMeds, handleOpen, handleClose } = useNotifications();
+  const t = useT();
 
   return (
     <>
@@ -26,12 +27,12 @@ export default function TopBar() {
         <DemoCountdown />
 
         <div className={styles.actions}>
-          <button className={styles.iconBtn} title="Lời khuyên" onClick={() => navigate('/advice')}>
+          <button className={styles.iconBtn} title={t.advice?.title || "Lời khuyên"} onClick={() => navigate('/advice')}>
             <BookOpen size={20} />
           </button>
           <button
             className={`${styles.bellBtn} ${hasNotifications ? styles.hasBadge : ''} ${isTimeToDrink ? styles.active : ''}`}
-            title="Thông báo"
+            title={t.notifications?.title || "Thông báo"}
             onClick={handleOpen}
           >
             <Bell size={20} />

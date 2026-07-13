@@ -64,9 +64,11 @@ const en = {
     todayMeds: "Today's Medications",
     viewPrescription: 'View Rx',
     viewPrescriptionCute: 'View Rx 💊',
-    noMeds: 'No medications',
-    noMedsSubtitle: 'No prescription has been issued yet.',
+    noMeds: 'No prescriptions yet',
+    noMedsSubtitle: 'Your doctor hasn\'t prescribed any medications.',
     addMetric: 'Add Metric',
+    moreMedsCute: 'And {{count}} other medications waiting for you to take 🐾',
+    moreMeds: '{{count}} more medications left to take',
   },
 
   // Metrics page
@@ -77,6 +79,7 @@ const en = {
     days7: '7 days',
     days14: '14 days',
     days30: '30 days',
+    days90: '90 days',
     noData: 'No data yet',
     noDataSubtitle: 'Enter your first metric reading.',
     glucoseLabel: 'Glucose',
@@ -148,8 +151,9 @@ const en = {
     statusUpcoming: 'Upcoming',
     statusCompleted: 'Completed',
     statusCancelled: 'Cancelled',
-    doctorNote: 'Doctor\'s Notes',
+    doctorNote: 'Doctor Note',
     retakeSchedule: 'Follow-up Appointment',
+    doctorDetailBtn: 'Doctor Details',
   },
 
   // Advice page
@@ -161,6 +165,8 @@ const en = {
     shouldAvoid: 'Foods to Avoid',
     exercise: 'Exercise',
     danger: 'Alerts',
+    alertBannerTitle: '⚠️ Danger signs to know',
+    alertBannerSub: 'Recognize and handle acute hypo/hyperglycemia',
   },
 
   // Auth
@@ -210,9 +216,11 @@ const en = {
   // Settings
   settings: {
     title: 'Settings',
+    subtitle: 'Customize your experience',
     sectionDisplay: 'Display',
     fontSizeTitle: 'Text Size (Zoom)',
     fontSizeDesc: 'Enlarge all text for easier reading',
+    zoomLevel: 'Zoom level',
     sectionTheme: 'Appearance',
     cuteMode: 'Cute Mode',
     cuteModeDesc: 'Pastel and playful interface',
@@ -269,6 +277,150 @@ const en = {
     btnStart: 'Take a tour',
   },
 
+  // Upgrade
+  upgrade: {
+    title: 'Upgrade Account',
+    subtitle: 'Unlock full features for better health care',
+    freePlan: 'Free',
+    forever: 'forever',
+    month: 'month',
+    popular: 'Popular',
+    currentPlan: 'Current',
+    btnCurrent: 'Current Plan',
+    btnUpgrade: 'Upgrade Now',
+    securePayment: 'Secure payment · Cancel anytime · No auto-renewal',
+    payTitle: 'Payment via',
+    paySubtitle: 'Upgrade to',
+    bankLabel: 'Bank',
+    accountLabel: 'Account No.',
+    ownerLabel: 'Account Name',
+    amountLabel: 'Amount',
+    contentLabel: 'Transfer Content',
+    copy: 'Copy',
+    copied: 'Copied',
+    back: 'Back',
+    payNote: 'After successful transfer, your account will be upgraded within',
+    hours24: '24 hours',
+    fFree1: 'Track blood sugar metrics',
+    fFree2: 'Basic medication management',
+    fFree3: 'Doctor appointments',
+    fFree4: 'Health advice',
+    fFree5: 'Cute Mode',
+    fPro1: 'All Free features',
+    fPro2: 'AI Prescription Scanner (unlimited)',
+    fPro3: 'HbA1c chart & trends',
+    fPro4: 'Smart medication reminder',
+    fPro5: 'AI Nutrition consulting',
+    fPro6: 'Sync measurement devices',
+    fPro7: 'Share with doctor',
+    fPro8: '24/7 Priority support',
+    fPro9: 'Unlock all A-Styles (100+ themes & avatars)'
+  },
+
+  // User Profile
+  profile: {
+    notUpdated: 'Not updated',
+    saveError: 'Error saving info',
+    title: 'Personal Information',
+    edit: 'Edit',
+    fullName: 'Full Name',
+    phone: 'Phone Number',
+    address: 'Address',
+    dob: 'Date of Birth',
+    idCard: 'ID Card / Passport',
+    medicalInfo: 'Medical & Insurance Info',
+    insuranceNo: 'Insurance No.',
+    insuranceExp: 'Insurance Expiry',
+    bloodType: 'Blood Type',
+    allergies: 'Allergies',
+    none: 'None',
+    basicInfo: 'Basic Information',
+    cancel: 'Cancel',
+    saving: 'Saving...',
+    saveChanges: 'Save changes',
+    placeholderName: 'John Doe',
+    placeholderAddress: '123 Main St, NY',
+    placeholderId: '12-digit ID',
+    placeholderInsurance: 'INS2024001234',
+    placeholderAllergies: 'Penicillin, seafood, pollen,...',
+  },
+
+  // Doctor Detail
+  doctorDetail: {
+    title: 'Doctor Information',
+    fullName: 'Full Name',
+    degree: 'Degree',
+    jobTitle: 'Title',
+    workplace: 'Workplace',
+    workHistory: 'Work History',
+    contact: 'Contact',
+  },
+
+  // OTP Verify Modal
+  otp: {
+    enter6Digits: 'Please enter all 6 digits',
+    incorrectCode: 'Incorrect code. Please try again.',
+    preparing: 'Preparing',
+    verifyingSecurity: 'Verifying your account security',
+    enterOtp: 'Enter OTP',
+    codeSentTo: 'Code sent to',
+    codeExpired: 'Code expired',
+    newCodeSent: '✓ New code sent',
+    verifying: 'Verifying...',
+    confirm: 'Confirm',
+    notReceived: "Didn't receive the code?",
+    sending: 'Sending...',
+    resend: 'Resend code',
+  },
+
+  // Mock Google Login Modal
+  mockGoogle: {
+    invalidEmail: 'Please enter a valid email',
+    loginFailed: 'Google login failed',
+    title: 'Sign in (Mock)',
+    subtitle: 'Use your Google Account',
+    placeholder: 'Email or phone',
+    infoText: 'This is a mock Google login interface. The system will automatically create an account based on this email.',
+    cancel: 'Cancel',
+    processing: 'Processing...',
+    next: 'Next',
+  },
+
+  // Terms Modal
+  terms: {
+    titleTerms: 'Terms of Use',
+    titlePrivacy: 'Privacy Policy',
+    descTerms: 'Please read the Terms of Use carefully. Scroll to the bottom to continue.',
+    descPrivacy: 'Privacy Policy of DIA+ Medical Platform',
+    agreeText: 'I have read and agree to the Terms of Use and Privacy Policy.',
+    continue: 'Continue',
+    complete: 'Complete & Start Using',
+  },
+
+  // Notifications Modal
+  notifications: {
+    title: 'Notifications',
+    empty: 'No notifications yet',
+    medications: 'Medications to take',
+    appointments: 'Doctor appointments',
+  },
+
+  // Scan History Page
+  scanHistory: {
+    title: 'Scan History',
+    subtitle: 'Review scanned prescriptions on this device',
+    loading: 'Loading...',
+    empty: 'No scan history yet',
+    deleteConfirm: 'Are you sure you want to delete this scan history?',
+    doctorPrefix: 'Doctor:',
+    unknownDoctor: 'Unknown doctor',
+    medCount: 'medications',
+    detailTitle: 'Prescription Details',
+    resultTitle: 'Recognition Result',
+    dosage: 'Dosage:',
+    instructions: 'Instructions:',
+  },
+
   // Common
   common: {
     loading: 'Loading...',
@@ -281,6 +433,12 @@ const en = {
     back: 'Back',
     success: 'Success!',
     error: 'Something went wrong',
+    demoExpired: 'Trial version has ended (30 minutes). Your data has been cleaned up. Please register an account to continue using.',
+    demoLoading: '⏳ Loading...',
+    medReminderMsg: 'It is time to take your medication:',
+    medReminderTitle: 'Medication Reminder (Diaplus)',
+    medReminderToastTitle: '⏰ Time to take your medication!',
+    medCountToTake: 'medications to take',
   },
 
   // Days of week

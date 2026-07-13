@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import useAuthStore from '../../store/authStore';
+import { useT } from '../../hooks/useT';
 import styles from './DemoCountdown.module.css';
 
 export default function DemoCountdown() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const [timeLeft, setTimeLeft] = useState(null);
+  const t = useT();
 
   const isDemo = user?.is_demo || (user?.email && user.email.startsWith('demo_'));
 
@@ -36,7 +38,7 @@ export default function DemoCountdown() {
         setTimeLeft(0);
         // Automatically log out
         logout();
-        alert('Phiên bản dùng thử đã kết thúc (30 phút). Dữ liệu của bạn đã được dọn dẹp. Vui lòng đăng ký tài khoản để tiếp tục sử dụng.');
+        alert(t.common?.demoExpired || 'Phiên bản dùng thử đã kết thúc (30 phút). Dữ liệu của bạn đã được dọn dẹp. Vui lòng đăng ký tài khoản để tiếp tục sử dụng.');
         window.location.href = '/register';
       } else {
         setTimeLeft(remaining);
@@ -51,7 +53,7 @@ export default function DemoCountdown() {
   }
 
   if (timeLeft === null) {
-    return <div className={styles.demoCountdown}><span>⏳ Đang tải...</span></div>;
+    return <div className={styles.demoCountdown}><span>{t.common?.demoLoading || '⏳ Đang tải...'}</span></div>;
   }
 
   // Format timeLeft to mm:ss

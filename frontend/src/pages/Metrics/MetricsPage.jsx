@@ -71,7 +71,7 @@ export default function MetricsPage() {
         <StatisticsCard 
           statistics={statistics?.statistics} 
           estimatedHbA1c={statistics?.estimatedHbA1c} 
-          period={statistics?.period || '90 days'} 
+          period={statistics?.period || t.metrics.days90} 
           type={activeType} 
         />
       </div>

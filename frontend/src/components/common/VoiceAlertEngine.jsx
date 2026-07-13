@@ -2,10 +2,12 @@ import { useEffect, useRef } from 'react';
 import { voiceAlertService, ALERT_TYPES } from '../../services/voiceAlert.service';
 import { useMedications } from '../../hooks/useMedications';
 import { useToast } from '../../hooks/useToast';
+import { useT } from '../../hooks/useT';
 
 export default function VoiceAlertEngine() {
   const { medications, fetchMedications } = useMedications();
   const { showToast } = useToast();
+  const t = useT();
   
   // Ref to track already alerted medications so we don't alert multiple times
   const alertedRef = useRef({});
@@ -48,13 +50,15 @@ export default function VoiceAlertEngine() {
       if (triggeredType && medsToTake.length > 0) {
         voiceAlertService.playAlert(triggeredType, medsToTake);
         
-        const msg = `Đã đến giờ uống thuốc: ${medsToTake.join(', ')}`;
+        const baseMsg = t.common?.medReminderMsg || 'Đã đến giờ uống thuốc:';
+        const msg = `${baseMsg} ${medsToTake.join(', ')}`;
         showToast(msg, 'success'); 
         
         // Show Local Notification (works on desktop and PWA on mobile)
         if ('Notification' in window && Notification.permission === 'granted') {
           try {
-            new Notification('Nhắc nhở uống thuốc (Diaplus)', {
+            const notifTitle = t.common?.medReminderTitle || 'Nhắc nhở uống thuốc (Diaplus)';
+            new Notification(notifTitle, {
               body: msg,
               icon: '/logo192.png',
               badge: '/logo192.png',

@@ -67,6 +67,8 @@ const vi = {
     noMeds: 'Chưa có đơn thuốc',
     noMedsSubtitle: 'Bác sĩ chưa kê đơn thuốc nào.',
     addMetric: 'Nhập chỉ số',
+    moreMedsCute: 'Và {{count}} loại thuốc khác đang chờ bạn uống 🐾',
+    moreMeds: 'Còn {{count}} loại thuốc khác chưa uống',
   },
 
   // Metrics page
@@ -77,6 +79,7 @@ const vi = {
     days7: '7 ngày',
     days14: '14 ngày',
     days30: '30 ngày',
+    days90: '90 ngày',
     noData: 'Chưa có dữ liệu',
     noDataSubtitle: 'Hãy nhập chỉ số đầu tiên của bạn.',
     glucoseLabel: 'Glucose',
@@ -146,6 +149,7 @@ const vi = {
     statusCancelled: 'Đã hủy',
     doctorNote: 'Ghi chú từ bác sĩ',
     retakeSchedule: 'Tái khám định kỳ',
+    doctorDetailBtn: 'Chi tiết bác sĩ',
   },
 
   // Advice page
@@ -157,6 +161,8 @@ const vi = {
     shouldAvoid: 'Nên tránh',
     exercise: 'Vận động',
     danger: 'Nguy hiểm',
+    alertBannerTitle: '⚠️ Dấu hiệu nguy hiểm cần biết',
+    alertBannerSub: 'Nhận biết và xử lý hạ/tăng đường huyết cấp',
   },
 
   // Auth
@@ -206,9 +212,11 @@ const vi = {
   // Settings
   settings: {
     title: 'Cài Đặt',
+    subtitle: 'Tùy chỉnh trải nghiệm của bạn',
     sectionDisplay: 'Hiển thị',
     fontSizeTitle: 'Cỡ chữ (Phóng to)',
     fontSizeDesc: 'Phóng to toàn bộ chữ để dễ đọc hơn',
+    zoomLevel: 'Mức phóng to',
     sectionTheme: 'Giao diện',
     cuteMode: 'Cute Mode',
     cuteModeDesc: 'Giao diện trẻ trung, màu pastel dễ thương',
@@ -265,6 +273,150 @@ const vi = {
     btnStart: 'Hướng dẫn dùng app',
   },
 
+  // Upgrade
+  upgrade: {
+    title: 'Nâng cấp tài khoản',
+    subtitle: 'Mở khóa đầy đủ tính năng để chăm sóc sức khỏe tốt hơn',
+    freePlan: 'Miễn phí',
+    forever: 'mãi mãi',
+    month: 'tháng',
+    popular: 'Phổ biến',
+    currentPlan: 'Đang dùng',
+    btnCurrent: 'Gói hiện tại',
+    btnUpgrade: 'Nâng cấp ngay',
+    securePayment: 'Thanh toán an toàn · Hủy bất kỳ lúc nào · Không tự gia hạn',
+    payTitle: 'Thanh toán',
+    paySubtitle: 'Nâng cấp lên gói',
+    bankLabel: 'Ngân hàng',
+    accountLabel: 'Số tài khoản',
+    ownerLabel: 'Chủ tài khoản',
+    amountLabel: 'Số tiền',
+    contentLabel: 'Nội dung CK',
+    copy: 'Sao chép',
+    copied: 'Đã sao chép',
+    back: 'Quay lại',
+    payNote: 'Sau khi chuyển khoản thành công, tài khoản sẽ được nâng cấp trong vòng',
+    hours24: '24 giờ',
+    fFree1: 'Theo dõi chỉ số đường huyết',
+    fFree2: 'Quản lý thuốc cơ bản',
+    fFree3: 'Lịch hẹn bác sĩ',
+    fFree4: 'Lời khuyên sức khỏe',
+    fFree5: 'Cute Mode',
+    fPro1: 'Tất cả tính năng Free',
+    fPro2: 'Quét đơn thuốc bằng AI (không giới hạn)',
+    fPro3: 'Biểu đồ HbA1c & xu hướng',
+    fPro4: 'Nhắc uống thuốc thông minh',
+    fPro5: 'Tư vấn dinh dưỡng AI',
+    fPro6: 'Đồng bộ thiết bị đo',
+    fPro7: 'Chia sẻ với bác sĩ',
+    fPro8: 'Hỗ trợ ưu tiên 24/7',
+    fPro9: 'Mở khóa tất cả A-Styles (100+ giao diện & avatar)'
+  },
+
+  // User Profile
+  profile: {
+    notUpdated: 'Chưa cập nhật',
+    saveError: 'Lỗi khi lưu thông tin',
+    title: 'Thông Tin Cá Nhân',
+    edit: 'Chỉnh sửa',
+    fullName: 'Họ và Tên',
+    phone: 'Số Điện Thoại',
+    address: 'Địa Chỉ',
+    dob: 'Ngày Sinh',
+    idCard: 'CCCD/CMT',
+    medicalInfo: 'Thông Tin Y Tế & BHYT',
+    insuranceNo: 'Mã BHYT',
+    insuranceExp: 'Ngày hết hạn BHYT',
+    bloodType: 'Nhóm Máu',
+    allergies: 'Dị Ứng',
+    none: 'Không có',
+    basicInfo: 'Thông tin cơ bản',
+    cancel: 'Huỷ',
+    saving: 'Đang lưu...',
+    saveChanges: 'Lưu thay đổi',
+    placeholderName: 'Nguyễn Văn A',
+    placeholderAddress: '123 Đường ABC, Quận 1, TP.HCM',
+    placeholderId: '12 số CCCD',
+    placeholderInsurance: 'BH2024001234',
+    placeholderAllergies: 'Penicillin, hải sản, phấn hoa,...',
+  },
+
+  // Doctor Detail
+  doctorDetail: {
+    title: 'Thông tin bác sĩ',
+    fullName: 'Họ tên',
+    degree: 'Học vị',
+    jobTitle: 'Chức danh',
+    workplace: 'Nơi công tác',
+    workHistory: 'Quá trình công tác',
+    contact: 'Liên hệ',
+  },
+
+  // OTP Verify Modal
+  otp: {
+    enter6Digits: 'Vui lòng nhập đủ 6 chữ số',
+    incorrectCode: 'Mã không đúng. Vui lòng thử lại.',
+    preparing: 'Đang chuẩn bị',
+    verifyingSecurity: 'Xác thực bảo mật tài khoản của bạn',
+    enterOtp: 'Nhập mã OTP',
+    codeSentTo: 'Mã đã được gửi đến',
+    codeExpired: 'Mã đã hết hạn',
+    newCodeSent: '✓ Đã gửi lại mã mới',
+    verifying: 'Đang xác thực...',
+    confirm: 'Xác nhận',
+    notReceived: 'Chưa nhận được mã?',
+    sending: 'Đang gửi...',
+    resend: 'Gửi lại mã',
+  },
+
+  // Mock Google Login Modal
+  mockGoogle: {
+    invalidEmail: 'Vui lòng nhập email hợp lệ',
+    loginFailed: 'Đăng nhập Google thất bại',
+    title: 'Đăng nhập (Giả lập)',
+    subtitle: 'Sử dụng tài khoản Google của bạn',
+    placeholder: 'Email hoặc số điện thoại',
+    infoText: 'Đây là giao diện mô phỏng đăng nhập bằng Google. Hệ thống sẽ tạo tài khoản tự động dựa trên email này.',
+    cancel: 'Huỷ',
+    processing: 'Đang xử lý...',
+    next: 'Tiếp theo',
+  },
+
+  // Terms Modal
+  terms: {
+    titleTerms: 'Điều khoản sử dụng',
+    titlePrivacy: 'Quyền riêng tư',
+    descTerms: 'Vui lòng đọc kỹ Điều khoản sử dụng. Cuộn xuống dưới cùng để tiếp tục.',
+    descPrivacy: 'Chính sách Quyền riêng tư của Nền tảng Y tế DIA+',
+    agreeText: 'Tôi đã đọc và đồng ý với các Điều khoản sử dụng và Quyền riêng tư của ứng dụng.',
+    continue: 'Tiếp tục',
+    complete: 'Hoàn tất & Sử dụng',
+  },
+
+  // Notifications Modal
+  notifications: {
+    title: 'Thông báo',
+    empty: 'Chưa có thông báo gì hết',
+    medications: 'Thuốc cần uống',
+    appointments: 'Lịch hẹn bác sĩ',
+  },
+
+  // Scan History Page
+  scanHistory: {
+    title: 'Lịch Sử Quét',
+    subtitle: 'Xem lại các đơn thuốc đã quét trên thiết bị này',
+    loading: 'Đang tải...',
+    empty: 'Chưa có lịch sử quét nào',
+    deleteConfirm: 'Bạn có chắc muốn xóa lịch sử quét này?',
+    doctorPrefix: 'Bác sĩ:',
+    unknownDoctor: 'Không rõ bác sĩ',
+    medCount: 'thuốc',
+    detailTitle: 'Chi tiết đơn thuốc',
+    resultTitle: 'Kết quả nhận diện',
+    dosage: 'Liều lượng:',
+    instructions: 'Cách dùng:',
+  },
+
   // Common
   common: {
     loading: 'Đang tải...',
@@ -277,6 +429,12 @@ const vi = {
     back: 'Quay lại',
     success: 'Thành công!',
     error: 'Có lỗi xảy ra',
+    demoExpired: 'Phiên bản dùng thử đã kết thúc (30 phút). Dữ liệu của bạn đã được dọn dẹp. Vui lòng đăng ký tài khoản để tiếp tục sử dụng.',
+    demoLoading: '⏳ Đang tải...',
+    medReminderMsg: 'Đã đến giờ uống thuốc:',
+    medReminderTitle: 'Nhắc nhở uống thuốc (Diaplus)',
+    medReminderToastTitle: '⏰ Đến giờ uống thuốc!',
+    medCountToTake: 'loại thuốc cần uống',
   },
 
   // Days of week

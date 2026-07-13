@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useT } from '../../hooks/useT';
 import styles from './TermsModal.module.css';
 
 const LOREM_IPSUM = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
@@ -8,6 +9,7 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
 Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus.`;
 
 export default function TermsModal({ onComplete }) {
+  const t = useT();
   const [step, setStep] = useState(1); // 1: Terms, 2: Privacy
   const [canProceed, setCanProceed] = useState(false);
   const [agreed, setAgreed] = useState(false);
@@ -33,13 +35,13 @@ export default function TermsModal({ onComplete }) {
       <div className={styles.modal}>
         <div className={styles.header}>
           <h2 className={styles.title}>
-            {step === 1 ? 'Điều khoản sử dụng' : 'Quyền riêng tư'}
+            {step === 1 ? t.terms.titleTerms : t.terms.titlePrivacy}
           </h2>
         </div>
         
         <div className={styles.content} onScroll={step === 1 ? handleScroll : undefined}>
           <p style={{ fontWeight: 'bold', marginBottom: '12px' }}>
-            {step === 1 ? 'Vui lòng đọc kỹ Điều khoản sử dụng. Cuộn xuống dưới cùng để tiếp tục.' : 'Chính sách Quyền riêng tư của Nền tảng Y tế DIA+'}
+            {step === 1 ? t.terms.descTerms : t.terms.descPrivacy}
           </p>
           <div style={{ whiteSpace: 'pre-wrap' }}>
             {LOREM_IPSUM}
@@ -56,7 +58,7 @@ export default function TermsModal({ onComplete }) {
                 onChange={(e) => setAgreed(e.target.checked)}
               />
               <span className={styles.checkboxText}>
-                Tôi đã đọc và đồng ý với các Điều khoản sử dụng và Quyền riêng tư của ứng dụng.
+                {t.terms.agreeText}
               </span>
             </label>
           )}
@@ -66,7 +68,7 @@ export default function TermsModal({ onComplete }) {
             disabled={step === 1 ? !canProceed : !agreed}
             onClick={nextStep}
           >
-            {step === 1 ? 'Tiếp tục' : 'Hoàn tất & Sử dụng'}
+            {step === 1 ? t.terms.continue : t.terms.complete}
           </button>
         </div>
       </div>

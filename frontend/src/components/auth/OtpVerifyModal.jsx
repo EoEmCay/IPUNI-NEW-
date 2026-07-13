@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { authService } from '../../services/auth.service';
+import { useT } from '../../hooks/useT';
 import styles from './OtpVerifyModal.module.css';
 
 const MailSVG = () => (
@@ -33,6 +34,7 @@ const ArrowLeftSVG = () => (
 );
 
 export default function OtpVerifyModal({ email, phone, formData, onVerified, onClose }) {
+  const t = useT();
   const [phase, setPhase] = useState('loading'); // 'loading' | 'choose' | 'input'
   const [method, setMethod] = useState(null);
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -105,7 +107,7 @@ export default function OtpVerifyModal({ email, phone, formData, onVerified, onC
 
   const handleVerify = async () => {
     const code = otp.join('');
-    if (code.length < 6) { setError('Vui lòng nhập đủ 6 chữ số'); return; }
+    if (code.length < 6) { setError(t.otp.enter6Digits); return; }
     setSubmitting(true);
     setError('');
     try {
@@ -117,7 +119,7 @@ export default function OtpVerifyModal({ email, phone, formData, onVerified, onC
       );
       onVerified(res.data.data);
     } catch (err) {
-      const msg = err?.response?.data?.message || 'Mã không đúng. Vui lòng thử lại.';
+      const msg = err?.response?.data?.message || t.otp.incorrectCode;
       setError(msg);
       setOtp(['', '', '', '', '', '']);
       setTimeout(() => inputRefs.current[0]?.focus(), 50);
@@ -163,8 +165,8 @@ export default function OtpVerifyModal({ email, phone, formData, onVerified, onC
               <div className={styles.loadingRing} />
               <div className={styles.loadingIcon}><ShieldSVG /></div>
             </div>
-            <p className={styles.loadingTitle}>Đang chuẩn bị<span className={styles.dots} /></p>
-            <p className={styles.loadingSubtitle}>Xác thực bảo mật tài khoản của bạn</p>
+            <p className={styles.loadingTitle}>{t.otp.preparing}<span className={styles.dots} /></p>
+            <p className={styles.loadingSubtitle}>{t.otp.verifyingSecurity}</p>
           </div>
         )}
 
@@ -176,9 +178,9 @@ export default function OtpVerifyModal({ email, phone, formData, onVerified, onC
               <div className={`${styles.methodBadge} ${method === 'email' ? styles.badgeEmail : styles.badgePhone}`}>
                 {method === 'email' ? <MailSVG /> : <PhoneSVG />}
               </div>
-              <h2 className={styles.inputTitle}>Nhập mã OTP</h2>
+              <h2 className={styles.inputTitle}>{t.otp.enterOtp}</h2>
               <p className={styles.inputSubtitle}>
-                Mã đã được gửi đến{' '}
+                {t.otp.codeSentTo}{' '}
                 <strong>{method === 'email' ? maskedEmail : maskedPhone}</strong>
               </p>
             </div>
@@ -211,7 +213,7 @@ export default function OtpVerifyModal({ email, phone, formData, onVerified, onC
                   <span>{formatTime(timeLeft)}</span>
                 </div>
               ) : (
-                <p className={styles.expiredText}>Mã đã hết hạn</p>
+                <p className={styles.expiredText}>{t.otp.codeExpired}</p>
               )}
             </div>
 
@@ -219,7 +221,7 @@ export default function OtpVerifyModal({ email, phone, formData, onVerified, onC
             {error && <div className={styles.errorBox}><span>⚠</span> {error}</div>}
 
             {/* Resent success */}
-            {resent && <div className={styles.resentBox}>✓ Đã gửi lại mã mới</div>}
+            {resent && <div className={styles.resentBox}>{t.otp.newCodeSent}</div>}
 
             {/* Confirm button */}
             <button
@@ -228,16 +230,16 @@ export default function OtpVerifyModal({ email, phone, formData, onVerified, onC
               disabled={submitting || otp.join('').length < 6 || timeLeft === 0}
             >
               {submitting ? <span className={styles.spinner} /> : null}
-              {submitting ? 'Đang xác thực...' : 'Xác nhận'}
+              {submitting ? t.otp.verifying : t.otp.confirm}
             </button>
 
             {/* Resend */}
             <div className={styles.resendRow}>
               {timeLeft > 0 ? (
-                <span className={styles.resendHint}>Chưa nhận được mã?</span>
+                <span className={styles.resendHint}>{t.otp.notReceived}</span>
               ) : (
                 <button className={styles.resendBtn} onClick={handleResend} disabled={sending}>
-                  {sending ? 'Đang gửi...' : 'Gửi lại mã'}
+                  {sending ? t.otp.sending : t.otp.resend}
                 </button>
               )}
             </div>

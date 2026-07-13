@@ -37,7 +37,7 @@ export default function AppointmentCard({ appointment }) {
         {appointment.location && <div className={styles.location}>{appointment.location}</div>}
 
         <button className={styles.detailBtn} onClick={() => setShowDetail(true)}>
-          Chi tiết bác sĩ <ChevronRight size={13} />
+          {t.appointments?.doctorDetailBtn || 'Chi tiết bác sĩ'} <ChevronRight size={13} />
         </button>
       </div>
       <span className={`${styles.statusBadge} ${styles[appointment.status]}`}>

@@ -1,0 +1,93 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: astroFloat 5s ease-in-out infinite;
+}
+
+.svg {
+  width: 140px;
+  height: 160px;
+  filter: drop-shadow(0 6px 20px rgba(168, 85, 247, 0.25));
+}
+
+/* ── Icon variant (small, inline) ── */
+.iconSvg {
+  width: 28px;
+  height: 28px;
+}
+
+/* ── Helmet ── */
+.helmetGlow {
+  fill: rgba(216, 180, 254, 0.2);
+  filter: blur(4px);
+}
+.helmet { fill: #e9d5ff; }
+.helmetGlass {
+  fill: rgba(240, 253, 255, 0.85);
+  stroke: rgba(200, 180, 255, 0.6);
+  stroke-width: 1.5;
+}
+.helmetRim {
+  fill: none;
+  stroke: #c084fc;
+  stroke-width: 3;
+}
+.helmetReflect {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.7);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+/* ── Cat face ── */
+.catFace { fill: #F4A261; }
+.catInnerEar { fill: #fad3bf; }
+.eyeWhite { fill: #fff; }
+.iris { fill: #7C3AED; }
+.pupil { fill: #1a0a2e; }
+.shine { fill: white; }
+.nose { fill: #EC4899; }
+.mouth { fill: none; stroke: #a0214c; stroke-width: 1.8; stroke-linecap: round; }
+.whisker { stroke: rgba(100,60,20,0.35); stroke-width: 1.2; stroke-linecap: round; }
+.blush { fill: rgba(236, 72, 153, 0.18); }
+
+/* Icons variant */
+.eye { fill: #1a0a2e; }
+.ear { fill: #F4A261; }
+
+/* ── Suit ── */
+.suitBody { fill: #c084fc; }
+.suitCollar { fill: #a855f7; }
+.suitArm { fill: none; stroke: #a855f7; stroke-width: 18; stroke-linecap: round; }
+.suitBtn { fill: rgba(255,255,255,0.5); }
+
+/* ── Pills ── */
+.pillA { fill: #f9a8d4; }
+.pillB { fill: #86efac; }
+.pillC { fill: #93c5fd; }
+.pillLine { stroke: rgba(255,255,255,0.7); stroke-width: 1.5; }
+.pillStar { font-size: 10px; fill: rgba(168,85,247,0.7); }
+
+/* Pill float animations */
+.pill1 { animation: floatPill 4s ease-in-out infinite; }
+.pill2 { animation: floatPill 5s ease-in-out infinite; animation-delay: 1s; }
+.pill3 { animation: floatPill 3.5s ease-in-out infinite; animation-delay: 2s; }
+
+.floatLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-top: 4px;
+  opacity: 0.75;
+}
+
+@keyframes astroFloat {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-12px) rotate(2deg); }
+}
+
+@keyframes floatPill {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(10deg); }
+}

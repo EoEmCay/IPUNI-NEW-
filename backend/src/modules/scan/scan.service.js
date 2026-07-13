@@ -80,42 +80,49 @@ function isDiabetesDiagnosis(diagnosis) {
          lower.includes('sugar');
 }
 
-const PROMPT = `You are an expert medical assistant. Analyze the medical prescription (either from the image directly or from the OCR text provided) and convert it into a structured JSON object.
-All Vietnamese values must be direct, short, and contain no filler words.
+function getPrompt(lang = 'vi') {
+  const languageNames = {
+    'en': 'English',
+    'lo': 'Lao',
+    'vi': 'Vietnamese'
+  };
+  const targetLang = languageNames[lang] || 'Vietnamese';
+
+  return `You are an expert medical assistant. Analyze the medical prescription (either from the image directly or from the OCR text provided) and convert it into a structured JSON object.
+All string values returned MUST be directly translated into ${targetLang}. They must be direct, short, and contain no filler words.
 If isDiabetesPrescription is false, you should still attempt to parse the medications in the prescription.
 
 CRITICAL INSTRUCTIONS:
 - A valid medical prescription MUST contain a list of prescribed medications (drugs with names and dosages/frequencies).
 - You MUST extract ALL medications found in the prescription without exception. If there are 7 medications, return 7. Do NOT truncate, do NOT summarize, and do NOT skip ANY medication under any circumstances.
-- You MUST explicitly search for and extract the Doctor's name (doctorName), the Prescription Date (prescriptionDate), the Next Appointment Date (nextAppointmentDate / lịch tái khám), and any Doctor's Notes/Instructions (doctorNotes / lời dặn). These are very important.
-- Extract any patient health metrics (e.g. Glucose/Đường huyết, HbA1c, Blood Pressure/Huyết áp, Weight, Height) present in the document into the "metrics" array. Do NOT parse diagnostic parameters as medications.
-- If the document is a laboratory test result (kết quả xét nghiệm), diagnostic imaging report, referral letter, or if the text is unreadable, set "isPrescription" to false.
+- You MUST explicitly search for and extract the Doctor's name (doctorName), the Prescription Date (prescriptionDate), the Next Appointment Date (nextAppointmentDate), and any Doctor's Notes/Instructions (doctorNotes). These are very important.
+- Extract any patient health metrics (e.g. Glucose, HbA1c, Blood Pressure, Weight, Height) present in the document into the "metrics" array. Do NOT parse diagnostic parameters as medications.
+- If the document is a laboratory test result, diagnostic imaging report, referral letter, or if the text is unreadable, set "isPrescription" to false.
 
 JSON Schema:
 {
   "isPrescription": true/false (true if the image/text represents a medical prescription),
-  "isDiabetesPrescription": true/false (true if the diagnosis, symptoms, or any of the medications are for diabetes/đái tháo đường/tiểu đường),
-  "rejectionReason": "Detailed reason in Vietnamese why this is not a prescription or not related to diabetes (e.g. Đây là kết quả xét nghiệm, không phải đơn thuốc)" or null,
+  "isDiabetesPrescription": true/false (true if the diagnosis, symptoms, or any of the medications are for diabetes),
+  "rejectionReason": "Detailed reason in ${targetLang} why this is not a prescription or not related to diabetes" or null,
   "doctorName": "Doctor name" or null,
   "prescriptionDate": "Prescription date in YYYY-MM-DD format" or null,
-  "nextAppointmentDate": "Next appointment date (ngày hẹn tái khám/lịch hẹn) in YYYY-MM-DD format" or null,
-  "diagnosis": "Detailed diagnosis in Vietnamese" or null,
-  "doctorNotes": "Doctor instructions/notes in Vietnamese" or null,
+  "nextAppointmentDate": "Next appointment date in YYYY-MM-DD format" or null,
+  "diagnosis": "Detailed diagnosis in ${targetLang}" or null,
+  "doctorNotes": "Doctor instructions/notes in ${targetLang}" or null,
   "medications": [{
     "name": "Drug name only (e.g. Metformin, Galvus Met)",
     "dosage": "Dosage (e.g. 500mg, 1000mg)",
-    "quantity": "Total quantity prescribed (e.g. 30 viên, 2 lọ)" or null,
-    "amountPerDose": "Amount per dose (e.g. 1 viên, 2 viên)",
+    "quantity": "Total quantity prescribed (e.g. 30 tablets)" or null,
+    "amountPerDose": "Amount per dose (e.g. 1 tablet)",
     "timesPerDay": times_per_day_number,
-    "frequency": "Frequency description (e.g. 2 lần/ngày, 1 lần/ngày)",
+    "frequency": "Frequency description (e.g. 2 times/day)",
     "times": ["HH:MM"] (Map time keywords to HH:MM format. Sáng->07:00, Trưa->12:00, Chiều->15:00, Tối->19:00, Trước ngủ/Tối muộn->22:00. Adjust based on instructions),
-    "instructions": "Full usage instructions in Vietnamese",
+    "instructions": "Full usage instructions in ${targetLang}",
     "isDiabetesDrug": true/false (true if this medication is specifically for diabetes/lowering blood glucose/insulin),
     "detail": {
-      "purpose": "Brief drug purpose in Vietnamese (dựa theo Dược thư Quốc gia Việt Nam)",
-      "mechanism": "Brief mechanism of action in Vietnamese (dựa theo Dược thư Quốc gia Việt Nam)",
-      "source": "Mặc định luôn điền 'Dược thư Quốc gia Việt Nam (trungtamthuoc.com)'"
-    }
+      "purpose": "Brief drug purpose in ${targetLang} (based on standard medical references)",
+      "mechanism": "Brief mechanism of action in ${targetLang} (based on standard medical references)",
+      "source": "Mặc định luôn điền 'DIA+ AI Reference'"
     }
   }],
   "metrics": [{
@@ -124,6 +131,7 @@ JSON Schema:
     "value_diastolic": 80 (Numeric value for diastolic blood pressure, or null for other metrics)
   }]
 }`;
+}
 
 function shapeResult(parsed) {
   const medications = parsed.medications || [];
@@ -216,7 +224,8 @@ function parseAiJson(text) {
 
 // Using LLM (Gemini/Claude) with direct image/multimodal input for best accuracy.
 // Tesseract OCR is kept as a robust fallback.
-async function analyzePrescription(imageBuffer, mimeType) {
+async function analyzePrescription(imageBuffer, mimeType, lang = 'vi') {
+  const dynamicPrompt = getPrompt(lang);
   if (!imageBuffer) {
     throw new Error('Không nhận được dữ liệu hình ảnh.');
   }
@@ -259,7 +268,7 @@ async function analyzePrescription(imageBuffer, mimeType) {
 
   // 2. Nếu có chữ từ OCR, gửi chữ này cho AI xử lý trước
   if (!useFallbackDirectGemini && ocrText) {
-    const promptWithOcr = `${PROMPT}
+    const promptWithOcr = `${dynamicPrompt}
       
 Dữ liệu chữ trích xuất từ Tesseract OCR cần phân tích và sắp xếp thành cấu trúc JSON:
 ---
@@ -360,7 +369,7 @@ ${ocrText}
         };
 
         const result = await model.generateContent([
-          PROMPT,
+          dynamicPrompt,
           imagePart
         ]);
         directText = result.response.text();
@@ -384,7 +393,7 @@ ${ocrText}
               content: [
                 {
                   type: 'text',
-                  text: PROMPT
+                  text: dynamicPrompt
                 },
                 {
                   type: 'image',

@@ -19,7 +19,7 @@ export default function MedicationsPage() {
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--color-text-secondary)', fontSize: 14 }}>
-          {t.common?.loading || 'Đang tải dữ liệu...'}
+          {t.common.loading}
         </div>
       ) : (!medications || medications.length === 0) ? (
         <EmptyState

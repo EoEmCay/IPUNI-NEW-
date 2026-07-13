@@ -1,6 +1,7 @@
 import { Stethoscope } from 'lucide-react';
 import Modal from '../common/Modal';
 import { withDoctorPrefix } from '../../utils/doctor';
+import { useT } from '../../hooks/useT';
 import styles from './DoctorDetailModal.module.css';
 
 function Row({ label, value }) {
@@ -14,9 +15,10 @@ function Row({ label, value }) {
 }
 
 export default function DoctorDetailModal({ appointment, onClose }) {
+  const t = useT();
   const a = appointment || {};
   return (
-    <Modal title="Thông tin bác sĩ" onClose={onClose}>
+    <Modal title={t.doctorDetail.title} onClose={onClose}>
       <div className={styles.hero}>
         <div className={styles.avatar}><Stethoscope size={30} color="#1B5FA6" /></div>
         <div>
@@ -29,12 +31,12 @@ export default function DoctorDetailModal({ appointment, onClose }) {
       </div>
 
       <div className={styles.section}>
-        <Row label="Họ tên" value={a.doctor_name ? withDoctorPrefix(a.doctor_name) : null} />
-        <Row label="Học vị" value={a.degree} />
-        <Row label="Chức danh" value={a.title} />
-        <Row label="Nơi công tác" value={a.location || a.department} />
-        <Row label="Quá trình công tác" value={a.work_history} />
-        <Row label="Liên hệ" value={a.contact} />
+        <Row label={t.doctorDetail.fullName} value={a.doctor_name ? withDoctorPrefix(a.doctor_name) : null} />
+        <Row label={t.doctorDetail.degree} value={a.degree} />
+        <Row label={t.doctorDetail.jobTitle} value={a.title} />
+        <Row label={t.doctorDetail.workplace} value={a.location || a.department} />
+        <Row label={t.doctorDetail.workHistory} value={a.work_history} />
+        <Row label={t.doctorDetail.contact} value={a.contact} />
       </div>
     </Modal>
   );

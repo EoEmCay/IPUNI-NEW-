@@ -14,7 +14,8 @@ async function analyzePrescription(req, res, next) {
 
     const fileBuffer = fs.readFileSync(req.file.path);
 
-    const result = await svc.analyzePrescription(fileBuffer, req.file.mimetype);
+    const lang = req.body.lang || 'vi';
+    const result = await svc.analyzePrescription(fileBuffer, req.file.mimetype, lang);
 
     if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
 

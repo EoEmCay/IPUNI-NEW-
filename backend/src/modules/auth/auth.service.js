@@ -112,7 +112,8 @@ async function demoLogin() {
   let user_code;
   do { user_code = genUserCode(); } while (await db('users').where({ user_code }).first());
   
-  const password_hash = await bcrypt.hash('demo_mock', 10);
+  // Sử dụng chuỗi băm tính trước cho 'demo_mock' để tăng tốc độ load, tránh quá tải CPU trên các server nhỏ
+  const password_hash = '$2a$10$znBEfjEODDkbHtifoiREvuPZpM7AJ9CIUdUpwqlDSztp8H5R4g0j2';
   const [userId] = await db('users').insert({
     email,
     name: 'Người Dùng Demo',

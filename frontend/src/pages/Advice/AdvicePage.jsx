@@ -57,10 +57,10 @@ export default function AdvicePage() {
         <div className={styles.detailOverlay} onClick={(e) => e.target === e.currentTarget && setSelected(null)}>
           <div className={styles.detailSheet}>
             <div className={styles.detailHeader}>
-              <span className={styles.detailTitle}>{selected.title}</span>
+              <span className={styles.detailTitle}>{t?.adviceData?.[selected.title] || selected.title}</span>
               <button className={styles.closeBtn} onClick={() => setSelected(null)}><X size={18} /></button>
             </div>
-            <div className={styles.detailBody}>{selected.detail_content || selected.description}</div>
+            <div className={styles.detailBody}>{t?.adviceData?.[selected.detail_content || selected.description] || (selected.detail_content || selected.description)}</div>
           </div>
         </div>
       )}

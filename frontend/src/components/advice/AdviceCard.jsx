@@ -25,8 +25,8 @@ export default function AdviceCard({ advice, onView, t }) {
         <Icon size={22} color={iconColor} />
       </div>
       <div className={styles.content}>
-        <div className={styles.title}>{advice.title}</div>
-        <div className={styles.desc}>{advice.description}</div>
+        <div className={styles.title}>{t?.adviceData?.[advice.title] || advice.title}</div>
+        <div className={styles.desc}>{t?.adviceData?.[advice.description] || advice.description}</div>
       </div>
       {advice.detail_content && (
         <button className={`${styles.viewBtn} ${styles[advice.category]}`} onClick={() => onView(advice)}>

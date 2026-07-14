@@ -54,9 +54,9 @@ export default function ScanPrescriptionPage() {
       if (data.error) {
         showToast(data.error, 'error');
       } else if (!data.isPrescription) {
-        showToast('Không tiếp nhận đơn thuốc này. Ảnh không phải là một đơn thuốc. Vui lòng chụp lại đơn thuốc đái tháo đường.', 'error');
+        showToast(t.scanResult?.notPrescription || 'Ảnh không phải là một đơn thuốc. Vui lòng chụp lại đơn thuốc.', 'error');
       } else if (!data.isDiabetesPrescription) {
-        showToast('Không tiếp nhận đơn thuốc này. Đây không phải đơn thuốc điều trị đái tháo đường (tiểu đường). DIA+ chỉ hỗ trợ phân tích đơn thuốc tiểu đường.', 'error');
+        showToast(t.scanResult?.notDiabetes || 'Đây không phải đơn thuốc điều trị đái tháo đường. DIA+ chỉ hỗ trợ đơn thuốc tiểu đường.', 'error');
       } else {
         // Save to history on success
         const reader = new FileReader();
@@ -108,9 +108,9 @@ export default function ScanPrescriptionPage() {
       if (result.doctorNotes || result.doctorName) {
         try {
           await appointmentsService.create({
-            doctor_name: result.doctorName || 'Không rõ bác sĩ',
-            scheduled_at: result.prescriptionDate || new Date().toISOString().split.T[0],
-            note: result.doctorNotes || 'Không có chỉ dẫn thêm',
+            doctor_name: result.doctorName || (t.scanResult?.doctorDefault || 'Không rõ bác sĩ'),
+            scheduled_at: result.prescriptionDate || new Date().toISOString().split('T')[0],
+            note: result.doctorNotes || (t.scanResult?.noteDefault || 'Không có chỉ dẫn thêm'),
             status: 'completed'
           });
         } catch (e) {
@@ -122,9 +122,9 @@ export default function ScanPrescriptionPage() {
       if (result.nextAppointmentDate) {
         try {
           await appointmentsService.create({
-            doctor_name: result.doctorName || 'Bác sĩ (Tái khám)',
+            doctor_name: result.doctorName || (t.scanResult?.doctorFollowup || 'Bác sĩ (Tái khám)'),
             scheduled_at: result.nextAppointmentDate,
-            note: 'Lịch tái khám theo đơn thuốc',
+            note: (t.scanResult?.noteFollowup || 'Lịch tái khám theo đơn thuốc'),
             status: 'upcoming'
           });
         } catch (e) {
@@ -233,12 +233,12 @@ export default function ScanPrescriptionPage() {
                 <div className={styles.rejectIcon}>
                   <XCircle size={40} />
                 </div>
-                <strong>Không tiếp nhận đơn thuốc này</strong>
+                <strong>{t.scanResult?.notAccepted}</strong>
                 <p>
                   {result.rejectionReason ||
                     (result.isPrescription
-                      ? 'Đây không phải đơn thuốc điều trị đái tháo đường (tiểu đường). DIA+ chỉ hỗ trợ phân tích đơn thuốc tiểu đường.'
-                      : 'Ảnh không phải là một đơn thuốc. Vui lòng chụp lại đơn thuốc đái tháo đường.')}
+                      ? t.scanResult?.notDiabetes
+                      : t.scanResult?.notPrescription)}
                 </p>
               </div>
               <button onClick={handleRetake} className={styles.scanAgainBtn}>
@@ -252,8 +252,8 @@ export default function ScanPrescriptionPage() {
               <div className={styles.diabetesBanner}>
                 <CheckCircle size={20} />
                 <div>
-                  <strong>Đơn thuốc điều trị đái tháo đường</strong>
-                  <p>{result.diagnosis || `${result.medications.length} thuốc được nhận diện`}</p>
+                  <strong>{t.scanResult?.diabetesPrescription}</strong>
+                  <p>{result.diagnosis || `${result.medications.length} ${t.scanResult?.medsRecognized}`}</p>
                 </div>
               </div>
 
@@ -261,17 +261,17 @@ export default function ScanPrescriptionPage() {
                 <div className={styles.metaRow}>
                   {result.doctorName && (
                     <span className={styles.metaChip}>
-                      <User size={13} /> Bác sĩ: {result.doctorName}
+                      <User size={13} /> {t.scanResult?.doctor}: {result.doctorName}
                     </span>
                   )}
                   {result.prescriptionDate && (
                     <span className={styles.metaChip}>
-                      <Calendar size={13} /> Kê đơn: {result.prescriptionDate}
+                      <Calendar size={13} /> {t.scanResult?.prescribed}: {result.prescriptionDate}
                     </span>
                   )}
                   {result.nextAppointmentDate && (
                     <span className={styles.metaChip} style={{ background: '#FEF3C7', color: '#B45309' }}>
-                      <Stethoscope size={13} /> Tái khám: {result.nextAppointmentDate}
+                      <Stethoscope size={13} /> {t.scanResult?.followup}: {result.nextAppointmentDate}
                     </span>
                   )}
                 </div>
@@ -292,7 +292,7 @@ export default function ScanPrescriptionPage() {
 
               {result.doctorNotes && (
                 <div className={styles.notesCard}>
-                  <h3><Stethoscope size={15} /> Lời dặn của bác sĩ</h3>
+                  <h3><Stethoscope size={15} /> {t.scanResult?.doctorNotes}</h3>
                   <p>{result.doctorNotes}</p>
                 </div>
               )}
@@ -317,7 +317,7 @@ export default function ScanPrescriptionPage() {
                         <div className={styles.medHeader}>
                           <span className={styles.medName}>
                             {med.name}
-                            {med.isDiabetesDrug && <span className={styles.diaTag}>Hạ đường huyết</span>}
+                            {med.isDiabetesDrug && <span className={styles.diaTag}>{t.scanResult?.diabetesTag}</span>}
                           </span>
                           {med.dosage && <span className={styles.medDosage}>{med.dosage}</span>}
                         </div>
@@ -362,19 +362,19 @@ export default function ScanPrescriptionPage() {
                           <div className={styles.detailBox}>
                             {detail.purpose && (
                               <div className={styles.detailItem}>
-                                <span className={styles.detailItemLabel}>Công dụng</span>
+                                <span className={styles.detailItemLabel}>{t.scanResult?.purpose}</span>
                                 <p>{detail.purpose}</p>
                               </div>
                             )}
                             {detail.mechanism && (
                               <div className={styles.detailItem}>
-                                <span className={styles.detailItemLabel}>Giải quyết vấn đề gì</span>
+                                <span className={styles.detailItemLabel}>{t.scanResult?.mechanism}</span>
                                 <p>{detail.mechanism}</p>
                               </div>
                             )}
                             {detail.contraindications && (
                               <div className={styles.detailItem}>
-                                <span className={styles.detailItemLabel}>⚠️ Không dùng cho</span>
+                                <span className={styles.detailItemLabel}>⚠️ {t.scanResult?.contraindications}</span>
                                 <p>{detail.contraindications}</p>
                               </div>
                             )}
@@ -428,8 +428,7 @@ export default function ScanPrescriptionPage() {
               )}
 
               <p className={styles.disclaimer}>
-                <AlertCircle size={12} /> Thông tin do AI tổng hợp, chỉ mang tính tham khảo.
-                Luôn tuân theo chỉ định của bác sĩ điều trị.
+                <AlertCircle size={12} /> {t.scanResult?.disclaimer}
               </p>
 
               <button onClick={handleRetake} className={styles.scanAgainBtn}>

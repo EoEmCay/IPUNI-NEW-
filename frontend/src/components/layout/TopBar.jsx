@@ -8,6 +8,7 @@ import { useT } from '../../hooks/useT';
 import Logo from '../common/Logo';
 import DemoCountdown from '../common/DemoCountdown';
 import styles from './TopBar.module.css';
+import useThemeStore from '../../store/themeStore';
 
 export default function TopBar() {
   const navigate = useNavigate();

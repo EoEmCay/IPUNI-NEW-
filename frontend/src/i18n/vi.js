@@ -123,7 +123,7 @@ const vi = {
     modalBtn1Title: 'Đăng ký / Đăng nhập',
     modalBtn1Desc: 'Tôi muốn tạo tài khoản hoặc đăng nhập',
     modalBtn2Title: 'Trải nghiệm nhanh (Demo)',
-    modalBtn2TitleLoading: : 'Đang vào...',
+    modalBtn2TitleLoading: 'Đang vào...',
     modalBtn2Desc: 'Khám phá các tính năng bằng tài khoản dùng thử',
   },
 

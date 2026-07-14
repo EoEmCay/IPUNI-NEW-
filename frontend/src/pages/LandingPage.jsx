@@ -4,7 +4,7 @@ import { Activity, Sparkles, ChevronRight, Play, X, Calendar, Mic, LineChart, Cl
 import { useAuth } from '../hooks/useAuth';
 import useAuthStore from '../store/authStore';
 import { useT } from '../hooks/useT';
-import { useLangStore } from '../store/langStore';
+import useLangStore from '../store/langStore';
 import styles from './LandingPage.module.css';
 
 

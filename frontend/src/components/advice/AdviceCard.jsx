@@ -15,7 +15,7 @@ const ICON_COLORS = {
   danger_sign: '#DC2626'
 };
 
-export default function AdviceCard({ advice, onView }) {
+export default function AdviceCard({ advice, onView, t }) {
   const Icon = ICONS[advice.icon_type] || CheckCircle;
   const iconColor = ICON_COLORS[advice.category];
 
@@ -30,7 +30,7 @@ export default function AdviceCard({ advice, onView }) {
       </div>
       {advice.detail_content && (
         <button className={`${styles.viewBtn} ${styles[advice.category]}`} onClick={() => onView(advice)}>
-          Xem
+          {t?.advice?.view || 'Xem'}
         </button>
       )}
     </div>

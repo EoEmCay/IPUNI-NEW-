@@ -39,7 +39,7 @@ export default function AdvicePage() {
             boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
           }}
         >
-          <PhoneCall size={22} /> {t.profile?.callEmergency || 'Gọi Cấp Cứu 115'}
+          <PhoneCall size={22} /> {t.profile?.callEmergency}
         </a>
       </div>
 

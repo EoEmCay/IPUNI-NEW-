@@ -30,7 +30,7 @@ export default function AdviceCard({ advice, onView, t }) {
       </div>
       {advice.detail_content && (
         <button className={`${styles.viewBtn} ${styles[advice.category]}`} onClick={() => onView(advice)}>
-          {t?.advice?.view || 'Xem'}
+          {t?.advice?.view}
         </button>
       )}
     </div>

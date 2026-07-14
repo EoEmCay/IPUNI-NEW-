@@ -17,6 +17,49 @@ const vi = {
     cameraError: 'Camera web bị lỗi — hãy thử dùng camera hệ thống',
   },
 
+  scanResult: {
+    notPrescription: 'Ảnh không phải là một đơn thuốc. Vui lòng chụp lại đơn thuốc.',
+    notDiabetes: 'Đây không phải đơn thuốc điều trị đái tháo đường. DIA+ chỉ hỗ trợ đơn thuốc tiểu đường.',
+    serverError: 'Lỗi kết nối đến server',
+    doctorDefault: 'Không rõ bác sĩ',
+    noteDefault: 'Không có chỉ dẫn thêm',
+    doctorFollowup: 'Bác sĩ (Tái khám)',
+    noteFollowup: 'Lịch tái khám theo đơn thuốc',
+    noteAuto: 'Trích xuất tự động từ đơn thuốc',
+    addSuccess: 'Đã thêm thành công',
+    addPartial: 'Lưu thành công một phần',
+    processError: 'Có lỗi xảy ra khi xử lý',
+    notAccepted: 'Không tiếp nhận đơn thuốc này',
+    diabetesPrescription: 'Đơn thuốc điều trị đái tháo đường',
+    medsRecognized: 'thuốc được nhận diện',
+    doctor: 'Bác sĩ',
+    prescribed: 'Kê đơn',
+    followup: 'Tái khám',
+    bloodPressure: 'Huyết áp',
+    glucoseFasting: 'Đường huyết đói',
+    doctorNotes: 'Lời dặn của bác sĩ',
+    noMedsFound: 'Không tìm thấy thuốc trong ảnh. Vui lòng thử ảnh rõ hơn.',
+    medsCount: 'loại thuốc',
+    diabetesTag: 'Hạ đường huyết',
+    timesPerDay: 'lần/ngày',
+    perDose: '/lần',
+    timeToTake: 'Thời điểm uống',
+    usage: 'Cách dùng',
+    medDetail: 'Chi tiết về thuốc',
+    purpose: 'Công dụng',
+    mechanism: 'Giải quyết vấn đề gì',
+    contraindications: 'Không dùng cho',
+    interactions: 'Tương tác thuốc',
+    source: 'Nguồn',
+    savingAll: 'Đang lưu...',
+    savedAll: 'Đã lưu toàn bộ vào sổ tay',
+    addAll: 'Thêm tất cả thuốc vào sổ tay',
+    voicePrompt: 'Bạn chưa cài giọng nhắc uống thuốc. Thiết lập ngay để không bỏ lỡ thuốc!',
+    install: 'Cài đặt',
+    later: 'Để sau',
+    disclaimer: 'Thông tin do AI tổng hợp, chỉ mang tính tham khảo. Luôn tuân theo chỉ định của bác sĩ điều trị.'
+  },
+
   // Landing Page
   landing: {
     badge: 'Trợ lý sức khỏe thông minh',
@@ -195,6 +238,7 @@ const vi = {
     danger: 'Nguy hiểm',
     alertBannerTitle: '⚠️ Dấu hiệu nguy hiểm cần biết',
     alertBannerSub: 'Nhận biết và xử lý hạ/tăng đường huyết cấp',
+    view: 'Xem',
   },
 
   // Auth
@@ -371,6 +415,7 @@ const vi = {
     placeholderId: '12 số CCCD',
     placeholderInsurance: 'BH2024001234',
     placeholderAllergies: 'Penicillin, hải sản, phấn hoa,...',
+    callEmergency: 'Gọi Cấp Cứu 115',
   },
 
   // Doctor Detail

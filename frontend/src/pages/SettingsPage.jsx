@@ -78,7 +78,7 @@ export default function SettingsPage() {
       mediaRecorder.start();
       setRecordingId(alertType);
     } catch (err) {
-      alert(s.micError || "Cannot access Microphone. Please grant permission in browser settings.");
+      alert(s.micError);
     }
   };
 
@@ -103,7 +103,7 @@ export default function SettingsPage() {
   };
 
   const deleteVoice = async (alertType) => {
-    if (window.confirm(s.deleteConfirm || "Are you sure you want to delete this voice?")) {
+    if (window.confirm(s.deleteConfirm)) {
       await voiceAlertService.deleteVoice(alertType);
       loadSettings();
     }
@@ -119,9 +119,9 @@ export default function SettingsPage() {
       <div className={styles.header}>
         <div className={styles.headerTop}>
           <Settings size={24} />
-          <h1>{s.voiceTitle || 'Voice Settings'}</h1>
+          <h1>{s.voiceTitle}</h1>
         </div>
-        <p>{s.voiceDesc || 'Record a family member\'s voice to create familiarity when the app reminds you'}</p>
+        <p>{s.voiceDesc}</p>
       </div>
 
       <div className={styles.alertList}>
@@ -137,7 +137,7 @@ export default function SettingsPage() {
                 <h3 className={styles.alertTitle}>{s[item.titleKey]}</h3>
                 {hasVoice && (
                   <div className={styles.toggleGroup}>
-                    <span>{s.useCustomVoice || 'Use family voice'}</span>
+                    <span>{s.useCustomVoice}</span>
                     <label className={styles.switch}>
                       <input 
                         type="checkbox" 
@@ -184,14 +184,14 @@ export default function SettingsPage() {
       <div className={styles.header}>
         <div className={styles.headerTop}>
           <Settings size={24} />
-          <h1>{s.title || 'Cài đặt chung'}</h1>
+          <h1>{s.title}</h1>
         </div>
-        <p>{s.subtitle || 'Tùy chỉnh trải nghiệm của bạn'}</p>
+        <p>{s.subtitle}</p>
       </div>
 
       <div className={styles.settingsGroup} style={{ background: 'white', padding: '20px', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', marginBottom: '30px' }}>
         <p className={styles.sectionLabel} style={{ fontWeight: 'bold', fontSize: '14px', color: '#64748B', marginBottom: '16px', textTransform: 'uppercase' }}>
-          {s.sectionDisplay || 'Hiển thị'}
+          {s.sectionDisplay}
         </p>
         <div className={styles.row} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
           <div className={styles.rowLeft} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -199,8 +199,8 @@ export default function SettingsPage() {
               <ZoomIn size={18} color="#1B5FA6" />
             </div>
             <div>
-              <p className={styles.rowTitle} style={{ fontWeight: 600, fontSize: '16px', color: '#1E293B', margin: 0 }}>{s.fontSizeTitle || 'Cỡ chữ (Phóng to)'}</p>
-              <p className={styles.rowDesc} style={{ fontSize: '14px', color: '#64748B', margin: 0 }}>{s.fontSizeDesc || 'Phóng to toàn bộ chữ để dễ đọc hơn'}</p>
+              <p className={styles.rowTitle} style={{ fontWeight: 600, fontSize: '16px', color: '#1E293B', margin: 0 }}>{s.fontSizeTitle}</p>
+              <p className={styles.rowDesc} style={{ fontSize: '14px', color: '#64748B', margin: 0 }}>{s.fontSizeDesc}</p>
             </div>
           </div>
         </div>
@@ -218,7 +218,7 @@ export default function SettingsPage() {
                   color: fontScale === actualScale ? '#1B5FA6' : '#64748B',
                   cursor: 'pointer'
                 }}
-                aria-label={`${s.zoomLevel || 'Mức phóng to'} ${lvl}`}
+                aria-label={`${s.zoomLevel} ${lvl}`}
               >
                 {lvl}x
               </button>
@@ -229,7 +229,7 @@ export default function SettingsPage() {
         <div className={styles.divider} style={{ margin: '24px 0', borderBottom: '1px solid #F1F5F9' }} />
 
         <p className={styles.sectionLabel} style={{ fontWeight: 'bold', fontSize: '14px', color: '#64748B', marginBottom: '16px', textTransform: 'uppercase' }}>
-          {s.sectionTheme || 'Giao diện'}
+          {s.sectionTheme}
         </p>
         {isGoldMode ? (
           <div className={styles.goldThemeRow} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -260,7 +260,7 @@ export default function SettingsPage() {
                 position: 'relative', border: 'none', cursor: 'pointer',
                 transition: '0.3s'
               }}
-              aria-label="Toggle Cute Mode"
+              aria-label={s.cuteMode}
             >
               <span style={{
                 display: 'block', width: '20px', height: '20px', borderRadius: '50%',
@@ -275,7 +275,7 @@ export default function SettingsPage() {
         <div className={styles.divider} style={{ margin: '24px 0', borderBottom: '1px solid #F1F5F9' }} />
 
         <p className={styles.sectionLabel} style={{ fontWeight: 'bold', fontSize: '14px', color: '#64748B', marginBottom: '16px', textTransform: 'uppercase' }}>
-          {s.sectionNotify || 'Thông báo'}
+          {s.sectionNotify}
         </p>
         <div className={styles.row} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div className={styles.rowLeft} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -293,7 +293,7 @@ export default function SettingsPage() {
         <div className={styles.divider} style={{ margin: '24px 0', borderBottom: '1px solid #F1F5F9' }} />
 
         <p className={styles.sectionLabel} style={{ fontWeight: 'bold', fontSize: '14px', color: '#64748B', marginBottom: '16px', textTransform: 'uppercase' }}>
-          {s.sectionOther || 'Khác'}
+          {s.sectionOther}
         </p>
         <div className={styles.row} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
           <div className={styles.rowLeft} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

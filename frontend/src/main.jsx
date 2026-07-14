@@ -6,8 +6,12 @@ import './store/themeStore';
 import './store/accessibilityStore';
 import App from './App.jsx';
 
+import ErrorBoundary from './components/common/ErrorBoundary.jsx';
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </StrictMode>
 );

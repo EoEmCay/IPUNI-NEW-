@@ -199,6 +199,7 @@ const en = {
     danger: 'Alerts',
     alertBannerTitle: '⚠️ Danger signs to know',
     alertBannerSub: 'Recognize and handle acute hypo/hyperglycemia',
+    view: 'View',
   },
 
   // Auth
@@ -375,6 +376,7 @@ const en = {
     placeholderId: '12-digit ID',
     placeholderInsurance: 'INS2024001234',
     placeholderAllergies: 'Penicillin, seafood, pollen,...',
+    callEmergency: 'Call Emergency 115',
   },
 
   // Doctor Detail

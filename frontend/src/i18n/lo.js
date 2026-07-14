@@ -199,6 +199,7 @@ const lo = {
     danger: 'ອັນຕະລາຍ',
     alertBannerTitle: '⚠️ ສັນຍານເຕືອນໄພທີ່ຄວນຮູ້',
     alertBannerSub: 'ຮັບຮູ້ ແລະ ຮັບມືກັບນໍ້າຕານໃນເລືອດຕໍ່າ/ສູງກະທັນຫັນ',
+    view: 'ເບິ່ງ',
   },
 
   // Auth
@@ -375,6 +376,7 @@ const lo = {
     placeholderId: 'ເລກບັດ 12 ໂຕ',
     placeholderInsurance: 'INS2024001234',
     placeholderAllergies: 'ເພນີຊີລິນ, ອາຫານທະເລ, ລະອອງເກສອນ...',
+    callEmergency: 'ໂທສຸກເສີນ 115',
   },
 
   // Doctor Detail

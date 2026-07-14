@@ -323,7 +323,10 @@ const vi = {
 
   // User menu
   userMenu: {
-    upgrade: 'Nâng cấp',
+    langVi: 'Tiếng Việt',
+    langEn: 'Tiếng Anh',
+    langLo: 'Tiếng Lào',
+    upgrade: 'Nâng cấp Premium',
     profile: 'Thông Tin',
     language: 'Ngôn ngữ',
     theme: 'Giao diện',

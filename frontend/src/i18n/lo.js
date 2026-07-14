@@ -327,7 +327,10 @@ const lo = {
 
   // User menu
   userMenu: {
-    upgrade: 'ອັບເກຣດ',
+    langVi: 'ພາສາຫວຽດນາມ',
+    langEn: 'ພາສາອັງກິດ',
+    langLo: 'ພາສາລາວ',
+    upgrade: 'ອັບເກຣດ Premium',
     profile: 'ຂໍ້ມູນສ່ວນຕົວ',
     language: 'ພາສາ',
     theme: 'ຮູບລັກສະນະ',

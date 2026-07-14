@@ -327,7 +327,10 @@ const en = {
 
   // User menu
   userMenu: {
-    upgrade: 'Upgrade',
+    langVi: 'Vietnamese',
+    langEn: 'English',
+    langLo: 'Lao',
+    upgrade: 'Upgrade Premium',
     profile: 'My Profile',
     language: 'Language',
     theme: 'Appearance',

@@ -5,9 +5,9 @@ import { useT } from '../../hooks/useT';
 import useLangStore from '../../store/langStore';
 
 const LANG_FLAGS = [
-  { code: 'vi', emoji: '🇻🇳', label: 'Tiếng Việt' },
-  { code: 'en', emoji: '🇬🇧', label: 'English' },
-  { code: 'lo', emoji: '🇱🇦', label: 'ພາສາລາວ' },
+  { code: 'vi', emoji: '🇻🇳', key: 'langVi' },
+  { code: 'en', emoji: '🇬🇧', key: 'langEn' },
+  { code: 'lo', emoji: '🇱🇦', key: 'langLo' },
 ];
 import { useNavigate } from 'react-router-dom';
 import UserProfileModal from './UserProfileModal';
@@ -98,12 +98,12 @@ export default function UserMenu() {
               <Globe size={15} className={styles.langIcon} />
               <span className={styles.langRowLabel}>{t.userMenu.language || 'Ngôn ngữ'}</span>
               <div className={styles.langFlags}>
-                {LANG_FLAGS.map(({ code, emoji, label }) => (
+                {LANG_FLAGS.map(({ code, emoji, key }) => (
                   <button
                     key={code}
                     className={`${styles.langFlagBtn} ${lang === code ? styles.langFlagActive : ''}`}
                     onClick={() => { setLang(code); setIsOpen(false); }}
-                    title={label}
+                    title={t.userMenu[key]}
                     style={{ fontSize: 16 }}
                   >
                     {emoji}

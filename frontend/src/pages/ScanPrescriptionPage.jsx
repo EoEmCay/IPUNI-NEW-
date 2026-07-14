@@ -150,9 +150,9 @@ export default function ScanPrescriptionPage() {
 
       setIsAllSaved(true);
       if (failCount === 0) {
-        showToast(`Đã thêm thành công ${successCount} loại thuốc!`, 'success');
+        showToast(`${t.scanResult?.addSuccess} ${successCount} ${t.scanResult?.medsCount}!`, 'success');
       } else {
-        showToast(`Lưu ${successCount} thành công, ${failCount} thất bại.`, 'error');
+        showToast(`${t.scanResult?.addPartial} ${successCount}, thất bại ${failCount}.`, 'error');
       }
       fetchMedications();
 
@@ -282,8 +282,8 @@ export default function ScanPrescriptionPage() {
                   {result.metrics.map((m, i) => (
                     <span key={i} className={styles.metaChip} style={{ background: '#F0FDF4', color: '#16A34A' }}>
                       <Activity size={13} /> 
-                      {m.measurement_type === 'blood_pressure' ? `Huyết áp: ${m.value}/${m.value_diastolic} mmHg` : 
-                       m.measurement_type === 'glucose_fasting' ? `Đường huyết đói: ${m.value} mmol/L` : 
+                      {m.measurement_type === 'blood_pressure' ? `${t.scanResult?.bloodPressure}: ${m.value}/${m.value_diastolic} mmHg` : 
+                       m.measurement_type === 'glucose_fasting' ? `${t.scanResult?.glucoseFasting}: ${m.value} mmol/L` : 
                        `${m.measurement_type}: ${m.value}`}
                     </span>
                   ))}
@@ -300,13 +300,13 @@ export default function ScanPrescriptionPage() {
               {result.medications.length === 0 ? (
                 <div className={styles.emptyResult}>
                   <FileText size={32} />
-                  <p>Không tìm thấy thuốc trong ảnh. Vui lòng thử ảnh rõ hơn.</p>
+                  <p>{t.scanResult?.noMedsFound}</p>
                 </div>
               ) : (
                 <div className={styles.medicationsList}>
                   <h2>
                     <Pill size={16} />
-                    {result.medications.length} loại thuốc
+                    {result.medications.length} {t.scanResult?.medsCount}
                   </h2>
                   {result.medications.map((med, i) => {
                     const expanded = expandedIndex === i;
@@ -328,23 +328,23 @@ export default function ScanPrescriptionPage() {
                           )}
                           {med.timesPerDay != null && (
                             <span className={styles.statChip}>
-                              <Clock size={12} /> {med.timesPerDay} lần/ngày
+                              <Clock size={12} /> {med.timesPerDay} {t.scanResult?.timesPerDay}
                             </span>
                           )}
                           {med.amountPerDose && (
-                            <span className={styles.statChip}><Pill size={12} /> {med.amountPerDose}/lần</span>
+                            <span className={styles.statChip}><Pill size={12} /> {med.amountPerDose}{t.scanResult?.perDose}</span>
                           )}
                         </div>
 
                         {med.times && med.times.length > 0 && (
                           <div className={styles.medDetail}>
-                            <span className={styles.detailLabel}>Thời điểm uống</span>
+                            <span className={styles.detailLabel}>{t.scanResult?.timeToTake}</span>
                             <span>{med.times.join(', ')}</span>
                           </div>
                         )}
                         {med.instructions && (
                           <div className={styles.medDetail}>
-                            <span className={styles.detailLabel}>Cách dùng</span>
+                            <span className={styles.detailLabel}>{t.scanResult?.usage}</span>
                             <span>{med.instructions}</span>
                           </div>
                         )}
@@ -354,7 +354,7 @@ export default function ScanPrescriptionPage() {
                             className={styles.detailToggle}
                             onClick={() => setExpandedIndex(expanded ? null : i)}
                           >
-                            <span><Info size={14} /> Chi tiết về thuốc</span>
+                            <span><Info size={14} /> {t.scanResult?.medDetail}</span>
                             {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                           </button>
                         )}
@@ -380,13 +380,13 @@ export default function ScanPrescriptionPage() {
                             )}
                             {detail.interactions && detail.interactions.length > 0 && (
                               <div className={styles.detailItem}>
-                                <span className={styles.detailItemLabel}>Tương tác thuốc</span>
+                                <span className={styles.detailItemLabel}>{t.scanResult?.interactions}</span>
                                 <p>{Array.isArray(detail.interactions) ? detail.interactions.join(', ') : detail.interactions}</p>
                               </div>
                             )}
                             {detail.source && (
                               <div className={styles.detailSource}>
-                                <BookOpen size={12} /> Nguồn: {detail.source}
+                                <BookOpen size={12} /> {t.scanResult?.source}: {detail.source}
                               </div>
                             )}
                           </div>
@@ -399,27 +399,23 @@ export default function ScanPrescriptionPage() {
                   <button
                     className={isAllSaved ? styles.savedBtn : styles.addBtn}
                     onClick={handleSaveAll}
-                    disabled={isAllSaved || isSavingAll}
+                    disabled={isSavingAll || isAllSaved}
                   >
-                    {isSavingAll ? 'Đang lưu...' : isAllSaved ? (
-                      <><CheckCircle size={15} /> Đã lưu toàn bộ vào sổ tay</>
-                    ) : (
-                      `Thêm tất cả ${result.medications.length} thuốc vào sổ tay`
-                    )}
+                    {isSavingAll ? t.scanResult?.savingAll : isAllSaved ? t.scanResult?.savedAll : t.scanResult?.addAll}
                   </button>
 
                   {showVoicePrompt && (
                     <div className={styles.voicePromptBanner}>
                       <div className={styles.voicePromptText}>
                         <span>🔔</span>
-                        <p>Bạn chưa cài giọng nhắc uống thuốc. Thiết lập ngay để không bỏ lỡ thuốc!</p>
+                        <p>{t.scanResult?.voicePrompt}</p>
                       </div>
                       <div className={styles.voicePromptActions}>
                         <button className={styles.voicePromptGo} onClick={() => navigate('/settings')}>
-                          Cài đặt
+                          {t.scanResult?.install}
                         </button>
                         <button className={styles.voicePromptDismiss} onClick={() => setShowVoicePrompt(false)}>
-                          Để sau
+                          {t.scanResult?.later}
                         </button>
                       </div>
                     </div>

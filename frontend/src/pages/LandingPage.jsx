@@ -200,20 +200,20 @@ export default function LandingPage() {
                           <div className={styles.scanLaser} />
                           <div className={styles.scanRows}>
                             <div className={styles.scanRow}>
-                              <span className={styles.scanLabel}>Thuốc</span>
+                              <span className={styles.scanLabel}>{text.demoMeds || 'Thuốc'}</span>
                               <span className={styles.scanValue}>Metformin 500mg</span>
                             </div>
                             <div className={styles.scanRow}>
-                              <span className={styles.scanLabel}>Liều dùng</span>
-                              <span className={styles.scanValue}>2 lần / ngày</span>
+                              <span className={styles.scanLabel}>{text.demoDosage || 'Liều dùng'}</span>
+                              <span className={styles.scanValue}>2 {text.demoTimes || 'lần / ngày'}</span>
                             </div>
                             <div className={styles.scanRow}>
-                              <span className={styles.scanLabel}>Công dụng</span>
-                              <span className={styles.scanValue}>Hạ đường huyết</span>
+                              <span className={styles.scanLabel}>{text.demoPurpose || 'Công dụng'}</span>
+                              <span className={styles.scanValue}>{text.demoDiabetes || 'Hạ đường huyết'}</span>
                             </div>
                             <div className={styles.scanRow}>
-                              <span className={styles.scanLabel}>Ghi chú</span>
-                              <span className={styles.scanValue}>Uống sau ăn</span>
+                              <span className={styles.scanLabel}>{text.demoNote || 'Ghi chú'}</span>
+                              <span className={styles.scanValue}>{text.demoAfterMeal || 'Uống sau ăn'}</span>
                             </div>
                           </div>
                         </div>

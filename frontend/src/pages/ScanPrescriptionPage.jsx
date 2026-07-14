@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import {
   CheckCircle, AlertCircle, Pill, User, Calendar, FileText,
-  XCircle, ChevronDown, ChevronUp, Clock, Hash, Stethoscope, BookOpen, Info,
+  XCircle, ChevronDown, ChevronUp, Clock, Hash, Stethoscope, BookOpen, Info, Activity
 } from 'lucide-react';
 import { scanService } from '../services/scan.service';
 import { medicationsService } from '../services/medications.service';

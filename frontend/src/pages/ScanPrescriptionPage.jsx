@@ -47,7 +47,7 @@ export default function ScanPrescriptionPage() {
 
     setIsAnalyzing(true);
     try {
-      const res = await scanService.analyzePrescription(imageFile, lang);
+      const res = await scanService.analyzePrescription(imageFile);
       const data = res.data.data;
       setResult(data);
 
@@ -94,7 +94,7 @@ export default function ScanPrescriptionPage() {
             times: med.times && med.times.length > 0 ? med.times : ['07:00'],
             instructions: med.instructions || '',
             doctor_name: result.doctorName || med.doctor_name || '',
-            prescribed_at: result.prescriptionDate || new Date().toISOString().split.T[0],
+            prescribed_at: result.prescriptionDate || new Date().toISOString().split('T')[0],
             is_active: 1,
           });
           successCount++;

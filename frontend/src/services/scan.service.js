@@ -42,12 +42,11 @@ const compressImage = (file, maxWidth = 800, maxHeight = 800) => {
 };
 
 export const scanService = {
-  analyzePrescription: async (imageFile, lang = 'vi') => {
+  analyzePrescription: async (imageFile) => {
     try {
       const compressedImage = await compressImage(imageFile);
       const formData = new FormData();
       formData.append('image', compressedImage);
-      formData.append('lang', lang);
       return api.post('/scan/prescription', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         timeout: 300000,
@@ -57,7 +56,6 @@ export const scanService = {
       // Fallback to original image if compression fails
       const formData = new FormData();
       formData.append('image', imageFile);
-      formData.append('lang', lang);
       return api.post('/scan/prescription', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         timeout: 300000,

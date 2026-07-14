@@ -548,6 +548,13 @@ const lo = {
   },
 
   // Common
+  medCard: {
+    details: 'ລາຍລະອຽດ',
+    statusTaken: 'ກິນແລ້ວ',
+    statusLate: 'ກາຍເວລາ',
+    statusPending: 'ຍັງບໍ່ໄດ້ກິນ',
+  },
+  
   common: {
     loading: 'ກຳລັງໂຫຼດ...',
     save: 'ບັນທຶກ',

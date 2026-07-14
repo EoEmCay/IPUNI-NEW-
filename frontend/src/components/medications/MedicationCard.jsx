@@ -3,6 +3,7 @@ import { Pill, ChevronRight } from 'lucide-react';
 import useMedicationsStore from '../../store/medicationsStore';
 import { withDoctorPrefix } from '../../utils/doctor';
 import MedicationDetailModal from './MedicationDetailModal';
+import { useT } from '../../hooks/useT';
 import styles from './MedicationCard.module.css';
 
 const STATUS_STYLES = {
@@ -17,6 +18,7 @@ export default function MedicationCard({ medication }) {
   const status = medicationStatus[medication.id] || 'pending';
   const s = STATUS_STYLES[status];
   const [showDetail, setShowDetail] = useState(false);
+  const t = useT();
 
   return (
     <div className={styles.card}>
@@ -28,7 +30,7 @@ export default function MedicationCard({ medication }) {
         {medication.doctor_name && <div className={styles.doctor}>{withDoctorPrefix(medication.doctor_name)}</div>}
 
         <button className={styles.detailBtn} onClick={() => setShowDetail(true)}>
-          Chi tiết <ChevronRight size={13} />
+          {t.medCard?.details || 'Chi tiết'} <ChevronRight size={13} />
         </button>
       </div>
 
@@ -37,7 +39,7 @@ export default function MedicationCard({ medication }) {
         onClick={() => setMedicationStatus(medication.id, status === 'taken' ? 'pending' : 'taken')}
         style={{ background: s.bg, color: s.color, borderColor: s.border, cursor: 'pointer' }}
       >
-        {status === 'taken' ? 'Đã uống' : status === 'late' ? 'Quá giờ' : 'Chưa uống'}
+        {status === 'taken' ? (t.medCard?.statusTaken || 'Đã uống') : status === 'late' ? (t.medCard?.statusLate || 'Quá giờ') : (t.medCard?.statusPending || 'Chưa uống')}
       </button>
 
       {showDetail && (

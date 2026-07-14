@@ -548,6 +548,13 @@ const en = {
   },
 
   // Common
+  medCard: {
+    details: 'Details',
+    statusTaken: 'Taken',
+    statusLate: 'Late',
+    statusPending: 'Pending',
+  },
+  
   common: {
     loading: 'Loading...',
     save: 'Save',

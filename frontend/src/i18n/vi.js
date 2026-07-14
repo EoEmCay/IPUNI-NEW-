@@ -544,6 +544,13 @@ const vi = {
   },
 
   // Common
+  medCard: {
+    details: 'Chi tiết',
+    statusTaken: 'Đã uống',
+    statusLate: 'Quá giờ',
+    statusPending: 'Chưa uống',
+  },
+  
   common: {
     loading: 'Đang tải...',
     save: 'Lưu',

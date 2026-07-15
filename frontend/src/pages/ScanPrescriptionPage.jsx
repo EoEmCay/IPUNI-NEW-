@@ -257,25 +257,19 @@ export default function ScanPrescriptionPage() {
                 </div>
               </div>
 
-              {(result.doctorName || result.prescriptionDate || result.nextAppointmentDate) && (
-                <div className={styles.metaRow}>
-                  {result.doctorName && (
-                    <span className={styles.metaChip}>
-                      <User size={13} /> {t.scanResult?.doctor}: {result.doctorName}
-                    </span>
-                  )}
-                  {result.prescriptionDate && (
-                    <span className={styles.metaChip}>
-                      <Calendar size={13} /> {t.scanResult?.prescribed}: {result.prescriptionDate}
-                    </span>
-                  )}
-                  {result.nextAppointmentDate && (
-                    <span className={styles.metaChip} style={{ background: '#FEF3C7', color: '#B45309' }}>
-                      <Stethoscope size={13} /> {t.scanResult?.followup}: {result.nextAppointmentDate}
-                    </span>
-                  )}
-                </div>
-              )}
+              <div className={styles.metaRow}>
+                <span className={styles.metaChip}>
+                  <User size={13} /> {t.scanResult?.doctor}: {result.doctorName || 'Chưa nhận diện'}
+                </span>
+                <span className={styles.metaChip}>
+                  <Calendar size={13} /> {t.scanResult?.prescribed}: {result.prescriptionDate || 'Chưa nhận diện'}
+                </span>
+                {result.nextAppointmentDate && (
+                  <span className={styles.metaChip} style={{ background: '#FEF3C7', color: '#B45309' }}>
+                    <Stethoscope size={13} /> {t.scanResult?.followup}: {result.nextAppointmentDate}
+                  </span>
+                )}
+              </div>
 
               {result.metrics && result.metrics.length > 0 && (
                 <div className={styles.metaRow} style={{ marginTop: '8px' }}>

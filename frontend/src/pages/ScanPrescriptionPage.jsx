@@ -284,12 +284,10 @@ export default function ScanPrescriptionPage() {
                 </div>
               )}
 
-              {result.doctorNotes && (
-                <div className={styles.notesCard}>
-                  <h3><Stethoscope size={15} /> {t.scanResult?.doctorNotes}</h3>
-                  <p>{result.doctorNotes}</p>
-                </div>
-              )}
+              <div className={styles.notesCard}>
+                <h3><Stethoscope size={15} /> {t.scanResult?.doctorNotes || 'Lời dặn Bác sĩ'}</h3>
+                <p>{result.doctorNotes || 'Không có lời dặn thêm'}</p>
+              </div>
 
               {result.medications.length === 0 ? (
                 <div className={styles.emptyResult}>

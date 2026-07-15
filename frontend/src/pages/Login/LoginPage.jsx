@@ -124,9 +124,7 @@ export default function LoginPage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.orb1} />
-      <div className={styles.orb2} />
-      <div className={styles.orb3} />
+      <div className={styles.heroStars} />
 
       <div className={styles.container}>
         {/* Logo */}

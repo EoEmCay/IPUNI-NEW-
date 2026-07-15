@@ -28,7 +28,7 @@ export default function MockGoogleLoginModal({ onClose, onLogin }) {
     <div className={styles.overlay}>
       <div className={styles.modal}>
         <div className={styles.header}>
-          <img src="/logo.jpg" alt="Google" style={{ width: '100px', objectFit: 'contain', mixBlendMode: 'multiply' }} />
+          <img src="/logo-moi.png" alt="Google" style={{ width: '100px', objectFit: 'contain', mixBlendMode: 'multiply' }} />
           <h2 className={styles.title}>{t.mockGoogle.title}</h2>
           <p className={styles.subtitle}>{t.mockGoogle.subtitle}</p>
         </div>

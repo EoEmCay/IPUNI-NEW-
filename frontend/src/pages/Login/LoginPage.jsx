@@ -132,7 +132,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className={styles.logoWrap}>
           <div className={styles.logoCard}>
-            <img src="/logo.jpg" alt="DIA+" className={styles.logoImg} />
+            <img src="/logo-moi.png" alt="DIA+" className={styles.logoImg} />
           </div>
           <p className={styles.appName}>DIA+</p>
           <p className={styles.tagline}>Giải pháp toàn diện quản lý bệnh lý,<br />dinh dưỡng & vận động</p>

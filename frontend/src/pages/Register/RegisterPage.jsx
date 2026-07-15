@@ -119,7 +119,7 @@ export default function RegisterPage() {
         {/* Logo nhỏ gọn */}
         <div className={styles.logoWrap}>
           <div className={styles.logoCard}>
-            <img src="/logo.jpg" alt="DIA+" className={styles.logoImg} />
+            <img src="/logo-moi.png" alt="DIA+" className={styles.logoImg} />
           </div>
           <p className={styles.appName}>DIA+</p>
         </div>

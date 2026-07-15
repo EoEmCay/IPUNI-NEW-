@@ -122,7 +122,7 @@ JSON Schema:
     "detail": {
       "purpose": "Brief drug purpose in ${targetLang} (based on standard medical references)",
       "mechanism": "Brief mechanism of action in ${targetLang} (based on standard medical references)",
-      "source": "Mặc định luôn điền 'DIA+ AI Reference'"
+      "source": "Mặc định luôn điền 'Dược Thư Quốc Gia Việt Nam'"
     }
   }],
   "metrics": [{

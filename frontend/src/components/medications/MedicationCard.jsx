@@ -13,7 +13,7 @@ const STATUS_STYLES = {
   late: { bg: '#FEE2E2', color: '#DC2626', border: '#FCA5A5' },
 };
 
-export default function MedicationCard({ medication, isSelectable = false, isSelected = false, onToggleSelect }) {
+export default function MedicationCard({ medication, isSelectable = false, isSelected = false, onToggleSelect, onAddAllClick }) {
   const times = Array.isArray(medication.times) ? medication.times.join(' & ') : medication.times;
   const { medicationStatus, setMedicationStatus, medications } = useMedicationsStore();
   const status = medicationStatus[medication.id] || 'pending';
@@ -41,9 +41,9 @@ export default function MedicationCard({ medication, isSelectable = false, isSel
           </button>
           <button 
             className={styles.detailBtn} 
-            onClick={(e) => { e.stopPropagation(); addMedicationsToCalendar(medications); }}
+            onClick={(e) => { e.stopPropagation(); if (onAddAllClick) onAddAllClick(); }}
             style={{ padding: '4px 8px', display: 'flex', alignItems: 'center', gap: '4px' }}
-            title="Thêm tất cả thuốc vào lịch"
+            title="Chọn tất cả thuốc vào lịch"
           >
             <CalendarPlus size={14} /> Thêm Lịch
           </button>

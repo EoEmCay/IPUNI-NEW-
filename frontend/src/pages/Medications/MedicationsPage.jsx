@@ -18,7 +18,8 @@ export default function MedicationsPage() {
 
   const handleAddAll = () => {
     setShowMenu(false);
-    addMedicationsToCalendar(medications);
+    setSelectionMode(true);
+    setSelectedMeds(medications.map(m => m.id));
   };
 
   const handleConfirmSelected = () => {
@@ -80,6 +81,10 @@ export default function MedicationsPage() {
               isSelectable={selectionMode}
               isSelected={selectedMeds.includes(m.id)}
               onToggleSelect={() => toggleSelectMed(m.id)}
+              onAddAllClick={() => {
+                setSelectionMode(true);
+                setSelectedMeds(medications.map(med => med.id));
+              }}
             />
           ))}
         </div>

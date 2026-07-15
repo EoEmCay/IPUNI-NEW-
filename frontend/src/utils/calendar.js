@@ -108,3 +108,7 @@ export function addMedicationsToCalendar(medications) {
     if (url) window.open(url, '_blank');
   }
 }
+
+export function exportMedicationToCalendar(medication) {
+  addMedicationsToCalendar([medication]);
+}

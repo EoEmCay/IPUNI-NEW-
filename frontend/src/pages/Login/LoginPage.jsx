@@ -5,6 +5,7 @@ import useThemeStore from '../../store/themeStore';
 import { useT } from '../../hooks/useT';
 import { GoogleIcon } from '../../components/common/AuthIcons';
 import MockGoogleLoginModal from '../../components/common/MockGoogleLoginModal';
+import HeroBackground from '../../components/common/HeroBackground';
 import styles from './LoginPage.module.css';
 
 const PhoneSVG = () => (
@@ -124,7 +125,7 @@ export default function LoginPage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.heroStars} />
+      <HeroBackground />
 
       <div className={styles.container}>
         {/* Logo */}

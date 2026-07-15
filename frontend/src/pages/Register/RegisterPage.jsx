@@ -4,6 +4,8 @@ import { useAuth } from '../../hooks/useAuth';
 import useThemeStore from '../../store/themeStore';
 import { authService } from '../../services/auth.service';
 import TermsModal from '../../components/common/TermsModal';
+import MockGoogleLoginModal from '../../components/common/MockGoogleLoginModal';
+import HeroBackground from '../../components/common/HeroBackground';
 import OtpVerifyModal from '../../components/auth/OtpVerifyModal';
 import styles from './RegisterPage.module.css';
 
@@ -112,7 +114,7 @@ export default function RegisterPage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.heroStars} />
+      <HeroBackground />
 
       <div className={styles.container}>
         {/* Logo nhỏ gọn */}

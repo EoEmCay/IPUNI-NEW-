@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Pill, ChevronRight, CheckSquare, Square } from 'lucide-react';
+import { Pill, ChevronRight, CheckSquare, Square, CalendarPlus } from 'lucide-react';
 import useMedicationsStore from '../../store/medicationsStore';
 import { withDoctorPrefix } from '../../utils/doctor';
 import MedicationDetailModal from './MedicationDetailModal';
 import { useT } from '../../hooks/useT';
+import { addMedicationsToCalendar } from '../../utils/calendar';
 import styles from './MedicationCard.module.css';
 
 const STATUS_STYLES = {
@@ -14,7 +15,7 @@ const STATUS_STYLES = {
 
 export default function MedicationCard({ medication, isSelectable = false, isSelected = false, onToggleSelect }) {
   const times = Array.isArray(medication.times) ? medication.times.join(' & ') : medication.times;
-  const { medicationStatus, setMedicationStatus } = useMedicationsStore();
+  const { medicationStatus, setMedicationStatus, medications } = useMedicationsStore();
   const status = medicationStatus[medication.id] || 'pending';
   const s = STATUS_STYLES[status];
   const [showDetail, setShowDetail] = useState(false);
@@ -34,9 +35,19 @@ export default function MedicationCard({ medication, isSelectable = false, isSel
         {medication.instructions && <div className={styles.instructions}>{medication.instructions}</div>}
         {medication.doctor_name && <div className={styles.doctor}>{withDoctorPrefix(medication.doctor_name)}</div>}
 
-        <button className={styles.detailBtn} onClick={() => setShowDetail(true)}>
-          {t.medCard?.details || 'Chi tiết'} <ChevronRight size={13} />
-        </button>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button className={styles.detailBtn} onClick={() => setShowDetail(true)}>
+            {t.medCard?.details || 'Chi tiết'} <ChevronRight size={13} />
+          </button>
+          <button 
+            className={styles.detailBtn} 
+            onClick={(e) => { e.stopPropagation(); addMedicationsToCalendar(medications); }}
+            style={{ padding: '4px 8px', display: 'flex', alignItems: 'center', gap: '4px' }}
+            title="Thêm tất cả thuốc vào lịch"
+          >
+            <CalendarPlus size={14} /> Thêm Lịch
+          </button>
+        </div>
       </div>
 
       {!isSelectable && (

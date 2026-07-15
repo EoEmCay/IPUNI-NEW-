@@ -2,7 +2,7 @@
   padding: 16px;
   padding-bottom: 80px;
   min-height: 100vh;
-  background-color: var(--background);
+  background-color: var(--bg, #f3f4f6);
 }
 
 .header {
@@ -19,7 +19,7 @@
 .backBtn {
   background: transparent;
   border: none;
-  color: var(--text-primary);
+  color: var(--text, #111827);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -30,12 +30,12 @@
 .header h1 {
   font-size: 24px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--text, #111827);
   margin: 0;
 }
 
 .header p {
-  color: var(--text-secondary);
+  color: var(--text, #6b7280);
   font-size: 14px;
   margin: 0;
 }
@@ -47,8 +47,8 @@
   justify-content: center;
   padding: 48px 16px;
   text-align: center;
-  color: var(--text-secondary);
-  background: white;
+  color: var(--text, #6b7280);
+  background: var(--bg, #fff);
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
@@ -65,7 +65,7 @@
 }
 
 .historyCard {
-  background: white;
+  background: var(--bg, #fff);
   border-radius: 16px;
   padding: 16px;
   display: flex;
@@ -84,7 +84,7 @@
   height: 80px;
   border-radius: 8px;
   object-fit: cover;
-  background: var(--background);
+  background: var(--bg, #f3f4f6);
 }
 
 .cardContent {
@@ -96,7 +96,7 @@
 
 .cardDate {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--text, #6b7280);
   display: flex;
   align-items: center;
   gap: 4px;
@@ -105,7 +105,7 @@
 
 .cardTitle {
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text, #111827);
   margin: 0 0 8px 0;
   font-size: 15px;
 }
@@ -132,20 +132,20 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--bg, #f3f4f6);
   display: flex;
   justify-content: center;
-  align-items: flex-end;
+  align-items: center;
   z-index: 1000;
   animation: fadeIn 0.3s ease-out;
 }
 
 .modalContent {
-  background: var(--background);
+  background: var(--bg, #f3f4f6);
   width: 100%;
   max-width: 600px;
-  height: 90vh;
-  border-radius: 24px 24px 0 0;
+  height: 100vh;
+  border-radius: 0;
   display: flex;
   flex-direction: column;
   animation: slideUp 0.3s ease-out;
@@ -157,8 +157,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  background: white;
-  border-bottom: 1px solid var(--border-color);
+  background: var(--bg, #fff);
+  border-bottom: 1px solid var(--border, #e5e7eb);
 }
 
 .modalHeader h2 {
@@ -181,7 +181,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: var(--text-secondary);
+  color: var(--text, #6b7280);
 }
 
 .modalBody {
@@ -215,7 +215,7 @@
 }
 
 .medItem {
-  background: white;
+  background: var(--bg, #fff);
   border-radius: 12px;
   padding: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -224,13 +224,13 @@
 .medItemName {
   font-weight: 600;
   font-size: 16px;
-  color: var(--text-primary);
+  color: var(--text, #111827);
   margin: 0 0 8px 0;
 }
 
 .medItemMeta {
   font-size: 14px;
-  color: var(--text-secondary);
+  color: var(--text, #6b7280);
   display: flex;
   flex-direction: column;
   gap: 4px;

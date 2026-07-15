@@ -121,7 +121,7 @@ export default function RegisterPage() {
           <div className={styles.logoCard}>
             <img src="/logo.jpg" alt="DIA+" className={styles.logoImg} />
           </div>
-          <p className={styles.appName}>DIA+</p>
+          <p className={styles.appName}>DIAPLUS.VN</p>
         </div>
 
         <div className={styles.card}>

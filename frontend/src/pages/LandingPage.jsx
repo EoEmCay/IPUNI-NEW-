@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import useAuthStore from '../store/authStore';
 import { useT } from '../hooks/useT';
 import useLangStore from '../store/langStore';
+import useThemeStore from '../store/themeStore';
 import styles from './LandingPage.module.css';
 
 
@@ -54,10 +55,6 @@ export default function LandingPage() {
 
   const toggleLanguage = () => setLang(lang === 'vi' ? 'en' : lang === 'en' ? 'lo' : 'vi');
 
-  useEffect(() => {
-    if (isAuthenticated) navigate('/dashboard');
-  }, [isAuthenticated, navigate]);
-
   const observerRef = useRef(null);
   useEffect(() => {
     observerRef.current = new IntersectionObserver((entries) => {
@@ -78,7 +75,7 @@ export default function LandingPage() {
       <nav className={styles.nav}>
         <div className={styles.navLogo}>
           <img src="/logo.jpg" alt="DIA+" className={styles.navLogoImg} />
-          <span className={styles.navLogoText}>IA+</span>
+          <span className={styles.navLogoText}>IAPLUS.VN</span>
         </div>
         <div className={styles.navMenu}>
           <a href="#home" className={styles.navLink}>{text.navHome}</a>
@@ -296,7 +293,7 @@ export default function LandingPage() {
             <div className={styles.footerBrand}>
               <div className={styles.footerLogo}>
                 <img src="/logo.jpg" alt="DIA+" className={styles.footerLogoImg} />
-                <span className={styles.footerLogoText}>IA+</span>
+                <span className={styles.footerLogoText}>IAPLUS.VN</span>
               </div>
               <p className={styles.footerDesc}>{text.footerDesc}</p>
               <div className={styles.footerSocials}>
@@ -356,6 +353,7 @@ export default function LandingPage() {
             <button className={styles.choiceBtn} disabled={demoLoading} onClick={async () => {
               setDemoLoading(true);
               try {
+                useThemeStore.getState().setTheme('default');
                 localStorage.setItem('diaplus_force_tour', 'true');
                 await demoLogin();
                 navigate('/dashboard');

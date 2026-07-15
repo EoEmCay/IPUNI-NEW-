@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pill, ChevronRight } from 'lucide-react';
+import { Pill, ChevronRight, CheckSquare, Square } from 'lucide-react';
 import useMedicationsStore from '../../store/medicationsStore';
 import { withDoctorPrefix } from '../../utils/doctor';
 import MedicationDetailModal from './MedicationDetailModal';
@@ -12,7 +12,7 @@ const STATUS_STYLES = {
   late: { bg: '#FEE2E2', color: '#DC2626', border: '#FCA5A5' },
 };
 
-export default function MedicationCard({ medication }) {
+export default function MedicationCard({ medication, isSelectable = false, isSelected = false, onToggleSelect }) {
   const times = Array.isArray(medication.times) ? medication.times.join(' & ') : medication.times;
   const { medicationStatus, setMedicationStatus } = useMedicationsStore();
   const status = medicationStatus[medication.id] || 'pending';
@@ -21,7 +21,12 @@ export default function MedicationCard({ medication }) {
   const t = useT();
 
   return (
-    <div className={styles.card}>
+    <div className={styles.card} onClick={isSelectable ? onToggleSelect : undefined} style={{ cursor: isSelectable ? 'pointer' : 'default' }}>
+      {isSelectable && (
+        <div className={styles.checkboxWrap}>
+          {isSelected ? <CheckSquare size={20} color="#1B5FA6" /> : <Square size={20} color="#94A3B8" />}
+        </div>
+      )}
       <div className={styles.iconWrap}><Pill size={22} /></div>
       <div className={styles.info}>
         <div className={styles.name}>{medication.name} {medication.dosage}</div>
@@ -34,13 +39,15 @@ export default function MedicationCard({ medication }) {
         </button>
       </div>
 
-      <button
-        className={styles.statusSelect}
-        onClick={() => setMedicationStatus(medication.id, status === 'taken' ? 'pending' : 'taken')}
-        style={{ background: s.bg, color: s.color, borderColor: s.border, cursor: 'pointer' }}
-      >
-        {status === 'taken' ? (t.medCard?.statusTaken || 'Đã uống') : status === 'late' ? (t.medCard?.statusLate || 'Quá giờ') : (t.medCard?.statusPending || 'Chưa uống')}
-      </button>
+      {!isSelectable && (
+        <button
+          className={styles.statusSelect}
+          onClick={(e) => { e.stopPropagation(); setMedicationStatus(medication.id, status === 'taken' ? 'pending' : 'taken'); }}
+          style={{ background: s.bg, color: s.color, borderColor: s.border, cursor: 'pointer' }}
+        >
+          {status === 'taken' ? (t.medCard?.statusTaken || 'Đã uống') : status === 'late' ? (t.medCard?.statusLate || 'Quá giờ') : (t.medCard?.statusPending || 'Chưa uống')}
+        </button>
+      )}
 
       {showDetail && (
         <MedicationDetailModal medication={medication} onClose={() => setShowDetail(false)} />

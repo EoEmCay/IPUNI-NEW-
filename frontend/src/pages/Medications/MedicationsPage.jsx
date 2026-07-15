@@ -47,17 +47,9 @@ export default function MedicationsPage() {
               Xác nhận thêm
             </button>
           ) : (
-            <div style={{ position: 'relative' }}>
-              <button className={styles.actionBtn} onClick={() => setShowMenu(!showMenu)}>
-                <CalendarPlus size={20} />
-              </button>
-              {showMenu && (
-                <div className={styles.popupMenu}>
-                  <button className={styles.menuItem} onClick={handleAddAll}>Thêm tất cả thuốc</button>
-                  <button className={styles.menuItem} onClick={() => { setShowMenu(false); setSelectionMode(true); }}>Lựa chọn thuốc thêm</button>
-                </div>
-              )}
-            </div>
+            <button className={styles.actionBtn} onClick={handleAddAll} title="Lên lịch uống thuốc">
+              <CalendarPlus size={20} />
+            </button>
           )
         )}
       </div>

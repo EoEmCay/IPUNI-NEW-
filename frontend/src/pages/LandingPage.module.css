@@ -345,6 +345,8 @@ html {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  white-space: nowrap;
+  font-size: clamp(28px, 5vw, 72px);
 }
 
 .heroSubtitle {

@@ -21,10 +21,10 @@
 
 /* Kích thước chữ và ảnh theo size */
 .sm .text { font-size: 22px; }
-.sm .logoImg { width: 26px; height: 26px; margin-right: 8px; }
+.sm .logoImg { width: 26px; height: 26px; margin-right: 2px; }
 
 .md .text { font-size: 30px; }
-.md .logoImg { width: 36px; height: 36px; margin-right: 12px; }
+.md .logoImg { width: 36px; height: 36px; margin-right: 3px; }
 
 .lg .text { font-size: 44px; }
-.lg .logoImg { width: 50px; height: 50px; margin-right: 16px; }
+.lg .logoImg { width: 50px; height: 50px; margin-right: 4px; }

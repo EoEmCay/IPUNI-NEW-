@@ -40,7 +40,7 @@ html {
 .navLogo {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 2px;
   text-decoration: none;
 }
 
@@ -53,11 +53,11 @@ html {
 }
 
 .navLogoText {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 24px;
+  font-weight: 800;
   color: #ffffff;
-  letter-spacing: 2px;
-  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1;
   font-family: "Inter", "Segoe UI", sans-serif;
 }
 
@@ -1077,11 +1077,25 @@ html {
   gap: 16px;
 }
 
+.footerLogo {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
 .footerLogoImg {
   height: 44px;
   width: auto;
   object-fit: contain;
   object-position: left;
+}
+
+.footerLogoText {
+  font-size: 28px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.5px;
+  line-height: 1;
 }
 
 .footerDesc {

@@ -8,7 +8,6 @@
   font-weight: 800;
   letter-spacing: 1px;
   line-height: 1;
-  transform: translateY(2px);
 }
 
 .onDark { color: #fff; }
@@ -21,11 +20,11 @@
 }
 
 /* Kích thước chữ và ảnh theo size */
-.sm .text { font-size: 22px; }
+.sm .text { font-size: 22px; transform: translateY(2px); }
 .sm .logoImg { width: 26px; height: 26px; margin-right: 2px; }
 
-.md .text { font-size: 30px; }
+.md .text { font-size: 30px; transform: translateY(3px); }
 .md .logoImg { width: 36px; height: 36px; margin-right: 3px; }
 
-.lg .text { font-size: 44px; }
+.lg .text { font-size: 44px; transform: translateY(4px); }
 .lg .logoImg { width: 50px; height: 50px; margin-right: 4px; }

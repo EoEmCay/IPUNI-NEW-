@@ -37,6 +37,7 @@ export function useAuth() {
   const demoLogin = async () => {
     const res = await authService.demoLogin();
     const { token, user } = res.data.data;
+    localStorage.removeItem('diaplus-pro-theme'); // Force default theme for demo user
     setAuth(token, user);
     applyPlanTheme(user.plan);
     return user;

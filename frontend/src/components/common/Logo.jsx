@@ -9,6 +9,7 @@ import styles from './Logo.module.css';
 export default function Logo({ size = 'md', variant = 'onDark', className = '' }) {
   return (
     <div className={`${styles.wrap} ${styles[size]} ${className}`}>
+      <img src="/logo.jpg" alt="DIA+" className={styles.logoImg} />
       <span className={`${styles.text} ${variant === 'onLight' ? styles.onLight : styles.onDark}`}>
         DIA+
       </span>

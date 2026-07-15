@@ -1,0 +1,33 @@
+{
+  "name": "DIA+ · Giải pháp y tế thông minh",
+  "short_name": "DIA+",
+  "description": "Ứng dụng theo dõi sức khỏe dành cho bệnh nhân tiểu đường",
+  "start_url": "/login",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1B5FA6",
+  "theme_color": "#1B5FA6",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.jpg",
+      "sizes": "any",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["health", "medical"],
+  "lang": "vi",
+  "dir": "ltr"
+}

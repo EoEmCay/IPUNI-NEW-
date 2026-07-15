@@ -99,3 +99,12 @@ a { text-decoration: none; color: inherit; }
 .driver-popover, .driver-popover * {
   font-family: 'Be Vietnam Pro', sans-serif !important;
 }
+
+/* ─── PWA Standalone Mode ─── */
+@media all and (display-mode: standalone) {
+  /* Hide any browser-like UI hints when running as installed app */
+  body {
+    overscroll-behavior-y: contain; /* prevent pull-to-refresh */
+    -webkit-tap-highlight-color: transparent;
+  }
+}

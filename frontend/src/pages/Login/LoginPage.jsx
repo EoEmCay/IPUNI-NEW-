@@ -79,7 +79,7 @@ export default function LoginPage() {
     setError('');
     try {
       await login(identifier.trim(), password);
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       setError(err?.response?.data?.message || 'Email hoặc mật khẩu không đúng');
     } finally {
@@ -90,7 +90,7 @@ export default function LoginPage() {
   const handleGoogleLogin = async (email) => {
     await googleMockLogin(email);
     setShowGoogleMock(false);
-    navigate('/');
+    navigate('/dashboard');
   };
 
   const handlePhoneClick = () => {
@@ -115,7 +115,7 @@ export default function LoginPage() {
     try {
       localStorage.setItem('diaplus_force_tour', 'true');
       await demoLogin();
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       setError(err?.response?.data?.message || 'Không thể vào chế độ demo');
     } finally {

@@ -45,6 +45,7 @@ export default function UserMenu() {
   const handleLogout = () => {
     logout();
     setIsOpen(false);
+    navigate('/');
   };
 
   const closeAllModals = () => {

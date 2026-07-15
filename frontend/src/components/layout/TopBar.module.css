@@ -13,7 +13,7 @@
   justify-content: space-between;
   padding-left: 16px;
   padding-right: 16px;
-  z-index: 10001;
+  z-index: 999;
   box-shadow: 0 2px 8px rgba(27,95,166,0.18);
   transition: background 0.3s ease, box-shadow 0.3s ease;
 }

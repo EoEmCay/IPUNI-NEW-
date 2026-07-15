@@ -94,3 +94,8 @@ a { text-decoration: none; color: inherit; }
 
 ::-webkit-scrollbar { display: none; }
 * { scrollbar-width: none; }
+
+/* Driver.js Font Override */
+.driver-popover, .driver-popover * {
+  font-family: 'Be Vietnam Pro', sans-serif !important;
+}

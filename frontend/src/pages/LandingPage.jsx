@@ -343,7 +343,7 @@ export default function LandingPage() {
             <button className={styles.choiceBtn} disabled={demoLoading} onClick={async () => {
               setDemoLoading(true);
               try {
-                useThemeStore.getState().setTheme('default');
+                useThemeStore.getState().selectTheme('default');
                 localStorage.setItem('diaplus_force_tour', 'true');
                 await demoLogin();
                 navigate('/dashboard');

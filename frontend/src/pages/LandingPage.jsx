@@ -78,7 +78,7 @@ export default function LandingPage() {
       <nav className={styles.nav}>
         <div className={styles.navLogo}>
           <img src="/logo.jpg" alt="DIA+" className={styles.navLogoImg} />
-          <span className={styles.navLogoText}>DIA+</span>
+          <span className={styles.navLogoText}>IA+</span>
         </div>
         <div className={styles.navMenu}>
           <a href="#home" className={styles.navLink}>{text.navHome}</a>
@@ -295,7 +295,7 @@ export default function LandingPage() {
             {/* Brand */}
             <div className={styles.footerBrand}>
               <img src="/logo.jpg" alt="DIA+" className={styles.footerLogoImg} />
-              <span className={styles.footerLogoText}>DIA+</span>
+              <span className={styles.footerLogoText}>IA+</span>
               <p className={styles.footerDesc}>{text.footerDesc}</p>
               <div className={styles.footerSocials}>
                 <a href="https://www.linkedin.com/in/khoile-tech/" target="_blank" rel="noreferrer" className={styles.footerSocialBtn}><Link size={16} /></a>

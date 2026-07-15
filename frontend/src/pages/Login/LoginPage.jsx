@@ -133,7 +133,7 @@ export default function LoginPage() {
           <div className={styles.logoCard}>
             <img src="/logo.jpg" alt="DIA+" className={styles.logoImg} />
           </div>
-          <p className={styles.appName}>DIAPLUS.VN</p>
+          <p className={styles.appName}>DIA+</p>
           <p className={styles.tagline}>Giải pháp toàn diện quản lý bệnh lý,<br />dinh dưỡng & vận động</p>
         </div>
 

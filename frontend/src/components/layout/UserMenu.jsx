@@ -98,17 +98,7 @@ export default function UserMenu() {
               <Globe size={15} className={styles.langIcon} />
               <span className={styles.langRowLabel}>{t.userMenu.language || 'Ngôn ngữ'}</span>
               <div className={styles.langFlags}>
-                {LANG_FLAGS.map(({ code, emoji, key }) => (
-                  <button
-                    key={code}
-                    className={`${styles.langFlagBtn} ${lang === code ? styles.langFlagActive : ''}`}
-                    onClick={() => { setLang(code); setIsOpen(false); }}
-                    title={t.userMenu[key]}
-                    style={{ fontSize: 16 }}
-                  >
-                    {emoji}
-                  </button>
-                ))}
+                <span style={{ fontSize: 13, color: '#9CA3AF' }}>Sắp ra mắt</span>
               </div>
             </div>
             <button className={`${styles.menuItem} ${styles.giaoDienItem}`} onClick={handleGiaoDien}>

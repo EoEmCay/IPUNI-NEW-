@@ -7,18 +7,17 @@ const TRANSLATIONS = { vi, en, lo };
 const LANG_KEY = 'diaplus-lang';
 
 const getSavedLang = () => {
-  const lang = localStorage.getItem(LANG_KEY) || 'vi';
-  return TRANSLATIONS[lang] ? lang : 'vi';
+  return 'vi'; // Force Vietnamese
 };
 
 const useLangStore = create((set) => ({
-  lang: getSavedLang(),
-  t: TRANSLATIONS[getSavedLang()],
+  lang: 'vi',
+  t: vi,
 
   setLang: (lang) => {
-    const validLang = TRANSLATIONS[lang] ? lang : 'vi';
-    localStorage.setItem(LANG_KEY, validLang);
-    set({ lang: validLang, t: TRANSLATIONS[validLang] });
+    // Ignore setting other languages
+    localStorage.setItem(LANG_KEY, 'vi');
+    set({ lang: 'vi', t: vi });
   },
 }));
 

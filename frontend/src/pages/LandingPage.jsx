@@ -87,11 +87,8 @@ export default function LandingPage() {
           <a href="#contact" className={styles.navLink}>{text.navContact}</a>
         </div>
         <div className={styles.navActions}>
-          <div className={styles.langToggle} onClick={toggleLanguage}>
-            <div className={`${styles.langSlider} ${lang === 'en' ? styles.sliderEn : lang === 'lo' ? styles.sliderLo : ''}`} />
-            <span className={`${styles.langLabel} ${lang === 'vi' ? styles.labelActive : ''}`}>VIE</span>
-            <span className={`${styles.langLabel} ${lang === 'en' ? styles.labelActive : ''}`}>EN</span>
-            <span className={`${styles.langLabel} ${lang === 'lo' ? styles.labelActive : ''}`}>LAO</span>
+          <div className={styles.langToggle} style={{ pointerEvents: 'none', background: 'transparent', boxShadow: 'none' }}>
+            <span style={{ fontSize: 13, color: '#9CA3AF' }}>Ngôn ngữ: Sắp ra mắt</span>
           </div>
         </div>
       </nav>

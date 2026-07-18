@@ -78,7 +78,7 @@ export default function LandingPage() {
       <nav className={styles.nav}>
         <div className={styles.navLogo}>
           <img src="/logo.jpg" alt="DIA+" className={styles.navLogoImg} />
-          <span className={styles.navLogoText}>IA+</span>
+          <span className={styles.navLogoText}>IAPLUS.VN</span>
         </div>
         <div className={styles.navMenu}>
           <a href="#home" className={styles.navLink}>{text.navHome}</a>
@@ -296,7 +296,7 @@ export default function LandingPage() {
             <div className={styles.footerBrand}>
               <div className={styles.footerLogo}>
                 <img src="/logo.jpg" alt="DIA+" className={styles.footerLogoImg} />
-                <span className={styles.footerLogoText}>IA+</span>
+                <span className={styles.footerLogoText}>IAPLUS.VN</span>
               </div>
               <p className={styles.footerDesc}>{text.footerDesc}</p>
               <div className={styles.footerSocials}>

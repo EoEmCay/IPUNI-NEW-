@@ -1,7 +1,7 @@
 /* Global CSS overrides for driver.js for high visibility (elderly users) */
 .driver-popover {
   max-width: 92vw !important;
-  font-family: 'Quicksand', 'Inter', sans-serif !important;
+  font-family: var(--sans, system-ui, -apple-system, sans-serif) !important;
   z-index: 100000 !important;
   border-radius: 16px !important;
   border: 3px solid #1B5FA6 !important;

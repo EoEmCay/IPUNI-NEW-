@@ -95,8 +95,7 @@ If isDiabetesPrescription is false, you should still attempt to parse the medica
 CRITICAL INSTRUCTIONS:
 - A valid medical prescription MUST contain a list of prescribed medications (drugs with names and dosages/frequencies).
 - You MUST extract ALL medications found in the prescription without exception. If there are 7 medications, return 7. Do NOT truncate, do NOT summarize, and do NOT skip ANY medication under any circumstances.
-- DOCTOR NAME EXTRACTION IS CRITICAL: Look for the doctor's name at the BOTTOM of the prescription near signatures, stamps, or text like "Bác sĩ chỉ định", "Bác sĩ điều trị", "BS.", "Bác sĩ", "Physician", etc. Vietnamese prescriptions typically have the doctor's full name printed below or beside the signature. Extract the FULL name (e.g. "Trương Quang Tâm", not just "Tâm"). Also look for "Thời gian ký" timestamps near the doctor's name.
-- You MUST explicitly search for and extract the Doctor's name (doctorName), the Prescription Date (prescriptionDate), the Next Appointment Date (nextAppointmentDate from "Tái khám ngày" or similar), and any Doctor's Notes/Instructions (doctorNotes from "Lời dặn" or similar). These are very important.
+- You MUST explicitly search for and extract the Doctor's name (doctorName), the Prescription Date (prescriptionDate), the Next Appointment Date (nextAppointmentDate), and any Doctor's Notes/Instructions (doctorNotes). These are very important.
 - Extract any patient health metrics (e.g. Glucose, HbA1c, Blood Pressure, Weight, Height) present in the document into the "metrics" array. Do NOT parse diagnostic parameters as medications.
 - If the document is a laboratory test result, diagnostic imaging report, referral letter, or if the text is unreadable, set "isPrescription" to false.
 
@@ -123,7 +122,7 @@ JSON Schema:
     "detail": {
       "purpose": "Brief drug purpose in ${targetLang} (based on standard medical references)",
       "mechanism": "Brief mechanism of action in ${targetLang} (based on standard medical references)",
-      "source": "Mặc định luôn điền 'Dược Thư Quốc Gia Việt Nam'"
+      "source": "Mặc định luôn điền 'DIA+ AI Reference'"
     }
   }],
   "metrics": [{

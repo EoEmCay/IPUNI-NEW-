@@ -90,7 +90,9 @@ class MetricsCalculator {
   static getStatistics(readings) {
     if (!readings || readings.length === 0) return null;
 
-    const values = readings.map(r => r.value);
+    const values = readings.map(r => parseFloat(r.value)).filter(v => !isNaN(v));
+    if (values.length === 0) return null;
+
     const avg = values.reduce((a, b) => a + b, 0) / values.length;
     const min = Math.min(...values);
     const max = Math.max(...values);

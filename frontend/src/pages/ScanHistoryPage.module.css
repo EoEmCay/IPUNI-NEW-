@@ -247,19 +247,3 @@
   align-items: center;
   justify-content: center;
 }
-
-.addBtn {
-  background: #e0f2fe;
-  color: #0ea5e9;
-  border: none;
-  padding: 8px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.addBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}

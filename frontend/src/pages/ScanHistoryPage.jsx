@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Clock, Pill, Image as ImageIcon, X, Trash2, BookPlus } from 'lucide-react';
+import { ChevronLeft, Clock, Pill, Image as ImageIcon, X, Trash2 } from 'lucide-react';
 import { scanHistoryService } from '../services/scanHistory.service';
-import { medicationsService } from '../services/medications.service';
 import { useT } from '../hooks/useT';
 import styles from './ScanHistoryPage.module.css';
 
@@ -12,7 +11,6 @@ export default function ScanHistoryPage() {
   const [history, setHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedScan, setSelectedScan] = useState(null);
-  const [isAddingMed, setIsAddingMed] = useState(false);
 
   useEffect(() => {
     loadHistory();
@@ -26,32 +24,6 @@ export default function ScanHistoryPage() {
       console.error(e);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleAddMedications = async (scan) => {
-    if (!scan.result || !scan.result.medications) return;
-    setIsAddingMed(true);
-    try {
-      const currentRes = await medicationsService.getAll();
-      const currentMeds = currentRes.data?.data || [];
-      const currentNames = currentMeds.map(m => m.name.toLowerCase().trim());
-
-      const medsToAdd = scan.result.medications.filter(med => !currentNames.includes(med.name.toLowerCase().trim()));
-
-      if (medsToAdd.length === 0) {
-        alert("Các thuốc này đã có trong sổ tay, không thể thêm.");
-      } else {
-        for (const med of medsToAdd) {
-          await medicationsService.create(med);
-        }
-        alert(`Đã thêm lại các thuốc bị xót: ${medsToAdd.map(m => m.name).join(', ')}`);
-      }
-    } catch (e) {
-      console.error(e);
-      alert("Có lỗi xảy ra khi thêm thuốc.");
-    } finally {
-      setIsAddingMed(false);
     }
   };
 
@@ -121,14 +93,6 @@ export default function ScanHistoryPage() {
             <div className={styles.modalHeader}>
               <h2>{t.scanHistory.detailTitle}</h2>
               <div className={styles.modalHeaderActions}>
-                <button 
-                  className={styles.addBtn} 
-                  onClick={() => handleAddMedications(selectedScan)}
-                  title="Thêm lại vào sổ tay"
-                  disabled={isAddingMed}
-                >
-                  <BookPlus size={18} />
-                </button>
                 <button 
                   className={styles.trashBtn} 
                   onClick={() => handleDelete(selectedScan.id)}

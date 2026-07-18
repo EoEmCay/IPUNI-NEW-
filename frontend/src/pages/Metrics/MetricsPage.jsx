@@ -29,6 +29,7 @@ export default function MetricsPage() {
   const handleSave = async (data) => {
     await addMetric(data);
     fetchMetrics(activeType, days);
+    fetchStatistics(activeType, 90);
 
     // Kiểm tra để kích hoạt voice alert
     const status = getMetricStatus(data.measurement_type, data.value);
@@ -45,6 +46,7 @@ export default function MetricsPage() {
   const handleDelete = async (id) => {
     await removeMetric(id);
     fetchMetrics(activeType, days);
+    fetchStatistics(activeType, 90);
   };
 
   return (

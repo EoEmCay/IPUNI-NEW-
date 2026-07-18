@@ -1,114 +1,95 @@
 /**
- * Tiện ích tạo sự kiện Calendar (Google Calendar / ICS)
+ * Hỗ trợ tạo và tải tệp .ics để thêm lịch uống thuốc vào ứng dụng Lịch của điện thoại (iOS, Android, Google Calendar,...)
  */
+export function exportMedicationToCalendar(med) {
+  if (!med || !med.name) return;
 
-function formatICSDatetime(date) {
-  return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-}
+  const times = Array.isArray(med.times) ? med.times : [];
+  if (times.length === 0) return;
 
-export function groupMedicationsByTime(medications) {
-  const groups = {};
-  medications.forEach(med => {
-    let times = [];
-    if (Array.isArray(med.times)) {
-      times = med.times;
-    } else if (typeof med.times === 'string') {
-      times = med.times.split(/[,&]/).map(t => t.trim());
-    }
-
-    times.forEach(t => {
-      const timeMatch = t.match(/\d{1,2}:\d{2}/);
-      if (timeMatch) {
-        const timeKey = timeMatch[0];
-        if (!groups[timeKey]) groups[timeKey] = [];
-        groups[timeKey].push(med);
-      }
-    });
-  });
-  return groups;
-}
-
-export function generateGoogleCalendarUrl(groupedMeds) {
-  const timeKeys = Object.keys(groupedMeds).sort();
-  if (timeKeys.length === 0) return null;
-
-  const firstTime = timeKeys[0];
-  const medsFirst = groupedMeds[firstTime];
-  
-  const title = encodeURIComponent(`Uống thuốc DIA+: ${medsFirst.map(m => m.name).join(', ')}`);
-  
   const now = new Date();
-  const [h, m] = firstTime.split(':').map(Number);
-  
-  const startDate = new Date();
-  if (now.getHours() > h || (now.getHours() === h && now.getMinutes() > m)) {
-    startDate.setDate(startDate.getDate() + 1);
-  }
-  startDate.setHours(h, m, 0, 0);
-  
-  const endDate = new Date(startDate.getTime() + 5 * 60000); 
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const todayStr = `${year}${month}${day}`;
 
-  const dates = formatICSDatetime(startDate).replace('Z', '') + '/' + formatICSDatetime(endDate).replace('Z', '');
-  
-  let details = 'Lịch nhắc uống thuốc từ DIA+\\n\\n';
-  timeKeys.forEach(t => {
-    const names = groupedMeds[t].map(med => med.name).join(', ');
-    details += `- Lúc ${t}: ${names}\\n`;
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  const events = [];
+
+  times.forEach((tm) => {
+    // Parse giờ và phút
+    const match = tm.match(/(\d{1,2}):(\d{2})/);
+    if (!match) return;
+
+    const hours = match[1].padStart(2, '0');
+    const minutes = match[2];
+
+    const startStr = `${todayStr}T${hours}${minutes}00`;
+    
+    // Tính thời gian kết thúc (15 phút sau khi bắt đầu)
+    const startDate = new Date(year, now.getMonth(), now.getDate(), parseInt(hours), parseInt(minutes));
+    const endDate = new Date(startDate.getTime() + 15 * 60 * 1000);
+    const endHours = String(endDate.getHours()).padStart(2, '0');
+    const endMinutes = String(endDate.getMinutes()).padStart(2, '0');
+    const endStr = `${todayStr}T${endHours}${endMinutes}00`;
+
+    const uid = `med-${med.id || Math.floor(Math.random() * 1000000)}-${hours}${minutes}@diaplus.vn`;
+    const summary = `Uống thuốc: ${med.name}${med.dosage ? ' ' + med.dosage : ''}`;
+    const description = `Liều lượng & Tần suất: ${med.frequency || ''}.
+${med.instructions ? 'Hướng dẫn: ' + med.instructions : ''}
+---
+Lịch nhắc nhở tự động từ ứng dụng DIA+`;
+
+    const event = [
+      'BEGIN:VEVENT',
+      `UID:${uid}`,
+      `DTSTAMP:${stamp}`,
+      `DTSTART:${startStr}`,
+      `DTEND:${endStr}`,
+      'RRULE:FREQ=DAILY', // Nhắc nhở lặp lại hàng ngày
+      `SUMMARY:${summary}`,
+      `DESCRIPTION:${description.replace(/\n/g, '\\n')}`,
+      'BEGIN:VALARM',
+      'TRIGGER:-PT0M', // Báo thức đúng giờ uống
+      'ACTION:DISPLAY',
+      'DESCRIPTION:Nhắc nhở uống thuốc',
+      'END:VALARM',
+      'END:VEVENT'
+    ].join('\r\n');
+
+    events.push(event);
   });
 
-  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${encodeURIComponent(details)}&sf=true&output=xml`;
-}
+  if (events.length === 0) return;
 
-export function generateICSContent(groupedMeds) {
-  const timeKeys = Object.keys(groupedMeds).sort();
-  if (timeKeys.length === 0) return null;
+  const icsLines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//DIA+//Medication Calendar//VN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    ...events,
+    'END:VCALENDAR'
+  ];
 
-  let ics = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//DIA+ App//VN\nCALSCALE:GREGORIAN\n`;
-
-  timeKeys.forEach(time => {
-    const meds = groupedMeds[time];
-    const [h, m] = time.split(':').map(Number);
-    
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() + 1);
-    startDate.setHours(h, m, 0, 0);
-    
-    const endDate = new Date(startDate.getTime() + 5 * 60000);
-    
-    const summary = `Uống thuốc: ${meds.map(m => m.name).join(', ')}`;
-    const description = `Nhắc nhở uống thuốc từ DIA+. Bạn cần uống: ${meds.map(m => `${m.name} (${m.dosage || ''})`).join(', ')}`;
-
-    ics += `BEGIN:VEVENT\nUID:${new Date().getTime()}_${time.replace(':','')}@diaplus.vn\nDTSTAMP:${formatICSDatetime(new Date())}\nDTSTART:${formatICSDatetime(startDate)}\nDTEND:${formatICSDatetime(endDate)}\nSUMMARY:${summary}\nDESCRIPTION:${description}\nRRULE:FREQ=DAILY\nBEGIN:VALARM\nTRIGGER:-PT5M\nACTION:DISPLAY\nDESCRIPTION:Nhắc nhở uống thuốc!\nEND:VALARM\nEND:VEVENT\n`;
-  });
-
-  ics += `END:VCALENDAR`;
-  return ics;
-}
-
-export function addMedicationsToCalendar(medications) {
-  const grouped = groupMedicationsByTime(medications);
-  if (Object.keys(grouped).length === 0) {
-    alert("Không tìm thấy giờ uống thuốc hợp lệ để thêm vào lịch.");
-    return;
-  }
-
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-  if (isMobile) {
-    const icsContent = generateICSContent(grouped);
-    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'diaplus_medications.ics';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  } else {
-    const url = generateGoogleCalendarUrl(grouped);
-    if (url) window.open(url, '_blank');
-  }
-}
-
-export function exportMedicationToCalendar(medication) {
-  addMedicationsToCalendar([medication]);
+  const icsString = icsLines.join('\r\n');
+  const blob = new Blob([icsString], { type: 'text/calendar;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  
+  const link = document.createElement('a');
+  link.href = url;
+  
+  // Tạo tên file tiếng Việt không dấu, viết thường
+  const safeName = med.name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/[^a-z0-9]+/g, '-');
+  
+  link.setAttribute('download', `nhac-uong-thuoc-${safeName}.ics`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }

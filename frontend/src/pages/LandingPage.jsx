@@ -5,8 +5,6 @@ import { useAuth } from '../hooks/useAuth';
 import useAuthStore from '../store/authStore';
 import { useT } from '../hooks/useT';
 import useLangStore from '../store/langStore';
-import useThemeStore from '../store/themeStore';
-import HeroBackground from '../components/common/HeroBackground';
 import styles from './LandingPage.module.css';
 
 
@@ -56,6 +54,10 @@ export default function LandingPage() {
 
   const toggleLanguage = () => setLang(lang === 'vi' ? 'en' : lang === 'en' ? 'lo' : 'vi');
 
+  useEffect(() => {
+    if (isAuthenticated) navigate('/dashboard');
+  }, [isAuthenticated, navigate]);
+
   const observerRef = useRef(null);
   useEffect(() => {
     observerRef.current = new IntersectionObserver((entries) => {
@@ -76,7 +78,7 @@ export default function LandingPage() {
       <nav className={styles.nav}>
         <div className={styles.navLogo}>
           <img src="/logo.jpg" alt="DIA+" className={styles.navLogoImg} />
-          <span className={styles.navLogoText}>IAPLUS.VN</span>
+          <span className={styles.navLogoText}>IA+</span>
         </div>
         <div className={styles.navMenu}>
           <a href="#home" className={styles.navLink}>{text.navHome}</a>
@@ -94,7 +96,18 @@ export default function LandingPage() {
       {/* ── HERO SECTION ── */}
       <header id="home" className={styles.hero}>
         {/* Dynamic Aurora & Starfield Background */}
-        <HeroBackground />
+        <div className={styles.heroStars}></div>
+        <div className={styles.heroAurora}>
+          <div className={styles.auroraBlob1}></div>
+          <div className={styles.auroraBlob2}></div>
+          <div className={styles.auroraBlob3}></div>
+        </div>
+        <div className={styles.heroMeteors}>
+          <div className={`${styles.meteor} ${styles.meteor1}`}></div>
+          <div className={`${styles.meteor} ${styles.meteor2}`}></div>
+          <div className={`${styles.meteor} ${styles.meteor3}`}></div>
+        </div>
+        <div className={styles.heroGrid}></div>
         
         <div className={styles.heroInner}>
           <div className={`${styles.heroBadge}`}>
@@ -283,7 +296,7 @@ export default function LandingPage() {
             <div className={styles.footerBrand}>
               <div className={styles.footerLogo}>
                 <img src="/logo.jpg" alt="DIA+" className={styles.footerLogoImg} />
-                <span className={styles.footerLogoText}>IAPLUS.VN</span>
+                <span className={styles.footerLogoText}>IA+</span>
               </div>
               <p className={styles.footerDesc}>{text.footerDesc}</p>
               <div className={styles.footerSocials}>
@@ -343,7 +356,6 @@ export default function LandingPage() {
             <button className={styles.choiceBtn} disabled={demoLoading} onClick={async () => {
               setDemoLoading(true);
               try {
-                useThemeStore.getState().selectTheme('default');
                 localStorage.setItem('diaplus_force_tour', 'true');
                 await demoLogin();
                 navigate('/dashboard');

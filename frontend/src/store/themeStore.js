@@ -34,8 +34,8 @@ const useThemeStore = create((set) => {
     applyPlanTheme: (plan) =>
       set((state) => {
         if (plan === 'pro' || plan === 'premium') {
-          // Use previously selected Pro theme; default to default on first login
-          const proTheme = localStorage.getItem(PRO_THEME_KEY) || 'default';
+          // Use previously selected Pro theme; default to gold on first login
+          const proTheme = localStorage.getItem(PRO_THEME_KEY) || 'gold';
           if (!state.isGoldMode) {
             localStorage.setItem(USER_THEME_KEY, state.theme);
           }

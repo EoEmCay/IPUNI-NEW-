@@ -19,5 +19,41 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      // Bảo mật chống F12 và Right Click
+      document.addEventListener('contextmenu', e => {
+        e.preventDefault();
+        showSecurityPopup('Hành động click chuột phải đã bị vô hiệu hóa để bảo mật!');
+      });
+
+      document.addEventListener('keydown', e => {
+        // Chặn F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+        if (e.key === 'F12' || 
+           (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j')) || 
+           (e.ctrlKey && (e.key === 'U' || e.key === 'u'))) {
+          e.preventDefault();
+          showSecurityPopup('Hệ thống bảo mật: Truy cập DevTools bị từ chối!');
+        }
+      });
+
+      function showSecurityPopup(msg) {
+        let popup = document.getElementById('dia-security-popup');
+        if (!popup) {
+          popup = document.createElement('div');
+          popup.id = 'dia-security-popup';
+          popup.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(15, 23, 42, 0.9);backdrop-filter:blur(4px);display:flex;justify-content:center;align-items:center;z-index:999999;font-family:Quicksand, sans-serif;';
+          popup.innerHTML = `
+            <div style="background:#fff;padding:32px;border-radius:16px;text-align:center;max-width:380px;box-shadow:0 20px 40px rgba(0,0,0,0.2);animation: scaleIn 0.3s ease-out;">
+              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:16px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              <h2 style="margin:0 0 8px;font-size:22px;color:#0F172A;font-weight:700;">Cảnh Báo Bảo Mật</h2>
+              <p style="margin:0 0 24px;color:#475569;font-size:15px;line-height:1.5;">${msg}</p>
+              <button onclick="document.getElementById('dia-security-popup').remove()" style="background:#1B5FA6;color:#fff;border:none;padding:12px 32px;border-radius:8px;font-weight:600;font-size:15px;cursor:pointer;transition:all 0.2s;">Đã Hiểu</button>
+            </div>
+            <style>@keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }</style>
+          `;
+          document.body.appendChild(popup);
+        }
+      }
+    </script>
   </body>
 </html>

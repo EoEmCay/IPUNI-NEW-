@@ -18,8 +18,22 @@ const analyticsRoutes = require('./src/modules/analytics/analytics.routes');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// 1. Cài đặt Helmet (Bảo vệ Header HTTP khỏi Clickjacking, MIME sniffing, v.v.)
-app.use(helmet());
+// 1. Cài đặt Helmet (Bảo vệ Header HTTP khỏi Clickjacking, MIME sniffing, v.v. và ép buộc SSL/HSTS)
+app.use(helmet({
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  }
+}));
+
+// Chuyển hướng HTTP sang HTTPS nếu đang chạy phía sau Load Balancer/Proxy (Vercel/Render)
+app.use((req, res, next) => {
+  if (req.headers['x-forwarded-proto'] && req.headers['x-forwarded-proto'] === 'http') {
+    return res.redirect(`https://${req.headers.host}${req.url}`);
+  }
+  next();
+});
 
 // 2. Siết chặt CORS (Chỉ cho phép các domain được chỉ định)
 const allowedOrigins = [

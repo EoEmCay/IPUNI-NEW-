@@ -27,15 +27,12 @@ export default function MedicationsPage() {
           {medications && medications.length > 0 && (
             <button 
               className={styles.addBtn} 
-              style={{ background: 'var(--color-surface)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
+              style={{ background: 'var(--color-primary)', color: 'white', border: 'none' }}
               onClick={() => setShowBulkExport(true)}
             >
               <CalendarIcon size={18} /> Thêm vào lịch
             </button>
           )}
-          <button className={styles.addBtn} onClick={() => setShowForm(true)}>
-            <Plus size={18} /> Thêm thuốc
-          </button>
         </div>
       </div>
 

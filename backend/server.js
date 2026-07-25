@@ -40,6 +40,8 @@ const allowedOrigins = [
   'http://localhost:5180',
   'http://localhost:5173',
   'https://diaplus-v2.vercel.app', // Tên miền frontend nếu có
+  'https://diaplus.vn',
+  'https://www.diaplus.vn',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 

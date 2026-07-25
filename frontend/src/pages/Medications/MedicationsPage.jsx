@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
-import { Pill, Plus } from 'lucide-react';
+import { Pill, Plus, Calendar as CalendarIcon } from 'lucide-react';
 import { useMedications } from '../../hooks/useMedications';
 import { useT } from '../../hooks/useT';
 import MedicationCard from '../../components/medications/MedicationCard';
 import MedicationFormModal from '../../components/medications/MedicationFormModal';
+import BulkCalendarExportModal from '../../components/medications/BulkCalendarExportModal';
 import EmptyState from '../../components/common/EmptyState';
 import styles from './MedicationsPage.module.css';
 
 export default function MedicationsPage() {
   const [showForm, setShowForm] = useState(false);
+  const [showBulkExport, setShowBulkExport] = useState(false);
   const { medications, loading, fetchMedications } = useMedications();
   const t = useT();
 
@@ -21,10 +23,28 @@ export default function MedicationsPage() {
           <h1 className={`${styles.title} tour-step-6`}>{t.medications.title}</h1>
           <p className={styles.subtitle}>{t.medications.subtitle}</p>
         </div>
-        <button className={styles.addBtn} onClick={() => setShowForm(true)}>
-          <Plus size={18} /> Thêm thuốc
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {medications && medications.length > 0 && (
+            <button 
+              className={styles.addBtn} 
+              style={{ background: 'var(--color-surface)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
+              onClick={() => setShowBulkExport(true)}
+            >
+              <CalendarIcon size={18} /> Thêm vào lịch
+            </button>
+          )}
+          <button className={styles.addBtn} onClick={() => setShowForm(true)}>
+            <Plus size={18} /> Thêm thuốc
+          </button>
+        </div>
       </div>
+
+      {showBulkExport && (
+        <BulkCalendarExportModal 
+          medications={medications}
+          onClose={() => setShowBulkExport(false)} 
+        />
+      )}
 
       {showForm && (
         <MedicationFormModal 

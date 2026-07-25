@@ -93,3 +93,84 @@ Lịch nhắc nhở tự động từ ứng dụng DIA+`;
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 }
+
+export function exportMultipleMedicationsToCalendar(meds) {
+  if (!meds || meds.length === 0) return;
+
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const todayStr = `${year}${month}${day}`;
+
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  const events = [];
+
+  meds.forEach(med => {
+    if (!med.name) return;
+    const times = Array.isArray(med.times) ? med.times : [];
+    if (times.length === 0) return;
+
+    times.forEach((tm) => {
+      const match = tm.match(/(\d{1,2}):(\d{2})/);
+      if (!match) return;
+
+      const hours = match[1].padStart(2, '0');
+      const minutes = match[2];
+      const startStr = `${todayStr}T${hours}${minutes}00`;
+      
+      const startDate = new Date(year, now.getMonth(), now.getDate(), parseInt(hours), parseInt(minutes));
+      const endDate = new Date(startDate.getTime() + 15 * 60 * 1000);
+      const endHours = String(endDate.getHours()).padStart(2, '0');
+      const endMinutes = String(endDate.getMinutes()).padStart(2, '0');
+      const endStr = `${todayStr}T${endHours}${endMinutes}00`;
+
+      const uid = `med-${med.id || Math.floor(Math.random() * 1000000)}-${hours}${minutes}@diaplus.vn`;
+      const summary = `Uống thuốc: ${med.name}${med.dosage ? ' ' + med.dosage : ''}`;
+      const description = `Liều lượng & Tần suất: ${med.frequency || ''}.\n${med.instructions ? 'Hướng dẫn: ' + med.instructions : ''}\n---\nLịch nhắc nhở tự động từ ứng dụng DIA+`;
+
+      const event = [
+        'BEGIN:VEVENT',
+        `UID:${uid}`,
+        `DTSTAMP:${stamp}`,
+        `DTSTART:${startStr}`,
+        `DTEND:${endStr}`,
+        'RRULE:FREQ=DAILY',
+        `SUMMARY:${summary}`,
+        `DESCRIPTION:${description.replace(/\n/g, '\\n')}`,
+        'BEGIN:VALARM',
+        'TRIGGER:-PT0M',
+        'ACTION:DISPLAY',
+        'DESCRIPTION:Nhắc nhở uống thuốc',
+        'END:VALARM',
+        'END:VEVENT'
+      ].join('\r\n');
+
+      events.push(event);
+    });
+  });
+
+  if (events.length === 0) return;
+
+  const icsLines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//DIA+//Medication Calendar//VN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    ...events,
+    'END:VCALENDAR'
+  ];
+
+  const icsString = icsLines.join('\r\n');
+  const blob = new Blob([icsString], { type: 'text/calendar;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', 'nhac-uong-tat-ca-thuoc.ics');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}

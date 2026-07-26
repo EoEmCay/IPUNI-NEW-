@@ -253,7 +253,7 @@ export default function ScanPrescriptionPage() {
                 <div className={styles.rejectIcon} style={{ color: 'var(--color-primary)', background: 'white' }}>
                   <Activity size={40} />
                 </div>
-                <strong style={{ color: 'var(--color-primary)' }}>Phiếu xét nghiệm</strong>
+                <strong style={{ color: 'var(--color-primary)' }}>Hình ảnh bạn cung cấp là phiếu xét nghiệm</strong>
                 <p style={{ color: 'var(--color-text-secondary)' }}>
                   {result.labReportAdvice || 'Đây là phiếu xét nghiệm, không phải đơn thuốc.'}
                 </p>

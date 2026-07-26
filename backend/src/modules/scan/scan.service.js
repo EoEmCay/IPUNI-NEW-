@@ -147,7 +147,7 @@ function shapeResult(parsed) {
   let labReportAdvice = null;
   if (isLabReport) {
     if (labCondition === 'severe') {
-      labReportAdvice = `Chỉ số của bạn ở mức cao/bất thường. Vui lòng liên hệ ${hospitalName} để biết thêm chi tiết và nhận phác đồ điều trị.`;
+      labReportAdvice = `Vui lòng liên hệ ${hospitalName} để được Bác sĩ tư vấn chi tiết về kết quả xét nghiệm này nhé.`;
     } else {
       labReportAdvice = "Tình trạng của bạn khá tốt. Nếu cần uống thuốc, vui lòng cung cấp thêm đơn thuốc bác sĩ yêu cầu.";
     }

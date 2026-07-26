@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Clock, Pill, Image as ImageIcon, X, Trash2 } from 'lucide-react';
+import { ChevronLeft, Clock, Pill, Image as ImageIcon, X, Trash2, Activity } from 'lucide-react';
 import { scanHistoryService } from '../services/scanHistory.service';
 import { useT } from '../hooks/useT';
 import styles from './ScanHistoryPage.module.css';
@@ -68,17 +68,23 @@ export default function ScanHistoryPage() {
         <div className={styles.historyList}>
           {history.map((scan) => (
             <div key={scan.id} className={styles.historyCard} onClick={() => setSelectedScan(scan)}>
-              <img src={scan.image} alt="Đơn thuốc" className={styles.cardImage} />
+              <img src={scan.image} alt="Original Image" className={styles.cardImage} />
               <div className={styles.cardContent}>
                 <div className={styles.cardDate}>
                   <Clock size={12} /> {formatDate(scan.date)}
                 </div>
                 <h3 className={styles.cardTitle}>
-                  {scan.result?.doctorName ? `${t.scanHistory.doctorPrefix} ${scan.result.doctorName}` : t.scanHistory.unknownDoctor}
+                  {scan.result?.isLabReport 
+                    ? `Phiếu xét nghiệm (${scan.result?.hospitalName || 'Phòng khám'})`
+                    : (scan.result?.doctorName ? `${t.scanHistory.doctorPrefix} ${scan.result.doctorName}` : t.scanHistory.unknownDoctor)}
                 </h3>
                 <div className={styles.cardMeta}>
                   <span className={styles.metaItem}>
-                    <Pill size={14} /> {scan.result?.medications?.length || 0} {t.scanHistory.medCount}
+                    {scan.result?.isLabReport ? (
+                      <><Activity size={14} /> Tình trạng: {scan.result?.labReportAdvice?.includes('tốt') ? 'Tốt' : 'Cần lưu ý'}</>
+                    ) : (
+                      <><Pill size={14} /> {scan.result?.medications?.length || 0} {t.scanHistory.medCount}</>
+                    )}
                   </span>
                 </div>
               </div>
@@ -91,7 +97,7 @@ export default function ScanHistoryPage() {
         <div className={styles.modalOverlay} onClick={() => setSelectedScan(null)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <h2>{t.scanHistory.detailTitle}</h2>
+              <h2>{selectedScan.result?.isLabReport ? 'Chi tiết phiếu xét nghiệm' : t.scanHistory.detailTitle}</h2>
               <div className={styles.modalHeaderActions}>
                 <button 
                   className={styles.trashBtn} 
@@ -106,20 +112,28 @@ export default function ScanHistoryPage() {
               </div>
             </div>
             <div className={styles.modalBody}>
-              <img src={selectedScan.image} alt="Original Prescription" className={styles.modalImage} />
+              <img src={selectedScan.image} alt="Original Image" className={styles.modalImage} />
               
-              <h3>{t.scanHistory.resultTitle}</h3>
-              <div className={styles.medList}>
-                {selectedScan.result?.medications?.map((med, idx) => (
-                  <div key={idx} className={styles.medItem}>
-                    <h4 className={styles.medItemName}>{med.name}</h4>
-                    <div className={styles.medItemMeta}>
-                      {med.dosage && <span>{t.scanHistory.dosage} {med.dosage}</span>}
-                      {med.instructions && <span>{t.scanHistory.instructions} {med.instructions}</span>}
+              <h3>{selectedScan.result?.isLabReport ? 'Kết quả chẩn đoán AI' : t.scanHistory.resultTitle}</h3>
+              {selectedScan.result?.isLabReport ? (
+                <div className={styles.rejectBanner} style={{ backgroundColor: 'rgba(27, 95, 166, 0.05)', borderColor: 'var(--color-primary)', padding: '16px', borderRadius: '12px', marginTop: '12px' }}>
+                  <p style={{ color: 'var(--color-text-secondary)', fontSize: 14 }}>
+                    {selectedScan.result.labReportAdvice}
+                  </p>
+                </div>
+              ) : (
+                <div className={styles.medList}>
+                  {selectedScan.result?.medications?.map((med, idx) => (
+                    <div key={idx} className={styles.medItem}>
+                      <h4 className={styles.medItemName}>{med.name}</h4>
+                      <div className={styles.medItemMeta}>
+                        {med.dosage && <span>{t.scanHistory.dosage} {med.dosage}</span>}
+                        {med.instructions && <span>{t.scanHistory.instructions} {med.instructions}</span>}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -103,6 +103,9 @@ JSON Schema:
 {
   "isPrescription": true/false (true if the image/text represents a medical prescription),
   "isDiabetesPrescription": true/false (true if the diagnosis, symptoms, or any of the medications are for diabetes),
+  "isLabReport": true/false (true if the document is a laboratory test result / phiếu kết quả xét nghiệm),
+  "hospitalName": "Name of the hospital/clinic on the document" or null,
+  "labCondition": "good" or "severe" (Evaluate the metrics: if Glucose, HbA1c, Cholesterol, etc. are significantly high or abnormal, output "severe", else "good"),
   "rejectionReason": "Detailed reason in ${targetLang} why this is not a prescription or not related to diabetes" or null,
   "doctorName": "Doctor name" or null,
   "prescriptionDate": "Prescription date in YYYY-MM-DD format" or null,
@@ -136,9 +139,19 @@ JSON Schema:
 function shapeResult(parsed) {
   const medications = parsed.medications || [];
   
-  // Một đơn thuốc hợp lệ phải có chứa danh sách thuốc kê đơn.
-  // Nếu danh sách thuốc trống, tài liệu này không thể được xử lý như một đơn thuốc.
   const isPrescription = parsed.isPrescription !== false && medications.length > 0;
+  const isLabReport = parsed.isLabReport === true;
+  const hospitalName = parsed.hospitalName || 'bệnh viện';
+  const labCondition = parsed.labCondition || 'good';
+
+  let labReportAdvice = null;
+  if (isLabReport) {
+    if (labCondition === 'severe') {
+      labReportAdvice = `Chỉ số của bạn ở mức cao/bất thường. Vui lòng liên hệ ${hospitalName} để biết thêm chi tiết và nhận phác đồ điều trị.`;
+    } else {
+      labReportAdvice = "Tình trạng của bạn khá tốt. Nếu cần uống thuốc, vui lòng cung cấp thêm đơn thuốc bác sĩ yêu cầu.";
+    }
+  }
 
   const keywordDiabetes = medications.some(m => isDiabetesDrug(m.name));
   const isDiabetesPrescription =
@@ -155,7 +168,10 @@ function shapeResult(parsed) {
   return {
     isPrescription,
     isDiabetesPrescription,
-    rejectionReason: !isPrescription 
+    isLabReport,
+    labReportAdvice,
+    hospitalName,
+    rejectionReason: (!isPrescription && !isLabReport)
       ? (parsed.rejectionReason || 'Không tìm thấy thông tin thuốc được kê trong tài liệu này (ví dụ: đây là kết quả xét nghiệm hoặc ảnh chụp quá mờ).')
       : (parsed.rejectionReason || null),
     medications: isDiabetesPrescription ? medications : [],

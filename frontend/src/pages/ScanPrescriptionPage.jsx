@@ -53,12 +53,12 @@ export default function ScanPrescriptionPage() {
 
       if (data.error) {
         showToast(data.error, 'error');
-      } else if (!data.isPrescription) {
+      } else if (!data.isPrescription && !data.isLabReport) {
         showToast(t.scanResult?.notPrescription || 'Ảnh không phải là một đơn thuốc. Vui lòng chụp lại đơn thuốc.', 'error');
-      } else if (!data.isDiabetesPrescription) {
+      } else if (data.isPrescription && !data.isDiabetesPrescription) {
         showToast(t.scanResult?.notDiabetes || 'Đây không phải đơn thuốc điều trị đái tháo đường. DIA+ chỉ hỗ trợ đơn thuốc tiểu đường.', 'error');
       } else {
-        // Save to history on success
+        // Save to history on success or lab report
         const reader = new FileReader();
         reader.readAsDataURL(imageFile);
         reader.onloadend = async () => {
@@ -227,7 +227,7 @@ export default function ScanPrescriptionPage() {
             </div>
           </div>
 
-          {result && !result.isDiabetesPrescription && !result.error && (
+          {result && !result.isDiabetesPrescription && !result.isLabReport && !result.error && (
             <div className={styles.results}>
               <div className={styles.rejectBanner}>
                 <div className={styles.rejectIcon}>
@@ -239,6 +239,23 @@ export default function ScanPrescriptionPage() {
                     (result.isPrescription
                       ? t.scanResult?.notDiabetes
                       : t.scanResult?.notPrescription)}
+                </p>
+              </div>
+              <button onClick={handleRetake} className={styles.scanAgainBtn}>
+                {t.scan.scanAnotherBtn}
+              </button>
+            </div>
+          )}
+
+          {result && result.isLabReport && !result.error && (
+            <div className={styles.results}>
+              <div className={styles.rejectBanner} style={{ backgroundColor: 'rgba(27, 95, 166, 0.05)', borderColor: 'var(--color-primary)' }}>
+                <div className={styles.rejectIcon} style={{ color: 'var(--color-primary)', background: 'white' }}>
+                  <Activity size={40} />
+                </div>
+                <strong style={{ color: 'var(--color-primary)' }}>Phiếu xét nghiệm</strong>
+                <p style={{ color: 'var(--color-text-secondary)' }}>
+                  {result.labReportAdvice || 'Đây là phiếu xét nghiệm, không phải đơn thuốc.'}
                 </p>
               </div>
               <button onClick={handleRetake} className={styles.scanAgainBtn}>

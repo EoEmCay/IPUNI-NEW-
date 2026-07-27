@@ -2,7 +2,7 @@ import api from './api';
 
 export const authService = {
   login: (identifier, password) => api.post('/auth/login', { identifier, password }),
-  googleMock: (email) => api.post('/auth/google-mock', { email }),
+  googleLogin: (accessToken) => api.post('/auth/google-login', { accessToken }),
   register: (email, phone, password, confirmPassword, { name, diagnosis } = {}) =>
     api.post('/auth/register', { email, phone, password, confirmPassword, name, diagnosis }),
   demoLogin: () => api.post('/auth/demo-login'),

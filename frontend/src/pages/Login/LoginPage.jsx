@@ -75,12 +75,14 @@ export default function LoginPage() {
         await googleLogin(tokenResponse.access_token);
         navigate('/');
       } catch (err) {
-        setError(err.response?.data?.message || 'Đăng nhập Google thất bại');
+        console.error('Google login error:', err);
+        setError(err.response?.data?.message || err.message || 'Đăng nhập Google thất bại');
       } finally {
         setLoading(false);
       }
     },
-    onError: () => {
+    onError: (err) => {
+      console.error('Google popup error:', err);
       setError('Đăng nhập Google bị hủy hoặc thất bại');
     },
   });

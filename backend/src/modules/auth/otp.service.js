@@ -8,11 +8,10 @@ const OTP_TTL_MS = 5 * 60 * 1000; // 5 phút
 const MAX_WRONG_ATTEMPTS = 3;
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
-  port: 587,
+  service: 'gmail',
   auth: {
-    user: process.env.BREVO_USER || process.env.MAIL_USER,
-    pass: process.env.BREVO_PASS || process.env.MAIL_PASS, 
+    user: process.env.GMAIL_USER || process.env.MAIL_USER || 'khoile3006.official@gmail.com',
+    pass: process.env.GMAIL_PASS || process.env.MAIL_PASS || 'pykj aizq klwb lvdd', 
   },
 });
 
@@ -30,7 +29,7 @@ async function sendOtp(email, password) {
   otpCache.set(email, { otpCode, expiresAt, password, wrongAttempts: 0 });
 
   try {
-    const senderEmail = process.env.BREVO_USER || process.env.MAIL_USER;
+    const senderEmail = process.env.GMAIL_USER || process.env.MAIL_USER || 'khoile3006.official@gmail.com';
     
     // Check if credentials are set (not dummy or empty)
     if (!senderEmail || senderEmail === 'your-email@gmail.com') {

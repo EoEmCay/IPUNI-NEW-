@@ -116,7 +116,7 @@ async function googleLogin(accessToken) {
     const token = signToken(user);
     return { token, user: { id: user.id, user_code: user.user_code, name: user.name, address: user.address, email: user.email, phone: user.phone, diagnosis: user.diagnosis, plan: user.plan } };
   } catch (err) {
-    logger.error('Google verification error:', err);
+    console.error('Google verification error:', err);
     throw { status: 401, message: 'Xác thực Google thất bại' };
   }
 }

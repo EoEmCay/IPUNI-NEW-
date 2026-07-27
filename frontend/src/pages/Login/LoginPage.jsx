@@ -152,6 +152,11 @@ export default function LoginPage() {
 
         {view === 'options' && (
           <div className={styles.panel}>
+            {error && (
+              <div className={styles.errorBox} style={{ marginBottom: '1rem' }}>
+                <span>⚠</span> {error}
+              </div>
+            )}
             <button
               className={`${styles.authBtn} ${styles.phoneBtn}`}
               onClick={handlePhoneClick}

@@ -104,12 +104,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleLogin = async (email) => {
-    await googleMockLogin(email);
-    setShowGoogleMock(false);
-    navigate('/');
-  };
-
   const handlePhoneClick = () => {
     setComingSoon(true);
     setTimeout(() => setComingSoon(false), 2500);

@@ -17,7 +17,8 @@ async function getTodayMedications(userId) {
 
 async function createMedication(userId, data) {
   const payload = { ...data, user_id: userId, times: JSON.stringify(data.times) };
-  const [id] = await db('medications').insert(payload);
+  const [insertedRow] = await db('medications').insert(payload).returning('id');
+  const id = typeof insertedRow === 'object' ? insertedRow.id : insertedRow;
   return parseMed(await db('medications').where({ id }).first());
 }
 

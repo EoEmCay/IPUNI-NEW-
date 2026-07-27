@@ -15,7 +15,8 @@ async function getDoctorNotes(userId) {
 }
 
 async function createAppointment(userId, data) {
-  const [id] = await db('appointments').insert({ user_id: userId, ...data });
+  const [insertedRow] = await db('appointments').insert({ user_id: userId, ...data }).returning('id');
+  const id = typeof insertedRow === 'object' ? insertedRow.id : insertedRow;
   return db('appointments').where({ id }).first();
 }
 

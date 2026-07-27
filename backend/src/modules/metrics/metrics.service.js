@@ -47,10 +47,11 @@ async function getLatestByType(userId) {
 }
 
 async function createMetric(userId, data) {
-  const [id] = await db('metrics').insert({
+  const [insertedRow] = await db('metrics').insert({
     user_id: userId,
     ...data
-  });
+  }).returning('id');
+  const id = typeof insertedRow === 'object' ? insertedRow.id : insertedRow;
   return db('metrics').where({ id }).first();
 }
 

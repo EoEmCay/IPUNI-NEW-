@@ -16,6 +16,8 @@ import ScanPrescriptionPage from './pages/ScanPrescriptionPage';
 import ScanHistoryPage from './pages/ScanHistoryPage';
 import SettingsPage from './pages/SettingsPage';
 
+import AdminPage from './pages/AdminPage';
+
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuthStore();
   return isAuthenticated ? children : <Navigate to="/login" replace />;
@@ -35,6 +37,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route path="/admin" element={<AdminPage />} />
       <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : (
         <MobileWrapper>
           <LoginPage />

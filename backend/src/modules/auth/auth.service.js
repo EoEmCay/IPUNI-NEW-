@@ -56,7 +56,8 @@ async function register(email, phone, password, { name, diagnosis } = {}) {
   if (name) insertData.name = name;
   if (diagnosis) insertData.diagnosis = diagnosis;
 
-  const [id] = await db('users').insert(insertData);
+  const [insertedRow] = await db('users').insert(insertData).returning('id');
+  const id = typeof insertedRow === 'object' ? insertedRow.id : insertedRow;
   const user = await db('users').where({ id }).first();
 
   const token = signToken(user);
@@ -91,13 +92,13 @@ async function googleMock(email) {
     do { user_code = genUserCode(); } while (await db('users').where({ user_code }).first());
     
     // Tạo user mới với mật khẩu mặc định (vì đăng nhập Google không cần pass)
-    const password_hash = await bcrypt.hash('google_oauth_mock', 10);
-    const [id] = await db('users').insert({
+    const [insertedRow] = await db('users').insert({
       email,
       name: email.split('@')[0],
-      password_hash,
+      password_hash: '$2b$10$dummyHashGoogleMockUserNotUsed',
       user_code,
-    });
+    }).returning('id');
+    const id = typeof insertedRow === 'object' ? insertedRow.id : insertedRow;
     user = await db('users').where({ id }).first();
   }
 
@@ -114,14 +115,16 @@ async function demoLogin() {
   
   // Sử dụng chuỗi băm tính trước cho 'demo_mock' để tăng tốc độ load, tránh quá tải CPU trên các server nhỏ
   const password_hash = '$2a$10$znBEfjEODDkbHtifoiREvuPZpM7AJ9CIUdUpwqlDSztp8H5R4g0j2';
-  const [userId] = await db('users').insert({
+  const [insertedRow] = await db('users').insert({
     email,
     name: 'Người Dùng Demo',
     password_hash,
     user_code,
     diagnosis: 'type2_diabetes',
     plan: 'pro'
-  });
+  }).returning('id');
+  
+  const userId = typeof insertedRow === 'object' ? insertedRow.id : insertedRow;
   
   // Không nạp dữ liệu thuốc mặc định nữa, để màn hình trống cho demo quét đơn thuốc
   const user = await db('users').where({ id: userId }).first();

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { Users, AlertTriangle, ShieldCheck, Database, Calendar } from 'lucide-react';
 import styles from './AdminPage.module.css';
-import { API_URL } from '../config/env';
 
 export default function AdminPage() {
   const [users, setUsers] = useState([]);
@@ -17,7 +16,7 @@ export default function AdminPage() {
     setError('');
     
     try {
-      const res = await axios.get(`${API_URL}/analytics/users`, {
+      const res = await api.get(`/analytics/users`, {
         headers: {
           'x-admin-key': adminKey
         }

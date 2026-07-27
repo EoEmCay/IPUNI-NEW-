@@ -26,8 +26,8 @@ export function useAuth() {
     return user;
   };
 
-  const googleMockLogin = async (email) => {
-    const res = await authService.googleMock(email);
+  const googleLogin = async (accessToken) => {
+    const res = await authService.googleLogin(accessToken);
     const { token, user } = res.data.data;
     setAuth(token, user);
     applyPlanTheme(user.plan);
@@ -64,5 +64,5 @@ export function useAuth() {
     return res.data.data;
   };
 
-  return { user, token, isAuthenticated, login, googleMockLogin, demoLogin, logout, register, updateProfile, completeRegistration };
+  return { user, token, isAuthenticated, login, googleLogin, demoLogin, logout, register, updateProfile, completeRegistration };
 }

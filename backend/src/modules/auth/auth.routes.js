@@ -10,7 +10,7 @@ router.post('/login', validate(loginSchema), controller.login);
 router.post('/register', validate(registerSchema), controller.register);
 router.get('/me', authMiddleware, controller.getMe);
 router.post('/logout', authMiddleware, controller.logout);
-router.post('/google-mock', controller.googleMock);
+router.post('/google-login', controller.googleLogin);
 router.post('/demo-login', controller.demoLogin);
 
 // OTP email verification flow

@@ -37,11 +37,11 @@ function logout(req, res) {
   sendSuccess(res, null, 'Đăng xuất thành công');
 }
 
-async function googleMock(req, res, next) {
+async function googleLogin(req, res, next) {
   try {
-    const { email } = req.body;
-    if (!email) throw { status: 400, message: 'Vui lòng cung cấp email' };
-    const result = await authService.googleMock(email);
+    const { accessToken } = req.body;
+    if (!accessToken) throw { status: 400, message: 'Vui lòng cung cấp accessToken' };
+    const result = await authService.googleLogin(accessToken);
     sendSuccess(res, result, 'Đăng nhập Google thành công');
   } catch (err) {
     if (err.status) return sendError(res, err.message, err.status);
@@ -59,4 +59,4 @@ async function demoLogin(req, res, next) {
   }
 }
 
-module.exports = { login, register, getMe, logout, googleMock, demoLogin };
+module.exports = { login, register, getMe, logout, googleLogin, demoLogin };

@@ -4,7 +4,6 @@ import { useAuth } from '../../hooks/useAuth';
 import useThemeStore from '../../store/themeStore';
 import { useT } from '../../hooks/useT';
 import { GoogleIcon } from '../../components/common/AuthIcons';
-import MockGoogleLoginModal from '../../components/common/MockGoogleLoginModal';
 import styles from './LoginPage.module.css';
 
 const PhoneSVG = () => (
@@ -49,14 +48,15 @@ const ArrowLeftSVG = () => (
   </svg>
 );
 
+import { useGoogleLogin } from '@react-oauth/google';
+
 export default function LoginPage() {
-  const { login, googleMockLogin, demoLogin } = useAuth();
+  const { login, googleLogin, demoLogin } = useAuth();
   const navigate = useNavigate();
   const t = useT();
   const applyDefaultLook = useThemeStore((s) => s.applyDefaultLook);
 
   const [view, setView] = useState('options');
-  const [showGoogleMock, setShowGoogleMock] = useState(false);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -66,6 +66,24 @@ export default function LoginPage() {
   const [comingSoon, setComingSoon] = useState(false);
 
   useEffect(() => { applyDefaultLook(); }, [applyDefaultLook]);
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        setLoading(true);
+        setError('');
+        await googleLogin(tokenResponse.access_token);
+        navigate('/');
+      } catch (err) {
+        setError(err.response?.data?.message || 'Đăng nhập Google thất bại');
+      } finally {
+        setLoading(false);
+      }
+    },
+    onError: () => {
+      setError('Đăng nhập Google bị hủy hoặc thất bại');
+    },
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -150,7 +168,7 @@ export default function LoginPage() {
 
             <button
               className={`${styles.authBtn} ${styles.googleBtn}`}
-              onClick={() => setShowGoogleMock(true)}
+              onClick={() => handleGoogleLogin()}
             >
               <GoogleIcon className={styles.gIcon} />
               <span>Tiếp tục qua Google</span>
@@ -200,6 +218,11 @@ export default function LoginPage() {
             <button className={styles.backBtn} onClick={goBack}>
               <ArrowLeftSVG />
               <span>Quay lại</span>
+            </button>
+
+            <button type="button" className={styles.googleBtn} onClick={() => handleGoogleLogin()}>
+              <GoogleIcon />
+              Tiếp tục với Google
             </button>
 
             <h2 className={styles.formTitle}>Đăng nhập</h2>
@@ -272,13 +295,6 @@ export default function LoginPage() {
 
         <p className={styles.footer}>DIA+ · Giải pháp y tế thông minh</p>
       </div>
-
-      {showGoogleMock && (
-        <MockGoogleLoginModal
-          onClose={() => setShowGoogleMock(false)}
-          onLogin={handleGoogleLogin}
-        />
-      )}
     </div>
   );
 }

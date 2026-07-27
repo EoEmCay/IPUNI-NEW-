@@ -85,25 +85,40 @@ async function getMe(userId) {
   };
 }
 
-async function googleMock(email) {
-  let user = await db('users').where({ email }).first();
-  if (!user) {
-    let user_code;
-    do { user_code = genUserCode(); } while (await db('users').where({ user_code }).first());
-    
-    // Tạo user mới với mật khẩu mặc định (vì đăng nhập Google không cần pass)
-    const [insertedRow] = await db('users').insert({
-      email,
-      name: email.split('@')[0],
-      password_hash: '$2b$10$dummyHashGoogleMockUserNotUsed',
-      user_code,
-    }).returning('id');
-    const id = typeof insertedRow === 'object' ? insertedRow.id : insertedRow;
-    user = await db('users').where({ id }).first();
-  }
+const axios = require('axios');
 
-  const token = signToken(user);
-  return { token, user: { id: user.id, user_code: user.user_code, name: user.name, address: user.address, email: user.email, phone: user.phone, diagnosis: user.diagnosis, plan: user.plan } };
+async function googleLogin(accessToken) {
+  try {
+    const { data } = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+
+    const email = data.email;
+    const name = data.name || email.split('@')[0];
+    
+    if (!email) throw { status: 400, message: 'Không thể lấy email từ Google' };
+
+    let user = await db('users').where({ email }).first();
+    if (!user) {
+      let user_code;
+      do { user_code = genUserCode(); } while (await db('users').where({ user_code }).first());
+      
+      const [insertedRow] = await db('users').insert({
+        email,
+        name,
+        password_hash: '$2b$10$dummyHashGoogleMockUserNotUsed',
+        user_code,
+      }).returning('id');
+      const id = typeof insertedRow === 'object' ? insertedRow.id : insertedRow;
+      user = await db('users').where({ id }).first();
+    }
+
+    const token = signToken(user);
+    return { token, user: { id: user.id, user_code: user.user_code, name: user.name, address: user.address, email: user.email, phone: user.phone, diagnosis: user.diagnosis, plan: user.plan } };
+  } catch (err) {
+    logger.error('Google verification error:', err);
+    throw { status: 401, message: 'Xác thực Google thất bại' };
+  }
 }
 
 async function demoLogin() {
@@ -139,4 +154,7 @@ async function demoLogin() {
   };
 }
 
-module.exports = { login, register, getMe, googleMock, demoLogin };
+module.exports = { login, register,  getMe,
+  googleLogin,
+  demoLogin,
+};

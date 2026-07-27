@@ -171,9 +171,17 @@ async function buildReport(days = 14) {
   return { overview, charts, exportedAt: new Date().toISOString() };
 }
 
+async function getUsers() {
+  const users = await db('users')
+    .select('id', 'name', 'email', 'created_at', 'diagnosis')
+    .orderBy('created_at', 'desc');
+  return users;
+}
+
 module.exports = {
   recordEvent,
   getOverview,
+  getUsers,
   getCharts,
   getRecent,
   buildReport,

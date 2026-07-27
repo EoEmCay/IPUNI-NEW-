@@ -31,6 +31,15 @@ async function overview(req, res, next) {
   }
 }
 
+// GET /analytics/users (admin)
+async function getUsers(req, res, next) {
+  try {
+    sendSuccess(res, await service.getUsers());
+  } catch (err) {
+    next(err);
+  }
+}
+
 // GET /analytics/charts?days=14  (admin)
 async function charts(req, res, next) {
   try {
@@ -85,4 +94,6 @@ async function health(req, res, next) {
   }
 }
 
-module.exports = { track, overview, charts, recent, exportSheets, health };
+module.exports = { track,  overview,
+  getUsers,
+  charts, recent, exportSheets, health };

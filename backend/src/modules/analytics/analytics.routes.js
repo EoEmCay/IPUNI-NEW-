@@ -8,6 +8,7 @@ router.post('/track', controller.track);
 
 // Bảo vệ bằng admin key
 router.get('/overview', adminAuth, controller.overview);
+router.get('/users', adminAuth, controller.getUsers);
 router.get('/charts', adminAuth, controller.charts);
 router.get('/recent', adminAuth, controller.recent);
 router.get('/health', adminAuth, controller.health);

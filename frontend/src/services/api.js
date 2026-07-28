@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api/v1',
-  timeout: 30000,
+  timeout: 60000, // Tăng lên 60 giây để chờ máy chủ Render khởi động (nếu dùng gói free)
 });
 
 let cachedToken = null;

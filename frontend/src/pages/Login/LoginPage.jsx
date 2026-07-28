@@ -221,11 +221,6 @@ export default function LoginPage() {
               <span>Quay lại</span>
             </button>
 
-            <button type="button" className={styles.googleBtn} onClick={() => handleGoogleLogin()}>
-              <GoogleIcon />
-              Tiếp tục với Google
-            </button>
-
             <h2 className={styles.formTitle}>Đăng nhập</h2>
             <p className={styles.formSub}>Nhập tài khoản và mật khẩu của bạn</p>
 

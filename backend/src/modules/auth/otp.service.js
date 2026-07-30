@@ -13,6 +13,9 @@ const transporter = nodemailer.createTransport({
     user: process.env.GMAIL_USER || process.env.MAIL_USER || 'khoile3006.official@gmail.com',
     pass: process.env.GMAIL_PASS || process.env.MAIL_PASS || 'pykj aizq klwb lvdd', 
   },
+  connectionTimeout: 5000, // Tối đa 5 giây để kết nối
+  greetingTimeout: 5000,
+  socketTimeout: 5000
 });
 
 async function sendOtp(email, password) {

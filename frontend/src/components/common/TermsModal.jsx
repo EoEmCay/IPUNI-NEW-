@@ -2,11 +2,35 @@ import { useState, useRef } from 'react';
 import { useT } from '../../hooks/useT';
 import styles from './TermsModal.module.css';
 
-const LOREM_IPSUM = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+const TERMS_CONTENT = `CHÀO MỪNG BẠN ĐẾN VỚI DIA+
+Bằng việc sử dụng ứng dụng giải pháp y tế thông minh DIA+, bạn đồng ý với các điều khoản sau:
 
-Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue, eros est euismod turpis, id tincidunt sapien risus a quam. Maecenas fermentum consequat mi. Donec fermentum. Pellentesque malesuada nulla a mi. Duis sapien sem, aliquet nec, commodo eget, consequat quis, neque. Aliquam faucibus, elit ut dictum aliquet, felis nisl adipiscing sapien, sed malesuada diam lacus eget erat. Cras mollis scelerisque nunc. Nullam arcu. Aliquam consequat. Curabitur augue lorem, dapibus quis, laoreet et, pretium ac, nisi. Aenean magna nisl, mollis quis, molestie eu, feugiat in, nisi. Aenean dictum pellentesque lectus. Suspendisse aw. 
+1. MỤC ĐÍCH SỬ DỤNG
+DIA+ cung cấp công cụ quản lý hồ sơ y tế, nhắc nhở uống thuốc và gợi ý dinh dưỡng/vận động dựa trên Trí tuệ nhân tạo (AI). Mọi thông tin từ DIA+ chỉ mang tính chất tham khảo, hỗ trợ quá trình điều trị và KHÔNG thay thế cho các chẩn đoán, quyết định điều trị trực tiếp từ bác sĩ chuyên khoa.
 
-Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus.`;
+2. TRÁCH NHIỆM CỦA NGƯỜI DÙNG
+Bạn chịu trách nhiệm về tính chính xác của các thông tin cá nhân và hồ sơ bệnh án, toa thuốc được tải lên hệ thống. Không sử dụng ứng dụng vào mục đích vi phạm pháp luật.
+
+3. QUYỀN VÀ NGHĨA VỤ CỦA DIA+
+DIA+ cam kết duy trì hệ thống hoạt động ổn định. Chúng tôi có quyền ngừng cung cấp dịch vụ hoặc khóa tài khoản nếu phát hiện hành vi gian lận, phá hoại hoặc vi phạm điều khoản sử dụng.
+
+4. THANH TOÁN
+Việc thanh toán cho gói dịch vụ Pro hoặc các dịch vụ trả phí khác sẽ tuân thủ nghiêm ngặt theo quy định của nhà cung cấp cổng thanh toán đối tác.`;
+
+const PRIVACY_CONTENT = `CHÍNH SÁCH BẢO MẬT TẠI DIA+
+Chúng tôi coi trọng và cam kết bảo vệ tuyệt đối quyền riêng tư và dữ liệu y tế của bạn.
+
+1. THU THẬP DỮ LIỆU
+DIA+ chỉ thu thập các thông tin thực sự cần thiết (Họ tên, Email, Số điện thoại, Hồ sơ y tế, toa thuốc, chỉ số sức khỏe) để phục vụ cho các tính năng cốt lõi và cá nhân hóa trải nghiệm chăm sóc sức khỏe của riêng bạn.
+
+2. BẢO MẬT & MÃ HÓA
+Dữ liệu của bạn được mã hóa an toàn trên hệ thống máy chủ đám mây với tiêu chuẩn bảo mật cao. Chỉ có bạn và những bác sĩ/phòng khám được bạn ủy quyền mới có quyền truy cập vào chi tiết hồ sơ bệnh án.
+
+3. KHÔNG CHIA SẺ DỮ LIỆU
+DIA+ tuyệt đối KHÔNG BÁN, trao đổi hoặc cung cấp thông tin cá nhân, tình trạng bệnh lý của bạn cho bất kỳ bên thứ ba hay tổ chức quảng cáo nào nếu không có sự đồng thuận rõ ràng bằng văn bản/xác nhận điện tử từ bạn.
+
+4. QUYỀN KIỂM SOÁT CỦA BẠN
+Bạn có toàn quyền yêu cầu trích xuất, chỉnh sửa hoặc xóa vĩnh viễn toàn bộ dữ liệu cá nhân của mình khỏi hệ thống máy chủ của DIA+ bất cứ lúc nào.`;
 
 export default function TermsModal({ onComplete }) {
   const t = useT();
@@ -43,9 +67,8 @@ export default function TermsModal({ onComplete }) {
           <p style={{ fontWeight: 'bold', marginBottom: '12px' }}>
             {step === 1 ? t.terms.descTerms : t.terms.descPrivacy}
           </p>
-          <div style={{ whiteSpace: 'pre-wrap' }}>
-            {LOREM_IPSUM}
-            {LOREM_IPSUM}
+          <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
+            {step === 1 ? TERMS_CONTENT : PRIVACY_CONTENT}
           </div>
         </div>
         

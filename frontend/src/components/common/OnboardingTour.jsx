@@ -15,7 +15,7 @@ export default function OnboardingTour() {
   const t = useT();
   
   useEffect(() => {
-    if (user === null) return;
+    if (!user || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/') return;
 
     const isDemoUser = user.is_demo || (user.email && user.email.startsWith('demo_'));
     const forceTour = localStorage.getItem('diaplus_force_tour');
@@ -37,7 +37,7 @@ export default function OnboardingTour() {
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [user]);
+  }, [user, location.pathname]);
 
   const handleChoice = (wantTour) => {
     setShowChoice(false);

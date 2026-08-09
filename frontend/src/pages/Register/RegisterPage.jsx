@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import useThemeStore from '../../store/themeStore';
-import { authService } from '../../services/auth.service';
 import TermsModal from '../../components/common/TermsModal';
 import OtpVerifyModal from '../../components/auth/OtpVerifyModal';
 import styles from './RegisterPage.module.css';
@@ -42,7 +41,6 @@ export default function RegisterPage() {
   });
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState('');
-  const [loading, setLoading] = useState(false);
   const [showOtp, setShowOtp] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [pendingAuth, setPendingAuth] = useState(null);
@@ -82,17 +80,9 @@ export default function RegisterPage() {
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
     setErrors({});
     setServerError('');
-    setLoading(true);
-    const target = regMode === 'email' ? form.email.trim() : form.phone.trim();
-    try {
-      // Gửi OTP đến email hoặc số điện thoại
-      await authService.sendOtp(target, form.password);
-      setShowOtp(true);
-    } catch (err) {
-      setServerError(err?.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.');
-    } finally {
-      setLoading(false);
-    }
+    // OtpVerifyModal tự gửi OTP ngay khi mount (phase 'loading' → 'input') — không gọi
+    // sendOtp() ở đây nữa để tránh gửi trùng 2 mã OTP (2 lần phí SMS/email) cho 1 lượt đăng ký.
+    setShowOtp(true);
   };
 
   const handleOtpVerified = (authData) => {
@@ -287,9 +277,8 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <button type="submit" disabled={loading} className={styles.submitBtn}>
-              {loading ? <span className={styles.spinner} /> : null}
-              {loading ? 'Đang tạo tài khoản...' : 'Tạo tài khoản'}
+            <button type="submit" className={styles.submitBtn}>
+              Tạo tài khoản
             </button>
           </form>
 

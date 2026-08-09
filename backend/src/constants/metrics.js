@@ -61,8 +61,11 @@ const THRESHOLDS = {
     lowMax: 90,      // systolic < 90 = thấp
     normalMax: 120,
     prediabetesMin: 120,
-    prediabetesMax: 139,
-    dangerMin: 140
+    prediabetesMax: 129,
+    // ADA Standards of Care khuyến nghị mục tiêu huyết áp <130/80 RIÊNG cho bệnh nhân tiểu
+    // đường (chặt hơn ngưỡng 140/90 dùng cho dân số chung) - tăng huyết áp cộng dồn với
+    // đường huyết cao làm tăng mạnh nguy cơ tim mạch/thận. dangerMin hạ từ 140 xuống 130.
+    dangerMin: 130
   },
 
   hba1c: {

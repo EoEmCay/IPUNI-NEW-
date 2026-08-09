@@ -784,3 +784,71 @@
   font-size: 13px;
   cursor: pointer;
 }
+
+/* ── Chỉnh sửa liều/giờ trước khi lưu: AI có thể đọc sai chữ viết tay mờ, cho phép
+   người dùng tự kiểm tra/sửa lại chứ không lưu thẳng vào danh sách thuốc ── */
+.editableRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.editableInput {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  font-family: inherit;
+}
+
+.editableInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.unverifiedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-warning);
+  background: #FEF3C7;
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.insulinConfirmBox {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #FEF2F2;
+  border: 1.5px solid var(--color-danger);
+  border-radius: var(--radius-sm);
+  margin-top: 4px;
+}
+
+.insulinConfirmBox label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.insulinConfirmBox input[type="checkbox"] {
+  margin-top: 2px;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-danger);
+  flex-shrink: 0;
+  cursor: pointer;
+}

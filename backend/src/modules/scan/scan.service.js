@@ -3,6 +3,7 @@ const fs = require('fs');
 const Tesseract = require('tesseract.js');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const Anthropic = require('@anthropic-ai/sdk');
+const { jsonrepair } = require('jsonrepair');
 const logger = require('../../utils/logger');
 
 // Load medications database for lookup
@@ -24,7 +25,7 @@ try {
 function findMedicationInDatabase(name) {
   if (!name) return null;
   const lower = name.toLowerCase().trim();
-  
+
   return medicationsDb.find(med => {
     // Match by primary name
     if (med.name.toLowerCase() === lower) return true;
@@ -32,7 +33,7 @@ function findMedicationInDatabase(name) {
     if (med.aliases && med.aliases.some(alias => alias.toLowerCase() === lower)) return true;
     // Partial match - medication name contains search term or vice versa
     if (med.name.toLowerCase().includes(lower) || lower.includes(med.name.toLowerCase())) return true;
-    if (med.aliases && med.aliases.some(alias => 
+    if (med.aliases && med.aliases.some(alias =>
       alias.toLowerCase().includes(lower) || lower.includes(alias.toLowerCase())
     )) return true;
     return false;
@@ -63,7 +64,9 @@ const DIABETES_KEYWORDS = [
   // Added common brand names & combination drugs in Vietnam:
   'janumet', 'glucovance', 'xigduo', 'synjardy', 'glyxambi', 'eucreas',
   'vildarpin', 'sitagil', 'glimaryl', 'glimerax', 'panfor', 'meglucon',
-  'siofor', 'gliclada', 'tirzepatide', 'mounjaro', 'rybelsus', 'jardiance duo'
+  'siofor', 'gliclada', 'tirzepatide', 'mounjaro', 'rybelsus', 'jardiance duo',
+  // Added: nhóm meglitinide và alpha-glucosidase còn thiếu trong danh sách gốc
+  'repaglinide', 'novonorm', 'nateglinide', 'starlix', 'voglibose', 'basen', 'tofogliflozin'
 ];
 
 function isDiabetesDrug(name) {
@@ -73,9 +76,9 @@ function isDiabetesDrug(name) {
 
 function isDiabetesDiagnosis(diagnosis) {
   const lower = (diagnosis || '').toLowerCase().trim();
-  return lower.includes('đái tháo đường') || 
-         lower.includes('tiểu đường') || 
-         /\bđtđ\b/.test(lower) || 
+  return lower.includes('đái tháo đường') ||
+         lower.includes('tiểu đường') ||
+         /\bđtđ\b/.test(lower) ||
          lower.includes('diabetes') ||
          lower.includes('sugar');
 }
@@ -123,9 +126,9 @@ JSON Schema:
     "instructions": "Full usage instructions in ${targetLang}",
     "isDiabetesDrug": true/false (true if this medication is specifically for diabetes/lowering blood glucose/insulin),
     "detail": {
-      "purpose": "Brief drug purpose in ${targetLang} (based on standard medical references)",
-      "mechanism": "Brief mechanism of action in ${targetLang} (based on standard medical references)",
-      "source": "Mặc định luôn điền 'Dược thư 2022'"
+      "purpose": "Brief drug purpose in ${targetLang}, phrased as a general educational summary. Do NOT invent or cite a specific publication/source.",
+      "mechanism": "Brief mechanism of action in ${targetLang}, phrased as a general educational summary. Do NOT invent or cite a specific publication/source.",
+      "source": "AI_GENERATED"
     }
   }],
   "metrics": [{
@@ -137,8 +140,26 @@ JSON Schema:
 }
 
 function shapeResult(parsed) {
-  const medications = parsed.medications || [];
-  
+  const rawMedications = parsed.medications || [];
+
+  // Đối chiếu từng thuốc AI đọc được với DB nội bộ đã kiểm định (medications-db.json):
+  // - Nếu khớp: dùng nguồn thật thay cho "AI_GENERATED" mà AI tự ký, đồng thời gắn
+  //   verified: true để frontend biết đây là thuốc đã được xác nhận tồn tại thật.
+  // - Nếu không khớp: giữ nguyên nội dung AI trích xuất nhưng gắn verified: false, để
+  //   frontend có thể cảnh báo rõ ràng "tên thuốc chưa được xác nhận, vui lòng kiểm tra
+  //   kỹ trước khi lưu" - phòng trường hợp AI đọc nhầm/bịa tên thuốc từ ảnh mờ.
+  const medications = rawMedications.map(m => {
+    const dbMatch = findMedicationInDatabase(m.name);
+    return {
+      ...m,
+      verified: !!dbMatch,
+      detail: {
+        ...(m.detail || {}),
+        source: dbMatch ? (dbMatch.source || 'Cơ sở dữ liệu thuốc nội bộ DIA+') : 'AI_GENERATED',
+      },
+    };
+  });
+
   const isPrescription = parsed.isPrescription !== false && medications.length > 0;
   const isLabReport = parsed.isLabReport === true;
   const hospitalName = parsed.hospitalName || 'bệnh viện';
@@ -156,7 +177,7 @@ function shapeResult(parsed) {
   const keywordDiabetes = medications.some(m => isDiabetesDrug(m.name));
   const isDiabetesPrescription =
     isPrescription && (
-      parsed.isDiabetesPrescription === true || 
+      parsed.isDiabetesPrescription === true ||
       isDiabetesDiagnosis(parsed.diagnosis) ||
       (parsed.isDiabetesPrescription == null && keywordDiabetes)
     );
@@ -189,51 +210,28 @@ function shapeResult(parsed) {
 
 function parseAiJson(text) {
   let cleaned = text.trim();
-  
-  // 1. Tìm cặp dấu ngoặc {} đầu tiên và cuối cùng
+
+  // Tìm cặp dấu ngoặc {} đầu tiên và cuối cùng (loại bỏ text giải thích thừa quanh JSON)
   const start = cleaned.indexOf('{');
   const end = cleaned.lastIndexOf('}');
   if (start !== -1 && end !== -1 && end > start) {
     cleaned = cleaned.substring(start, end + 1);
   }
 
-  // 2. Loại bỏ các comment thường gặp
-  cleaned = cleaned.replace(/\/\*[\s\S]*?\*\//g, ''); // /* ... */
-  cleaned = cleaned.replace(/(?:^|[^:])\/\/.*$/gm, ''); // // ...
-
-  // 3. Loại bỏ dấu phẩy thừa trước dấu đóng ngoặc nhọn hoặc ngoặc vuông
-  cleaned = cleaned.replace(/,(\s*[\]}])/g, '$1');
-
-  // 4. Thử parse trực tiếp
   try {
     return JSON.parse(cleaned);
   } catch (error) {
-    logger.warn("First JSON parse failed. Attempting to repair...");
+    logger.warn('First JSON parse failed. Attempting to repair via jsonrepair...');
   }
 
-  // 5. Khắc phục các lỗi cú pháp JSON phổ biến của LLM nhỏ
+  // jsonrepair dùng tokenizer thật (biết phân biệt trong/ngoài chuỗi), không có rủi ro
+  // "sửa nhầm" làm hỏng nội dung hợp lệ như regex thủ công tự viết (vd 1 dấu phẩy bên
+  // trong 1 giá trị chuỗi như "Không dùng chung với: rượu, tránh: đồ ngọt" có thể khiến
+  // regex tự chèn nhầm dấu nháy giữa chuỗi).
   try {
-    let repaired = cleaned;
-    
-    // Sửa dấu nháy đơn thành nháy kép cho các thuộc tính và giá trị
-    repaired = repaired.replace(/'([^'\r\n]+)'\s*:/g, '"$1":'); // 'key': -> "key":
-    repaired = repaired.replace(/:\s*'([^'\r\n]+)'/g, ': "$1"'); // : 'val' -> : "val"
-    
-    // Tự động thêm dấu nháy kép cho các key không có nháy kép (vd: isPrescription: -> "isPrescription":)
-    repaired = repaired.replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":');
-
-    // Thêm các dấu phẩy bị thiếu giữa các thuộc tính phân dòng
-    repaired = repaired.replace(/"\s*(\r?\n)\s*"/g, '",$1"');
-
-    // Escaping các ký tự xuống dòng hoặc tab nằm bên trong chuỗi giá trị nháy kép
-    repaired = repaired.replace(/"([^"]*)"/g, (match, p1) => {
-      return '"' + p1.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t') + '"';
-    });
-
-    return JSON.parse(repaired);
+    return JSON.parse(jsonrepair(cleaned));
   } catch (repairError) {
-    logger.error("JSON Repair failed. Raw text from AI: " + text, repairError);
-    logger.error("Attempted clean text: " + cleaned);
+    logger.error('JSON Repair failed. Raw text from AI: ' + text, repairError);
     throw repairError;
   }
 }
@@ -256,9 +254,9 @@ async function analyzePrescription(imageBuffer, mimeType, lang = 'vi') {
       const modelName = process.env.GEMINI_MODEL || 'gemini-flash-lite-latest';
       logger.info(`[Quét đơn thuốc] Phân tích ảnh trực tiếp bằng Google Gemini Vision (${modelName})...`);
       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ 
+      const model = genAI.getGenerativeModel({
         model: modelName,
-        generationConfig: { 
+        generationConfig: {
           responseMimeType: 'application/json',
           maxOutputTokens: 8192
         }
@@ -276,7 +274,7 @@ async function analyzePrescription(imageBuffer, mimeType, lang = 'vi') {
         imagePart
       ]);
       directText = result.response.text();
-      
+
       if (directText) {
         const parsed = parseAiJson(directText);
         const shaped = shapeResult(parsed);
@@ -296,7 +294,7 @@ async function analyzePrescription(imageBuffer, mimeType, lang = 'vi') {
       logger.info("[Quét đơn thuốc] Phân tích ảnh trực tiếp bằng Anthropic Claude...");
       const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
       const response = await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20240620',
+        model: 'claude-3-5-sonnet-latest',
         max_tokens: 4000,
         messages: [
           {
@@ -359,7 +357,7 @@ async function analyzePrescription(imageBuffer, mimeType, lang = 'vi') {
 
   if (ocrText && ocrText.trim().length > 0) {
     const promptWithOcr = `${dynamicPrompt}
-      
+
 Dữ liệu chữ trích xuất từ Tesseract OCR cần phân tích và sắp xếp thành cấu trúc JSON:
 ---
 ${ocrText}
@@ -369,7 +367,7 @@ ${ocrText}
       try {
         const modelName = process.env.GEMINI_MODEL || 'gemini-flash-lite-latest';
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ 
+        const model = genAI.getGenerativeModel({
           model: modelName,
           generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 8192 }
         });
@@ -381,6 +379,29 @@ ${ocrText}
         }
       } catch (err) {
         logger.error("[Quét đơn thuốc] Lỗi Gemini OCR Text: " + err.message);
+      }
+    }
+
+    // MỚI: trước đây fallback cuối cùng chỉ thử Gemini - nếu server chỉ cấu hình
+    // ANTHROPIC_API_KEY (không có Gemini) thì văn bản OCR trích xuất được không bao giờ
+    // được gửi đi cấu trúc hoá, dù Claude vẫn khả dụng. Thêm nhánh Claude cho đúng văn bản
+    // OCR để chuỗi fallback thực sự đầy đủ Gemini -> Claude -> Tesseract -> Gemini/Claude text.
+    if (process.env.ANTHROPIC_API_KEY) {
+      try {
+        logger.info("[Quét đơn thuốc] Phân tích văn bản OCR bằng Anthropic Claude...");
+        const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+        const response = await anthropic.messages.create({
+          model: 'claude-3-5-sonnet-latest',
+          max_tokens: 4000,
+          messages: [{ role: 'user', content: promptWithOcr }]
+        });
+        const text = response.content[0].text;
+        if (text) {
+          const parsed = parseAiJson(text);
+          return shapeResult(parsed);
+        }
+      } catch (err) {
+        logger.error("[Quét đơn thuốc] Lỗi Claude OCR Text: " + err.message);
       }
     }
   }

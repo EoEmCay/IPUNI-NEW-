@@ -86,8 +86,9 @@ export const METRIC_TYPES = {
     lowMax: 90, // Dưới 90 là thấp
     normalMax: 120,
     prediabetesMin: 120,
-    prediabetesMax: 139,
-    dangerMin: 140
+    prediabetesMax: 129,
+    // ADA: mục tiêu huyết áp cho bệnh nhân tiểu đường là <130/80 (chặt hơn 140/90 dân số chung)
+    dangerMin: 130
   }
 };
 
@@ -109,12 +110,19 @@ export const MEASUREMENT_CATEGORIES = {
 
 // Status -> color map (single source of truth for the UI)
 export const STATUS_COLORS = {
-  low: '#7C3AED',         // tím
-  normal: '#22C55E',      // xanh
-  prediabetes: '#F59E0B', // vàng
-  danger: '#EF4444'       // đỏ
+  low: '#7C3AED',          // tím
+  normal: '#22C55E',       // xanh
+  above_target: '#F59E0B', // vàng — trên mục tiêu điều trị cá nhân (đường huyết/HbA1c)
+  prediabetes: '#F59E0B',  // vàng — chỉ dùng khi CHƯA có patientType (sàng lọc)
+  elevated: '#F59E0B',     // vàng — huyết áp cao (không dùng thuật ngữ "tiền đái tháo đường")
+  danger: '#EF4444'        // đỏ
 };
 
+// LƯU Ý QUAN TRỌNG: hàm này chỉ dùng ngưỡng CHẨN ĐOÁN QUẦN THỂ (đúng cho sàng lọc người
+// chưa biết mình có tiểu đường hay không) để phản hồi UI TỨC THÌ ngay trên client trước
+// khi có phản hồi từ server. Trạng thái LƯU VÀO DATABASE luôn do
+// metrics.calculator.js#calculateStatus (backend) tính, có dùng mục tiêu điều trị cá nhân
+// hoá theo chẩn đoán của bệnh nhân (PATIENT_TARGETS) - đó mới là nguồn sự thật cuối cùng.
 export function getMetricStatus(measurementType, value) {
   const m = METRIC_TYPES[measurementType];
   if (!m || value == null || isNaN(value)) return 'normal';
@@ -126,21 +134,36 @@ export function getMetricStatus(measurementType, value) {
     return 'prediabetes';
   }
 
+  // Huyết áp: dùng nhãn "elevated" riêng, không mượn thuật ngữ đường huyết "prediabetes"
+  if (measurementType === 'blood_pressure') {
+    if (value < m.lowMax) return 'low';
+    if (value >= m.dangerMin) return 'danger';
+    if (value >= m.prediabetesMin) return 'elevated';
+    return 'normal';
+  }
+
   // Glucose: hạ đường huyết khi <3.9
   if (m.category === 'glucose' && value < HYPOGLYCEMIA_THRESHOLD) return 'low';
-  
-  // Blood pressure: thấp khi <90
-  if (m.category === 'blood_pressure' && value < m.lowMax) return 'low';
 
   if (value >= m.dangerMin) return 'danger';
   if (value >= m.prediabetesMin) return 'prediabetes';
   return 'normal';
 }
 
-export function getStatusLabel(status, t) {
+export function getStatusLabel(status, t, measurementType) {
+  if (measurementType === 'blood_pressure') {
+    const bpLabels = {
+      low: t?.metrics?.bpLow || 'Huyết áp thấp',
+      normal: t?.metrics?.bpNormal || 'Bình thường',
+      elevated: t?.metrics?.bpElevated || 'Huyết áp cao',
+      danger: t?.metrics?.bpDanger || 'Tăng huyết áp nặng',
+    };
+    return bpLabels[status] || status;
+  }
   const labels = {
     low: t?.metrics?.statusLow || 'Low',
     normal: t?.metrics?.statusNormal || 'Normal',
+    above_target: t?.metrics?.statusAboveTarget || 'Trên mục tiêu',
     prediabetes: t?.metrics?.statusPrediabetes || 'Prediabetes',
     danger: t?.metrics?.statusDanger || 'Danger'
   };

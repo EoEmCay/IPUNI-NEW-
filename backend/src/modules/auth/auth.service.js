@@ -3,11 +3,16 @@ const jwt = require('jsonwebtoken');
 const db = require('../../config/database');
 const { JWT_SECRET, JWT_EXPIRES_IN } = require('../../config/constants');
 
-function signToken(user) {
+function signToken(user, expiresIn = JWT_EXPIRES_IN) {
   return jwt.sign(
-    { id: user.id, email: user.email, phone: user.phone },
+    // diagnosis được nhúng vào token để metrics.controller.js dùng MỤC TIÊU ĐIỀU TRỊ CÁ
+    // NHÂN HOÁ (ADA) khi tính trạng thái chỉ số, thay vì phải truy vấn DB thêm 1 lần trên
+    // mỗi request. Lưu ý: nếu người dùng đổi diagnosis sau này, token cũ (tối đa 7 ngày)
+    // sẽ dùng giá trị cũ cho tới khi đăng nhập lại - chấp nhận được, giống cách email/phone
+    // cũng đã được nhúng sẵn trong token theo thiết kế ban đầu.
+    { id: user.id, email: user.email, phone: user.phone, diagnosis: user.diagnosis },
     JWT_SECRET,
-    { expiresIn: JWT_EXPIRES_IN }
+    { expiresIn }
   );
 }
 
@@ -150,10 +155,14 @@ async function demoLogin() {
   }).returning('id');
   
   const userId = typeof insertedRow === 'object' ? insertedRow.id : insertedRow;
-  
+
   // Không nạp dữ liệu thuốc mặc định nữa, để màn hình trống cho demo quét đơn thuốc
   const user = await db('users').where({ id: userId }).first();
-  const token = signToken(user);
+  // Token demo hết hạn SỚM HƠN thời điểm cleanupExpiredDemos() xoá tài khoản (30 phút,
+  // xem backend/src/utils/cleanupDemo.js) - tránh trường hợp người dùng vẫn cầm JWT
+  // "hợp lệ" (theo JWT_EXPIRES_IN 7 ngày mặc định) trong khi tài khoản đã bị xoá thật,
+  // gây lỗi 404/401 khó hiểu giữa phiên demo.
+  const token = signToken(user, '25m');
   return {
     token,
     user: { 

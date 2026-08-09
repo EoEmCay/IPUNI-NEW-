@@ -1,14 +1,20 @@
 const { THRESHOLDS, HYPOGLYCEMIA_THRESHOLD, PATIENT_TARGETS } = require('../../constants/metrics');
 
+// Hệ số quy đổi mmol/L <-> mg/dL chính xác (khối lượng phân tử glucose ~180.18 g/mol).
+// Trước đây estimateHbA1c() dùng 18.0182 còn convertGlucoseUnit()/getAvgGlucoseFromHbA1c()
+// dùng 18 làm tròn - khiến 2 hàm không round-trip đúng nhau. Dùng chung 1 hằng số.
+const MMOL_TO_MGDL = 18.0182;
+
 class MetricsCalculator {
   /**
    * Calculate status based on measurement type and value
-   * @param {string} measurementType - glucose_fasting, glucose_postmeal, glucose_random, hba1c, blood_pressure
+   * @param {string} measurementType - glucose_fasting, glucose_postmeal, hba1c, blood_pressure, c_peptide
    * @param {number} value - The metric value
    * @param {number} valueDiastolic - The diastolic value (for blood pressure)
-   * @returns {string} - 'low' | 'normal' | 'warning' | 'danger' | 'prediabetes'
+   * @param {string} patientType - 'type2_diabetes' | 'type1_diabetes' | undefined (sàng lọc/chưa chẩn đoán)
+   * @returns {string} - 'low' | 'normal' | 'above_target' | 'prediabetes' | 'elevated' | 'danger'
    */
-  static calculateStatus(measurementType, value, valueDiastolic) {
+  static calculateStatus(measurementType, value, valueDiastolic, patientType) {
     const thresholds = THRESHOLDS[measurementType];
     if (!thresholds) return null;
 
@@ -19,9 +25,25 @@ class MetricsCalculator {
       return 'prediabetes';
     }
 
-    // Glucose readings (fasting, tolerance)
+    // Glucose readings (fasting, tolerance, postmeal)
     if (measurementType.includes('glucose')) {
+      // Hạ đường huyết là ngưỡng AN TOÀN PHỔ QUÁT - áp dụng cho mọi bệnh nhân, không cá nhân hoá.
       if (value < HYPOGLYCEMIA_THRESHOLD) return 'low';
+
+      const target = patientType && PATIENT_TARGETS[patientType];
+      const glucoseKey = measurementType.replace('glucose_', '');
+      const personalTarget = target?.glucose?.[glucoseKey];
+
+      if (personalTarget != null) {
+        // Bệnh nhân ĐÃ ĐƯỢC CHẨN ĐOÁN: so với mục tiêu điều trị cá nhân (ADA Standards of
+        // Care) thay vì ngưỡng CHẨN ĐOÁN quần thể - tránh gắn nhãn "nguy hiểm"/"tiền đái
+        // tháo đường" sai cho người đã biết bệnh và đang kiểm soát tốt trong mục tiêu của họ.
+        if (value > personalTarget * 1.5) return 'danger';
+        if (value > personalTarget) return 'above_target';
+        return 'normal';
+      }
+
+      // Không rõ patientType (vd đang sàng lọc, chưa chẩn đoán) -> dùng ngưỡng chẩn đoán quần thể.
       if (value >= thresholds.dangerMin) return 'danger';
       if (value >= thresholds.prediabetesMin) return 'prediabetes';
       return 'normal';
@@ -29,6 +51,12 @@ class MetricsCalculator {
 
     // HbA1c reading
     if (measurementType === 'hba1c') {
+      const target = patientType && PATIENT_TARGETS[patientType];
+      if (target?.hba1c != null) {
+        if (value > target.hba1c + 1.5) return 'danger';
+        if (value > target.hba1c) return 'above_target';
+        return 'normal';
+      }
       if (value >= thresholds.dangerMin) return 'danger';
       if (value >= thresholds.prediabetesMin) return 'prediabetes';
       return 'normal';
@@ -36,13 +64,48 @@ class MetricsCalculator {
 
     // Blood pressure
     if (measurementType === 'blood_pressure') {
-      if (value >= thresholds.dangerMin || (valueDiastolic && valueDiastolic >= 90)) return 'danger';
-      if (value >= thresholds.prediabetesMin || (valueDiastolic && valueDiastolic >= 80)) return 'prediabetes';
-      if (value < thresholds.lowMax || (valueDiastolic && valueDiastolic < 60)) return 'low';
-      return 'normal';
+      return this.calculateBloodPressureStatus(value, valueDiastolic);
     }
 
     return null;
+  }
+
+  /**
+   * Phân loại huyết áp: xếp loại ĐỘC LẬP cho tâm thu và tâm trương rồi lấy mức nặng hơn,
+   * thay vì chuỗi if/else OR xếp tầng cố định (vốn khiến vd một tâm trương hơi cao 82 có
+   * thể "đè" mất tín hiệu tâm thu thấp 85 - báo "elevated" trong khi bệnh nhân thực ra
+   * đang tụt huyết áp).
+   * @param {number} systolic
+   * @param {number} diastolic
+   * @returns {string} 'low' | 'normal' | 'elevated' | 'danger'
+   */
+  static calculateBloodPressureStatus(systolic, diastolic) {
+    const t = THRESHOLDS.blood_pressure;
+
+    const classifySystolic = (value) => {
+      if (value == null) return 'normal';
+      if (value < t.lowMax) return 'low';
+      if (value >= t.dangerMin) return 'danger';
+      if (value >= t.prediabetesMin) return 'elevated';
+      return 'normal';
+    };
+    const classifyDiastolic = (value) => {
+      if (value == null) return 'normal';
+      if (value < 60) return 'low';
+      if (value >= 90) return 'danger';
+      if (value >= 80) return 'elevated';
+      return 'normal';
+    };
+
+    const sysStatus = classifySystolic(systolic);
+    const diaStatus = classifyDiastolic(diastolic);
+    const rank = { low: 0, normal: 1, elevated: 2, danger: 3 };
+
+    // "danger" luôn thắng (ưu tiên an toàn), kể cả khi chiều còn lại đang "low" - huyết áp
+    // kiểu 85/95 (tâm thu thấp, tâm trương rất cao) vẫn là bất thường cần cảnh báo NẶNG.
+    if (sysStatus === 'danger' || diaStatus === 'danger') return 'danger';
+    if (sysStatus === 'low' || diaStatus === 'low') return 'low';
+    return rank[sysStatus] >= rank[diaStatus] ? sysStatus : diaStatus;
   }
 
   /**
@@ -56,7 +119,7 @@ class MetricsCalculator {
   static estimateHbA1c(avgGlucoseMmolL) {
     if (!avgGlucoseMmolL || avgGlucoseMmolL <= 0) return null;
 
-    const avgMgDl = avgGlucoseMmolL * 18.0182;
+    const avgMgDl = avgGlucoseMmolL * MMOL_TO_MGDL;
     const estimated = (avgMgDl + 46.7) / 28.7;
 
     if (estimated < 4.0) return 4.0;
@@ -77,7 +140,7 @@ class MetricsCalculator {
     if (!hba1cPercent || hba1cPercent <= 0) return null;
 
     const avgGlucoseMgdL = (28.7 * hba1cPercent) - 46.7;
-    const avgGlucoseMmolL = avgGlucoseMgdL / 18; // Convert to mmol/L
+    const avgGlucoseMmolL = avgGlucoseMgdL / MMOL_TO_MGDL;
 
     return Math.round(avgGlucoseMmolL * 10) / 10; // 1 decimal place
   }
@@ -123,7 +186,7 @@ class MetricsCalculator {
    * @returns {Object} - Status and target info
    */
   static categorizeReading(measurementType, value, patientType = 'type2_diabetes', valueDiastolic) {
-    const status = this.calculateStatus(measurementType, value, valueDiastolic);
+    const status = this.calculateStatus(measurementType, value, valueDiastolic, patientType);
     const target = PATIENT_TARGETS[patientType];
 
     if (!target) return { status };
@@ -155,11 +218,11 @@ class MetricsCalculator {
     if (fromUnit === toUnit) return value;
 
     if (fromUnit === 'mmol/L' && toUnit === 'mg/dL') {
-      return Math.round(value * 18);
+      return Math.round(value * MMOL_TO_MGDL);
     }
 
     if (fromUnit === 'mg/dL' && toUnit === 'mmol/L') {
-      return Math.round((value / 18) * 10) / 10;
+      return Math.round((value / MMOL_TO_MGDL) * 10) / 10;
     }
 
     return value;

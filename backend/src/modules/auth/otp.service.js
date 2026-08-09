@@ -1,6 +1,8 @@
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const axios = require('axios');
+const jwt = require('jsonwebtoken');
+const logger = require('../../utils/logger');
 
 // In-memory store: email/phone -> { otpCode, expiresAt, password, wrongAttempts }
 const otpCache = new Map();
@@ -8,28 +10,69 @@ const otpCache = new Map();
 const OTP_TTL_MS = 5 * 60 * 1000; // 5 phút
 const MAX_WRONG_ATTEMPTS = 3;
 
-const transporter = nodemailer.createTransport({
+// Dọn định kỳ các phiên OTP hết hạn nhưng chưa bao giờ được verify (người dùng bỏ dở
+// đăng ký) - tránh otpCache phình vô hạn theo thời gian sống của tiến trình, đồng thời
+// không giữ mật khẩu thô trong bộ nhớ lâu hơn mức cần thiết.
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, rec] of otpCache.entries()) {
+    if (now > rec.expiresAt) otpCache.delete(key);
+  }
+}, 60 * 1000).unref();
+
+// Giới hạn gửi OTP theo TARGET (độc lập với rate-limit theo IP ở tầng server.js):
+// cooldown giữa 2 lần gửi + trần số lần/ngày, chống SMS/Email bombing nhắm vào 1 số/email cụ thể.
+const RESEND_COOLDOWN_MS = 60 * 1000; // 60 giây giữa 2 lần gửi cho cùng 1 target
+const MAX_SENDS_PER_TARGET_PER_DAY = 10;
+const sendCounters = new Map(); // target -> { count, dayStamp, lastSentAt }
+
+function checkAndBumpSendLimit(target) {
+  const today = new Date().toISOString().slice(0, 10);
+  const rec = sendCounters.get(target) || { count: 0, dayStamp: today, lastSentAt: 0 };
+  if (rec.dayStamp !== today) {
+    rec.count = 0;
+    rec.dayStamp = today;
+  }
+
+  if (Date.now() - rec.lastSentAt < RESEND_COOLDOWN_MS) {
+    const err = new Error('Vui lòng đợi ít nhất 60 giây trước khi yêu cầu mã mới.');
+    err.status = 429;
+    throw err;
+  }
+  if (rec.count >= MAX_SENDS_PER_TARGET_PER_DAY) {
+    const err = new Error('Đã đạt giới hạn gửi mã cho số điện thoại/email này hôm nay. Vui lòng thử lại vào ngày mai.');
+    err.status = 429;
+    throw err;
+  }
+
+  rec.count += 1;
+  rec.lastSentAt = Date.now();
+  sendCounters.set(target, rec);
+}
+
+const GMAIL_USER = process.env.GMAIL_USER || process.env.MAIL_USER;
+const GMAIL_PASS = process.env.GMAIL_PASS || process.env.MAIL_PASS;
+
+const transporter = (GMAIL_USER && GMAIL_PASS) ? nodemailer.createTransport({
   service: 'gmail',
-  auth: {
-    user: process.env.GMAIL_USER || process.env.MAIL_USER || 'khoile3006.official@gmail.com',
-    pass: process.env.GMAIL_PASS || process.env.MAIL_PASS || 'pykj aizq klwb lvdd', 
-  },
+  auth: { user: GMAIL_USER, pass: GMAIL_PASS },
   connectionTimeout: 5000,
   greetingTimeout: 5000,
   socketTimeout: 5000
-});
+}) : null;
 
 async function sendSmsViaEsms(phone, otpCode) {
   const apiKey = process.env.ESMS_API_KEY;
   const secretKey = process.env.ESMS_SECRET_KEY;
   const content = `Ma OTP xac thuc dang ky DIA+ cua ban la ${otpCode}. Ma co hieu luc trong 5 phut.`;
-  
+
   let formattedPhone = phone.trim();
   if (formattedPhone.startsWith('0')) {
     formattedPhone = '84' + formattedPhone.slice(1);
   }
 
-  const url = `http://rest.esms.vn/MainService.svc/json/SendMultipleMessage_V4_get?Phone=${formattedPhone}&Content=${encodeURIComponent(content)}&ApiKey=${apiKey}&SecretKey=${secretKey}&SmsType=2`;
+  // HTTPS (không dùng http:// thường) - ApiKey/SecretKey/OTP không được truyền trần qua mạng không mã hoá.
+  const url = `https://rest.esms.vn/MainService.svc/json/SendMultipleMessage_V4_get?Phone=${formattedPhone}&Content=${encodeURIComponent(content)}&ApiKey=${apiKey}&SecretKey=${secretKey}&SmsType=2`;
   const response = await axios.get(url, { timeout: 8000 });
   if (response.data && String(response.data.CodeResult) !== '100') {
     throw new Error(`eSMS error: ${response.data.ErrorMessage || response.data.CodeResult}`);
@@ -40,7 +83,7 @@ async function sendSmsViaSpeedSms(phone, otpCode) {
   const token = process.env.SPEEDSMS_ACCESS_TOKEN;
   const content = `Ma OTP xac thuc dang ky DIA+ cua ban la ${otpCode}. Ma co hieu luc trong 5 phut.`;
   const url = 'https://api.speedsms.vn/index.php/sms/send';
-  
+
   const response = await axios.post(url, {
     to: [phone],
     content,
@@ -60,60 +103,83 @@ async function sendSmsViaSpeedSms(phone, otpCode) {
 }
 
 async function sendOtp(target, password) {
+  checkAndBumpSendLimit(target);
+
   const otpCode = crypto.randomInt(100000, 999999).toString(); // 6 chữ số ngẫu nhiên
   const expiresAt = Date.now() + OTP_TTL_MS;
   const lower = (target || '').toLowerCase();
   const isPhone = !lower.includes('@');
+  const isProduction = process.env.NODE_ENV === 'production';
 
-  if (lower.includes('test')) {
+  // Bypass demo CHỈ cho phép ngoài production - tránh việc "test" xuất hiện tình cờ
+  // trong 1 email thật (vd nguyenvantest@gmail.com) lại vô tình nhận mã cố định trên production.
+  if (!isProduction && lower.includes('test')) {
     otpCache.set(target, { otpCode: '123456', expiresAt, password, wrongAttempts: 0 });
     return;
   }
 
   // 1. XỬ LÝ GỬI SMS CHO SỐ ĐIỆN THOẠI
   if (isPhone) {
-    if (process.env.ESMS_API_KEY && process.env.ESMS_SECRET_KEY) {
+    const hasEsms = process.env.ESMS_API_KEY && process.env.ESMS_SECRET_KEY;
+    const hasSpeedSms = !!process.env.SPEEDSMS_ACCESS_TOKEN;
+
+    if (hasEsms) {
       try {
         await sendSmsViaEsms(target, otpCode);
         otpCache.set(target, { otpCode, expiresAt, password, wrongAttempts: 0 });
-        console.log(`[SMS OTP] Đã gửi thành công mã ${otpCode} qua eSMS tới SĐT ${target}`);
+        logger.info(`[SMS OTP] Đã gửi thành công mã qua eSMS tới SĐT ${target}`);
         return;
       } catch (err) {
-        console.error('⚠️ Lỗi gửi SMS qua eSMS:', err.message);
+        logger.error('⚠️ Lỗi gửi SMS qua eSMS: ' + err.message);
       }
     }
 
-    if (process.env.SPEEDSMS_ACCESS_TOKEN) {
+    if (hasSpeedSms) {
       try {
         await sendSmsViaSpeedSms(target, otpCode);
         otpCache.set(target, { otpCode, expiresAt, password, wrongAttempts: 0 });
-        console.log(`[SMS OTP] Đã gửi thành công mã ${otpCode} qua SpeedSMS tới SĐT ${target}`);
+        logger.info(`[SMS OTP] Đã gửi thành công mã qua SpeedSMS tới SĐT ${target}`);
         return;
       } catch (err) {
-        console.error('⚠️ Lỗi gửi SMS qua SpeedSMS:', err.message);
+        logger.error('⚠️ Lỗi gửi SMS qua SpeedSMS: ' + err.message);
       }
     }
 
-    console.warn('⚠️ Chưa cài đặt ESMS_API_KEY hoặc SPEEDSMS_ACCESS_TOKEN trong .env. Dùng chế độ DEMO OTP: 123456');
+    // QUAN TRỌNG: KHÔNG được âm thầm rơi về OTP demo "123456" trên production dù là
+    // do chưa cấu hình hay do provider lỗi tạm thời - đó là fail-open, vô hiệu hoá
+    // toàn bộ xác thực số điện thoại mà không ai hay biết. Trên production, luôn báo
+    // lỗi thật cho client thay vì âm thầm hạ cấp bảo mật.
+    if (isProduction) {
+      if (hasEsms || hasSpeedSms) {
+        logger.error(`🚨 [OTP] Cả eSMS và SpeedSMS đều gửi thất bại cho SĐT ${target}.`);
+        throw new Error('Không thể gửi mã OTP lúc này. Vui lòng thử lại sau ít phút hoặc dùng email.');
+      }
+      logger.error('🚨 [OTP] Production nhưng chưa cấu hình ESMS_API_KEY/SPEEDSMS_ACCESS_TOKEN.');
+      throw new Error('Hệ thống xác thực SMS đang bảo trì. Vui lòng dùng email để đăng ký.');
+    }
+
+    // Chỉ tới đây khi KHÔNG phải production -> cho phép chế độ demo để dev/test cục bộ.
+    logger.warn('⚠️ [DEV] Chưa cấu hình ESMS/SPEEDSMS. Dùng chế độ DEMO OTP: 123456');
     otpCache.set(target, { otpCode: '123456', expiresAt, password, wrongAttempts: 0 });
     return;
   }
 
   // 2. XỬ LÝ GỬI EMAIL CHO ĐỊA CHỈ EMAIL
+  if (!transporter) {
+    logger.error('[EMAIL OTP] Chưa cấu hình GMAIL_USER/GMAIL_PASS (hoặc MAIL_USER/MAIL_PASS).');
+    if (isProduction) {
+      throw new Error('Hệ thống gửi email đang bảo trì. Vui lòng thử lại sau.');
+    }
+    logger.warn('⚠️ [DEV] SMTP chưa được cấu hình. Dùng chế độ DEMO OTP: 123456');
+    otpCache.set(target, { otpCode: '123456', expiresAt, password, wrongAttempts: 0 });
+    return;
+  }
+
   otpCache.set(target, { otpCode, expiresAt, password, wrongAttempts: 0 });
 
   try {
-    const senderEmail = process.env.GMAIL_USER || process.env.MAIL_USER || 'khoile3006.official@gmail.com';
-    
-    if (!senderEmail || senderEmail === 'your-email@gmail.com') {
-      console.warn('⚠️ SMTP chưa được cấu hình. Chuyển sang chế độ DEMO: OTP là 123456');
-      otpCache.set(target, { otpCode: '123456', expiresAt, password, wrongAttempts: 0 });
-      return;
-    }
-
-    // Gửi email OTP thật
     await transporter.sendMail({
-      from: `"DIA+" <${senderEmail}>`,
+      from: `"DIA+" <${GMAIL_USER}>`,
       to: target,
       subject: 'Mã xác thực OTP đăng ký DIA+',
       html: `
@@ -122,10 +188,14 @@ async function sendOtp(target, password) {
         <p>Mã có hiệu lực trong <strong>5 phút</strong>. Không chia sẻ mã này cho bất kỳ ai.</p>
       `,
     });
-    console.log(`[EMAIL OTP] Đã gửi thành công mã ${otpCode} tới Email ${target}`);
+    logger.info(`[EMAIL OTP] Đã gửi thành công mã tới Email ${target}`);
   } catch (err) {
-    console.error('Lỗi khi gửi OTP qua Email:', err);
-    console.warn('⚠️ Fallback sang chế độ DEMO do lỗi mạng: OTP là 123456');
+    logger.error('Lỗi khi gửi OTP qua Email: ' + err.message);
+    otpCache.delete(target);
+    if (isProduction) {
+      throw new Error('Không thể gửi email OTP lúc này. Vui lòng thử lại sau ít phút.');
+    }
+    logger.warn('⚠️ [DEV] Fallback sang chế độ DEMO do lỗi mạng: OTP là 123456');
     otpCache.set(target, { otpCode: '123456', expiresAt, password, wrongAttempts: 0 });
   }
 }
@@ -171,4 +241,37 @@ function verifyOtp(target, userOtp) {
   return { target, password };
 }
 
-module.exports = { sendOtp, verifyOtp };
+// ============================================================================
+// VÉ XÁC THỰC ĐĂNG KÝ (Registration Ticket):
+// /auth/register vốn dĩ là 1 request HOÀN TOÀN TÁCH RỜI với /verify-otp - không có
+// gì ràng buộc việc tạo tài khoản phải đi sau một lượt xác thực OTP thành công. Vé
+// này là bằng chứng ký số (JWT ngắn hạn, 5 phút) rằng "target X vừa xác thực OTP
+// thành công", bắt buộc phải kèm theo khi gọi /auth/register - đóng lỗ hổng cho
+// phép tạo tài khoản bằng SĐT/email người khác mà không cần nhận mã gì cả.
+// ============================================================================
+const REG_TICKET_SECRET = process.env.REG_TICKET_SECRET || process.env.JWT_SECRET;
+
+function issueRegistrationTicket(target) {
+  return jwt.sign({ target, purpose: 'otp_verified_registration' }, REG_TICKET_SECRET, { expiresIn: '5m' });
+}
+
+function verifyRegistrationTicket(ticket, target) {
+  if (!ticket) {
+    const err = new Error('Thiếu vé xác thực OTP. Vui lòng xác thực lại số điện thoại/email.');
+    err.status = 400;
+    throw err;
+  }
+  try {
+    const payload = jwt.verify(ticket, REG_TICKET_SECRET);
+    if (payload.purpose !== 'otp_verified_registration' || payload.target !== target) {
+      throw new Error('mismatch');
+    }
+    return true;
+  } catch {
+    const err = new Error('Phiên xác thực OTP không hợp lệ hoặc đã hết hạn. Vui lòng xác thực lại.');
+    err.status = 400;
+    throw err;
+  }
+}
+
+module.exports = { sendOtp, verifyOtp, issueRegistrationTicket, verifyRegistrationTicket };

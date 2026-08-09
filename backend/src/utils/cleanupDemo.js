@@ -1,7 +1,18 @@
 const db = require('../config/database');
 const logger = require('./logger');
 
+// Chống chạy chồng: nếu 1 lượt dọn dẹp bị kẹt lâu hơn chu kỳ 10 phút (khoá bảng, thiếu
+// index trên user_id khi lượng user tăng lên...), các lượt gọi tiếp theo từ setInterval
+// sẽ chồng lên nhau, mỗi lượt giữ 1 kết nối từ connection pool (chỉ có tối đa 10 theo cấu
+// hình production) - cạn pool ảnh hưởng luôn tới request của người dùng thật.
+let isCleanupRunning = false;
+
 async function cleanupExpiredDemos() {
+  if (isCleanupRunning) {
+    logger.warn('[Cleanup] Lượt dọn dẹp trước vẫn đang chạy, bỏ qua lượt này.');
+    return;
+  }
+  isCleanupRunning = true;
   try {
     // 30 minutes in milliseconds
     const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
@@ -35,6 +46,8 @@ async function cleanupExpiredDemos() {
     logger.info(`[Cleanup] Dọn dẹp thành công ${userIds.length} tài khoản demo.`);
   } catch (error) {
     logger.error(`[Cleanup] Lỗi dọn dẹp tài khoản demo: ${error.message}`);
+  } finally {
+    isCleanupRunning = false;
   }
 }
 

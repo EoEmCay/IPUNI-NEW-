@@ -1,4 +1,5 @@
 const authService = require('./auth.service');
+const { verifyRegistrationTicket } = require('./otp.service');
 const { sendSuccess, sendError } = require('../../utils/response.helper');
 
 async function login(req, res, next) {
@@ -14,7 +15,12 @@ async function login(req, res, next) {
 
 async function register(req, res, next) {
   try {
-    const { email, phone, password, name, diagnosis } = req.validatedBody;
+    const { email, phone, password, name, diagnosis, registrationTicket } = req.validatedBody;
+    // Bắt buộc phải có vé OTP hợp lệ khớp đúng target (email hoặc phone) vừa đăng ký -
+    // đóng lỗ hổng cho phép tạo tài khoản bỏ qua hoàn toàn bước xác thực OTP.
+    const target = (email && email.trim()) || (phone && phone.trim());
+    verifyRegistrationTicket(registrationTicket, target);
+
     const result = await authService.register(email, phone, password, { name, diagnosis });
     sendSuccess(res, result, 'Đăng ký thành công', 201);
   } catch (err) {

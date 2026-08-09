@@ -11,9 +11,17 @@ export default function MetricHistoryItem({ metric, onDelete }) {
   const color = STATUS_COLORS[status] || '#22C55E';
   const unit = meta.unit || metric.unit || 'mmol/L';
 
-  const statusLabels = {
+  // Huyết áp dùng bộ nhãn riêng - "Tiền đái tháo đường" là thuật ngữ đường huyết, không có
+  // ý nghĩa y khoa khi gắn cho một chỉ số huyết áp (xem metrics.calculator.js#calculateBloodPressureStatus).
+  const statusLabels = type === 'blood_pressure' ? {
+    normal: t.metrics?.bpNormal || 'Bình thường',
+    elevated: t.metrics?.bpElevated || 'Huyết áp cao',
+    danger: t.metrics?.bpDanger || 'Tăng huyết áp nặng',
+    low: t.metrics?.bpLow || 'Huyết áp thấp'
+  } : {
     normal: t.metrics?.statusNormal || 'Normal',
     prediabetes: t.metrics?.statusPrediabetes || 'Prediabetes',
+    above_target: t.metrics?.statusAboveTarget || 'Trên mục tiêu',
     danger: t.metrics?.statusDanger || 'Danger',
     low: t.metrics?.statusLow || 'Low'
   };

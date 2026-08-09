@@ -32,6 +32,36 @@ export default function ScanPrescriptionPage() {
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [showVoicePrompt, setShowVoicePrompt] = useState(false);
 
+  // Thuốc do AI trích xuất KHÔNG được lưu thẳng vào danh sách thuốc đang dùng - người
+  // dùng phải xem/sửa được từng trường (tên, liều, giờ uống) trước khi bấm lưu, vì AI
+  // vision có thể đọc nhầm chữ viết tay mờ (vd "5mg" -> "50mg"). editableMeds là bản sao
+  // có thể chỉnh sửa của result.medications; handleSaveAll lưu từ đây, không phải result.
+  const [editableMeds, setEditableMeds] = useState([]);
+  const [insulinConfirmed, setInsulinConfirmed] = useState(false);
+  // Điều chỉnh state phái sinh NGAY TRONG lúc render (thay vì useEffect) khi `result` đổi
+  // sang tham chiếu mới - đây là pattern React khuyến nghị cho "reset state khi 1 giá trị
+  // upstream đổi" (https://react.dev/learn/you-might-not-need-an-effect), tránh 1 lượt
+  // render thừa so với dùng useEffect (vốn luôn chạy SAU khi commit, tạo cascading render).
+  const [prevResult, setPrevResult] = useState(result);
+  if (result !== prevResult) {
+    setPrevResult(result);
+    setEditableMeds(result?.medications?.length ? result.medications.map((m) => ({ ...m })) : []);
+    setInsulinConfirmed(false);
+  }
+
+  // Insulin sai liều gây hạ đường huyết nặng nhanh hơn bất kỳ nhóm thuốc tiểu đường nào
+  // khác - bắt buộc xác nhận thủ công riêng, không chỉ dựa vào việc xem qua danh sách.
+  const INSULIN_PATTERN = /insulin|lantus|novomix|novorapid|humulin|humalog|levemir|mixtard|toujeo|tresiba|apidra/i;
+  const requiresInsulinConfirm = editableMeds.some((m) => INSULIN_PATTERN.test(m.name || ''));
+
+  const handleMedFieldChange = useCallback((index, field, value) => {
+    setEditableMeds((prev) => prev.map((m, i) => (i === index ? { ...m, [field]: value } : m)));
+  }, []);
+
+  const handleMedTimesChange = useCallback((index, value) => {
+    const times = value.split(',').map((t) => t.trim()).filter(Boolean);
+    setEditableMeds((prev) => prev.map((m, i) => (i === index ? { ...m, times } : m)));
+  }, []);
 
   const handleImageScan = useCallback((file) => {
     if (imageUrl) URL.revokeObjectURL(imageUrl);
@@ -78,14 +108,15 @@ export default function ScanPrescriptionPage() {
   }, [imageFile, showToast]);
 
   const handleSaveAll = useCallback(async () => {
-    if (!result || !result.medications || result.medications.length === 0) return;
-    
+    if (!editableMeds || editableMeds.length === 0) return;
+    if (requiresInsulinConfirm && !insulinConfirmed) return;
+
     setIsSavingAll(true);
     try {
       let successCount = 0;
       let failCount = 0;
 
-      for (const med of result.medications) {
+      for (const med of editableMeds) {
         try {
           await medicationsService.create({
             name: med.name,
@@ -167,7 +198,7 @@ export default function ScanPrescriptionPage() {
     } finally {
       setIsSavingAll(false);
     }
-  }, [result, fetchMedications, showToast]);
+  }, [result, editableMeds, requiresInsulinConfirm, insulinConfirmed, fetchMedications, showToast]);
 
   const handleRetake = useCallback(() => {
     if (imageUrl) URL.revokeObjectURL(imageUrl);
@@ -315,9 +346,12 @@ export default function ScanPrescriptionPage() {
                 <div className={styles.medicationsList}>
                   <h2>
                     <Pill size={16} />
-                    {result.medications.length} {t.scanResult?.medsCount}
+                    {editableMeds.length} {t.scanResult?.medsCount}
                   </h2>
-                  {result.medications.map((med, i) => {
+                  <p className={styles.disclaimer}>
+                    <AlertCircle size={12} /> AI có thể đọc nhầm chữ viết tay mờ — vui lòng kiểm tra và sửa lại tên/liều/giờ uống trước khi lưu.
+                  </p>
+                  {editableMeds.map((med, i) => {
                     const expanded = expandedIndex === i;
                     const detail = med.detail || {};
                     const hasDetail = detail.purpose || detail.mechanism || detail.contraindications || (detail.interactions && detail.interactions.length > 0);
@@ -328,7 +362,30 @@ export default function ScanPrescriptionPage() {
                             {med.name}
                             {med.isDiabetesDrug && <span className={styles.diaTag}>{t.scanResult?.diabetesTag}</span>}
                           </span>
-                          {med.dosage && <span className={styles.medDosage}>{med.dosage}</span>}
+                          {med.verified === false && (
+                            <span className={styles.unverifiedBadge} title="Tên thuốc chưa khớp với cơ sở dữ liệu nội bộ — kiểm tra kỹ trước khi lưu">
+                              <AlertCircle size={12} /> Chưa xác nhận
+                            </span>
+                          )}
+                        </div>
+
+                        <div className={styles.editableRow}>
+                          <span className={styles.detailLabel}>Tên thuốc</span>
+                          <input
+                            className={styles.editableInput}
+                            type="text"
+                            value={med.name || ''}
+                            onChange={(e) => handleMedFieldChange(i, 'name', e.target.value)}
+                          />
+                        </div>
+                        <div className={styles.editableRow}>
+                          <span className={styles.detailLabel}>Liều lượng</span>
+                          <input
+                            className={styles.editableInput}
+                            type="text"
+                            value={med.dosage || ''}
+                            onChange={(e) => handleMedFieldChange(i, 'dosage', e.target.value)}
+                          />
                         </div>
 
                         <div className={styles.medStats}>
@@ -345,18 +402,25 @@ export default function ScanPrescriptionPage() {
                           )}
                         </div>
 
-                        {med.times && med.times.length > 0 && (
-                          <div className={styles.medDetail}>
-                            <span className={styles.detailLabel}>{t.scanResult?.timeToTake}</span>
-                            <span>{med.times.join(', ')}</span>
-                          </div>
-                        )}
-                        {med.instructions && (
-                          <div className={styles.medDetail}>
-                            <span className={styles.detailLabel}>{t.scanResult?.usage}</span>
-                            <span>{med.instructions}</span>
-                          </div>
-                        )}
+                        <div className={styles.editableRow}>
+                          <span className={styles.detailLabel}>{t.scanResult?.timeToTake}</span>
+                          <input
+                            className={styles.editableInput}
+                            type="text"
+                            placeholder="07:00, 19:00"
+                            value={(med.times || []).join(', ')}
+                            onChange={(e) => handleMedTimesChange(i, e.target.value)}
+                          />
+                        </div>
+                        <div className={styles.editableRow}>
+                          <span className={styles.detailLabel}>{t.scanResult?.usage}</span>
+                          <input
+                            className={styles.editableInput}
+                            type="text"
+                            value={med.instructions || ''}
+                            onChange={(e) => handleMedFieldChange(i, 'instructions', e.target.value)}
+                          />
+                        </div>
 
                         {hasDetail && (
                           <button
@@ -395,7 +459,7 @@ export default function ScanPrescriptionPage() {
                             )}
                             {detail.source && (
                               <div className={styles.detailSource}>
-                                <BookOpen size={12} /> {t.scanResult?.source}: {detail.source}
+                                <BookOpen size={12} /> {t.scanResult?.source}: {detail.source === 'AI_GENERATED' ? 'Tổng hợp bởi AI, chưa qua kiểm chứng lâm sàng' : detail.source}
                               </div>
                             )}
                           </div>
@@ -404,11 +468,26 @@ export default function ScanPrescriptionPage() {
                       </div>
                     );
                   })}
-                  
+
+                  {requiresInsulinConfirm && (
+                    <div className={styles.insulinConfirmBox}>
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={insulinConfirmed}
+                          onChange={(e) => setInsulinConfirmed(e.target.checked)}
+                        />
+                        <span>
+                          Đơn thuốc có <strong>insulin</strong> — tôi đã kiểm tra kỹ tên thuốc, liều lượng và giờ tiêm ở trên là chính xác trước khi lưu.
+                        </span>
+                      </label>
+                    </div>
+                  )}
+
                   <button
                     className={isAllSaved ? styles.savedBtn : styles.addBtn}
                     onClick={handleSaveAll}
-                    disabled={isSavingAll || isAllSaved}
+                    disabled={isSavingAll || isAllSaved || (requiresInsulinConfirm && !insulinConfirmed)}
                   >
                     {isSavingAll ? t.scanResult?.savingAll : isAllSaved ? t.scanResult?.savedAll : t.scanResult?.addAll}
                   </button>

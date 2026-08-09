@@ -113,13 +113,14 @@ export default function OtpVerifyModal({ target: propTarget, email, phone, formD
     setSubmitting(true);
     setError('');
     try {
-      await authService.verifyOtp(actualTarget, code);
-      // OTP verified → tạo tài khoản đầy đủ
+      const verifyRes = await authService.verifyOtp(actualTarget, code);
+      const registrationTicket = verifyRes.data.data.registrationTicket;
+      // OTP verified → tạo tài khoản đầy đủ, kèm vé xác thực OTP để backend đối chiếu
       const regEmail = formData.email ? formData.email.trim() : '';
       const regPhone = formData.phone ? formData.phone.trim() : '';
       const res = await authService.register(
         regEmail, regPhone, formData.password, formData.confirmPassword,
-        { name: formData.name, diagnosis: formData.diagnosis }
+        { name: formData.name, diagnosis: formData.diagnosis, registrationTicket }
       );
       onVerified(res.data.data);
     } catch (err) {

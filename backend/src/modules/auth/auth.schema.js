@@ -14,9 +14,16 @@ const registerSchema = z.object({
   confirmPassword: z.string(),
   name: z.string().min(2).max(60).optional().or(z.literal('')),
   diagnosis: z.enum(['type2_diabetes', 'type1_diabetes', 'prediabetes']).optional(),
+  // Vé ký số ngắn hạn do /verify-otp phát hành sau khi xác thực OTP thành công.
+  // Bắt buộc để /register không còn là 1 endpoint tách rời, có thể gọi thẳng mà
+  // bỏ qua toàn bộ bước xác thực số điện thoại/email.
+  registrationTicket: z.string().min(10, 'Thiếu vé xác thực OTP. Vui lòng xác thực lại.'),
 }).refine(data => data.password === data.confirmPassword, {
   message: 'Mật khẩu nhập lại không khớp',
   path: ['confirmPassword']
+}).refine(data => !!(data.email && data.email.trim()) || !!(data.phone && data.phone.trim()), {
+  message: 'Cần cung cấp email hoặc số điện thoại',
+  path: ['email']
 });
 
 module.exports = { loginSchema, registerSchema };

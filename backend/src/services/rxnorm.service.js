@@ -12,8 +12,9 @@ async function searchDrug(drugName) {
     }
 
     const response = await axios.get(`${RXNORM_BASE_URL}/drugs.json`, {
-      params: { name: drugName }
-    }, { timeout: 5000 });
+      params: { name: drugName },
+      timeout: 5000
+    });
 
     const drugs = response.data?.drugGroup?.conceptGroup?.[0]?.conceptProperties || [];
     return drugs.length > 0 ? drugs[0] : null;

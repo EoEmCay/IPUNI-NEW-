@@ -36,18 +36,23 @@ app.use((req, res, next) => {
 });
 
 // 2. Siết chặt CORS (Chỉ cho phép các domain được chỉ định)
+// LƯU Ý: trước đây origin.endsWith('.vercel.app') chấp nhận BẤT KỲ dự án Vercel miễn phí
+// nào (ai cũng deploy được 1 domain *.vercel.app) làm origin hợp lệ kèm credentials:true.
+// Chỉ liệt kê đúng các domain thật cần dùng - thêm domain preview cụ thể qua biến môi
+// trường thay vì mở toàn bộ TLD phụ .vercel.app.
 const allowedOrigins = [
   'http://localhost:5180',
   'http://localhost:5173',
   'https://diaplus-v2.vercel.app', // Tên miền frontend nếu có
   'https://diaplus.vn',
   'https://www.diaplus.vn',
-  process.env.FRONTEND_URL
+  process.env.FRONTEND_URL,
+  process.env.PREVIEW_FRONTEND_URL
 ].filter(Boolean);
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.vercel.app')) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -81,9 +86,22 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Giới hạn RIÊNG, chặt hơn nhiều cho các endpoint gửi OTP - mỗi lần gửi tốn phí SMS/email
+// thật (eSMS/SpeedSMS/Gmail). authLimiter (1000 req/15') vốn dành cho login/register,
+// quá lỏng cho một endpoint có thể bị lợi dụng làm SMS bombing / cạn tiền tài khoản SMS.
+const otpLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 giờ
+  max: 15, // Tối đa 15 lần gửi OTP / IP / giờ (otp.service.js còn giới hạn thêm theo target)
+  message: { message: 'Bạn đã yêu cầu OTP quá nhiều lần. Vui lòng thử lại sau 1 giờ.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Áp dụng giới hạn chung cho toàn bộ API
 app.use('/api/', apiLimiter);
 
+app.use('/api/v1/auth/register-otp', otpLimiter);
+app.use('/api/v1/auth/verify-otp', otpLimiter);
 app.use('/api/v1/auth', authLimiter, authRoutes);
 app.use('/api/v1/metrics', metricsRoutes);
 app.use('/api/v1/medications', medicationsRoutes);
@@ -107,7 +125,11 @@ async function startServer() {
     // await db.seed.run();
     // logger.info('[Hệ thống] Đã chạy seeds thành công');
   } catch (err) {
+    // Fail-fast: KHÔNG khởi động server với schema có thể sai lệch. Trước đây lỗi này chỉ
+    // được log rồi server vẫn app.listen() bình thường - gây lỗi 500 rải rác khó debug thay
+    // vì một lỗi khởi động rõ ràng ngay lập tức.
     logger.error(`[Hệ thống] Lỗi khi chạy db init: ${err.message}`);
+    process.exit(1);
   }
 
   const server = app.listen(PORT, () => {

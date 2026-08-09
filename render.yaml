@@ -10,7 +10,12 @@ services:
         value: production
       - key: PORT
         value: 10000
+      # QUAN TRỌNG: KHÔNG đặt secret thật ở đây - file này nằm trong git history công khai.
+      # sync:false bắt Render yêu cầu nhập giá trị thủ công qua dashboard (Environment tab),
+      # giá trị đó không bao giờ được ghi vào file/commit nào.
       - key: JWT_SECRET
-        value: "my_super_secret_jwt_key_for_demo_only_123456"
+        sync: false
+      - key: DATABASE_URL
+        sync: false
       - key: GEMINI_API_KEY
-        value: ""
+        sync: false

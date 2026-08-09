@@ -26,6 +26,8 @@
 
 .cardValue.normal { color: #22C55E; }
 .cardValue.prediabetes { color: #F59E0B; }
+.cardValue.above_target { color: #F59E0B; }
+.cardValue.elevated { color: #F59E0B; }
 .cardValue.danger { color: #EF4444; }
 .cardValue.low { color: #7C3AED; }
 

@@ -21,16 +21,22 @@ const EyeOffSVG = () => (
   </svg>
 );
 
+const ArrowLeftSVG = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 12H5M12 5l-7 7 7 7"/>
+  </svg>
+);
+
 export default function RegisterPage() {
   const { register, completeRegistration } = useAuth();
   const navigate = useNavigate();
   const applyDefaultLook = useThemeStore((s) => s.applyDefaultLook);
 
+  const [regMode, setRegMode] = useState('email'); // 'email' | 'phone'
   const [form, setForm] = useState({
     name: '',
     email: '',
     phone: '',
-    cccd: '',
     password: '',
     confirmPassword: '',
   });
@@ -54,10 +60,15 @@ export default function RegisterPage() {
     const errs = {};
     if (form.name.trim() && form.name.trim().length < 2)
       errs.name = 'Họ tên ít nhất 2 ký tự';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
-      errs.email = 'Email không hợp lệ';
-    if (form.phone && !/^\d{9,11}$/.test(form.phone))
-      errs.phone = 'Số điện thoại không hợp lệ (9-11 chữ số, VD: 0901234567)';
+    
+    if (regMode === 'email') {
+      if (!form.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim()))
+        errs.email = 'Email không hợp lệ';
+    } else {
+      if (!form.phone || !/^\d{9,11}$/.test(form.phone.trim()))
+        errs.phone = 'Số điện thoại không hợp lệ (9-11 chữ số, VD: 0901234567)';
+    }
+
     if (form.password.length < 6)
       errs.password = 'Mật khẩu ít nhất 6 ký tự';
     if (form.password !== form.confirmPassword)
@@ -72,9 +83,10 @@ export default function RegisterPage() {
     setErrors({});
     setServerError('');
     setLoading(true);
+    const target = regMode === 'email' ? form.email.trim() : form.phone.trim();
     try {
-      // Gửi OTP trước, hiển thị modal chọn kênh
-      await authService.sendOtp(form.email, form.password);
+      // Gửi OTP đến email hoặc số điện thoại
+      await authService.sendOtp(target, form.password);
       setShowOtp(true);
     } catch (err) {
       setServerError(err?.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại.');
@@ -116,6 +128,11 @@ export default function RegisterPage() {
       <div className={styles.orb2} />
 
       <div className={styles.container}>
+        <Link to="/" className={styles.homeBtn}>
+          <ArrowLeftSVG />
+          <span>Về trang chủ</span>
+        </Link>
+
         {/* Logo nhỏ gọn */}
         <div className={styles.logoWrap}>
           <div className={styles.logoCard}>
@@ -127,7 +144,7 @@ export default function RegisterPage() {
         <div className={styles.card}>
           <div className={styles.cardHeader}>
             <h1 className={styles.title}>Tạo tài khoản</h1>
-            <p className={styles.subtitle}>Điền đầy đủ để bắt đầu hành trình sức khoẻ</p>
+            <p className={styles.subtitle}>Điền thông tin để bắt đầu sử dụng</p>
           </div>
 
           {serverError && (
@@ -141,75 +158,75 @@ export default function RegisterPage() {
             <div className={styles.section}>
               <div className={styles.sectionLabel}>
                 <span className={styles.sectionDot} />
-                Thông tin cá nhân
+                Họ và tên
               </div>
 
               <div className={styles.fieldWrap}>
-                <label className={styles.fieldLabel}>
-                  Họ và tên <span className={styles.optional}>(tuỳ chọn)</span>
-                </label>
                 <input
                   className={`${styles.input} ${errors.name ? styles.inputError : ''}`}
                   type="text"
-                  placeholder="Nguyễn Văn A"
+                  placeholder="Nguyễn Văn A (tuỳ chọn)"
                   value={form.name}
                   onChange={set('name')}
                   maxLength={60}
                 />
                 {errors.name && <span className={styles.fieldErr}>{errors.name}</span>}
               </div>
-
-              <div className={styles.fieldWrap}>
-                <label className={styles.fieldLabel}>
-                  Số CCCD/CMND <span className={styles.optional}>(tuỳ chọn)</span>
-                </label>
-                <input
-                  className={`${styles.input} ${errors.cccd ? styles.inputError : ''}`}
-                  type="text"
-                  placeholder="Nhập 12 số CCCD"
-                  value={form.cccd}
-                  onChange={set('cccd')}
-                  maxLength={12}
-                />
-              </div>
             </div>
 
-            {/* ── Thông tin tài khoản ── */}
+            {/* ── Phương thức đăng ký (Chọn 1 trong 2) ── */}
             <div className={styles.section}>
               <div className={styles.sectionLabel}>
                 <span className={styles.sectionDot} />
-                Thông tin đăng ký
+                Đăng ký bằng (Chọn 1 trong 2)
               </div>
 
-              <div className={styles.fieldWrap}>
-                <label className={styles.fieldLabel}>Email <span className={styles.required}>*</span></label>
-                <input
-                  className={`${styles.input} ${errors.email ? styles.inputError : ''}`}
-                  type="text"
-                  inputMode="email"
-                  placeholder="email@example.com"
-                  value={form.email}
-                  onChange={set('email')}
-                  autoComplete="email"
-                />
-                {errors.email && <span className={styles.fieldErr}>{errors.email}</span>}
+              <div className={styles.tabGroup}>
+                <button
+                  type="button"
+                  className={`${styles.tabBtn} ${regMode === 'email' ? styles.tabActive : ''}`}
+                  onClick={() => { setRegMode('email'); setForm(f => ({ ...f, phone: '' })); setErrors({}); }}
+                >
+                  Email
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.tabBtn} ${regMode === 'phone' ? styles.tabActive : ''}`}
+                  onClick={() => { setRegMode('phone'); setForm(f => ({ ...f, email: '' })); setErrors({}); }}
+                >
+                  Số điện thoại
+                </button>
               </div>
 
-              <div className={styles.fieldWrap}>
-                <label className={styles.fieldLabel}>
-                  Số điện thoại <span className={styles.optional}>(tuỳ chọn)</span>
-                </label>
-                <input
-                  className={`${styles.input} ${errors.phone ? styles.inputError : ''}`}
-                  type="tel"
-                  inputMode="numeric"
-                  maxLength={11}
-                  placeholder="0901234567"
-                  value={form.phone}
-                  onChange={set('phone')}
-                />
-                {errors.phone && <span className={styles.fieldErr}>{errors.phone}</span>}
-              </div>
+              {regMode === 'email' ? (
+                <div className={styles.fieldWrap}>
+                  <label className={styles.fieldLabel}>Email <span className={styles.required}>*</span></label>
+                  <input
+                    className={`${styles.input} ${errors.email ? styles.inputError : ''}`}
+                    type="text"
+                    inputMode="email"
+                    placeholder="email@example.com"
+                    value={form.email}
+                    onChange={set('email')}
+                    autoComplete="email"
+                  />
+                  {errors.email && <span className={styles.fieldErr}>{errors.email}</span>}
+                </div>
+              ) : (
+                <div className={styles.fieldWrap}>
+                  <label className={styles.fieldLabel}>Số điện thoại <span className={styles.required}>*</span></label>
+                  <input
+                    className={`${styles.input} ${errors.phone ? styles.inputError : ''}`}
+                    type="tel"
+                    inputMode="numeric"
+                    maxLength={11}
+                    placeholder="0901234567"
+                    value={form.phone}
+                    onChange={set('phone')}
+                  />
+                  {errors.phone && <span className={styles.fieldErr}>{errors.phone}</span>}
+                </div>
+              )}
             </div>
 
             {/* ── Mật khẩu ── */}
@@ -287,6 +304,7 @@ export default function RegisterPage() {
 
       {showOtp && (
         <OtpVerifyModal
+          target={regMode === 'email' ? form.email : form.phone}
           email={form.email}
           phone={form.phone || null}
           formData={form}

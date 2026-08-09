@@ -143,6 +143,11 @@ export default function LoginPage() {
       <div className={styles.orb3} />
 
       <div className={styles.container}>
+        <Link to="/" className={styles.homeBtn}>
+          <ArrowLeftSVG />
+          <span>Về trang chủ</span>
+        </Link>
+
         {/* Logo */}
         <div className={styles.logoWrap}>
           <div className={styles.logoCard}>

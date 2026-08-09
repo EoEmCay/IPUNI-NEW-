@@ -6,11 +6,13 @@ const loginSchema = z.object({
 });
 
 const registerSchema = z.object({
-  email: z.string().email('Email không hợp lệ'),
-  phone: z.string().min(9, 'Số điện thoại không hợp lệ').max(11, 'Số điện thoại không hợp lệ').regex(/^\d+$/, 'Số điện thoại chỉ gồm chữ số').optional(),
+  email: z.string().email('Email không hợp lệ').optional().or(z.literal('')),
+  phone: z.string().optional().or(z.literal('')).refine(val => !val || (val.length >= 9 && val.length <= 11 && /^\d+$/.test(val)), {
+    message: 'Số điện thoại không hợp lệ (9-11 chữ số)'
+  }),
   password: z.string().min(6, 'Mật khẩu ít nhất 6 ký tự'),
   confirmPassword: z.string(),
-  name: z.string().min(2).max(60).optional(),
+  name: z.string().min(2).max(60).optional().or(z.literal('')),
   diagnosis: z.enum(['type2_diabetes', 'type1_diabetes', 'prediabetes']).optional(),
 }).refine(data => data.password === data.confirmPassword, {
   message: 'Mật khẩu nhập lại không khớp',

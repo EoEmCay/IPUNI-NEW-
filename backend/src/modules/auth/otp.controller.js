@@ -1,40 +1,38 @@
 const { sendOtp, verifyOtp } = require('./otp.service');
 const { sendSuccess, sendError } = require('../../utils/response.helper');
 
-// POST /api/register
+// POST /api/v1/auth/register-otp
 async function register(req, res) {
   try {
-    const { email, password } = req.body;
+    const { email, phone, target, password } = req.body;
+    const actualTarget = target || email || phone;
 
-    if (!email || !password) {
-      return sendError(res, 'Email và mật khẩu là bắt buộc.', 400);
+    if (!actualTarget || !password) {
+      return sendError(res, 'Vui lòng cung cấp email/số điện thoại và mật khẩu.', 400);
     }
 
-    await sendOtp(email, password);
+    await sendOtp(actualTarget, password);
 
-    return sendSuccess(res, null, 'Mã OTP đã được gửi đến email của bạn.');
+    return sendSuccess(res, null, 'Mã OTP đã được tạo và gửi thành công.');
   } catch (err) {
-    // Nodemailer thất bại hoặc lỗi bất ngờ
     const errorMsg = err.message || 'Lỗi không xác định.';
-    return sendError(res, `Không thể gửi OTP. Chi tiết lỗi từ máy chủ Mail: ${errorMsg}`, 500);
+    return sendError(res, `Không thể gửi OTP: ${errorMsg}`, 500);
   }
 }
 
-// POST /api/verify-otp
+// POST /api/v1/auth/verify-otp
 async function verifyOtpHandler(req, res) {
   try {
-    const { email, userOtp } = req.body;
+    const { email, phone, target, userOtp } = req.body;
+    const actualTarget = target || email || phone;
 
-    if (!email || !userOtp) {
-      return sendError(res, 'Email và mã OTP là bắt buộc.', 400);
+    if (!actualTarget || !userOtp) {
+      return sendError(res, 'Vui lòng cung cấp mã OTP và thông tin nhận mã.', 400);
     }
 
-    const { email: verifiedEmail, password } = verifyOtp(email, userOtp.trim());
+    const { target: verifiedTarget, password } = verifyOtp(actualTarget, userOtp.trim());
 
-    // TODO: thay console.log bằng lời gọi DB thực tế (bcrypt hash + INSERT users)
-    console.log(`[DB] Tạo user mới: email=${verifiedEmail}`);
-
-    return sendSuccess(res, { email: verifiedEmail }, 'Đăng ký thành công.');
+    return sendSuccess(res, { target: verifiedTarget }, 'Xác thực OTP thành công.');
   } catch (err) {
     return sendError(res, err.message, err.status || 500);
   }

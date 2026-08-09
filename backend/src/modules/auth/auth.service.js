@@ -12,7 +12,10 @@ function signToken(user) {
 }
 
 async function login(identifier, password) {
-  const user = await db('users').where({ email: identifier }).first();
+  const user = await db('users')
+    .where({ email: identifier })
+    .orWhere({ phone: identifier })
+    .first();
   if (!user) throw { status: 401, message: 'Thông tin đăng nhập không đúng' };
 
   const valid = await bcrypt.compare(password, user.password_hash);
@@ -39,8 +42,15 @@ function genUserCode() {
 }
 
 async function register(email, phone, password, { name, diagnosis } = {}) {
-  const existingEmail = await db('users').where({ email }).first();
-  if (existingEmail) throw { status: 409, message: 'Email này đã được đăng ký' };
+  let effectiveEmail = email;
+  if ((!effectiveEmail || effectiveEmail.trim() === '') && phone) {
+    effectiveEmail = `${phone}@phone.diaplus.vn`;
+  }
+
+  if (effectiveEmail) {
+    const existingEmail = await db('users').where({ email: effectiveEmail }).first();
+    if (existingEmail) throw { status: 409, message: 'Email hoặc số điện thoại này đã được đăng ký' };
+  }
 
   if (phone) {
     const existingPhone = await db('users').where({ phone }).first();
@@ -51,7 +61,7 @@ async function register(email, phone, password, { name, diagnosis } = {}) {
   let user_code;
   do { user_code = genUserCode(); } while (await db('users').where({ user_code }).first());
 
-  const insertData = { email, password_hash, user_code };
+  const insertData = { email: effectiveEmail, password_hash, user_code };
   if (phone) insertData.phone = phone;
   if (name) insertData.name = name;
   if (diagnosis) insertData.diagnosis = diagnosis;

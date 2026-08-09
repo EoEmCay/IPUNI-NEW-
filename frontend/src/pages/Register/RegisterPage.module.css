@@ -71,6 +71,56 @@
   z-index: 1;
 }
 
+/* ─── Back to home button ─── */
+.homeBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #1B5FA6;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  margin-bottom: 12px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: rgba(27, 95, 166, 0.08);
+  transition: transform 0.2s ease, color 0.2s ease, background 0.2s ease;
+  align-self: flex-start;
+}
+.homeBtn:hover {
+  color: #0F4280;
+  background: rgba(27, 95, 166, 0.15);
+  transform: translateX(-3px);
+}
+
+/* ─── Mode tabs (Email / Phone) ─── */
+.tabGroup {
+  display: flex;
+  gap: 8px;
+  background: #F1F5F9;
+  padding: 4px;
+  border-radius: 12px;
+  margin-bottom: 6px;
+}
+.tabBtn {
+  flex: 1;
+  padding: 9px 12px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.tabActive {
+  background: #FFFFFF;
+  color: #1B5FA6;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  font-weight: 700;
+}
+
 /* ─── Logo ─── */
 .logoWrap {
   display: flex;

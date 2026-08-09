@@ -33,10 +33,12 @@ const ArrowLeftSVG = () => (
   </svg>
 );
 
-export default function OtpVerifyModal({ email, phone, formData, onVerified, onClose }) {
+export default function OtpVerifyModal({ target: propTarget, email, phone, formData, onVerified, onClose }) {
   const t = useT();
+  const actualTarget = propTarget || email || phone;
+  const isPhone = !actualTarget.includes('@');
   const [phase, setPhase] = useState('loading'); // 'loading' | 'choose' | 'input'
-  const [method, setMethod] = useState(null);
+  const [method, setMethod] = useState(isPhone ? 'phone' : 'email');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timeLeft, setTimeLeft] = useState(300);
   const [error, setError] = useState('');
@@ -45,14 +47,14 @@ export default function OtpVerifyModal({ email, phone, formData, onVerified, onC
   const [resent, setResent] = useState(false);
   const inputRefs = useRef([]);
 
-  // Loading phase: 1.5s then send email OTP
+  // Loading phase: 1.5s then send OTP
   useEffect(() => {
     const t = setTimeout(async () => {
-      setMethod('email');
+      setMethod(isPhone ? 'phone' : 'email');
       setSending(true);
       setError('');
       try {
-        await authService.sendOtp(email, formData.password);
+        await authService.sendOtp(actualTarget, formData.password);
       } catch {
         // fail silently
       } finally {
@@ -62,7 +64,7 @@ export default function OtpVerifyModal({ email, phone, formData, onVerified, onC
       setTimeLeft(300);
       setPhase('input');
       setTimeout(() => inputRefs.current[0]?.focus(), 150);
-    }, 1500);
+    }, 1200);
     return () => clearTimeout(t);
   }, []);
 
@@ -111,10 +113,12 @@ export default function OtpVerifyModal({ email, phone, formData, onVerified, onC
     setSubmitting(true);
     setError('');
     try {
-      await authService.verifyOtp(email, code);
+      await authService.verifyOtp(actualTarget, code);
       // OTP verified → tạo tài khoản đầy đủ
+      const regEmail = formData.email ? formData.email.trim() : '';
+      const regPhone = formData.phone ? formData.phone.trim() : '';
       const res = await authService.register(
-        formData.email, formData.phone, formData.password, formData.confirmPassword,
+        regEmail, regPhone, formData.password, formData.confirmPassword,
         { name: formData.name, diagnosis: formData.diagnosis }
       );
       onVerified(res.data.data);
@@ -134,7 +138,7 @@ export default function OtpVerifyModal({ email, phone, formData, onVerified, onC
     setResent(false);
     setSending(true);
     try {
-      await authService.sendOtp(email, formData.password);
+      await authService.sendOtp(actualTarget, formData.password);
       setResent(true);
       setTimeout(() => setResent(false), 3000);
     } catch {}
@@ -143,10 +147,9 @@ export default function OtpVerifyModal({ email, phone, formData, onVerified, onC
     setTimeout(() => inputRefs.current[0]?.focus(), 50);
   };
 
-  // No handleBack needed anymore
-
-  const maskedEmail = email.replace(/(.{2})(.*)(@.*)/, (_, a, b, c) => a + '*'.repeat(Math.min(b.length, 4)) + c);
-  const maskedPhone = phone ? phone.replace(/(\d{2})(\d*)(\d{2})/, (_, a, b, c) => a + '*'.repeat(b.length) + c) : '';
+  const maskedTarget = isPhone
+    ? actualTarget.replace(/(\d{2})(\d*)(\d{2})/, (_, a, b, c) => a + '*'.repeat(b.length) + c)
+    : actualTarget.replace(/(.{2})(.*)(@.*)/, (_, a, b, c) => a + '*'.repeat(Math.min(b.length, 4)) + c);
 
   const modal = (
     <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -181,7 +184,7 @@ export default function OtpVerifyModal({ email, phone, formData, onVerified, onC
               <h2 className={styles.inputTitle}>{t.otp.enterOtp}</h2>
               <p className={styles.inputSubtitle}>
                 {t.otp.codeSentTo}{' '}
-                <strong>{method === 'email' ? maskedEmail : maskedPhone}</strong>
+                <strong>{maskedTarget}</strong>
               </p>
             </div>
 

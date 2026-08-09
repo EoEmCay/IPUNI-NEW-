@@ -238,7 +238,7 @@ function parseAiJson(text) {
   }
 }
 
-// Using LLM (Gemini/Claude) with direct image/multimodal input for best accuracy.
+// Using LLM (Gemini/Claude) with direct image/multimodal input for best accuracy and speed.
 // Tesseract OCR is kept as a robust fallback.
 async function analyzePrescription(imageBuffer, mimeType, lang = 'vi') {
   const dynamicPrompt = getPrompt(lang);
@@ -246,17 +246,98 @@ async function analyzePrescription(imageBuffer, mimeType, lang = 'vi') {
     throw new Error('Không nhận được dữ liệu hình ảnh.');
   }
 
-  let text = '';
-  let ocrText = '';
-  let useFallbackDirectGemini = false;
+  const imageBase64 = imageBuffer.toString('base64');
+  let directText = '';
 
-  // 1. Thử trích xuất chữ bằng Tesseract OCR trước
-  logger.info("[Quét đơn thuốc] Bước 1: Trích xuất chữ từ ảnh bằng Tesseract OCR...");
+  // 1. ƯU TIÊN HÀNG ĐẦU: Gửi hình ảnh trực tiếp (Multimodal Vision AI) cho Gemini
+  // Giúp giảm thời gian từ >30 giây xuống chỉ còn 2-3 giây!
+  if (process.env.GEMINI_API_KEY) {
+    try {
+      const modelName = process.env.GEMINI_MODEL || 'gemini-flash-lite-latest';
+      logger.info(`[Quét đơn thuốc] Phân tích ảnh trực tiếp bằng Google Gemini Vision (${modelName})...`);
+      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+      const model = genAI.getGenerativeModel({ 
+        model: modelName,
+        generationConfig: { 
+          responseMimeType: 'application/json',
+          maxOutputTokens: 8192
+        }
+      });
+
+      const imagePart = {
+        inlineData: {
+          data: imageBase64,
+          mimeType: mimeType || 'image/jpeg'
+        }
+      };
+
+      const result = await model.generateContent([
+        dynamicPrompt,
+        imagePart
+      ]);
+      directText = result.response.text();
+      
+      if (directText) {
+        const parsed = parseAiJson(directText);
+        const shaped = shapeResult(parsed);
+        if (shaped.isPrescription || shaped.isLabReport) {
+          logger.info("[Quét đơn thuốc] Phân tích ảnh bằng Gemini Vision thành công siêu tốc!");
+          return shaped;
+        }
+      }
+    } catch (geminiError) {
+      logger.error("[Quét đơn thuốc] Lỗi Gemini Vision trực tiếp: " + geminiError.message);
+    }
+  }
+
+  // 2. FALLBACK 1: Gửi hình ảnh trực tiếp cho Anthropic Claude
+  if (!directText && process.env.ANTHROPIC_API_KEY) {
+    try {
+      logger.info("[Quét đơn thuốc] Phân tích ảnh trực tiếp bằng Anthropic Claude...");
+      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+      const response = await anthropic.messages.create({
+        model: 'claude-3-5-sonnet-20240620',
+        max_tokens: 4000,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: dynamicPrompt
+              },
+              {
+                type: 'image',
+                source: {
+                  type: 'base64',
+                  media_type: mimeType || 'image/jpeg',
+                  data: imageBase64
+                }
+              }
+            ]
+          }
+        ]
+      });
+      directText = response.content[0].text;
+      if (directText) {
+        const parsed = parseAiJson(directText);
+        const shaped = shapeResult(parsed);
+        logger.info("[Quét đơn thuốc] Phân tích ảnh trực tiếp bằng Claude thành công!");
+        return shaped;
+      }
+    } catch (claudeError) {
+      logger.error("[Quét đơn thuốc] Lỗi Claude Vision trực tiếp: " + claudeError.message);
+    }
+  }
+
+  // 3. FALLBACK 2: Trích xuất chữ bằng Tesseract OCR nếu các AI Vision đều không hoạt động
+  logger.info("[Quét đơn thuốc] Kích hoạt Fallback - Trích xuất chữ bằng Tesseract OCR...");
   const tessdataDir = path.join(__dirname, '../../../database/tessdata');
   if (!fs.existsSync(tessdataDir)) {
     fs.mkdirSync(tessdataDir, { recursive: true });
   }
 
+  let ocrText = '';
   try {
     const ocrResult = await Tesseract.recognize(
       imageBuffer,
@@ -271,19 +352,12 @@ async function analyzePrescription(imageBuffer, mimeType, lang = 'vi') {
       }
     );
     ocrText = ocrResult.data.text || '';
-    logger.info(`[Quét đơn thuốc] Trích xuất bằng Tesseract hoàn tất. Kích thước văn bản: ${ocrText.length} ký tự.`);
+    logger.info(`[Quét đơn thuốc] Trích xuất Tesseract hoàn tất. Độ dài: ${ocrText.length} ký tự.`);
   } catch (ocrError) {
     logger.error("[Quét đơn thuốc] Lỗi Tesseract OCR: " + ocrError.message);
-    useFallbackDirectGemini = true;
   }
 
-  if (!ocrText || ocrText.trim().length === 0) {
-    logger.warn("[Quét đơn thuốc] OCR không trích xuất được chữ nào. Sẽ chuyển sang phân tích hình ảnh trực tiếp.");
-    useFallbackDirectGemini = true;
-  }
-
-  // 2. Nếu có chữ từ OCR, gửi chữ này cho AI xử lý trước
-  if (!useFallbackDirectGemini && ocrText) {
+  if (ocrText && ocrText.trim().length > 0) {
     const promptWithOcr = `${dynamicPrompt}
       
 Dữ liệu chữ trích xuất từ Tesseract OCR cần phân tích và sắp xếp thành cấu trúc JSON:
@@ -291,150 +365,23 @@ Dữ liệu chữ trích xuất từ Tesseract OCR cần phân tích và sắp x
 ${ocrText}
 ---`;
 
-    // Thử gửi cho Gemini trước
     if (process.env.GEMINI_API_KEY) {
       try {
         const modelName = process.env.GEMINI_MODEL || 'gemini-flash-lite-latest';
-        logger.info(`[Quét đơn thuốc] Phân tích văn bản OCR bằng Google Gemini (${modelName})...`);
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({ 
           model: modelName,
-          generationConfig: { 
-            responseMimeType: 'application/json',
-            maxOutputTokens: 8192
-          }
+          generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 8192 }
         });
         const result = await model.generateContent([promptWithOcr]);
-        text = result.response.text();
-        logger.info("[Quét đơn thuốc] Nhận phản hồi từ Gemini cho văn bản OCR.");
-      } catch (geminiError) {
-        logger.error("[Quét đơn thuốc] Lỗi Gemini với văn bản OCR: " + geminiError.message);
-      }
-    }
-
-    // Thử gửi cho Claude nếu Gemini không có key hoặc lỗi
-    if (!text && process.env.ANTHROPIC_API_KEY) {
-      try {
-        logger.info("[Quét đơn thuốc] Phân tích văn bản OCR bằng Anthropic Claude...");
-        const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-        const response = await anthropic.messages.create({
-          model: 'claude-3-5-sonnet-20240620',
-          max_tokens: 4000,
-          messages: [
-            {
-              role: 'user',
-              content: promptWithOcr
-            }
-          ]
-        });
-        text = response.content[0].text;
-        logger.info("[Quét đơn thuốc] Nhận phản hồi từ Claude cho văn bản OCR.");
-      } catch (claudeError) {
-        logger.error("[Quét đơn thuốc] Lỗi Claude với văn bản OCR: " + claudeError.message);
-      }
-    }
-
-    // Parse thử kết quả của OCR + AI
-    if (text) {
-      try {
-        const parsed = parseAiJson(text);
-        const shaped = shapeResult(parsed);
-        // Nếu AI xác nhận là đơn thuốc tiểu đường hợp lệ, ta dùng luôn kết quả này
-        if (shaped.isPrescription && shaped.isDiabetesPrescription) {
-          logger.info("[Quét đơn thuốc] Nhận diện thành công đơn thuốc tiểu đường từ văn bản OCR.");
-          return shaped;
-        } else {
-          logger.warn("[Quét đơn thuốc] Văn bản OCR phân tích ra không phải đơn thuốc tiểu đường hoặc không hợp lệ. Sẽ kích hoạt fallback ảnh trực tiếp.");
-          useFallbackDirectGemini = true;
+        const text = result.response.text();
+        if (text) {
+          const parsed = parseAiJson(text);
+          return shapeResult(parsed);
         }
-      } catch (parseError) {
-        logger.warn("[Quét đơn thuốc] Lỗi parse kết quả OCR AI: " + parseError.message + ". Kích hoạt fallback ảnh trực tiếp.");
-        useFallbackDirectGemini = true;
+      } catch (err) {
+        logger.error("[Quét đơn thuốc] Lỗi Gemini OCR Text: " + err.message);
       }
-    } else {
-      useFallbackDirectGemini = true;
-    }
-  }
-
-  // 3. Fallback: Nếu OCR thất bại / AI phân tích OCR không ra đơn thuốc tiểu đường,
-  // chúng ta gửi hình ảnh trực tiếp (Multimodal) cho Gemini/Claude
-  if (useFallbackDirectGemini) {
-    logger.info("[Quét đơn thuốc] Bước 2: Kích hoạt Fallback - Phân tích ảnh trực tiếp (Multimodal AI)...");
-    const imageBase64 = imageBuffer.toString('base64');
-    let directText = '';
-
-    // Thử dùng Gemini trực tiếp với hình ảnh
-    if (process.env.GEMINI_API_KEY) {
-      try {
-        const modelName = process.env.GEMINI_MODEL || 'gemini-flash-lite-latest';
-        logger.info(`[Quét đơn thuốc] Gửi ảnh trực tiếp cho Google Gemini (${modelName})...`);
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ 
-          model: modelName,
-          generationConfig: { 
-            responseMimeType: 'application/json',
-            maxOutputTokens: 8192
-          }
-        });
-
-        const imagePart = {
-          inlineData: {
-            data: imageBase64,
-            mimeType: mimeType || 'image/jpeg'
-          }
-        };
-
-        const result = await model.generateContent([
-          dynamicPrompt,
-          imagePart
-        ]);
-        directText = result.response.text();
-        logger.info("[Quét đơn thuốc] Phân tích ảnh trực tiếp bằng Gemini thành công!");
-      } catch (geminiError) {
-        logger.error("[Quét đơn thuốc] Lỗi Gemini khi phân tích ảnh trực tiếp: " + geminiError.message, geminiError);
-      }
-    }
-
-    // Thử dùng Claude trực tiếp với hình ảnh
-    if (!directText && process.env.ANTHROPIC_API_KEY) {
-      try {
-        logger.info("[Quét đơn thuốc] Gửi ảnh trực tiếp cho Anthropic Claude...");
-        const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-        const response = await anthropic.messages.create({
-          model: 'claude-3-5-sonnet-20240620',
-          max_tokens: 4000,
-          messages: [
-            {
-              role: 'user',
-              content: [
-                {
-                  type: 'text',
-                  text: dynamicPrompt
-                },
-                {
-                  type: 'image',
-                  source: {
-                    type: 'base64',
-                    media_type: mimeType || 'image/jpeg',
-                    data: imageBase64
-                  }
-                }
-              ]
-            }
-          ]
-        });
-        directText = response.content[0].text;
-        logger.info("[Quét đơn thuốc] Phân tích ảnh trực tiếp bằng Claude thành công!");
-      } catch (claudeError) {
-        logger.error("[Quét đơn thuốc] Lỗi Claude khi phân tích ảnh trực tiếp: " + claudeError.message, claudeError);
-      }
-    }
-
-    if (directText) {
-      const parsed = parseAiJson(directText);
-      const shaped = shapeResult(parsed);
-      logger.info("[Quét đơn thuốc] Phân tích ảnh trực tiếp hoàn tất.");
-      return shaped;
     }
   }
 

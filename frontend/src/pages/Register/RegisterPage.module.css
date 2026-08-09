@@ -121,6 +121,22 @@
   font-weight: 700;
 }
 
+.phoneDevBadge {
+  background: #F8FAFC;
+  border: 1px dashed #CBD5E1;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  margin-top: 4px;
+}
+.devText {
+  color: #D97706;
+  font-weight: 700;
+}
+
 /* ─── Logo ─── */
 .logoWrap {
   display: flex;

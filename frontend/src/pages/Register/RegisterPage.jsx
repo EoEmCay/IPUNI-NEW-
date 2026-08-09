@@ -164,59 +164,30 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* ── Phương thức đăng ký (Chọn 1 trong 2) ── */}
+            {/* ── Thông tin đăng ký ── */}
             <div className={styles.section}>
               <div className={styles.sectionLabel}>
                 <span className={styles.sectionDot} />
-                Đăng ký bằng (Chọn 1 trong 2)
+                Thông tin đăng ký
               </div>
 
-              <div className={styles.tabGroup}>
-                <button
-                  type="button"
-                  className={`${styles.tabBtn} ${regMode === 'email' ? styles.tabActive : ''}`}
-                  onClick={() => { setRegMode('email'); setForm(f => ({ ...f, phone: '' })); setErrors({}); }}
-                >
-                  Email
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.tabBtn} ${regMode === 'phone' ? styles.tabActive : ''}`}
-                  onClick={() => { setRegMode('phone'); setForm(f => ({ ...f, email: '' })); setErrors({}); }}
-                >
-                  Số điện thoại
-                </button>
+              <div className={styles.fieldWrap}>
+                <label className={styles.fieldLabel}>Email <span className={styles.required}>*</span></label>
+                <input
+                  className={`${styles.input} ${errors.email ? styles.inputError : ''}`}
+                  type="text"
+                  inputMode="email"
+                  placeholder="email@example.com"
+                  value={form.email}
+                  onChange={set('email')}
+                  autoComplete="email"
+                />
+                {errors.email && <span className={styles.fieldErr}>{errors.email}</span>}
               </div>
 
-              {regMode === 'email' ? (
-                <div className={styles.fieldWrap}>
-                  <label className={styles.fieldLabel}>Email <span className={styles.required}>*</span></label>
-                  <input
-                    className={`${styles.input} ${errors.email ? styles.inputError : ''}`}
-                    type="text"
-                    inputMode="email"
-                    placeholder="email@example.com"
-                    value={form.email}
-                    onChange={set('email')}
-                    autoComplete="email"
-                  />
-                  {errors.email && <span className={styles.fieldErr}>{errors.email}</span>}
-                </div>
-              ) : (
-                <div className={styles.fieldWrap}>
-                  <label className={styles.fieldLabel}>Số điện thoại <span className={styles.required}>*</span></label>
-                  <input
-                    className={`${styles.input} ${errors.phone ? styles.inputError : ''}`}
-                    type="tel"
-                    inputMode="numeric"
-                    maxLength={11}
-                    placeholder="0901234567"
-                    value={form.phone}
-                    onChange={set('phone')}
-                  />
-                  {errors.phone && <span className={styles.fieldErr}>{errors.phone}</span>}
-                </div>
-              )}
+              <div className={styles.phoneDevBadge}>
+                <span>📱 Đăng ký bằng Số điện thoại (SMS): <strong className={styles.devText}>Đang phát triển</strong></span>
+              </div>
             </div>
 
             {/* ── Mật khẩu ── */}

@@ -153,9 +153,15 @@ export const voiceAlertService = {
           voices = window.speechSynthesis.getVoices();
         }
 
-        let viVoice = voices.find(v => v.name === 'Google Tiếng Việt' || v.lang === 'vi-VN' || v.lang === 'vi_VN');
+        let viVoice = voices.find(v => 
+          v.lang === 'vi-VN' || 
+          v.lang === 'vi_VN' ||
+          v.name === 'Google Tiếng Việt' ||
+          v.name.includes('Linh') ||
+          v.name.includes('Vietnamese')
+        );
         if (!viVoice) {
-          viVoice = voices.find(v => v.lang.includes('vi') || v.name.toLowerCase().includes('viet'));
+          viVoice = voices.find(v => v.lang.includes('vi'));
         }
         
         if (viVoice) {

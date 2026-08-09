@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Pill, ChevronRight } from 'lucide-react';
+import { formatDateVN } from '../../utils/date';
 import useMedicationsStore from '../../store/medicationsStore';
 import { withDoctorPrefix } from '../../utils/doctor';
 import MedicationDetailModal from './MedicationDetailModal';
@@ -27,7 +28,6 @@ export default function MedicationCard({ medication }) {
         <div className={styles.name}>{medication.name} {medication.dosage}</div>
         <div className={styles.frequency}>{medication.frequency}: {times}</div>
         {medication.instructions && <div className={styles.instructions}>{medication.instructions}</div>}
-        {medication.doctor_name && <div className={styles.doctor}>{withDoctorPrefix(medication.doctor_name)}</div>}
 
         <button className={styles.detailBtn} onClick={() => setShowDetail(true)}>
           {t.medCard?.details || 'Chi tiết'} <ChevronRight size={13} />

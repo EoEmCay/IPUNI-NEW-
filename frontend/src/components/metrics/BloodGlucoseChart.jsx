@@ -9,7 +9,7 @@ import styles from './BloodGlucoseChart.module.css';
 function formatTime(dateStr) {
   const d = new Date(dateStr);
   const pad = (n) => String(n).padStart(2, '0');
-  return `${d.getDate()}/${d.getMonth() + 1} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
 export default function BloodGlucoseChart({ data = [], type, days, onDaysChange }) {

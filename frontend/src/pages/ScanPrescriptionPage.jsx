@@ -126,6 +126,7 @@ export default function ScanPrescriptionPage() {
             instructions: med.instructions || '',
             doctor_name: result.doctorName || med.doctor_name || '',
             prescribed_at: result.prescriptionDate || new Date().toISOString().split('T')[0],
+            next_appointment_date: result.nextAppointmentDate || null,
             is_active: 1,
           });
           successCount++;
@@ -305,37 +306,40 @@ export default function ScanPrescriptionPage() {
                 </div>
               </div>
 
-              <div className={styles.metaRow}>
-                <span className={styles.metaChip}>
-                  <User size={13} /> {t.scanResult?.doctor}: {result.doctorName || 'Chưa nhận diện'}
-                </span>
-                <span className={styles.metaChip}>
-                  <Calendar size={13} /> {t.scanResult?.prescribed}: {result.prescriptionDate || 'Chưa nhận diện'}
-                </span>
-                {result.nextAppointmentDate && (
-                  <span className={styles.metaChip} style={{ background: '#FEF3C7', color: '#B45309' }}>
-                    <Stethoscope size={13} /> {t.scanResult?.followup}: {result.nextAppointmentDate}
-                  </span>
-                )}
-              </div>
-
-              {result.metrics && result.metrics.length > 0 && (
-                <div className={styles.metaRow} style={{ marginTop: '8px' }}>
-                  {result.metrics.map((m, i) => (
-                    <span key={i} className={styles.metaChip} style={{ background: '#F0FDF4', color: '#16A34A' }}>
-                      <Activity size={13} /> 
-                      {m.measurement_type === 'blood_pressure' ? `${t.scanResult?.bloodPressure}: ${m.value}/${m.value_diastolic} mmHg` : 
-                       m.measurement_type === 'glucose_fasting' ? `${t.scanResult?.glucoseFasting}: ${m.value} mmol/L` : 
-                       `${m.measurement_type}: ${m.value}`}
+              <div className={styles.prescriptionGroup}>
+                <div className={styles.prescriptionHeader}>
+                  <div className={styles.metaRow}>
+                    <span className={styles.metaChip}>
+                      <User size={13} /> {t.scanResult?.doctor}: {result.doctorName || 'Chưa nhận diện'}
                     </span>
-                  ))}
-                </div>
-              )}
+                    <span className={styles.metaChip}>
+                      <Calendar size={13} /> {t.scanResult?.prescribed}: {result.prescriptionDate || 'Chưa nhận diện'}
+                    </span>
+                    {result.nextAppointmentDate && (
+                      <span className={styles.metaChip} style={{ background: '#FEF3C7', color: '#B45309' }}>
+                        <Stethoscope size={13} /> {t.scanResult?.followup}: {result.nextAppointmentDate}
+                      </span>
+                    )}
+                  </div>
 
-              <div className={styles.notesCard}>
-                <h3><Stethoscope size={15} /> {t.scanResult?.doctorNotes || 'Lời dặn Bác sĩ'}</h3>
-                <p>{result.doctorNotes || 'Không có lời dặn thêm'}</p>
-              </div>
+                  {result.metrics && result.metrics.length > 0 && (
+                    <div className={styles.metaRow}>
+                      {result.metrics.map((m, i) => (
+                        <span key={i} className={styles.metaChip} style={{ background: '#F0FDF4', color: '#16A34A' }}>
+                          <Activity size={13} /> 
+                          {m.measurement_type === 'blood_pressure' ? `${t.scanResult?.bloodPressure}: ${m.value}/${m.value_diastolic} mmHg` : 
+                           m.measurement_type === 'glucose_fasting' ? `${t.scanResult?.glucoseFasting}: ${m.value} mmol/L` : 
+                           `${m.measurement_type}: ${m.value}`}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className={styles.notesCard}>
+                    <h3><Stethoscope size={15} /> {t.scanResult?.doctorNotes || 'Lời dặn Bác sĩ'}</h3>
+                    <p>{result.doctorNotes || 'Không có lời dặn thêm'}</p>
+                  </div>
+                </div>
 
               {result.medications.length === 0 ? (
                 <div className={styles.emptyResult}>
@@ -351,123 +355,145 @@ export default function ScanPrescriptionPage() {
                   <p className={styles.disclaimer}>
                     <AlertCircle size={12} /> AI có thể đọc nhầm chữ viết tay mờ — vui lòng kiểm tra và sửa lại tên/liều/giờ uống trước khi lưu.
                   </p>
+                  <div className={styles.medListContainer}>
                   {editableMeds.map((med, i) => {
                     const expanded = expandedIndex === i;
                     const detail = med.detail || {};
                     const hasDetail = detail.purpose || detail.mechanism || detail.contraindications || (detail.interactions && detail.interactions.length > 0);
                     return (
-                      <div key={i} className={styles.medCard}>
-                        <div className={styles.medHeader}>
-                          <span className={styles.medName}>
-                            {med.name}
-                            {med.isDiabetesDrug && <span className={styles.diaTag}>{t.scanResult?.diabetesTag}</span>}
-                          </span>
-                          {med.verified === false && (
-                            <span className={styles.unverifiedBadge} title="Tên thuốc chưa khớp với cơ sở dữ liệu nội bộ — kiểm tra kỹ trước khi lưu">
-                              <AlertCircle size={12} /> Chưa xác nhận
+                      <div key={i} className={styles.medItem}>
+                        <div className={styles.medSummary} onClick={() => setExpandedIndex(expanded ? null : i)}>
+                          <div className={styles.medSummaryLeft}>
+                            <span className={styles.medName}>
+                              {med.name}
+                              {med.isDiabetesDrug && <span className={styles.diaTag}>{t.scanResult?.diabetesTag}</span>}
                             </span>
-                          )}
+                            <div className={styles.medStatsCompact}>
+                              {med.dosage && <span>{med.dosage}</span>}
+                              {med.times && med.times.length > 0 && (
+                                <>
+                                  <span className={styles.dotSeparator}>•</span>
+                                  <span>{med.times.join(', ')}</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          <div className={styles.medSummaryRight}>
+                            {med.verified === false && (
+                              <span className={styles.unverifiedBadgeIcon} title="Tên thuốc chưa khớp với cơ sở dữ liệu nội bộ — kiểm tra kỹ trước khi lưu">
+                                <AlertCircle size={14} color="#F59E0B" />
+                              </span>
+                            )}
+                            {expanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                          </div>
                         </div>
 
-                        <div className={styles.editableRow}>
-                          <span className={styles.detailLabel}>Tên thuốc</span>
-                          <input
-                            className={styles.editableInput}
-                            type="text"
-                            value={med.name || ''}
-                            onChange={(e) => handleMedFieldChange(i, 'name', e.target.value)}
-                          />
-                        </div>
-                        <div className={styles.editableRow}>
-                          <span className={styles.detailLabel}>Liều lượng</span>
-                          <input
-                            className={styles.editableInput}
-                            type="text"
-                            value={med.dosage || ''}
-                            onChange={(e) => handleMedFieldChange(i, 'dosage', e.target.value)}
-                          />
-                        </div>
+                        {expanded && (
+                          <div className={styles.medExpandedContent}>
+                            <div className={styles.editableRow}>
+                              <span className={styles.detailLabel}>Tên thuốc</span>
+                              <input
+                                className={styles.editableInput}
+                                type="text"
+                                value={med.name || ''}
+                                onChange={(e) => handleMedFieldChange(i, 'name', e.target.value)}
+                              />
+                            </div>
+                            <div className={styles.editableRow}>
+                              <span className={styles.detailLabel}>Liều lượng</span>
+                              <input
+                                className={styles.editableInput}
+                                type="text"
+                                value={med.dosage || ''}
+                                onChange={(e) => handleMedFieldChange(i, 'dosage', e.target.value)}
+                              />
+                            </div>
 
-                        <div className={styles.medStats}>
-                          {med.quantity && (
-                            <span className={styles.statChip}><Hash size={12} /> {med.quantity}</span>
-                          )}
-                          {med.timesPerDay != null && (
-                            <span className={styles.statChip}>
-                              <Clock size={12} /> {med.timesPerDay} {t.scanResult?.timesPerDay}
-                            </span>
-                          )}
-                          {med.amountPerDose && (
-                            <span className={styles.statChip}><Pill size={12} /> {med.amountPerDose}{t.scanResult?.perDose}</span>
-                          )}
-                        </div>
+                            <div className={styles.medStats}>
+                              {med.quantity && (
+                                <span className={styles.statChip}><Hash size={12} /> {med.quantity}</span>
+                              )}
+                              {med.timesPerDay != null && (
+                                <span className={styles.statChip}>
+                                  <Clock size={12} /> {med.timesPerDay} {t.scanResult?.timesPerDay}
+                                </span>
+                              )}
+                              {med.amountPerDose && (
+                                <span className={styles.statChip}><Pill size={12} /> {med.amountPerDose}{t.scanResult?.perDose}</span>
+                              )}
+                            </div>
 
-                        <div className={styles.editableRow}>
-                          <span className={styles.detailLabel}>{t.scanResult?.timeToTake}</span>
-                          <input
-                            className={styles.editableInput}
-                            type="text"
-                            placeholder="07:00, 19:00"
-                            value={(med.times || []).join(', ')}
-                            onChange={(e) => handleMedTimesChange(i, e.target.value)}
-                          />
-                        </div>
-                        <div className={styles.editableRow}>
-                          <span className={styles.detailLabel}>{t.scanResult?.usage}</span>
-                          <input
-                            className={styles.editableInput}
-                            type="text"
-                            value={med.instructions || ''}
-                            onChange={(e) => handleMedFieldChange(i, 'instructions', e.target.value)}
-                          />
-                        </div>
+                            <div className={styles.editableRow}>
+                              <span className={styles.detailLabel}>{t.scanResult?.timeToTake}</span>
+                              <input
+                                className={styles.editableInput}
+                                type="text"
+                                placeholder="07:00, 19:00"
+                                value={(med.times || []).join(', ')}
+                                onChange={(e) => handleMedTimesChange(i, e.target.value)}
+                              />
+                            </div>
+                            <div className={styles.editableRow}>
+                              <span className={styles.detailLabel}>{t.scanResult?.usage}</span>
+                              <input
+                                className={styles.editableInput}
+                                type="text"
+                                value={med.instructions || ''}
+                                onChange={(e) => handleMedFieldChange(i, 'instructions', e.target.value)}
+                              />
+                            </div>
 
-                        {hasDetail && (
-                          <button
-                            className={styles.detailToggle}
-                            onClick={() => setExpandedIndex(expanded ? null : i)}
-                          >
-                            <span><Info size={14} /> {t.scanResult?.medDetail}</span>
-                            {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                          </button>
-                        )}
-                        {expanded && hasDetail && (
-                          <div className={styles.detailBox}>
-                            {detail.purpose && (
-                              <div className={styles.detailItem}>
-                                <span className={styles.detailItemLabel}>{t.scanResult?.purpose}</span>
-                                <p>{detail.purpose}</p>
-                              </div>
+                            {hasDetail && (
+                              <button
+                                className={styles.detailToggle}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setExpandedIndex(expanded ? null : i);
+                                }}
+                              >
+                                <span><Info size={14} /> {t.scanResult?.medDetail}</span>
+                                {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                              </button>
                             )}
-                            {detail.mechanism && (
-                              <div className={styles.detailItem}>
-                                <span className={styles.detailItemLabel}>{t.scanResult?.mechanism}</span>
-                                <p>{detail.mechanism}</p>
-                              </div>
-                            )}
-                            {detail.contraindications && (
-                              <div className={styles.detailItem}>
-                                <span className={styles.detailItemLabel}>⚠️ {t.scanResult?.contraindications}</span>
-                                <p>{detail.contraindications}</p>
-                              </div>
-                            )}
-                            {detail.interactions && detail.interactions.length > 0 && (
-                              <div className={styles.detailItem}>
-                                <span className={styles.detailItemLabel}>{t.scanResult?.interactions}</span>
-                                <p>{Array.isArray(detail.interactions) ? detail.interactions.join(', ') : detail.interactions}</p>
-                              </div>
-                            )}
-                            {detail.source && (
-                              <div className={styles.detailSource}>
-                                <BookOpen size={12} /> {t.scanResult?.source}: {detail.source === 'AI_GENERATED' ? 'Tổng hợp bởi AI, chưa qua kiểm chứng lâm sàng' : detail.source}
+                            {expanded && hasDetail && (
+                              <div className={styles.detailBox}>
+                                {detail.purpose && (
+                                  <div className={styles.detailItem}>
+                                    <span className={styles.detailItemLabel}>{t.scanResult?.purpose}</span>
+                                    <p>{detail.purpose}</p>
+                                  </div>
+                                )}
+                                {detail.mechanism && (
+                                  <div className={styles.detailItem}>
+                                    <span className={styles.detailItemLabel}>{t.scanResult?.mechanism}</span>
+                                    <p>{detail.mechanism}</p>
+                                  </div>
+                                )}
+                                {detail.contraindications && (
+                                  <div className={styles.detailItem}>
+                                    <span className={styles.detailItemLabel}>⚠️ {t.scanResult?.contraindications}</span>
+                                    <p>{detail.contraindications}</p>
+                                  </div>
+                                )}
+                                {detail.interactions && detail.interactions.length > 0 && (
+                                  <div className={styles.detailItem}>
+                                    <span className={styles.detailItemLabel}>{t.scanResult?.interactions}</span>
+                                    <p>{Array.isArray(detail.interactions) ? detail.interactions.join(', ') : detail.interactions}</p>
+                                  </div>
+                                )}
+                                {detail.source && (
+                                  <div className={styles.detailSource}>
+                                    <BookOpen size={12} /> {t.scanResult?.source}: {detail.source === 'AI_GENERATED' ? 'Tổng hợp bởi AI, chưa qua kiểm chứng lâm sàng' : detail.source}
+                                  </div>
+                                )}
                               </div>
                             )}
                           </div>
                         )}
-
                       </div>
                     );
                   })}
+                  </div>
 
                   {requiresInsulinConfirm && (
                     <div className={styles.insulinConfirmBox}>
@@ -510,6 +536,7 @@ export default function ScanPrescriptionPage() {
                   )}
                 </div>
               )}
+              </div>
 
               <p className={styles.disclaimer}>
                 <AlertCircle size={12} /> {t.scanResult?.disclaimer}

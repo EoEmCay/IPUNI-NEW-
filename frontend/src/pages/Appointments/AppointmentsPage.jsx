@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Star, Clock, Video, MessageCircle, Phone, ShieldCheck, ChevronRight } from 'lucide-react';
 import { appointmentsService } from '../../services/appointments.service';
@@ -106,10 +106,10 @@ export default function AppointmentsPage() {
     fetchScannedDoctors();
   }, []);
 
-  const handleDoctorClick = (doc) => {
+  const handleDoctorClick = useCallback((doc) => {
     // Chuyển hướng sang trang Profile của bác sĩ, truyền thông tin qua state
     navigate(`/doctor/${encodeURIComponent(doc.name)}`, { state: { doctor: doc } });
-  };
+  }, [navigate]);
 
   return (
     <div className={styles.page}>

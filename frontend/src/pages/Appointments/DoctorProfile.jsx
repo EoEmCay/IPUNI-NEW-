@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { ChevronLeft, Search, Heart, Star, Phone } from 'lucide-react';
 import styles from './DoctorProfile.module.css';
@@ -19,16 +20,20 @@ export default function DoctorProfile() {
     tags: ['Tư vấn 24/7', 'Phân tích chỉ số', 'Gợi ý thực đơn']
   };
 
-  const handleCall = () => {
+  const handleCall = useCallback(() => {
     navigate(`/call/${encodeURIComponent(doc.name)}`, { state: { doctor: doc } });
-  };
+  }, [navigate, doc]);
+
+  const handleBack = useCallback(() => {
+    navigate(-1);
+  }, [navigate]);
 
   return (
     <div className={styles.page}>
       {/* Top blue section */}
       <div className={styles.headerArea}>
         <div className={styles.topNav}>
-          <button onClick={() => navigate(-1)} className={styles.iconBtn}>
+          <button onClick={handleBack} className={styles.iconBtn}>
             <ChevronLeft size={24} color="#fff" />
           </button>
           <span className={styles.navTitle}>Thông tin Bác sĩ</span>

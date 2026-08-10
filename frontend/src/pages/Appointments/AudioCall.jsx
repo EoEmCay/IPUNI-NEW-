@@ -1,7 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { ChevronLeft, Volume2, Video, MicOff, PhoneOff } from 'lucide-react';
 import styles from './AudioCall.module.css';
+
+const formatTime = (totalSeconds) => {
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')} min`;
+};
 
 export default function AudioCall() {
   const navigate = useNavigate();
@@ -22,15 +28,9 @@ export default function AudioCall() {
     return () => clearInterval(timer);
   }, []);
 
-  const formatTime = (totalSeconds) => {
-    const m = Math.floor(totalSeconds / 60);
-    const s = totalSeconds % 60;
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')} min`;
-  };
-
-  const handleEndCall = () => {
+  const handleEndCall = useCallback(() => {
     navigate(-1);
-  };
+  }, [navigate]);
 
   return (
     <div className={styles.page}>

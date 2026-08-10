@@ -1,11 +1,12 @@
 .page {
-  background: #2563eb; /* Deep blue background matching the image */
+  background: var(--color-primary);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   color: white;
   position: relative;
   overflow: hidden;
+  transition: background 0.3s ease;
 }
 
 .topNav {

@@ -1,10 +1,11 @@
 .page {
-  background: #3b82f6; /* Blue matching the design */
+  background: var(--color-primary);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  transition: background 0.3s ease;
 }
 
 .headerArea {
@@ -202,10 +203,10 @@
 }
 
 .activeSlot {
-  background: #3b82f6;
+  background: var(--color-primary);
   color: #ffffff;
-  border-color: #3b82f6;
-  box-shadow: 0 4px 10px rgba(59,130,246,0.3);
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
 .footerAction {
@@ -238,8 +239,8 @@
 }
 
 .videoBtn {
-  background: #3b82f6;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  background: var(--color-primary);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .msgBtn {

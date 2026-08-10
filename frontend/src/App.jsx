@@ -11,6 +11,8 @@ import DashboardPage from './pages/Dashboard/DashboardPage';
 import MetricsPage from './pages/Metrics/MetricsPage';
 import MedicationsPage from './pages/Medications/MedicationsPage';
 import AppointmentsPage from './pages/Appointments/AppointmentsPage';
+import DoctorProfile from './pages/Appointments/DoctorProfile';
+import AudioCall from './pages/Appointments/AudioCall';
 import AdvicePage from './pages/Advice/AdvicePage';
 import ScanPrescriptionPage from './pages/ScanPrescriptionPage';
 import ScanHistoryPage from './pages/ScanHistoryPage';
@@ -81,6 +83,20 @@ function AppRoutes() {
             <AppLayout>
               <AppointmentsPage />
             </AppLayout>
+          </MobileWrapper>
+        </ProtectedRoute>
+      } />
+      <Route path="/doctor/:id" element={
+        <ProtectedRoute>
+          <MobileWrapper>
+            <DoctorProfile />
+          </MobileWrapper>
+        </ProtectedRoute>
+      } />
+      <Route path="/call/:id" element={
+        <ProtectedRoute>
+          <MobileWrapper>
+            <AudioCall />
           </MobileWrapper>
         </ProtectedRoute>
       } />

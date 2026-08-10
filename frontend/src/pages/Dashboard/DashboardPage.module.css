@@ -145,78 +145,158 @@
   100% { transform: rotate(360deg); }
 }
 
-/* ── Doctor Section Styles ── */
+/* ── Horizontal Blue Metric Cards (Upcoming Appointments Style) ── */
+.horizontalMetricsRow {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.horizontalMetricsRow::-webkit-scrollbar {
+  display: none;
+}
+
+.blueMetricCard {
+  flex: 0 0 220px;
+  scroll-snap-align: start;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  border-radius: 20px;
+  padding: 16px;
+  color: #ffffff;
+  box-shadow: 0 8px 20px -4px rgba(37, 99, 235, 0.4);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 110px;
+}
+
+.blueMetricHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.blueMetricTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.blueMetricValue {
+  font-size: 24px;
+  font-weight: 800;
+  margin: 6px 0 2px;
+}
+
+.blueMetricUnit {
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.blueMetricFooter {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+}
+
+/* ── Doctor Section Styles (Find Doctors Style) ── */
 .doctorListSummary {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.doctorSummaryCard {
+.mockupDoctorCard {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
+  border: 1px solid #f1f5f9;
+  border-radius: 20px;
   padding: 16px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 14px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.doctorSummaryCard:hover {
+.mockupDoctorCard:hover {
   border-color: #3b82f6;
-  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.12);
+  box-shadow: 0 12px 28px -5px rgba(59, 130, 246, 0.15);
 }
 
-.doctorSummaryAvatar {
-  width: 54px;
+.mockupDoctorTop {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.mockupDoctorAvatar {
+  width: 52px;
   height: 54px;
-  border-radius: 14px;
+  border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
+  border: 2px solid #eff6ff;
 }
 
-.doctorSummaryInfo {
+.mockupDoctorInfo {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.doctorSummaryName {
-  font-size: 15px;
+.mockupDoctorName {
+  font-size: 16px;
   font-weight: 700;
   color: #0f172a;
 }
 
-.doctorSummarySub {
+.mockupDoctorSub {
   font-size: 12px;
   color: #64748b;
 }
 
-.doctorSummaryRating {
+.mockupDoctorRatingRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
   font-size: 12px;
-  font-weight: 600;
-  color: #eab308;
-  margin-top: 2px;
 }
 
-.bookAppointmentBtn {
+.starText {
+  font-weight: 700;
+  color: #854d0e;
+  background: #fef08a;
+  padding: 2px 6px;
+  border-radius: 8px;
+}
+
+.timeText {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.fullWidthBookBtn {
+  width: 100%;
   background: #eff6ff;
   color: #2563eb;
   border: none;
-  padding: 8px 14px;
-  border-radius: 12px;
-  font-size: 13px;
+  padding: 12px;
+  border-radius: 14px;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  white-space: nowrap;
   transition: all 0.2s ease;
+  text-align: center;
 }
 
-.bookAppointmentBtn:hover {
+.fullWidthBookBtn:hover {
   background: #2563eb;
   color: #ffffff;
 }

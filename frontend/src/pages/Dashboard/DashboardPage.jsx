@@ -83,14 +83,14 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* ── Metrics section ── */}
+        {/* ── Metrics section (Upcoming Appointments style) ── */}
         <div className={styles.section}>
           <div className={`${styles.sectionHeader} tour-step-2`}>
             <span className={styles.sectionTitle}>
               Chỉ số trung bình (7 ngày qua)
             </span>
             <Link to="/metrics" className={styles.seeAll}>
-              {isCuteMode ? t.dashboard.viewAllCute : t.dashboard.viewAll}
+              Xem tất cả &gt;
             </Link>
           </div>
 
@@ -100,12 +100,38 @@ export default function DashboardPage() {
             </div>
           )}
 
-          <div className={styles.metricsGrid} style={{ display: 'block' }}>
-            <AverageMetricCard />
+          {/* Horizontal scrollable blue metric cards */}
+          <div className={styles.horizontalMetricsRow}>
+            <div className={styles.blueMetricCard}>
+              <div className={styles.blueMetricHeader}>
+                <span className={styles.blueMetricTitle}>Glucose (Đói)</span>
+                <Activity size={16} color="#ffffff" />
+              </div>
+              <div className={styles.blueMetricValue}>6.2 <span className={styles.blueMetricUnit}>mmol/L</span></div>
+              <div className={styles.blueMetricFooter}>📅 7 ngày qua • Bình thường</div>
+            </div>
+
+            <div className={styles.blueMetricCard}>
+              <div className={styles.blueMetricHeader}>
+                <span className={styles.blueMetricTitle}>HbA1c</span>
+                <Activity size={16} color="#ffffff" />
+              </div>
+              <div className={styles.blueMetricValue}>6.5 <span className={styles.blueMetricUnit}>%</span></div>
+              <div className={styles.blueMetricFooter}>📅 7 ngày qua • Tốt</div>
+            </div>
+
+            <div className={styles.blueMetricCard}>
+              <div className={styles.blueMetricHeader}>
+                <span className={styles.blueMetricTitle}>Huyết áp</span>
+                <Activity size={16} color="#ffffff" />
+              </div>
+              <div className={styles.blueMetricValue}>120/80 <span className={styles.blueMetricUnit}>mmHg</span></div>
+              <div className={styles.blueMetricFooter}>📅 7 ngày qua • Ổn định</div>
+            </div>
           </div>
         </div>
 
-        {/* ── Medication section ── */}
+        {/* ── Medication section (Categories replacement) ── */}
         <div className={styles.section}>
           <div className={isCuteMode ? styles.medicationCardCute : styles.medicationCard}>
             {isCuteMode ? (
@@ -151,7 +177,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* ── Doctor section (Danh sách Bác sĩ) ── */}
+        {/* ── Doctor section (Danh sách Bác sĩ - Find Doctors style) ── */}
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
             <span className={styles.sectionTitle}>
@@ -163,20 +189,25 @@ export default function DashboardPage() {
           </div>
           <div className={styles.doctorListSummary}>
             <div 
-              className={styles.doctorSummaryCard}
+              className={styles.mockupDoctorCard}
               onClick={() => navigate('/doctor/B%C3%A1c%20s%C4%A9%20DIA%2B')}
             >
-              <img 
-                src="https://ui-avatars.com/api/?name=DIA%2B&background=1B5FA6&color=fff&size=150" 
-                alt="Bác sĩ DIA+" 
-                className={styles.doctorSummaryAvatar}
-              />
-              <div className={styles.doctorSummaryInfo}>
-                <div className={styles.doctorSummaryName}>Chuyên gia Bác sĩ DIA+</div>
-                <div className={styles.doctorSummarySub}>Đái tháo đường &amp; Dinh dưỡng</div>
-                <div className={styles.doctorSummaryRating}>⭐ 5.0 (1,250 lượt tư vấn)</div>
+              <div className={styles.mockupDoctorTop}>
+                <img 
+                  src="https://ui-avatars.com/api/?name=DIA%2B&background=1B5FA6&color=fff&size=150" 
+                  alt="Bác sĩ DIA+" 
+                  className={styles.mockupDoctorAvatar}
+                />
+                <div className={styles.mockupDoctorInfo}>
+                  <div className={styles.mockupDoctorName}>Chuyên gia Bác sĩ DIA+</div>
+                  <div className={styles.mockupDoctorSub}>Đái tháo đường &amp; Dinh dưỡng | DIA+ Center</div>
+                  <div className={styles.mockupDoctorRatingRow}>
+                    <span className={styles.starText}>⭐ 5.0</span>
+                    <span className={styles.timeText}>🕒 10:30 - 17:30</span>
+                  </div>
+                </div>
               </div>
-              <button className={styles.bookAppointmentBtn}>Đặt lịch hẹn</button>
+              <button className={styles.fullWidthBookBtn}>Đặt lịch hẹn</button>
             </div>
           </div>
         </div>

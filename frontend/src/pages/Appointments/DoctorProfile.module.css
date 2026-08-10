@@ -211,26 +211,42 @@
 .footerAction {
   margin-top: auto;
   padding-top: 16px;
+  display: flex;
+  gap: 8px;
 }
 
-.callBtn {
-  width: 100%;
-  background: #10b981;
-  color: white;
+.audioBtn, .videoBtn, .msgBtn {
+  flex: 1;
   border: none;
-  padding: 16px;
-  border-radius: 16px;
-  font-size: 16px;
+  padding: 14px 6px;
+  border-radius: 14px;
+  font-size: 13px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 4px;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
   transition: all 0.2s;
+  color: white;
+  white-space: nowrap;
 }
 
-.callBtn:active {
+.audioBtn {
+  background: #10b981;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.videoBtn {
+  background: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.msgBtn {
+  background: #8b5cf6;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.audioBtn:active, .videoBtn:active, .msgBtn:active {
   transform: translateY(2px);
 }

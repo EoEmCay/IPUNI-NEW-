@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
-import { ChevronLeft, Search, Heart, Star, Phone } from 'lucide-react';
+import { ChevronLeft, Search, Heart, Star, Phone, Video, MessageSquare } from 'lucide-react';
 import styles from './DoctorProfile.module.css';
 
 export default function DoctorProfile() {
@@ -20,8 +20,16 @@ export default function DoctorProfile() {
     tags: ['Tư vấn 24/7', 'Phân tích chỉ số', 'Gợi ý thực đơn']
   };
 
-  const handleCall = useCallback(() => {
-    navigate(`/call/${encodeURIComponent(doc.name)}`, { state: { doctor: doc } });
+  const handleAudioCall = useCallback(() => {
+    navigate(`/call/${encodeURIComponent(doc.name)}`, { state: { doctor: doc, mode: 'audio' } });
+  }, [navigate, doc]);
+
+  const handleVideoCall = useCallback(() => {
+    navigate(`/call/${encodeURIComponent(doc.name)}`, { state: { doctor: doc, mode: 'video' } });
+  }, [navigate, doc]);
+
+  const handleMessage = useCallback(() => {
+    navigate('/advice', { state: { doctor: doc } });
   }, [navigate, doc]);
 
   const handleBack = useCallback(() => {
@@ -101,8 +109,14 @@ export default function DoctorProfile() {
         </div>
 
         <div className={styles.footerAction}>
-          <button className={styles.callBtn} onClick={handleCall}>
-            <Phone size={18} fill="#fff" /> Bắt đầu gọi (Audio Call)
+          <button className={styles.audioBtn} onClick={handleAudioCall}>
+            <Phone size={16} fill="currentColor" /> Gọi thường
+          </button>
+          <button className={styles.videoBtn} onClick={handleVideoCall}>
+            <Video size={16} fill="currentColor" /> Video Call
+          </button>
+          <button className={styles.msgBtn} onClick={handleMessage}>
+            <MessageSquare size={16} fill="currentColor" /> Nhắn tin
           </button>
         </div>
       </div>

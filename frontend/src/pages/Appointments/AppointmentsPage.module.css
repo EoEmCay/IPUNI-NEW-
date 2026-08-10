@@ -148,20 +148,22 @@
   color: #0f172a;
 }
 
-.quickIcons {
-  display: flex;
-  gap: 12px;
+.bookBtn {
+  background: #eff6ff;
+  color: #2563eb;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
 }
 
-.iconBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #f1f5f9;
-  color: #3b82f6;
+.bookBtn:hover {
+  background: #2563eb;
+  color: #ffffff;
 }
 
 .chevron {

@@ -148,10 +148,9 @@ export default function AppointmentsPage() {
                       <Star size={14} fill="#eab308" color="#eab308" />
                       <span>{doc.rating}</span>
                     </div>
-                    <div className={styles.quickIcons}>
-                      <div className={styles.iconBtn}><Phone size={14} /></div>
-                      <div className={styles.iconBtn}><Video size={14} /></div>
-                    </div>
+                    <button className={styles.bookBtn} onClick={(e) => { e.stopPropagation(); handleDoctorClick(doc); }}>
+                      Đặt lịch hẹn
+                    </button>
                   </div>
                 </div>
                 <ChevronRight size={20} className={styles.chevron} color="#9ca3af" />

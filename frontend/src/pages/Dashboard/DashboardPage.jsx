@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Activity, Pill, Star } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useMetrics } from '../../hooks/useMetrics';
@@ -39,6 +39,7 @@ function formatDate(t) {
 }
 
 export default function DashboardPage() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { fetchLatest, addMetric } = useMetrics();
   const { todayMedications, fetchToday } = useMedications();
@@ -147,6 +148,36 @@ export default function DashboardPage() {
                 )}
               </>
             )}
+          </div>
+        </div>
+
+        {/* ── Doctor section (Danh sách Bác sĩ) ── */}
+        <div className={styles.section}>
+          <div className={styles.sectionHeader}>
+            <span className={styles.sectionTitle}>
+              Danh sách Bác sĩ
+            </span>
+            <Link to="/appointments" className={styles.seeAll}>
+              Xem tất cả &gt;
+            </Link>
+          </div>
+          <div className={styles.doctorListSummary}>
+            <div 
+              className={styles.doctorSummaryCard}
+              onClick={() => navigate('/doctor/B%C3%A1c%20s%C4%A9%20DIA%2B')}
+            >
+              <img 
+                src="https://ui-avatars.com/api/?name=DIA%2B&background=1B5FA6&color=fff&size=150" 
+                alt="Bác sĩ DIA+" 
+                className={styles.doctorSummaryAvatar}
+              />
+              <div className={styles.doctorSummaryInfo}>
+                <div className={styles.doctorSummaryName}>Chuyên gia Bác sĩ DIA+</div>
+                <div className={styles.doctorSummarySub}>Đái tháo đường &amp; Dinh dưỡng</div>
+                <div className={styles.doctorSummaryRating}>⭐ 5.0 (1,250 lượt tư vấn)</div>
+              </div>
+              <button className={styles.bookAppointmentBtn}>Đặt lịch hẹn</button>
+            </div>
           </div>
         </div>
       </div>

@@ -2,6 +2,11 @@ const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../config/constants');
 const { sendError } = require('../utils/response.helper');
 
+// Chỉ ghi lại last_active_at nếu bản ghi cũ đã "nguội" hơn ngưỡng này, để không tạo
+// một lệnh UPDATE cho mỗi request (app gọi API liên tục khi đang mở). Ngưỡng này phải
+// nhỏ hơn ACTIVE_SESSION_THRESHOLD_MS bên auth.service.js để phát hiện thiết bị đang hoạt động kịp thời.
+const LAST_ACTIVE_UPDATE_THROTTLE_MS = 20 * 1000;
+
 async function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -17,6 +22,12 @@ async function authMiddleware(req, res, next) {
     
     if (!user) {
       return sendError(res, 'Người dùng không tồn tại', 401);
+    }
+
+    const lastActiveAgeMs = user.last_active_at ? Date.now() - new Date(user.last_active_at).getTime() : Infinity;
+    if (lastActiveAgeMs > LAST_ACTIVE_UPDATE_THROTTLE_MS) {
+      // Fire-and-forget: không chặn response vì chuyện này chỉ để dò "thiết bị có đang hoạt động không".
+      db('users').where({ id: user.id }).update({ last_active_at: new Date().toISOString() }).catch(() => {});
     }
 
     if (user.token_version > (decoded.token_version || 1)) {

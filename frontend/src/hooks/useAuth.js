@@ -20,6 +20,49 @@ export function useAuth() {
 
   const login = async (identifier, password) => {
     const res = await authService.login(identifier, password);
+    const data = res.data.data;
+
+    // Tài khoản đang có thiết bị khác hoạt động -> chờ phê duyệt, chưa có token ngay.
+    if (data.status === 'pending') {
+      return { pending: true, requestId: data.requestId };
+    }
+
+    const { token, user } = data;
+    setAuth(token, user);
+    applyPlanTheme(user.plan);
+    return { pending: false, user };
+  };
+
+  // Gọi lặp lại /auth/login-status cho tới khi có kết quả cuối (approved/rejected/expired)
+  // hoặc bị huỷ qua AbortSignal. Trả về user khi được phê duyệt.
+  const pollLoginStatus = async (requestId, { signal } = {}) => {
+    while (!signal?.aborted) {
+      const res = await authService.loginStatus(requestId);
+      const data = res.data.data;
+
+      if (data.status === 'approved') {
+        setAuth(data.token, data.user);
+        applyPlanTheme(data.user.plan);
+        return data.user;
+      }
+      if (data.status === 'rejected') {
+        throw { status: 'rejected', message: 'Yêu cầu đăng nhập đã bị từ chối' };
+      }
+      if (data.status === 'expired') {
+        throw { status: 'expired', message: 'Yêu cầu đăng nhập đã hết hạn' };
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
+    throw { status: 'cancelled', message: 'Đã huỷ chờ xác nhận' };
+  };
+
+  const approveLogin = (requestId) => authService.approveLogin(requestId);
+  const rejectLogin = (requestId) => authService.rejectLogin(requestId);
+  const getPendingApprovals = () => authService.pendingApprovals();
+
+  const changePassword = async (currentPassword, newPassword, confirmNewPassword) => {
+    const res = await authService.changePassword(currentPassword, newPassword, confirmNewPassword);
     const { token, user } = res.data.data;
     setAuth(token, user);
     applyPlanTheme(user.plan);
@@ -64,5 +107,8 @@ export function useAuth() {
     return res.data.data;
   };
 
-  return { user, token, isAuthenticated, login, googleLogin, demoLogin, logout, register, updateProfile, completeRegistration };
+  return {
+    user, token, isAuthenticated, login, googleLogin, demoLogin, logout, register, updateProfile, completeRegistration,
+    pollLoginStatus, approveLogin, rejectLogin, getPendingApprovals, changePassword,
+  };
 }

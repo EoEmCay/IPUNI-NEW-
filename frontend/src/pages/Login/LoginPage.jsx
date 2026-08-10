@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import useThemeStore from '../../store/themeStore';
@@ -51,7 +51,7 @@ const ArrowLeftSVG = () => (
 import { useGoogleLogin } from '@react-oauth/google';
 
 export default function LoginPage() {
-  const { login, googleLogin, demoLogin } = useAuth();
+  const { login, googleLogin, demoLogin, pollLoginStatus } = useAuth();
   const navigate = useNavigate();
   const t = useT();
   const applyDefaultLook = useThemeStore((s) => s.applyDefaultLook);
@@ -62,8 +62,17 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
+  const [awaitingApproval, setAwaitingApproval] = useState(false);
+  const pollAbortRef = useRef(null);
 
   useEffect(() => { applyDefaultLook(); }, [applyDefaultLook]);
+  useEffect(() => () => pollAbortRef.current?.abort(), []);
+
+  const cancelWaiting = () => {
+    pollAbortRef.current?.abort();
+    setAwaitingApproval(false);
+    setLoading(false);
+  };
 
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -95,7 +104,24 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
     try {
-      await login(identifier.trim(), password);
+      const result = await login(identifier.trim(), password);
+
+      if (result.pending) {
+        setAwaitingApproval(true);
+        const controller = new AbortController();
+        pollAbortRef.current = controller;
+        try {
+          await pollLoginStatus(result.requestId, { signal: controller.signal });
+          navigate('/');
+        } catch (pollErr) {
+          if (pollErr.status === 'cancelled') return; // người dùng đã bấm huỷ
+          setError(pollErr.message || 'Đăng nhập thất bại');
+        } finally {
+          setAwaitingApproval(false);
+        }
+        return;
+      }
+
       navigate('/');
     } catch (err) {
       setError(err?.response?.data?.message || 'Email hoặc mật khẩu không đúng');
@@ -139,6 +165,19 @@ export default function LoginPage() {
             <span>Quay lại</span>
           </button>
 
+          {awaitingApproval ? (
+            <div className={styles.waitingBox}>
+              <span className={styles.waitingSpinner} />
+              <h2 className={styles.formTitle}>Đang chờ xác nhận</h2>
+              <p className={styles.formSub}>
+                Đang chờ xác nhận từ thiết bị đang đăng nhập...
+              </p>
+              <button type="button" className={styles.waitingCancelBtn} onClick={cancelWaiting}>
+                Huỷ đăng nhập
+              </button>
+            </div>
+          ) : (
+          <>
           <h2 className={styles.formTitle}>Đăng nhập</h2>
           <p className={styles.formSub}>Nhập tài khoản và mật khẩu của bạn</p>
 
@@ -234,6 +273,8 @@ export default function LoginPage() {
             Chưa có tài khoản?{' '}
             <Link to="/register" className={styles.registerLink}>Tạo tài khoản mới</Link>
           </p>
+          </>
+          )}
         </div>
 
         <p className={styles.footer}>DIA+ · Giải pháp y tế thông minh</p>

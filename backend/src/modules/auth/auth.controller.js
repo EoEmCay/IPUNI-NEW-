@@ -6,7 +6,10 @@ async function login(req, res, next) {
   try {
     const { identifier, password } = req.validatedBody;
     const result = await authService.login(identifier, password);
-    sendSuccess(res, result, 'Đăng nhập thành công');
+    const message = result.status === 'pending'
+      ? 'Đang chờ xác nhận từ thiết bị đang đăng nhập'
+      : 'Đăng nhập thành công';
+    sendSuccess(res, result, message);
   } catch (err) {
     if (err.status) return sendError(res, err.message, err.status);
     next(err);
@@ -74,4 +77,62 @@ async function acknowledgeSession(req, res) {
   }
 }
 
-module.exports = { login, register, getMe, logout, googleLogin, demoLogin, acknowledgeSession };
+async function loginStatus(req, res, next) {
+  try {
+    const requestId = req.query.requestId;
+    if (!requestId) throw { status: 400, message: 'Thiếu requestId' };
+    const result = await authService.getLoginStatus(requestId);
+    sendSuccess(res, result);
+  } catch (err) {
+    if (err.status) return sendError(res, err.message, err.status);
+    next(err);
+  }
+}
+
+async function pendingApprovals(req, res, next) {
+  try {
+    const result = await authService.getPendingApprovals(req.user.id);
+    sendSuccess(res, result);
+  } catch (err) {
+    if (err.status) return sendError(res, err.message, err.status);
+    next(err);
+  }
+}
+
+async function approveLogin(req, res, next) {
+  try {
+    const { requestId } = req.validatedBody;
+    const result = await authService.approveLogin(requestId, req.user.id);
+    sendSuccess(res, result, 'Đã cho phép đăng nhập');
+  } catch (err) {
+    if (err.status) return sendError(res, err.message, err.status);
+    next(err);
+  }
+}
+
+async function rejectLogin(req, res, next) {
+  try {
+    const { requestId } = req.validatedBody;
+    const result = await authService.rejectLogin(requestId, req.user.id);
+    sendSuccess(res, result, 'Đã từ chối đăng nhập');
+  } catch (err) {
+    if (err.status) return sendError(res, err.message, err.status);
+    next(err);
+  }
+}
+
+async function changePassword(req, res, next) {
+  try {
+    const { currentPassword, newPassword } = req.validatedBody;
+    const result = await authService.changePassword(req.user.id, currentPassword, newPassword);
+    sendSuccess(res, result, 'Đổi mật khẩu thành công');
+  } catch (err) {
+    if (err.status) return sendError(res, err.message, err.status);
+    next(err);
+  }
+}
+
+module.exports = {
+  login, register, getMe, logout, googleLogin, demoLogin, acknowledgeSession,
+  loginStatus, pendingApprovals, approveLogin, rejectLogin, changePassword,
+};

@@ -12,4 +12,11 @@ export const authService = {
   logout: () => api.post('/auth/logout'),
   updateProfile: (data) => api.put('/users/profile', data),
   acknowledgeSession: () => api.post('/auth/acknowledge-session'),
+
+  loginStatus: (requestId) => api.get('/auth/login-status', { params: { requestId } }),
+  pendingApprovals: () => api.get('/auth/pending-approvals'),
+  approveLogin: (requestId) => api.post('/auth/approve-login', { requestId }),
+  rejectLogin: (requestId) => api.post('/auth/reject-login', { requestId }),
+  changePassword: (currentPassword, newPassword, confirmNewPassword) =>
+    api.post('/auth/change-password', { currentPassword, newPassword, confirmNewPassword }),
 };

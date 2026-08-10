@@ -2,6 +2,60 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../../config/database');
 const { JWT_SECRET, JWT_EXPIRES_IN } = require('../../config/constants');
+const loginRequestStore = require('./loginRequest.store');
+
+// Coi tài khoản là "đang có thiết bị hoạt động" nếu last_active_at (được auth.middleware
+// cập nhật mỗi khi có request kèm token hợp lệ) còn nằm trong khoảng thời gian này.
+// Lớn hơn chu kỳ heartbeat của middleware (20s) để tránh vừa hết hạn heartbeat đã coi là "offline".
+const ACTIVE_SESSION_THRESHOLD_MS = 45 * 1000;
+
+function sendNewDeviceEmail(user) {
+  const is_demo = user.email && user.email.startsWith('demo_');
+  const GMAIL_USER = process.env.GMAIL_USER || process.env.MAIL_USER;
+  const GMAIL_PASS = process.env.GMAIL_PASS || process.env.MAIL_PASS;
+  if (!GMAIL_USER || !GMAIL_PASS || !user.email || is_demo) return;
+
+  const nodemailer = require('nodemailer');
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user: GMAIL_USER, pass: GMAIL_PASS }
+  });
+
+  transporter.sendMail({
+    from: `"DIA+" <${GMAIL_USER}>`,
+    to: user.email,
+    subject: 'Cảnh báo: Đăng nhập thiết bị mới',
+    html: `
+      <h3>Cảnh báo bảo mật</h3>
+      <p>Tài khoản DIA+ của bạn vừa được đăng nhập thành công.</p>
+      <p>Nếu đây là bạn, hãy bỏ qua email này. Nếu không, hãy đổi mật khẩu ngay lập tức hoặc liên hệ hỗ trợ.</p>
+      <p>Thời gian: ${new Date().toLocaleString('vi-VN')}</p>
+    `
+  }).catch(err => console.error('Lỗi gửi email đăng nhập:', err.message));
+}
+
+function sanitizeUser(user) {
+  const is_demo = user.email && user.email.startsWith('demo_');
+  return {
+    id: user.id, user_code: user.user_code, name: user.name,
+    address: user.address, email: user.email, phone: user.phone,
+    diagnosis: user.diagnosis, plan: user.plan,
+    is_demo, created_at: is_demo ? user.created_at : undefined
+  };
+}
+
+// Cấp token mới cho user (bump token_version để các phiên cũ - nếu có - bị coi là hết hạn
+// ở lần request kế tiếp), gửi email cảnh báo, và trả về payload chuẩn cho client.
+async function issueLoginToken(user) {
+  const newTokenVersion = (user.token_version || 1) + 1;
+  await db('users').where({ id: user.id }).update({ token_version: newTokenVersion });
+  user.token_version = newTokenVersion;
+
+  const token = signToken(user);
+  sendNewDeviceEmail(user);
+
+  return { token, user: sanitizeUser(user) };
+}
 
 function signToken(user, expiresIn = JWT_EXPIRES_IN) {
   return jwt.sign(
@@ -27,48 +81,16 @@ async function login(identifier, password) {
   const valid = await bcrypt.compare(password, user.password_hash);
   if (!valid) throw { status: 401, message: 'Thông tin đăng nhập không đúng' };
 
-  // Increment token_version to signal a new login (without kicking out the old one immediately, 
-  // frontend polling will handle it).
-  const newTokenVersion = (user.token_version || 1) + 1;
-  await db('users').where({ id: user.id }).update({ token_version: newTokenVersion });
-  user.token_version = newTokenVersion;
-
-  const token = signToken(user);
   const is_demo = user.email && user.email.startsWith('demo_');
+  const hasActiveDevice = !is_demo && user.last_active_at &&
+    (Date.now() - new Date(user.last_active_at).getTime() < ACTIVE_SESSION_THRESHOLD_MS);
 
-  // Send Email Notification
-  const GMAIL_USER = process.env.GMAIL_USER || process.env.MAIL_USER;
-  const GMAIL_PASS = process.env.GMAIL_PASS || process.env.MAIL_PASS;
-  if (GMAIL_USER && GMAIL_PASS && user.email && !is_demo) {
-    const nodemailer = require('nodemailer');
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: { user: GMAIL_USER, pass: GMAIL_PASS }
-    });
-    
-    // We intentionally don't await this so it doesn't block the login response
-    transporter.sendMail({
-      from: `"DIA+" <${GMAIL_USER}>`,
-      to: user.email,
-      subject: 'Cảnh báo: Đăng nhập thiết bị mới',
-      html: `
-        <h3>Cảnh báo bảo mật</h3>
-        <p>Tài khoản DIA+ của bạn vừa được đăng nhập thành công.</p>
-        <p>Nếu đây là bạn, hãy bỏ qua email này. Nếu không, hãy đổi mật khẩu ngay lập tức hoặc liên hệ hỗ trợ.</p>
-        <p>Thời gian: ${new Date().toLocaleString('vi-VN')}</p>
-      `
-    }).catch(err => console.error('Lỗi gửi email đăng nhập:', err.message));
+  if (hasActiveDevice) {
+    const requestId = loginRequestStore.create(user.id, identifier);
+    return { status: 'pending', requestId };
   }
 
-  return { 
-    token, 
-    user: { 
-      id: user.id, user_code: user.user_code, name: user.name, 
-      address: user.address, email: user.email, phone: user.phone, 
-      diagnosis: user.diagnosis, plan: user.plan,
-      is_demo, created_at: is_demo ? user.created_at : undefined 
-    } 
-  };
+  return issueLoginToken(user);
 }
 
 function genUserCode() {
@@ -221,4 +243,66 @@ async function acknowledgeSession(decodedUser) {
   };
 }
 
-module.exports = { login, register, getMe, googleLogin, demoLogin, acknowledgeSession };
+async function getLoginStatus(requestId) {
+  const entry = loginRequestStore.get(requestId);
+  if (!entry) throw { status: 404, message: 'Yêu cầu đăng nhập không tồn tại hoặc đã hết hạn' };
+
+  if (entry.status === 'approved') {
+    return { status: 'approved', token: entry.token, user: entry.user };
+  }
+  return { status: entry.status };
+}
+
+async function getPendingApprovals(userId) {
+  return loginRequestStore.listPendingForUser(userId).map(entry => ({
+    requestId: entry.requestId,
+    identifier: entry.identifier,
+    createdAt: entry.createdAt,
+    expiresAt: entry.expiresAt,
+  }));
+}
+
+async function approveLogin(requestId, approverId) {
+  const entry = loginRequestStore.get(requestId);
+  if (!entry) throw { status: 404, message: 'Yêu cầu đăng nhập không tồn tại hoặc đã hết hạn' };
+  if (entry.userId !== approverId) throw { status: 403, message: 'Bạn không có quyền xử lý yêu cầu này' };
+  if (entry.status !== 'pending') throw { status: 409, message: 'Yêu cầu này đã được xử lý' };
+
+  const user = await db('users').where({ id: entry.userId }).first();
+  if (!user) throw { status: 404, message: 'Người dùng không tồn tại' };
+
+  const { token, user: sanitized } = await issueLoginToken(user);
+  loginRequestStore.approve(requestId, token, sanitized);
+  return { success: true };
+}
+
+async function rejectLogin(requestId, approverId) {
+  const entry = loginRequestStore.get(requestId);
+  if (!entry) throw { status: 404, message: 'Yêu cầu đăng nhập không tồn tại hoặc đã hết hạn' };
+  if (entry.userId !== approverId) throw { status: 403, message: 'Bạn không có quyền xử lý yêu cầu này' };
+  if (entry.status !== 'pending') throw { status: 409, message: 'Yêu cầu này đã được xử lý' };
+
+  loginRequestStore.reject(requestId);
+  return { success: true };
+}
+
+async function changePassword(userId, currentPassword, newPassword) {
+  const user = await db('users').where({ id: userId }).first();
+  if (!user) throw { status: 404, message: 'Người dùng không tồn tại' };
+
+  const valid = await bcrypt.compare(currentPassword, user.password_hash);
+  if (!valid) throw { status: 401, message: 'Mật khẩu hiện tại không đúng' };
+
+  const password_hash = await bcrypt.hash(newPassword, 10);
+  await db('users').where({ id: userId }).update({ password_hash });
+  user.password_hash = password_hash;
+
+  // Đổi mật khẩu xong thì cấp token mới cho chính thiết bị này, đồng thời bump token_version
+  // để mọi phiên khác (kể cả kẻ đã bị từ chối đăng nhập) đều hết hiệu lực ngay lập tức.
+  return issueLoginToken(user);
+}
+
+module.exports = {
+  login, register, getMe, googleLogin, demoLogin, acknowledgeSession,
+  getLoginStatus, getPendingApprovals, approveLogin, rejectLogin, changePassword,
+};

@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import useAuthStore from './store/authStore';
 import { authService } from './services/auth.service';
+import PendingApprovalModal from './components/auth/PendingApprovalModal';
+import ChangePasswordModal from './components/auth/ChangePasswordModal';
 import AppLayout from './components/layout/AppLayout';
 import MobileWrapper from './components/layout/MobileWrapper';
 import LandingPage from './pages/LandingPage';
@@ -28,12 +30,47 @@ function ProtectedRoute({ children }) {
 function AppRoutes() {
   const { token, isAuthenticated, setUser, logout, setToken } = useAuthStore();
   const [showConflictModal, setShowConflictModal] = useState(false);
+  const [pendingApprovals, setPendingApprovals] = useState([]);
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
 
   useEffect(() => {
     const handleConflict = () => setShowConflictModal(true);
     window.addEventListener('sessionConflict', handleConflict);
     return () => window.removeEventListener('sessionConflict', handleConflict);
   }, []);
+
+  // Thiết bị đang đăng nhập (Thiết bị A) chủ động dò xem có thiết bị nào khác vừa
+  // nhập đúng mật khẩu và đang chờ mình phê duyệt hay không.
+  useEffect(() => {
+    if (!token || !isAuthenticated) return undefined;
+    const fetchPending = () => {
+      authService.pendingApprovals()
+        .then((res) => setPendingApprovals(res.data.data || []))
+        .catch(() => {});
+    };
+    fetchPending();
+    const interval = setInterval(fetchPending, 4000);
+    return () => clearInterval(interval);
+  }, [token, isAuthenticated]);
+
+  const currentApproval = (isAuthenticated && pendingApprovals[0]) || null;
+
+  const handleApproveLogin = async (requestId) => {
+    try {
+      await authService.approveLogin(requestId);
+    } finally {
+      setPendingApprovals((prev) => prev.filter((r) => r.requestId !== requestId));
+    }
+  };
+
+  const handleRejectLogin = async (requestId) => {
+    try {
+      await authService.rejectLogin(requestId);
+    } finally {
+      setPendingApprovals((prev) => prev.filter((r) => r.requestId !== requestId));
+      setShowChangePasswordModal(true);
+    }
+  };
 
   useEffect(() => {
     if (token && isAuthenticated) {
@@ -169,6 +206,21 @@ function AppRoutes() {
         } />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
+
+      {/* Thiết bị mới xin đăng nhập - chờ Thiết bị A phê duyệt */}
+      {currentApproval && (
+        <PendingApprovalModal
+          approval={currentApproval}
+          onApprove={handleApproveLogin}
+          onReject={handleRejectLogin}
+          onDismiss={() => {}}
+        />
+      )}
+
+      {/* "Không phải tôi" -> bắt buộc đổi mật khẩu để bảo vệ tài khoản */}
+      {showChangePasswordModal && (
+        <ChangePasswordModal onClose={() => setShowChangePasswordModal(false)} />
+      )}
 
       {/* Session Conflict Modal */}
       {showConflictModal && (

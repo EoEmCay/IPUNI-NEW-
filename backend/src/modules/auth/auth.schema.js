@@ -26,4 +26,24 @@ const registerSchema = z.object({
   path: ['email']
 });
 
-module.exports = { loginSchema, registerSchema };
+const loginStatusQuerySchema = z.object({
+  requestId: z.string().min(1, 'Thiếu requestId'),
+});
+
+const requestIdBodySchema = z.object({
+  requestId: z.string().min(1, 'Thiếu requestId'),
+});
+
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(4, 'Vui lòng nhập mật khẩu hiện tại'),
+  newPassword: z.string().min(6, 'Mật khẩu mới ít nhất 6 ký tự'),
+  confirmNewPassword: z.string(),
+}).refine(data => data.newPassword === data.confirmNewPassword, {
+  message: 'Mật khẩu nhập lại không khớp',
+  path: ['confirmNewPassword'],
+});
+
+module.exports = {
+  loginSchema, registerSchema,
+  loginStatusQuerySchema, requestIdBodySchema, changePasswordSchema,
+};

@@ -65,4 +65,13 @@ async function demoLogin(req, res, next) {
   }
 }
 
-module.exports = { login, register, getMe, logout, googleLogin, demoLogin };
+async function acknowledgeSession(req, res) {
+  try {
+    const { token, user } = await authService.acknowledgeSession(req.user);
+    res.json({ success: true, token, user });
+  } catch (err) {
+    res.status(err.status || 500).json({ success: false, message: err.message });
+  }
+}
+
+module.exports = { login, register, getMe, logout, googleLogin, demoLogin, acknowledgeSession };

@@ -11,4 +11,5 @@ export const authService = {
   getMe: () => api.get('/auth/me'),
   logout: () => api.post('/auth/logout'),
   updateProfile: (data) => api.put('/users/profile', data),
+  acknowledgeSession: () => api.post('/auth/acknowledge-session'),
 };

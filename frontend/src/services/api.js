@@ -19,9 +19,13 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
-      cachedToken = null;
-      localStorage.removeItem('diaplus_token');
-      window.location.href = '/login';
+      if (err.response.data?.code === 'SESSION_CONFLICT') {
+        window.dispatchEvent(new CustomEvent('sessionConflict'));
+      } else {
+        cachedToken = null;
+        localStorage.removeItem('diaplus_token');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(err);
   }

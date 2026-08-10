@@ -12,6 +12,7 @@ router.get('/me', authMiddleware, controller.getMe);
 router.post('/logout', authMiddleware, controller.logout);
 router.post('/google-login', controller.googleLogin);
 router.post('/demo-login', controller.demoLogin);
+router.post('/acknowledge-session', authMiddleware, controller.acknowledgeSession);
 
 // OTP email verification flow
 router.post('/register-otp', otpController.register);

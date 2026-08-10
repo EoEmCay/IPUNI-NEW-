@@ -5,12 +5,13 @@ const { JWT_SECRET, JWT_EXPIRES_IN } = require('../../config/constants');
 
 function signToken(user, expiresIn = JWT_EXPIRES_IN) {
   return jwt.sign(
-    // diagnosis được nhúng vào token để metrics.controller.js dùng MỤC TIÊU ĐIỀU TRỊ CÁ
-    // NHÂN HOÁ (ADA) khi tính trạng thái chỉ số, thay vì phải truy vấn DB thêm 1 lần trên
-    // mỗi request. Lưu ý: nếu người dùng đổi diagnosis sau này, token cũ (tối đa 7 ngày)
-    // sẽ dùng giá trị cũ cho tới khi đăng nhập lại - chấp nhận được, giống cách email/phone
-    // cũng đã được nhúng sẵn trong token theo thiết kế ban đầu.
-    { id: user.id, email: user.email, phone: user.phone, diagnosis: user.diagnosis },
+    { 
+      id: user.id, 
+      email: user.email, 
+      phone: user.phone, 
+      diagnosis: user.diagnosis,
+      token_version: user.token_version || 1
+    },
     JWT_SECRET,
     { expiresIn }
   );
@@ -26,8 +27,39 @@ async function login(identifier, password) {
   const valid = await bcrypt.compare(password, user.password_hash);
   if (!valid) throw { status: 401, message: 'Thông tin đăng nhập không đúng' };
 
+  // Increment token_version to signal a new login (without kicking out the old one immediately, 
+  // frontend polling will handle it).
+  const newTokenVersion = (user.token_version || 1) + 1;
+  await db('users').where({ id: user.id }).update({ token_version: newTokenVersion });
+  user.token_version = newTokenVersion;
+
   const token = signToken(user);
   const is_demo = user.email && user.email.startsWith('demo_');
+
+  // Send Email Notification
+  const GMAIL_USER = process.env.GMAIL_USER || process.env.MAIL_USER;
+  const GMAIL_PASS = process.env.GMAIL_PASS || process.env.MAIL_PASS;
+  if (GMAIL_USER && GMAIL_PASS && user.email && !is_demo) {
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user: GMAIL_USER, pass: GMAIL_PASS }
+    });
+    
+    // We intentionally don't await this so it doesn't block the login response
+    transporter.sendMail({
+      from: `"DIA+" <${GMAIL_USER}>`,
+      to: user.email,
+      subject: 'Cảnh báo: Đăng nhập thiết bị mới',
+      html: `
+        <h3>Cảnh báo bảo mật</h3>
+        <p>Tài khoản DIA+ của bạn vừa được đăng nhập thành công.</p>
+        <p>Nếu đây là bạn, hãy bỏ qua email này. Nếu không, hãy đổi mật khẩu ngay lập tức hoặc liên hệ hỗ trợ.</p>
+        <p>Thời gian: ${new Date().toLocaleString('vi-VN')}</p>
+      `
+    }).catch(err => console.error('Lỗi gửi email đăng nhập:', err.message));
+  }
+
   return { 
     token, 
     user: { 
@@ -173,7 +205,20 @@ async function demoLogin() {
   };
 }
 
-module.exports = { login, register,  getMe,
-  googleLogin,
-  demoLogin,
-};
+async function acknowledgeSession(decodedUser) {
+  const user = await db('users').where({ id: decodedUser.id }).first();
+  if (!user) throw { status: 404, message: 'Người dùng không tồn tại' };
+
+  // Issue a new token with the LATEST token_version from the DB so they won't get conflict again
+  const token = signToken(user);
+  return {
+    token,
+    user: {
+      id: user.id, user_code: user.user_code, name: user.name,
+      email: user.email, phone: user.phone, diagnosis: user.diagnosis,
+      plan: user.plan, created_at: user.created_at
+    }
+  };
+}
+
+module.exports = { login, register, getMe, googleLogin, demoLogin, acknowledgeSession };

@@ -44,43 +44,53 @@
   gap: 16px;
 }
 
-/* Doctor Card */
-.doctorCard {
+/* Doctor Card (Dashboard Style) */
+.mockupDoctorCard {
   background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  padding: 20px;
-  box-shadow: var(--shadow-sm);
   border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.cardHeader {
+.mockupDoctorCard:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.mockupDoctorTop {
   display: flex;
-  gap: 16px;
+  gap: 12px;
+  align-items: center;
 }
 
 .avatarWrap {
   position: relative;
+  flex-shrink: 0;
 }
 
-.avatar {
-  width: 72px;
-  height: 72px;
-  border-radius: var(--radius-md);
+.mockupDoctorAvatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
   object-fit: cover;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  border: 2px solid var(--color-primary-light);
 }
 
 .statusDot {
   position: absolute;
-  bottom: -2px;
-  right: -2px;
-  width: 18px;
-  height: 18px;
+  bottom: 0px;
+  right: 0px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  border: 3px solid var(--color-surface);
+  border: 2px solid var(--color-surface);
 }
 
 .online {
@@ -91,90 +101,67 @@
   background-color: var(--color-text-secondary);
 }
 
-.info {
+.mockupDoctorInfo {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.nameRow {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 4px;
+.mockupDoctorName {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
 }
 
-.titleText {
-  font-size: 13px;
+.mockupDoctorSub {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+.mockupDoctorRatingRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.starText {
   font-weight: 700;
-  color: var(--color-primary);
-  background: var(--color-primary-light);
+  color: #854d0e;
+  background: #fef08a;
   padding: 2px 6px;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 
-.nameText {
-  font-size: 17px;
-  font-weight: 800;
-  color: var(--color-text-primary);
-}
-
-.specialty {
-  font-size: 13px;
-  font-weight: 600;
+.timeText {
   color: var(--color-text-secondary);
-  margin-top: 2px;
+  font-weight: 500;
 }
 
-.hospital {
-  font-size: 13px;
-  color: var(--color-text-secondary);
-}
-
-.actionsRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 6px;
-}
-
-.rating {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-}
-
-.bookBtn {
+.fullWidthBookBtn {
+  width: 100%;
   background: var(--color-primary-light);
   color: var(--color-primary);
   border: none;
-  padding: 8px 16px;
-  border-radius: var(--radius-md);
-  font-size: 13px;
+  padding: 12px;
+  border-radius: 14px;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  white-space: nowrap;
   transition: all 0.2s ease;
+  text-align: center;
 }
 
-.bookBtn:hover {
+.fullWidthBookBtn:hover {
   background: var(--color-primary);
   color: #ffffff;
 }
 
-.chevron {
-  align-self: center;
-  margin-left: 8px;
-  opacity: 0.5;
-}
-
 .loading {
   text-align: center;
-  color: #64748b;
+  color: var(--color-text-secondary);
   font-size: 14px;
   padding: 32px;
 }

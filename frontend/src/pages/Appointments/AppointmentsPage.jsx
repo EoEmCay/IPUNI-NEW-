@@ -130,31 +130,28 @@ export default function AppointmentsPage() {
           <div className={styles.loading}>Đang tải danh sách bác sĩ...</div>
         ) : (
           doctors.map((doc) => (
-            <div key={doc.id} className={styles.doctorCard} onClick={() => handleDoctorClick(doc)}>
-              <div className={styles.cardHeader}>
+            <div key={doc.id} className={styles.mockupDoctorCard} onClick={() => handleDoctorClick(doc)}>
+              <div className={styles.mockupDoctorTop}>
                 <div className={styles.avatarWrap}>
-                  <img src={doc.avatar} alt={doc.name} className={styles.avatar} />
+                  <img src={doc.avatar} alt={doc.name} className={styles.mockupDoctorAvatar} />
                   <div className={`${styles.statusDot} ${doc.isOnline ? styles.online : styles.busy}`}></div>
                 </div>
-                <div className={styles.info}>
-                  <div className={styles.nameRow}>
-                    <span className={styles.titleText}>{doc.title}</span>
-                    <span className={styles.nameText}>{doc.name}</span>
+                <div className={styles.mockupDoctorInfo}>
+                  <div className={styles.mockupDoctorName}>
+                    {doc.title ? `${doc.title} ` : ''}{doc.name}
                   </div>
-                  <div className={styles.specialty}>{doc.specialty}</div>
-                  
-                  <div className={styles.actionsRow}>
-                    <div className={styles.rating}>
-                      <Star size={14} fill="#eab308" color="#eab308" />
-                      <span>{doc.rating}</span>
-                    </div>
-                    <button className={styles.bookBtn} onClick={(e) => { e.stopPropagation(); handleDoctorClick(doc); }}>
-                      Đặt lịch hẹn
-                    </button>
+                  <div className={styles.mockupDoctorSub}>
+                    {doc.specialty} | {doc.hospital}
+                  </div>
+                  <div className={styles.mockupDoctorRatingRow}>
+                    <span className={styles.starText}>⭐ {doc.rating}</span>
+                    <span className={styles.timeText}>🕒 {doc.isOnline ? '10:30 - 17:30' : 'Hẹn trước'}</span>
                   </div>
                 </div>
-                <ChevronRight size={20} className={styles.chevron} color="#9ca3af" />
               </div>
+              <button className={styles.fullWidthBookBtn} onClick={(e) => { e.stopPropagation(); handleDoctorClick(doc); }}>
+                Đặt lịch hẹn
+              </button>
             </div>
           ))
         )}

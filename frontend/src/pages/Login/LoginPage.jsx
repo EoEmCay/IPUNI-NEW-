@@ -56,14 +56,12 @@ export default function LoginPage() {
   const t = useT();
   const applyDefaultLook = useThemeStore((s) => s.applyDefaultLook);
 
-  const [view, setView] = useState('options');
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
-  const [comingSoon, setComingSoon] = useState(false);
 
   useEffect(() => { applyDefaultLook(); }, [applyDefaultLook]);
 
@@ -106,23 +104,6 @@ export default function LoginPage() {
     }
   };
 
-  const handlePhoneClick = () => {
-    setComingSoon(true);
-    setTimeout(() => setComingSoon(false), 2500);
-  };
-
-  const goToEmail = () => {
-    setError('');
-    setIdentifier('');
-    setPassword('');
-    setView('email');
-  };
-
-  const goBack = () => {
-    setError('');
-    setView('options');
-  };
-
   const handleDemoLogin = async () => {
     setDemoLoading(true);
     try {
@@ -143,11 +124,6 @@ export default function LoginPage() {
       <div className={styles.orb3} />
 
       <div className={styles.container}>
-        <Link to="/" className={styles.homeBtn}>
-          <ArrowLeftSVG />
-          <span>Về trang chủ</span>
-        </Link>
-
         {/* Logo */}
         <div className={styles.logoWrap}>
           <div className={styles.logoCard}>
@@ -157,142 +133,108 @@ export default function LoginPage() {
           <p className={styles.tagline}>Giải pháp toàn diện quản lý bệnh lý,<br />dinh dưỡng & vận động</p>
         </div>
 
-        {view === 'options' && (
-          <div className={styles.panel}>
-            {error && (
-              <div className={styles.errorBox} style={{ marginBottom: '1rem' }}>
-                <span>⚠</span> {error}
+        <div className={styles.formPanel}>
+          <button className={styles.backBtn} onClick={() => navigate('/')}>
+            <ArrowLeftSVG />
+            <span>Quay lại</span>
+          </button>
+
+          <h2 className={styles.formTitle}>Đăng nhập</h2>
+          <p className={styles.formSub}>Nhập tài khoản và mật khẩu của bạn</p>
+
+          {error && (
+            <div className={styles.errorBox}>
+              <span>⚠</span> {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className={styles.form} noValidate>
+            <div className={styles.fieldWrap}>
+              <label className={styles.fieldLabel}>Email / CCCD</label>
+              <div className={styles.inputBox}>
+                <span className={styles.inputIcon}><UserSVG /></span>
+                <input
+                  className={styles.inputField}
+                  type="text"
+                  placeholder="Nhập email hoặc số CCCD"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  autoComplete="email"
+                  autoFocus
+                />
               </div>
-            )}
-            <button
-              className={`${styles.authBtn} ${styles.phoneBtn}`}
-              onClick={handlePhoneClick}
-            >
-              <PhoneSVG />
-              <span>{comingSoon ? 'Tính năng sắp ra mắt...' : 'Tiếp tục qua Số điện thoại'}</span>
-            </button>
-
-            <button
-              className={`${styles.authBtn} ${styles.googleBtn}`}
-              onClick={() => handleGoogleLogin()}
-            >
-              <GoogleIcon className={styles.gIcon} />
-              <span>Tiếp tục qua Google</span>
-            </button>
-
-            <div className={styles.divider}>
-              <div className={styles.dividerLine} />
-              <span className={styles.dividerText}>hoặc</span>
-              <div className={styles.dividerLine} />
             </div>
 
-            <button className={`${styles.authBtn} ${styles.emailBtn}`} onClick={goToEmail}>
-              <MailSVG />
-              <span>Đăng nhập bằng Email / Mật khẩu</span>
-            </button>
-
-            <div className={styles.divider}>
-              <div className={styles.dividerLine} />
-              <span className={styles.dividerText}>hoặc</span>
-              <div className={styles.dividerLine} />
+            <div className={styles.fieldWrap}>
+              <label className={styles.fieldLabel}>Mật khẩu</label>
+              <div className={styles.inputBox}>
+                <span className={styles.inputIcon}><LockSVG /></span>
+                <input
+                  className={styles.inputField}
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Nhập mật khẩu"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  className={styles.eyeBtn}
+                  onClick={() => setShowPassword((v) => !v)}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOffSVG /> : <EyeSVG />}
+                </button>
+              </div>
             </div>
 
             <button
-              className={`${styles.authBtn} ${styles.demoBtn}`}
-              onClick={handleDemoLogin}
-              disabled={demoLoading}
+              type="submit"
+              disabled={loading}
+              className={styles.submitBtn}
             >
-              {demoLoading ? (
-                <span className={styles.demoSpinner} />
-              ) : (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                </svg>
-              )}
-              <span>{demoLoading ? 'Đang vào demo...' : 'Sử Dụng Demo'}</span>
+              {loading ? (
+                <span className={styles.spinner} />
+              ) : null}
+              {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
             </button>
+          </form>
 
-            <p className={styles.registerRow}>
-              Chưa có tài khoản?{' '}
-              <Link to="/register" className={styles.registerLink}>Tạo tài khoản mới</Link>
-            </p>
+          <div className={styles.divider}>
+            <div className={styles.dividerLine} />
+            <span className={styles.dividerText}>hoặc</span>
+            <div className={styles.dividerLine} />
           </div>
-        )}
 
-        {view === 'email' && (
-          <div className={styles.formPanel}>
-            <button className={styles.backBtn} onClick={goBack}>
-              <ArrowLeftSVG />
-              <span>Quay lại</span>
-            </button>
+          <button
+            className={`${styles.authBtn} ${styles.googleBtn}`}
+            onClick={() => handleGoogleLogin()}
+          >
+            <GoogleIcon className={styles.gIcon} />
+            <span>Tiếp tục qua Google</span>
+          </button>
 
-            <h2 className={styles.formTitle}>Đăng nhập</h2>
-            <p className={styles.formSub}>Nhập tài khoản và mật khẩu của bạn</p>
-
-            {error && (
-              <div className={styles.errorBox}>
-                <span>⚠</span> {error}
-              </div>
+          <button
+            className={`${styles.authBtn} ${styles.demoBtn}`}
+            onClick={handleDemoLogin}
+            disabled={demoLoading}
+            style={{ marginTop: '12px' }}
+          >
+            {demoLoading ? (
+              <span className={styles.demoSpinner} />
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
             )}
+            <span>{demoLoading ? 'Đang vào demo...' : 'Sử Dụng Demo'}</span>
+          </button>
 
-            <form onSubmit={handleSubmit} className={styles.form} noValidate>
-              <div className={styles.fieldWrap}>
-                <label className={styles.fieldLabel}>Email / CCCD</label>
-                <div className={styles.inputBox}>
-                  <span className={styles.inputIcon}><UserSVG /></span>
-                  <input
-                    className={styles.inputField}
-                    type="text"
-                    placeholder="Nhập email hoặc số CCCD"
-                    value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
-                    autoComplete="email"
-                    autoFocus
-                  />
-                </div>
-              </div>
-
-              <div className={styles.fieldWrap}>
-                <label className={styles.fieldLabel}>Mật khẩu</label>
-                <div className={styles.inputBox}>
-                  <span className={styles.inputIcon}><LockSVG /></span>
-                  <input
-                    className={styles.inputField}
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Nhập mật khẩu"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="current-password"
-                  />
-                  <button
-                    type="button"
-                    className={styles.eyeBtn}
-                    onClick={() => setShowPassword((v) => !v)}
-                    tabIndex={-1}
-                  >
-                    {showPassword ? <EyeOffSVG /> : <EyeSVG />}
-                  </button>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className={styles.submitBtn}
-              >
-                {loading ? (
-                  <span className={styles.spinner} />
-                ) : null}
-                {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-              </button>
-            </form>
-
-            <p className={styles.registerRow}>
-              Chưa có tài khoản?{' '}
-              <Link to="/register" className={styles.registerLink}>Tạo tài khoản mới</Link>
-            </p>
-          </div>
-        )}
+          <p className={styles.registerRow}>
+            Chưa có tài khoản?{' '}
+            <Link to="/register" className={styles.registerLink}>Tạo tài khoản mới</Link>
+          </p>
+        </div>
 
         <p className={styles.footer}>DIA+ · Giải pháp y tế thông minh</p>
       </div>

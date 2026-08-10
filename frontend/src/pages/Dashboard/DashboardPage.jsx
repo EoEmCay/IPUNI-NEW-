@@ -7,6 +7,7 @@ import { useMedications } from '../../hooks/useMedications';
 import useThemeStore from '../../store/themeStore';
 import { useT } from '../../hooks/useT';
 import { MetricCard, AddMetricCard } from '../../components/metrics/MetricCard';
+import { AverageMetricCard } from '../../components/metrics/AverageMetricCard';
 import MedicationCard from '../../components/medications/MedicationCard';
 import AddMetricModal from '../../components/metrics/AddMetricModal';
 import SuccessToast from '../../components/common/SuccessToast';
@@ -39,7 +40,7 @@ function formatDate(t) {
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const { latestMetrics, fetchLatest, addMetric } = useMetrics();
+  const { fetchLatest, addMetric } = useMetrics();
   const { todayMedications, fetchToday } = useMedications();
   const { isCuteMode } = useThemeStore();
   const t = useT();
@@ -85,7 +86,7 @@ export default function DashboardPage() {
         <div className={styles.section}>
           <div className={`${styles.sectionHeader} tour-step-2`}>
             <span className={styles.sectionTitle}>
-              {isCuteMode ? t.dashboard.metricsSectionCute : t.dashboard.metricsSection}
+              Chỉ số trung bình (7 ngày qua)
             </span>
             <Link to="/metrics" className={styles.seeAll}>
               {isCuteMode ? t.dashboard.viewAllCute : t.dashboard.viewAll}
@@ -98,9 +99,8 @@ export default function DashboardPage() {
             </div>
           )}
 
-          <div className={styles.metricsGrid}>
-            <MetricCard type="glucose_fasting" metric={latestMetrics?.glucose_fasting} />
-            <AddMetricCard onClick={() => setShowModal(true)} />
+          <div className={styles.metricsGrid} style={{ display: 'block' }}>
+            <AverageMetricCard />
           </div>
         </div>
 

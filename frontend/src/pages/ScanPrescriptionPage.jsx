@@ -17,6 +17,8 @@ import ScanCamera from '../components/scan/ScanCamera';
 import styles from './ScanPrescriptionPage.module.css';
 import { useNavigate } from 'react-router-dom';
 
+import SplashScreen from '../components/common/SplashScreen';
+
 export default function ScanPrescriptionPage() {
   const navigate = useNavigate();
   const { fetchMedications } = useMedications();
@@ -214,15 +216,7 @@ export default function ScanPrescriptionPage() {
 
 
   if (isAnalyzing) {
-    return (
-      <div className={styles.scanningOverlay}>
-        <div className={styles.scanningContent}>
-          <div className={styles.scanningSpinner} />
-          <p>{t.scan.analyzing}</p>
-          <span className={styles.scanningHint}>{t.scan.analyzingHint}</span>
-        </div>
-      </div>
-    );
+    return <SplashScreen message="AI Vision đang phân tích đơn thuốc & trích xuất dữ liệu..." />;
   }
 
   return (

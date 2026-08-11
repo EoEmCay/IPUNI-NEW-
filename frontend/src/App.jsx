@@ -108,7 +108,6 @@ function AppRoutes() {
 
   return (
     <>
-      {showSplash && <SplashScreen onFinished={() => setShowSplash(false)} />}
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/admin" element={<AdminPage />} />

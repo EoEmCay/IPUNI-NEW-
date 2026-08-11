@@ -50,6 +50,8 @@ const ArrowLeftSVG = () => (
 
 import { useGoogleLogin } from '@react-oauth/google';
 
+import SplashScreen from '../../components/common/SplashScreen';
+
 export default function LoginPage() {
   const { login, googleLogin, demoLogin, pollLoginStatus } = useAuth();
   const navigate = useNavigate();
@@ -145,6 +147,9 @@ export default function LoginPage() {
 
   return (
     <div className={styles.page}>
+      {(loading || demoLoading) && (
+        <SplashScreen message={demoLoading ? "Đang khởi tạo tài khoản dùng thử DIA+..." : "Đang kết nối hệ thống y tế DIA+..."} />
+      )}
       <div className={styles.orb1} />
       <div className={styles.orb2} />
       <div className={styles.orb3} />

@@ -41,6 +41,8 @@ const features = [
   }
 ];
 
+import SplashScreen from '../components/common/SplashScreen';
+
 export default function LandingPage() {
   const navigate = useNavigate();
   const { demoLogin } = useAuth();
@@ -74,6 +76,7 @@ export default function LandingPage() {
 
   return (
     <div className={styles.container}>
+      {demoLoading && <SplashScreen message="Đang khởi tạo tài khoản dùng thử DIA+..." />}
       {/* ── NAVBAR ── */}
       <nav className={styles.nav}>
         <div className={styles.navLogo}>

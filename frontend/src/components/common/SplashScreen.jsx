@@ -3,21 +3,22 @@ import { Activity, Heart, ShieldCheck, Sparkles } from 'lucide-react';
 import useThemeStore from '../../store/themeStore';
 import styles from './SplashScreen.module.css';
 
-export default function SplashScreen({ onFinished }) {
-  const { theme } = useThemeStore();
+export default function SplashScreen({ message, autoClose = false, onFinished }) {
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
+    if (!autoClose || !onFinished) return;
+
     const timer = setTimeout(() => {
       setFading(true);
       const hideTimer = setTimeout(() => {
         if (onFinished) onFinished();
-      }, 600); // 600ms fade out transition
+      }, 600);
       return () => clearTimeout(hideTimer);
-    }, 2200); // Show splash for 2.2 seconds minimum to hide cold start delay smoothly
+    }, 2200);
 
     return () => clearTimeout(timer);
-  }, [onFinished]);
+  }, [autoClose, onFinished]);
 
   return (
     <div className={`${styles.splashOverlay} ${fading ? styles.fadeOut : ''}`}>
@@ -43,7 +44,7 @@ export default function SplashScreen({ onFinished }) {
         <div className={styles.waveSection}>
           <div className={styles.heartPulse}>
             <Heart size={16} fill="currentColor" className={styles.heartIcon} />
-            <span>Đang khởi tạo máy chủ y tế...</span>
+            <span>{message || 'Đang kết nối hệ thống y tế DIA+...'}</span>
           </div>
           
           <div className={styles.progressTrack}>

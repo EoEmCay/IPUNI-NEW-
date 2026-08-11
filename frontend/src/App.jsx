@@ -27,8 +27,11 @@ function ProtectedRoute({ children }) {
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 }
 
+import SplashScreen from './components/common/SplashScreen';
+
 function AppRoutes() {
   const { token, isAuthenticated, setUser, logout, setToken } = useAuthStore();
+  const [showSplash, setShowSplash] = useState(true);
   const [showConflictModal, setShowConflictModal] = useState(false);
   const [pendingApprovals, setPendingApprovals] = useState([]);
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
@@ -105,6 +108,7 @@ function AppRoutes() {
 
   return (
     <>
+      {showSplash && <SplashScreen onFinished={() => setShowSplash(false)} />}
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/admin" element={<AdminPage />} />

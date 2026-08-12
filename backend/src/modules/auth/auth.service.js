@@ -22,7 +22,7 @@ function sendNewDeviceEmail(user) {
   });
 
   transporter.sendMail({
-    from: `"Hệ Thống Y Tế DIA+" <${GMAIL_USER}>`,
+    from: `"DIA+ Security Alert" <${GMAIL_USER}>`,
     to: user.email,
     subject: '⚠️ Cảnh báo: Đăng nhập thiết bị mới trên DIA+',
     html: `

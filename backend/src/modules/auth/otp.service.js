@@ -179,7 +179,7 @@ async function sendOtp(target, password) {
 
   try {
     await transporter.sendMail({
-      from: `"Hệ Thống Y Tế DIA+" <${GMAIL_USER}>`,
+      from: `"DIA+ Health System" <${GMAIL_USER}>`,
       to: target,
       subject: 'Mã xác thực OTP đăng ký DIA+',
       html: `

@@ -191,60 +191,86 @@ async function sendOtp(target, password) {
           <title>Mã xác thực OTP DIA+</title>
         </head>
         <body style="margin: 0; padding: 0; background-color: #f4f6f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-          <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="padding: 20px 0;">
+          <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="padding: 24px 0;">
             <tr>
               <td align="center">
-                <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 520px; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.08); border: 1px solid #e5e7eb;">
-                  <!-- Header Gradient -->
+                <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 540px; background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
+                  <!-- Header Gradient & Logo -->
                   <tr>
-                    <td style="background: linear-gradient(135deg, #1B5FA6 0%, #0F3C6E 100%); padding: 32px 24px; text-align: center;">
-                      <h1 style="color: #ffffff; font-size: 28px; font-weight: 800; margin: 0; letter-spacing: 1px;">
-                        DIA<span style="color: #60A5FA;">+</span>
+                    <td style="background: linear-gradient(135deg, #1B5FA6 0%, #0F3C6E 100%); padding: 36px 24px 30px; text-align: center;">
+                      <!-- Logo Image -->
+                      <img src="https://diaplus.vn/logo.jpg" alt="DIA+ Logo" width="76" height="76" style="border-radius: 20px; border: 3px solid rgba(255,255,255,0.9); box-shadow: 0 6px 16px rgba(0,0,0,0.2); display: block; margin: 0 auto 14px; object-fit: cover;" />
+                      
+                      <h1 style="color: #ffffff; font-size: 26px; font-weight: 800; margin: 0; letter-spacing: 1px;">
+                        DIA<span style="color: #60A5FA;">+</span> HEALTH SYSTEM
                       </h1>
-                      <p style="color: rgba(255,255,255,0.85); font-size: 13px; margin: 6px 0 0; font-weight: 500;">
-                        Hệ Thống Quản Lý Y Tế & Chăm Sóc Đái Tháo Đường
+                      <p style="color: rgba(255,255,255,0.9); font-size: 13px; margin: 6px 0 0; font-weight: 500;">
+                        Giải Pháp Toàn Diện Quản Lý Bệnh Lý, Dinh Dưỡng & Vận Động
                       </p>
                     </td>
                   </tr>
 
-                  <!-- Main Content -->
+                  <!-- Main Body -->
                   <tr>
-                    <td style="padding: 32px 24px; text-align: center;">
-                      <h2 style="color: #111827; font-size: 20px; font-weight: 700; margin: 0 0 12px;">Xác Thực Đăng Ký Tài Khoản</h2>
-                      <p style="color: #4B5563; font-size: 14px; line-height: 1.5; margin: 0 0 24px;">
-                        Cảm ơn bạn đã sử dụng dịch vụ của <strong>DIA+</strong>. Dưới đây là mã xác thực OTP của bạn:
+                    <td style="padding: 32px 28px; text-align: center;">
+                      <span style="background: #EFF6FF; color: #1B5FA6; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; display: inline-block; margin-bottom: 12px;">
+                        Xác Thực Đăng Ký Tài Khoản
+                      </span>
+
+                      <h2 style="color: #0F172A; font-size: 22px; font-weight: 800; margin: 0 0 12px;">Mã Xác Thực OTP Của Bạn</h2>
+                      
+                      <p style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0 0 24px; text-align: center;">
+                        Cảm ơn bạn đã lựa chọn <strong>DIA+ (IAPLUS.VN)</strong> - Trợ lý y tế thông minh đồng hành cùng sức khỏe đái tháo đường. Dưới đây là mã OTP xác thực của bạn:
                       </p>
 
                       <!-- OTP Box -->
-                      <div style="background: #F0F7FF; border: 2px dashed #93C5FD; border-radius: 12px; padding: 20px; margin: 0 0 24px; display: inline-block; width: 80%;">
-                        <span style="font-family: 'Courier New', Courier, monospace; font-size: 36px; font-weight: 900; letter-spacing: 10px; color: #1B5FA6; display: block;">${otpCode}</span>
-                      </div>
-
-                      <p style="color: #6B7280; font-size: 13px; margin: 0 0 16px;">
-                        Mã OTP này có hiệu lực trong vòng <strong style="color: #EF4444;">5 phút</strong>.
-                      </p>
-
-                      <!-- Security Warning Box -->
-                      <div style="background: #FFFBEB; border-left: 4px solid #F59E0B; padding: 12px 16px; border-radius: 6px; text-align: left; margin-bottom: 24px;">
-                        <p style="color: #92400E; font-size: 12px; margin: 0; line-height: 1.4;">
-                          ⚠️ <strong>Bảo mật:</strong> Tuyệt đối không chia sẻ mã xác thực này cho bất kỳ ai (kể cả nhân viên DIA+).
+                      <div style="background: linear-gradient(180deg, #F0F7FF 0%, #E0F2FE 100%); border: 2px dashed #3B82F6; border-radius: 16px; padding: 22px 16px; margin: 0 auto 24px; width: 85%;">
+                        <span style="font-family: 'Courier New', Courier, monospace; font-size: 40px; font-weight: 900; letter-spacing: 12px; color: #1B5FA6; display: block; margin-left: 12px;">${otpCode}</span>
+                        <p style="color: #DC2626; font-size: 13px; font-weight: 600; margin: 10px 0 0;">
+                          ⏱️ Mã có hiệu lực trong <strong>5 phút</strong>
                         </p>
                       </div>
 
-                      <p style="color: #9CA3AF; font-size: 12px; margin: 0;">
-                        Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email.
-                      </p>
+                      <!-- Security Warning Box -->
+                      <div style="background: #FFFBEB; border-left: 4px solid #F59E0B; padding: 14px 16px; border-radius: 8px; text-align: left; margin-bottom: 28px;">
+                        <p style="color: #92400E; font-size: 13px; margin: 0; line-height: 1.5;">
+                          🛡️ <strong>Bảo mật tuyệt đối:</strong> Tuyệt đối không chia sẻ mã này cho bất kỳ ai. Đội ngũ DIA+ không bao giờ gọi điện yêu cầu cung cấp mã OTP của bạn.
+                        </p>
+                      </div>
+
+                      <!-- Features Highlight Bar -->
+                      <div style="border-top: 1px solid #E2E8F0; padding-top: 24px; margin-top: 12px; text-align: left;">
+                        <p style="color: #64748B; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 14px; text-align: center;">
+                          Tính Năng Nổi Bật Tại DIA+
+                        </p>
+                        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0">
+                          <tr>
+                            <td width="50%" style="padding: 6px 4px; font-size: 12px; color: #334155;">🎙️ <strong>Giọng nói AI:</strong> Nhắc thuốc thông minh</td>
+                            <td width="50%" style="padding: 6px 4px; font-size: 12px; color: #334155;">📸 <strong>Quét AI:</strong> Đơn thuốc & Xét nghiệm</td>
+                          </tr>
+                          <tr>
+                            <td width="50%" style="padding: 6px 4px; font-size: 12px; color: #334155;">📊 <strong>Chỉ số:</strong> HbA1c & Đường huyết</td>
+                            <td width="50%" style="padding: 6px 4px; font-size: 12px; color: #334155;">👨‍⚕️ <strong>Bác sĩ:</strong> Đặt lịch chuyên khoa</td>
+                          </tr>
+                        </table>
+                      </div>
                     </td>
                   </tr>
 
                   <!-- Footer -->
                   <tr>
-                    <td style="background: #F9FAFB; padding: 20px 24px; text-align: center; border-top: 1px solid #F3F4F6;">
-                      <p style="color: #9CA3AF; font-size: 12px; margin: 0 0 6px;">
-                        © 2026 <strong>DIA+ Health System</strong>. All rights reserved.
+                    <td style="background: #F8FAFC; padding: 24px; text-align: center; border-top: 1px solid #E2E8F0;">
+                      <p style="color: #334155; font-size: 13px; font-weight: 700; margin: 0 0 4px;">
+                        HỆ THỐNG QUẢN LÝ Y TẾ DIA+ (IAPLUS.VN)
                       </p>
-                      <p style="color: #9CA3AF; font-size: 11px; margin: 0;">
-                        Website: <a href="https://diaplus.vn" style="color: #1B5FA6; text-decoration: none; font-weight: 600;">diaplus.vn</a> · Email: khoile3006.official@gmail.com
+                      <p style="color: #64748B; font-size: 12px; margin: 0 0 10px;">
+                        Đại diện dự án: <strong>Lê Minh Khôi</strong> (Founder) · Hotline: <strong>(+84) 986897439</strong>
+                      </p>
+                      <p style="color: #94A3B8; font-size: 11px; margin: 0 0 8px;">
+                        Website chính thức: <a href="https://diaplus.vn" style="color: #1B5FA6; text-decoration: none; font-weight: 600;">diaplus.vn</a> · Email: khoile3006.official@gmail.com
+                      </p>
+                      <p style="color: #CBD5E1; font-size: 11px; margin: 0;">
+                        © 2026 DIA+ Health System. All rights reserved.
                       </p>
                     </td>
                   </tr>

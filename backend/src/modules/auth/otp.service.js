@@ -179,13 +179,81 @@ async function sendOtp(target, password) {
 
   try {
     await transporter.sendMail({
-      from: `"DIA+" <${GMAIL_USER}>`,
+      from: `"Hệ Thống Y Tế DIA+" <${GMAIL_USER}>`,
       to: target,
       subject: 'Mã xác thực OTP đăng ký DIA+',
       html: `
-        <p>Mã OTP của bạn là:</p>
-        <h2 style="letter-spacing:4px">${otpCode}</h2>
-        <p>Mã có hiệu lực trong <strong>5 phút</strong>. Không chia sẻ mã này cho bất kỳ ai.</p>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Mã xác thực OTP DIA+</title>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #f4f6f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+          <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="padding: 20px 0;">
+            <tr>
+              <td align="center">
+                <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 520px; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.08); border: 1px solid #e5e7eb;">
+                  <!-- Header Gradient -->
+                  <tr>
+                    <td style="background: linear-gradient(135deg, #1B5FA6 0%, #0F3C6E 100%); padding: 32px 24px; text-align: center;">
+                      <h1 style="color: #ffffff; font-size: 28px; font-weight: 800; margin: 0; letter-spacing: 1px;">
+                        DIA<span style="color: #60A5FA;">+</span>
+                      </h1>
+                      <p style="color: rgba(255,255,255,0.85); font-size: 13px; margin: 6px 0 0; font-weight: 500;">
+                        Hệ Thống Quản Lý Y Tế & Chăm Sóc Đái Tháo Đường
+                      </p>
+                    </td>
+                  </tr>
+
+                  <!-- Main Content -->
+                  <tr>
+                    <td style="padding: 32px 24px; text-align: center;">
+                      <h2 style="color: #111827; font-size: 20px; font-weight: 700; margin: 0 0 12px;">Xác Thực Đăng Ký Tài Khoản</h2>
+                      <p style="color: #4B5563; font-size: 14px; line-height: 1.5; margin: 0 0 24px;">
+                        Cảm ơn bạn đã sử dụng dịch vụ của <strong>DIA+</strong>. Dưới đây là mã xác thực OTP của bạn:
+                      </p>
+
+                      <!-- OTP Box -->
+                      <div style="background: #F0F7FF; border: 2px dashed #93C5FD; border-radius: 12px; padding: 20px; margin: 0 0 24px; display: inline-block; width: 80%;">
+                        <span style="font-family: 'Courier New', Courier, monospace; font-size: 36px; font-weight: 900; letter-spacing: 10px; color: #1B5FA6; display: block;">${otpCode}</span>
+                      </div>
+
+                      <p style="color: #6B7280; font-size: 13px; margin: 0 0 16px;">
+                        Mã OTP này có hiệu lực trong vòng <strong style="color: #EF4444;">5 phút</strong>.
+                      </p>
+
+                      <!-- Security Warning Box -->
+                      <div style="background: #FFFBEB; border-left: 4px solid #F59E0B; padding: 12px 16px; border-radius: 6px; text-align: left; margin-bottom: 24px;">
+                        <p style="color: #92400E; font-size: 12px; margin: 0; line-height: 1.4;">
+                          ⚠️ <strong>Bảo mật:</strong> Tuyệt đối không chia sẻ mã xác thực này cho bất kỳ ai (kể cả nhân viên DIA+).
+                        </p>
+                      </div>
+
+                      <p style="color: #9CA3AF; font-size: 12px; margin: 0;">
+                        Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email.
+                      </p>
+                    </td>
+                  </tr>
+
+                  <!-- Footer -->
+                  <tr>
+                    <td style="background: #F9FAFB; padding: 20px 24px; text-align: center; border-top: 1px solid #F3F4F6;">
+                      <p style="color: #9CA3AF; font-size: 12px; margin: 0 0 6px;">
+                        © 2026 <strong>DIA+ Health System</strong>. All rights reserved.
+                      </p>
+                      <p style="color: #9CA3AF; font-size: 11px; margin: 0;">
+                        Website: <a href="https://diaplus.vn" style="color: #1B5FA6; text-decoration: none; font-weight: 600;">diaplus.vn</a> · Email: khoile3006.official@gmail.com
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
       `,
     });
     logger.info(`[EMAIL OTP] Đã gửi thành công mã tới Email ${target}`);

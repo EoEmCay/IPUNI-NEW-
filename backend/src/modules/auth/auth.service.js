@@ -22,14 +22,80 @@ function sendNewDeviceEmail(user) {
   });
 
   transporter.sendMail({
-    from: `"DIA+" <${GMAIL_USER}>`,
+    from: `"Hệ Thống Y Tế DIA+" <${GMAIL_USER}>`,
     to: user.email,
-    subject: 'Cảnh báo: Đăng nhập thiết bị mới',
+    subject: '⚠️ Cảnh báo: Đăng nhập thiết bị mới trên DIA+',
     html: `
-      <h3>Cảnh báo bảo mật</h3>
-      <p>Tài khoản DIA+ của bạn vừa được đăng nhập thành công.</p>
-      <p>Nếu đây là bạn, hãy bỏ qua email này. Nếu không, hãy đổi mật khẩu ngay lập tức hoặc liên hệ hỗ trợ.</p>
-      <p>Thời gian: ${new Date().toLocaleString('vi-VN')}</p>
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #f4f6f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="padding: 20px 0;">
+          <tr>
+            <td align="center">
+              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 520px; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.08); border: 1px solid #e5e7eb;">
+                <!-- Header Gradient -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #1B5FA6 0%, #0F3C6E 100%); padding: 28px 24px; text-align: center;">
+                    <h1 style="color: #ffffff; font-size: 26px; font-weight: 800; margin: 0; letter-spacing: 1px;">
+                      DIA<span style="color: #60A5FA;">+</span> Security
+                    </h1>
+                    <p style="color: rgba(255,255,255,0.85); font-size: 13px; margin: 4px 0 0;">
+                      Cảnh Báo Đăng Nhập Thiết Bị Mới
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- Main Content -->
+                <tr>
+                  <td style="padding: 28px 24px;">
+                    <h2 style="color: #111827; font-size: 18px; font-weight: 700; margin: 0 0 12px; text-align: center;">Phát Hiện Phiên Đăng Nhập Mới</h2>
+                    <p style="color: #4B5563; font-size: 14px; line-height: 1.5; margin: 0 0 16px;">
+                      Xin chào <strong>${user.name || 'Người dùng DIA+'}</strong>,
+                    </p>
+                    <p style="color: #4B5563; font-size: 14px; line-height: 1.5; margin: 0 0 20px;">
+                      Tài khoản DIA+ của bạn vừa được đăng nhập thành công vào lúc:
+                    </p>
+
+                    <!-- Info Box -->
+                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 16px; margin: 0 0 20px;">
+                      <p style="margin: 0 0 8px; font-size: 13px; color: #64748B;">
+                        🕒 <strong>Thời gian:</strong> <span style="color: #1E293B; font-weight: 600;">${new Date().toLocaleString('vi-VN')}</span>
+                      </p>
+                      <p style="margin: 0; font-size: 13px; color: #64748B;">
+                        ✉️ <strong>Tài khoản:</strong> <span style="color: #1E293B; font-weight: 600;">${user.email}</span>
+                      </p>
+                    </div>
+
+                    <div style="background: #FEF2F2; border-left: 4px solid #EF4444; padding: 12px 16px; border-radius: 6px; margin-bottom: 20px;">
+                      <p style="color: #991B1B; font-size: 13px; margin: 0; line-height: 1.4;">
+                        🚨 <strong>Nếu không phải là bạn:</strong> Hãy đăng nhập ngay vào ứng dụng DIA+ và đổi mật khẩu lập tức để vô hiệu hóa tất cả thiết bị khác.
+                      </p>
+                    </div>
+
+                    <p style="color: #9CA3AF; font-size: 12px; margin: 0; text-align: center;">
+                      Nếu đây là thao tác của bạn, hãy bỏ qua email này.
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background: #F9FAFB; padding: 16px 24px; text-align: center; border-top: 1px solid #F3F4F6;">
+                    <p style="color: #9CA3AF; font-size: 11px; margin: 0;">
+                      © 2026 <strong>DIA+ Health System</strong> · <a href="https://diaplus.vn" style="color: #1B5FA6; text-decoration: none;">diaplus.vn</a>
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
     `
   }).catch(err => console.error('Lỗi gửi email đăng nhập:', err.message));
 }

@@ -31,11 +31,9 @@ export default function RegisterPage() {
   const navigate = useNavigate();
   const applyDefaultLook = useThemeStore((s) => s.applyDefaultLook);
 
-  const [regMode, setRegMode] = useState('email'); // 'email' | 'phone'
   const [form, setForm] = useState({
     name: '',
     email: '',
-    phone: '',
     password: '',
     confirmPassword: '',
   });
@@ -59,13 +57,8 @@ export default function RegisterPage() {
     if (form.name.trim() && form.name.trim().length < 2)
       errs.name = 'Họ tên ít nhất 2 ký tự';
     
-    if (regMode === 'email') {
-      if (!form.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim()))
-        errs.email = 'Email không hợp lệ';
-    } else {
-      if (!form.phone || !/^\d{9,11}$/.test(form.phone.trim()))
-        errs.phone = 'Số điện thoại không hợp lệ (9-11 chữ số, VD: 0901234567)';
-    }
+    if (!form.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim()))
+      errs.email = 'Email không hợp lệ';
 
     if (form.password.length < 6)
       errs.password = 'Mật khẩu ít nhất 6 ký tự';
@@ -184,10 +177,6 @@ export default function RegisterPage() {
                 />
                 {errors.email && <span className={styles.fieldErr}>{errors.email}</span>}
               </div>
-
-              <div className={styles.phoneDevBadge}>
-                <span>📱 Đăng ký bằng Số điện thoại (SMS): <strong className={styles.devText}>Đang phát triển</strong></span>
-              </div>
             </div>
 
             {/* ── Mật khẩu ── */}
@@ -264,9 +253,8 @@ export default function RegisterPage() {
 
       {showOtp && (
         <OtpVerifyModal
-          target={regMode === 'email' ? form.email : form.phone}
+          target={form.email}
           email={form.email}
-          phone={form.phone || null}
           formData={form}
           onVerified={handleOtpVerified}
           onClose={() => setShowOtp(false)}

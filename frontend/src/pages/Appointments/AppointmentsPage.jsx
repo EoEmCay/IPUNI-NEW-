@@ -82,13 +82,14 @@ export default function AppointmentsPage() {
                 id: `scanned-${app.id || Math.random()}`,
                 name: cleanName,
                 title: title,
-                specialty: 'Bác sĩ điều trị', // Mặc định vì từ đơn thuốc
-                hospital: 'Theo đơn thuốc đã quét',
-                rating: 4.5,
-                reviews: Math.floor(Math.random() * 50) + 1,
-                isOnline: Math.random() > 0.5,
-                avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(cleanName)}&background=f3f4f6&color=4b5563&size=150`,
-                tags: ['Bác sĩ của bạn', 'Từ đơn thuốc']
+                specialty: 'Bác sĩ điều trị',
+                hospital: 'Đơn thuốc đã quét',
+                rating: 4.9,
+                reviews: Math.floor(Math.random() * 50) + 12,
+                isOnline: true,
+                avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(cleanName)}&background=1B5FA6&color=fff&size=150`,
+                tags: ['Bác sĩ của bạn', 'Từ đơn thuốc'],
+                notes: app.note || 'Theo dõi chỉ số đái tháo đường và tái khám theo chỉ định.'
               });
             }
           }

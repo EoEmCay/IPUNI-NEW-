@@ -17,8 +17,6 @@ import ScanCamera from '../components/scan/ScanCamera';
 import styles from './ScanPrescriptionPage.module.css';
 import { useNavigate } from 'react-router-dom';
 
-import SplashScreen from '../components/common/SplashScreen';
-
 export default function ScanPrescriptionPage() {
   const navigate = useNavigate();
   const { fetchMedications } = useMedications();
@@ -216,7 +214,17 @@ export default function ScanPrescriptionPage() {
 
 
   if (isAnalyzing) {
-    return <SplashScreen message="AI Vision đang phân tích đơn thuốc & trích xuất dữ liệu..." />;
+    // Giữ nguyên TopBar/BottomNav (không dùng SplashScreen toàn màn hình) - người dùng
+    // đang thao tác trong app, không phải đang mở/đăng nhập lại app.
+    return (
+      <div className={styles.analyzingBlock}>
+        <div className={styles.analyzingSpinner}>
+          <Activity size={28} />
+        </div>
+        <p className={styles.analyzingTitle}>AI Vision đang phân tích đơn thuốc</p>
+        <p className={styles.analyzingHint}>Đang trích xuất thông tin thuốc & chỉ số xét nghiệm...</p>
+      </div>
+    );
   }
 
   return (

@@ -1,5 +1,5 @@
 const db = require('../../config/database');
-const { sendOtp, verifyOtp, issueRegistrationTicket } = require('./otp.service');
+const { sendOtp, verifyOtp, issueRegistrationTicket, issuePasswordResetTicket } = require('./otp.service');
 const { sendSuccess, sendError } = require('../../utils/response.helper');
 
 // POST /api/v1/auth/register-otp
@@ -58,4 +58,57 @@ async function verifyOtpHandler(req, res) {
   }
 }
 
-module.exports = { register, verifyOtpHandler };
+// POST /api/v1/auth/forgot-password-otp
+async function forgotPassword(req, res) {
+  try {
+    const { email, phone, target } = req.body;
+    const actualTarget = target || email || phone;
+
+    if (!actualTarget) {
+      return sendError(res, 'Vui lòng cung cấp email/số điện thoại.', 400);
+    }
+
+    const isPhoneTarget = !actualTarget.includes('@');
+    const user = await db('users')
+      .where(isPhoneTarget ? { phone: actualTarget } : { email: actualTarget })
+      .first();
+
+    // Chỉ thực sự gửi OTP nếu tài khoản tồn tại, NHƯNG luôn trả về cùng một thông báo
+    // dù có tài khoản hay không - tránh lộ thông tin cho kẻ dò email/SĐT nào đã đăng ký
+    // DIA+ (user enumeration).
+    if (user) {
+      await sendOtp(actualTarget, null);
+    }
+
+    return sendSuccess(
+      res,
+      null,
+      'Nếu email/SĐT này có tài khoản, mã xác thực đặt lại mật khẩu đã được gửi.'
+    );
+  } catch (err) {
+    // Lỗi ở đây (hết cooldown 60s, hết lượt/ngày, lỗi gửi mail...) là lỗi hạ tầng thật,
+    // không phải rò rỉ trạng thái tài khoản - vẫn cần báo rõ cho người dùng.
+    return sendError(res, err.message || 'Không thể gửi mã xác thực.', err.status || 500);
+  }
+}
+
+// POST /api/v1/auth/verify-reset-otp
+async function verifyResetOtp(req, res) {
+  try {
+    const { email, phone, target, userOtp } = req.body;
+    const actualTarget = target || email || phone;
+
+    if (!actualTarget || !userOtp) {
+      return sendError(res, 'Vui lòng cung cấp mã OTP và email/SĐT.', 400);
+    }
+
+    const { target: verifiedTarget } = verifyOtp(actualTarget, userOtp.trim());
+    const resetTicket = issuePasswordResetTicket(verifiedTarget);
+
+    return sendSuccess(res, { target: verifiedTarget, resetTicket }, 'Xác thực OTP thành công.');
+  } catch (err) {
+    return sendError(res, err.message, err.status || 500);
+  }
+}
+
+module.exports = { register, verifyOtpHandler, forgotPassword, verifyResetOtp };

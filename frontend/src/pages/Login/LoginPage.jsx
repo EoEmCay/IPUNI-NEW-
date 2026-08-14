@@ -4,6 +4,7 @@ import { useAuth } from '../../hooks/useAuth';
 import useThemeStore from '../../store/themeStore';
 import { useT } from '../../hooks/useT';
 import { GoogleIcon } from '../../components/common/AuthIcons';
+import ForgotPasswordModal from '../../components/auth/ForgotPasswordModal';
 import styles from './LoginPage.module.css';
 
 const PhoneSVG = () => (
@@ -65,6 +66,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
   const [awaitingApproval, setAwaitingApproval] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const pollAbortRef = useRef(null);
 
   useEffect(() => { applyDefaultLook(); }, [applyDefaultLook]);
@@ -227,7 +229,16 @@ export default function LoginPage() {
             </div>
 
             <div className={styles.fieldWrap}>
-              <label className={styles.fieldLabel}>Mật khẩu</label>
+              <div className={styles.fieldLabelRow}>
+                <label className={styles.fieldLabel}>Mật khẩu</label>
+                <button
+                  type="button"
+                  className={styles.forgotLink}
+                  onClick={() => setShowForgotPassword(true)}
+                >
+                  Quên mật khẩu?
+                </button>
+              </div>
               <div className={styles.inputBox}>
                 <span className={styles.inputIcon}><LockSVG /></span>
                 <input
@@ -301,6 +312,10 @@ export default function LoginPage() {
 
         <p className={styles.footer}>DIA+ · Giải pháp y tế thông minh</p>
       </div>
+
+      {showForgotPassword && (
+        <ForgotPasswordModal onClose={() => setShowForgotPassword(false)} />
+      )}
     </div>
   );
 }

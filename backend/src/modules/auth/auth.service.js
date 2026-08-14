@@ -68,6 +68,61 @@ function sendNewDeviceEmail(user) {
   }).catch(err => console.error('Lỗi gửi email đăng nhập:', err.message));
 }
 
+function sendPasswordChangedEmail(user) {
+  const is_demo = user.email && user.email.startsWith('demo_');
+  const GMAIL_USER = process.env.GMAIL_USER || process.env.MAIL_USER;
+  const GMAIL_PASS = process.env.GMAIL_PASS || process.env.MAIL_PASS;
+  if (!GMAIL_USER || !GMAIL_PASS || !user.email || is_demo) return;
+
+  const nodemailer = require('nodemailer');
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user: GMAIL_USER, pass: GMAIL_PASS }
+  });
+  const changeTime = new Date().toLocaleString('vi-VN');
+
+  transporter.sendMail({
+    from: `"DIA+" <${GMAIL_USER}>`,
+    to: user.email,
+    subject: 'Mật khẩu DIA+ của bạn vừa được thay đổi',
+    text: `Xin chào ${user.name || 'Người dùng DIA+'},\n\nMật khẩu tài khoản DIA+ của bạn vừa được đặt lại vào lúc: ${changeTime}\nTài khoản: ${user.email}\n\nTất cả các thiết bị đang đăng nhập trước đó đã bị đăng xuất.\n\nNếu không phải là bạn, hãy truy cập diaplus.vn và liên hệ hỗ trợ ngay lập tức.\n\n— DIA+ (diaplus.vn)`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <body style="margin: 0; padding: 24px; background-color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #0F172A;">
+        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 480px; margin: 0 auto;">
+          <tr>
+            <td style="padding-bottom: 16px;">
+              <span style="font-size: 18px; font-weight: 700; color: #1B5FA6;">DIA+</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="font-size: 15px; font-weight: 700; padding-bottom: 12px;">
+              Mật khẩu của bạn vừa được thay đổi
+            </td>
+          </tr>
+          <tr>
+            <td style="font-size: 14px; line-height: 1.6; color: #334155; padding-bottom: 12px;">
+              Xin chào <strong>${user.name || 'Người dùng DIA+'}</strong>, mật khẩu tài khoản DIA+ (${user.email}) của bạn vừa được đặt lại vào lúc <strong>${changeTime}</strong>. Tất cả thiết bị đang đăng nhập trước đó đã bị đăng xuất.
+            </td>
+          </tr>
+          <tr>
+            <td style="font-size: 13px; color: #991B1B; line-height: 1.6; padding-bottom: 16px;">
+              Nếu không phải là bạn, hãy truy cập <a href="https://diaplus.vn" style="color: #DC2626; font-weight: 700;">diaplus.vn</a> và liên hệ hỗ trợ ngay lập tức.
+            </td>
+          </tr>
+          <tr>
+            <td style="font-size: 12px; color: #94A3B8; padding-top: 16px; border-top: 1px solid #E2E8F0;">
+              — <a href="https://diaplus.vn" style="color: #1B5FA6;">diaplus.vn</a>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `
+  }).catch(err => console.error('Lỗi gửi email thông báo đổi mật khẩu:', err.message));
+}
+
 function sanitizeUser(user) {
   const is_demo = user.email && user.email.startsWith('demo_');
   return {
@@ -346,7 +401,29 @@ async function changePassword(userId, currentPassword, newPassword) {
   return issueLoginToken(user);
 }
 
+// Đặt lại mật khẩu qua luồng "Quên mật khẩu" - target đã được xác thực OTP thành công và
+// đi kèm resetTicket hợp lệ (kiểm tra ở controller trước khi gọi hàm này), nên không cần
+// mật khẩu cũ.
+async function resetPassword(target, newPassword) {
+  const isPhoneTarget = !target.includes('@');
+  const user = await db('users').where(isPhoneTarget ? { phone: target } : { email: target }).first();
+  if (!user) throw { status: 404, message: 'Không tìm thấy tài khoản.' };
+
+  const password_hash = await bcrypt.hash(newPassword, 10);
+  const newTokenVersion = (user.token_version || 1) + 1;
+  // Bump token_version cùng lúc với đổi mật khẩu: mọi phiên cũ (kể cả phiên của kẻ đã
+  // chiếm được tài khoản, nếu có) đều bị vô hiệu hoá ngay ở request kế tiếp của họ.
+  await db('users').where({ id: user.id }).update({ password_hash, token_version: newTokenVersion });
+  user.password_hash = password_hash;
+  user.token_version = newTokenVersion;
+
+  sendPasswordChangedEmail(user);
+
+  const token = signToken(user);
+  return { token, user: sanitizeUser(user) };
+}
+
 module.exports = {
   login, register, getMe, googleLogin, demoLogin, acknowledgeSession,
-  getLoginStatus, getPendingApprovals, approveLogin, rejectLogin, changePassword,
+  getLoginStatus, getPendingApprovals, approveLogin, rejectLogin, changePassword, resetPassword,
 };

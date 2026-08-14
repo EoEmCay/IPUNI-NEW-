@@ -43,7 +43,21 @@ const changePasswordSchema = z.object({
   path: ['confirmNewPassword'],
 });
 
+const resetPasswordSchema = z.object({
+  email: z.string().optional().or(z.literal('')),
+  phone: z.string().optional().or(z.literal('')),
+  newPassword: z.string().min(6, 'Mật khẩu mới ít nhất 6 ký tự'),
+  confirmNewPassword: z.string(),
+  resetTicket: z.string().min(10, 'Thiếu vé xác thực OTP. Vui lòng xác thực lại.'),
+}).refine(data => data.newPassword === data.confirmNewPassword, {
+  message: 'Mật khẩu nhập lại không khớp',
+  path: ['confirmNewPassword'],
+}).refine(data => !!(data.email && data.email.trim()) || !!(data.phone && data.phone.trim()), {
+  message: 'Cần cung cấp email hoặc số điện thoại',
+  path: ['email']
+});
+
 module.exports = {
   loginSchema, registerSchema,
-  loginStatusQuerySchema, requestIdBodySchema, changePasswordSchema,
+  loginStatusQuerySchema, requestIdBodySchema, changePasswordSchema, resetPasswordSchema,
 };

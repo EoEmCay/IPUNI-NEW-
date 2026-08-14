@@ -19,4 +19,9 @@ export const authService = {
   rejectLogin: (requestId) => api.post('/auth/reject-login', { requestId }),
   changePassword: (currentPassword, newPassword, confirmNewPassword) =>
     api.post('/auth/change-password', { currentPassword, newPassword, confirmNewPassword }),
+
+  forgotPasswordOtp: (email) => api.post('/auth/forgot-password-otp', { email }),
+  verifyResetOtp: (email, userOtp) => api.post('/auth/verify-reset-otp', { email, userOtp }),
+  resetPassword: (email, newPassword, confirmNewPassword, resetTicket) =>
+    api.post('/auth/reset-password', { email, newPassword, confirmNewPassword, resetTicket }),
 };

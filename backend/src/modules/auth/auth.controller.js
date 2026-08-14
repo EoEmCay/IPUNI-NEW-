@@ -1,5 +1,5 @@
 const authService = require('./auth.service');
-const { verifyRegistrationTicket } = require('./otp.service');
+const { verifyRegistrationTicket, verifyPasswordResetTicket } = require('./otp.service');
 const { sendSuccess, sendError } = require('../../utils/response.helper');
 
 async function login(req, res, next) {
@@ -135,7 +135,23 @@ async function changePassword(req, res, next) {
   }
 }
 
+async function resetPassword(req, res, next) {
+  try {
+    const { email, phone, newPassword, resetTicket } = req.validatedBody;
+    const target = (email && email.trim()) || (phone && phone.trim());
+    // Vé phải đúng target và đúng mục đích 'password_reset' - không thể tái sử dụng vé
+    // xác thực OTP đăng ký, hoặc vé xác thực cho email/SĐT khác.
+    verifyPasswordResetTicket(resetTicket, target);
+
+    const result = await authService.resetPassword(target, newPassword);
+    sendSuccess(res, result, 'Đặt lại mật khẩu thành công');
+  } catch (err) {
+    if (err.status) return sendError(res, err.message, err.status);
+    next(err);
+  }
+}
+
 module.exports = {
   login, register, getMe, logout, googleLogin, demoLogin, acknowledgeSession,
-  loginStatus, pendingApprovals, approveLogin, rejectLogin, changePassword,
+  loginStatus, pendingApprovals, approveLogin, rejectLogin, changePassword, resetPassword,
 };

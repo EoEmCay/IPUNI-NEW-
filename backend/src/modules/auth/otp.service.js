@@ -310,4 +310,35 @@ function verifyRegistrationTicket(ticket, target) {
   }
 }
 
-module.exports = { sendOtp, verifyOtp, issueRegistrationTicket, verifyRegistrationTicket };
+// Vé xác thực OTP dành riêng cho luồng "Quên mật khẩu" - dùng chung cơ chế JWT ngắn hạn
+// (5 phút) như vé đăng ký, nhưng gắn purpose khác ('password_reset') để 2 loại vé không
+// thể dùng lẫn cho nhau (không thể lấy vé xác thực OTP đăng ký đem đi đổi mật khẩu người
+// khác, hay ngược lại).
+function issuePasswordResetTicket(target) {
+  return jwt.sign({ target, purpose: 'password_reset' }, REG_TICKET_SECRET, { expiresIn: '5m' });
+}
+
+function verifyPasswordResetTicket(ticket, target) {
+  if (!ticket) {
+    const err = new Error('Thiếu vé xác thực OTP. Vui lòng xác thực lại.');
+    err.status = 400;
+    throw err;
+  }
+  try {
+    const payload = jwt.verify(ticket, REG_TICKET_SECRET);
+    if (payload.purpose !== 'password_reset' || payload.target !== target) {
+      throw new Error('mismatch');
+    }
+    return true;
+  } catch {
+    const err = new Error('Phiên xác thực OTP không hợp lệ hoặc đã hết hạn. Vui lòng xác thực lại.');
+    err.status = 400;
+    throw err;
+  }
+}
+
+module.exports = {
+  sendOtp, verifyOtp,
+  issueRegistrationTicket, verifyRegistrationTicket,
+  issuePasswordResetTicket, verifyPasswordResetTicket,
+};

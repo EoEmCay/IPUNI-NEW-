@@ -102,6 +102,8 @@ app.use('/api/', apiLimiter);
 
 app.use('/api/v1/auth/register-otp', otpLimiter);
 app.use('/api/v1/auth/verify-otp', otpLimiter);
+app.use('/api/v1/auth/forgot-password-otp', otpLimiter);
+app.use('/api/v1/auth/verify-reset-otp', otpLimiter);
 app.use('/api/v1/auth', authLimiter, authRoutes);
 app.use('/api/v1/metrics', metricsRoutes);
 app.use('/api/v1/medications', medicationsRoutes);

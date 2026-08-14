@@ -227,6 +227,46 @@
   gap: 8px;
 }
 
+/* ─── Text field (dùng chung cho ForgotPasswordModal) ─── */
+.fieldWrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.fieldLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.textInput {
+  width: 100%;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 13px 15px;
+  font-size: 15px;
+  color: #0F172A;
+  background: #F8FAFC;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  font-weight: 500;
+  box-sizing: border-box;
+}
+.textInput:focus {
+  border-color: #1B5FA6;
+  box-shadow: 0 0 0 4px rgba(27, 95, 166, 0.12);
+  background: #ffffff;
+}
+.textInputError {
+  border-color: #EF4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.10);
+}
+
 /* ─── CHOOSE PHASE ─── */
 .choosePhase {
   display: flex;

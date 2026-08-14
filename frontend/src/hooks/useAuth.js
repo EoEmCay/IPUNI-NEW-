@@ -71,10 +71,17 @@ export function useAuth() {
 
   const googleLogin = async (accessToken) => {
     const res = await authService.googleLogin(accessToken);
-    const { token, user } = res.data.data;
+    const data = res.data.data;
+
+    // Tài khoản đang có thiết bị khác hoạt động -> chờ phê duyệt, chưa có token ngay.
+    if (data.status === 'pending') {
+      return { pending: true, requestId: data.requestId };
+    }
+
+    const { token, user } = data;
     setAuth(token, user);
     applyPlanTheme(user.plan);
-    return user;
+    return { pending: false, user };
   };
 
   const demoLogin = async () => {

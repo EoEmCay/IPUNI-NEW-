@@ -248,8 +248,18 @@ async function googleLogin(accessToken) {
       user = await db('users').where({ id }).first();
     }
 
-    const token = signToken(user);
-    return { token, user: { id: user.id, user_code: user.user_code, name: user.name, address: user.address, email: user.email, phone: user.phone, diagnosis: user.diagnosis, plan: user.plan } };
+    // Đi qua cùng cơ chế duyệt 2-thiết-bị như đăng nhập thường (login()) - trước đây
+    // googleLogin ký token thẳng, bỏ qua hoàn toàn bước này.
+    const is_demo = user.email && user.email.startsWith('demo_');
+    const hasActiveDevice = !is_demo && user.last_active_at &&
+      (Date.now() - new Date(user.last_active_at).getTime() < ACTIVE_SESSION_THRESHOLD_MS);
+
+    if (hasActiveDevice) {
+      const requestId = loginRequestStore.create(user.id, email);
+      return { status: 'pending', requestId };
+    }
+
+    return issueLoginToken(user);
   } catch (err) {
     console.error('Google verification error:', err);
     throw { status: 401, message: 'Xác thực Google thất bại' };

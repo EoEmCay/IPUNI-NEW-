@@ -81,7 +81,24 @@ export default function LoginPage() {
       try {
         setLoading(true);
         setError('');
-        await googleLogin(tokenResponse.access_token);
+        const result = await googleLogin(tokenResponse.access_token);
+
+        if (result.pending) {
+          setAwaitingApproval(true);
+          const controller = new AbortController();
+          pollAbortRef.current = controller;
+          try {
+            await pollLoginStatus(result.requestId, { signal: controller.signal });
+            navigate('/');
+          } catch (pollErr) {
+            if (pollErr.status === 'cancelled') return; // người dùng đã bấm huỷ
+            setError(pollErr.message || 'Đăng nhập thất bại');
+          } finally {
+            setAwaitingApproval(false);
+          }
+          return;
+        }
+
         navigate('/');
       } catch (err) {
         console.error('Google login error:', err);

@@ -21,76 +21,44 @@ function sendNewDeviceEmail(user) {
     auth: { user: GMAIL_USER, pass: GMAIL_PASS }
   });
 
+  const loginTime = new Date().toLocaleString('vi-VN');
+
+  // Cùng nguyên nhân deliverability như email OTP: HTML nặng + ảnh ngoài + không có bản
+  // text/plain khiến Gmail âm thầm hủy thư (không vào cả Spam) khi test thật trên
+  // production. Đơn giản hóa để cảnh báo bảo mật này thực sự tới được người dùng.
   transporter.sendMail({
-    from: `"DIA+ Security Alert" <${GMAIL_USER}>`,
+    from: `"DIA+" <${GMAIL_USER}>`,
     to: user.email,
-    subject: '⚠️ Cảnh báo: Đăng nhập thiết bị mới trên DIA+',
+    subject: 'Cảnh báo: Đăng nhập thiết bị mới trên DIA+',
+    text: `Xin chào ${user.name || 'Người dùng DIA+'},\n\nTài khoản DIA+ của bạn vừa được đăng nhập thành công vào lúc: ${loginTime}\nTài khoản: ${user.email}\n\nNếu không phải là bạn, hãy truy cập diaplus.vn và đổi mật khẩu ngay lập tức.\n\n— DIA+ (diaplus.vn)`,
     html: `
       <!DOCTYPE html>
       <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      </head>
-      <body style="margin: 0; padding: 0; background-color: #f4f6f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="padding: 24px 0;">
+      <body style="margin: 0; padding: 24px; background-color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #0F172A;">
+        <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 480px; margin: 0 auto;">
           <tr>
-            <td align="center">
-              <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 540px; background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
-                <!-- Header Gradient & Logo -->
-                <tr>
-                  <td style="background: linear-gradient(135deg, #1B5FA6 0%, #0F3C6E 100%); padding: 32px 24px 24px; text-align: center;">
-                    <img src="https://diaplus.vn/logo.jpg" alt="DIA+ Logo" width="70" height="70" style="border-radius: 18px; border: 3px solid rgba(255,255,255,0.9); box-shadow: 0 6px 16px rgba(0,0,0,0.2); display: block; margin: 0 auto 12px; object-fit: cover;" />
-                    <h1 style="color: #ffffff; font-size: 24px; font-weight: 800; margin: 0; letter-spacing: 1px;">
-                      DIA<span style="color: #60A5FA;">+</span> SECURITY
-                    </h1>
-                    <p style="color: rgba(255,255,255,0.85); font-size: 13px; margin: 4px 0 0;">
-                      Cảnh Báo Phát Hiện Đăng Nhập Thiết Bị Mới
-                    </p>
-                  </td>
-                </tr>
-
-                <!-- Main Content -->
-                <tr>
-                  <td style="padding: 28px 24px;">
-                    <h2 style="color: #0F172A; font-size: 18px; font-weight: 700; margin: 0 0 12px; text-align: center;">Phát Hiện Phiên Đăng Nhập Mới</h2>
-                    <p style="color: #475569; font-size: 14px; line-height: 1.5; margin: 0 0 16px;">
-                      Xin chào <strong>${user.name || 'Người dùng DIA+'}</strong>,
-                    </p>
-                    <p style="color: #475569; font-size: 14px; line-height: 1.5; margin: 0 0 20px;">
-                      Tài khoản DIA+ của bạn vừa được đăng nhập thành công vào lúc:
-                    </p>
-
-                    <!-- Info Box -->
-                    <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; margin: 0 0 20px;">
-                      <p style="margin: 0 0 8px; font-size: 13px; color: #64748B;">
-                        🕒 <strong>Thời gian:</strong> <span style="color: #1E293B; font-weight: 600;">${new Date().toLocaleString('vi-VN')}</span>
-                      </p>
-                      <p style="margin: 0; font-size: 13px; color: #64748B;">
-                        ✉️ <strong>Tài khoản:</strong> <span style="color: #1E293B; font-weight: 600;">${user.email}</span>
-                      </p>
-                    </div>
-
-                    <div style="background: #FEF2F2; border-left: 4px solid #EF4444; padding: 14px 16px; border-radius: 8px; margin-bottom: 20px;">
-                      <p style="color: #991B1B; font-size: 13px; margin: 0; line-height: 1.5;">
-                        🚨 <strong>Nếu không phải là bạn:</strong> Hãy truy cập ngay <a href="https://diaplus.vn" style="color: #DC2626; font-weight: 700;">diaplus.vn</a> và tiến hành đổi mật khẩu lập tức để bảo mật tài khoản.
-                      </p>
-                    </div>
-                  </td>
-                </tr>
-
-                <!-- Footer -->
-                <tr>
-                  <td style="background: #F8FAFC; padding: 20px 24px; text-align: center; border-top: 1px solid #E2E8F0;">
-                    <p style="color: #64748B; font-size: 12px; margin: 0 0 6px;">
-                      Đại diện dự án: <strong>Lê Minh Khôi</strong> (Founder) · Hotline: <strong>(+84) 986897439</strong>
-                    </p>
-                    <p style="color: #94A3B8; font-size: 11px; margin: 0;">
-                      © 2026 <strong>DIA+ Health System</strong> · <a href="https://diaplus.vn" style="color: #1B5FA6; text-decoration: none; font-weight: 600;">diaplus.vn</a>
-                    </p>
-                  </td>
-                </tr>
-              </table>
+            <td style="padding-bottom: 16px;">
+              <span style="font-size: 18px; font-weight: 700; color: #1B5FA6;">DIA+</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="font-size: 15px; font-weight: 700; padding-bottom: 12px;">
+              Cảnh báo: đăng nhập thiết bị mới
+            </td>
+          </tr>
+          <tr>
+            <td style="font-size: 14px; line-height: 1.6; color: #334155; padding-bottom: 12px;">
+              Xin chào <strong>${user.name || 'Người dùng DIA+'}</strong>, tài khoản DIA+ của bạn vừa được đăng nhập thành công vào lúc <strong>${loginTime}</strong> (tài khoản: ${user.email}).
+            </td>
+          </tr>
+          <tr>
+            <td style="font-size: 13px; color: #991B1B; line-height: 1.6; padding-bottom: 16px;">
+              Nếu không phải là bạn, hãy truy cập <a href="https://diaplus.vn" style="color: #DC2626; font-weight: 700;">diaplus.vn</a> và đổi mật khẩu ngay lập tức.
+            </td>
+          </tr>
+          <tr>
+            <td style="font-size: 12px; color: #94A3B8; padding-top: 16px; border-top: 1px solid #E2E8F0;">
+              — <a href="https://diaplus.vn" style="color: #1B5FA6;">diaplus.vn</a>
             </td>
           </tr>
         </table>

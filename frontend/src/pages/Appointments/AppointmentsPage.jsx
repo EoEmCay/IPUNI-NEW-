@@ -1,51 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Star, Clock, Video, MessageCircle, Phone, ShieldCheck, ChevronRight } from 'lucide-react';
+import { Star, ShieldCheck, Stethoscope, Camera, Calendar, ArrowRight } from 'lucide-react';
 import { appointmentsService } from '../../services/appointments.service';
 import styles from './AppointmentsPage.module.css';
 
-const DEFAULT_DOCTORS = [
-  {
-    id: 'dia-plus',
-    name: 'Bác sĩ DIA+',
-    title: 'Chuyên gia AI',
-    specialty: 'Đái tháo đường & Dinh dưỡng',
-    hospital: 'DIA+ Health Center',
-    rating: 5.0,
-    reviews: 1250,
-    isOnline: true,
-    avatar: 'https://ui-avatars.com/api/?name=DIA%2B&background=1B5FA6&color=fff&size=150',
-    tags: ['Tư vấn 24/7', 'Phân tích chỉ số', 'Gợi ý thực đơn']
-  },
-  {
-    id: 'mock-1',
-    name: 'Nguyễn Văn A',
-    title: 'TS.BS',
-    specialty: 'Nội tiết - Đái tháo đường',
-    hospital: 'Bệnh viện Đại học Y Dược',
-    rating: 4.9,
-    reviews: 128,
-    isOnline: true,
-    avatar: 'https://ui-avatars.com/api/?name=Nguyen+Van+A&background=e0f2fe&color=0369a1&size=150',
-    tags: ['Chuyên gia', 'Nhiệt tình']
-  },
-  {
-    id: 'mock-2',
-    name: 'Lê Hoàng Minh B',
-    title: 'BS.CKII',
-    specialty: 'Tim mạch - Nội tiết',
-    hospital: 'Bệnh viện Chợ Rẫy',
-    rating: 4.8,
-    reviews: 95,
-    isOnline: false,
-    avatar: 'https://ui-avatars.com/api/?name=Le+Hoang+Minh+B&background=fef08a&color=854d0e&size=150',
-    tags: ['Kinh nghiệm 15 năm']
-  }
-];
-
 export default function AppointmentsPage() {
   const navigate = useNavigate();
-  const [doctors, setDoctors] = useState(DEFAULT_DOCTORS);
+  const [doctors, setDoctors] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -54,19 +15,19 @@ export default function AppointmentsPage() {
         const res = await appointmentsService.getAll();
         const appointments = res.data?.data || [];
         
-        // Trích xuất các bác sĩ từ đơn thuốc đã quét (có trong danh sách appointments)
+        // Trích xuất CHỈ CÁC BÁC SĨ THẬT từ đơn thuốc đã quét (có trong danh sách appointments)
         const scannedDoctors = [];
         const seenNames = new Set();
-        
-        // Thêm tên của các bác sĩ mặc định vào Set để tránh trùng lặp nếu AI quét nhầm ra tên này
-        DEFAULT_DOCTORS.forEach(d => seenNames.add(d.name.toLowerCase()));
 
         appointments.forEach(app => {
-          if (app.doctor_name && app.doctor_name !== 'Không rõ bác sĩ' && app.doctor_name !== 'Bác sĩ (Tái khám)') {
+          if (app.doctor_name && 
+              app.doctor_name !== 'Không rõ bác sĩ' && 
+              app.doctor_name !== 'Bác sĩ (Tái khám)' &&
+              !app.doctor_name.toLowerCase().includes('không rõ')) {
             const nameLower = app.doctor_name.toLowerCase();
             if (!seenNames.has(nameLower)) {
               seenNames.add(nameLower);
-              // Phân tách title và name nếu có (vd: BS. Nguyễn Văn A)
+              
               let title = 'Bác sĩ';
               let cleanName = app.doctor_name;
               
@@ -76,6 +37,9 @@ export default function AppointmentsPage() {
               } else if (cleanName.toLowerCase().startsWith('th.s ')) {
                 title = 'ThS.BS';
                 cleanName = cleanName.substring(5).trim();
+              } else if (cleanName.toLowerCase().startsWith('ts.bs ')) {
+                title = 'TS.BS';
+                cleanName = cleanName.substring(6).trim();
               }
 
               scannedDoctors.push({
@@ -83,22 +47,21 @@ export default function AppointmentsPage() {
                 name: cleanName,
                 title: title,
                 specialty: 'Bác sĩ điều trị',
-                hospital: 'Đơn thuốc đã quét',
-                rating: 4.9,
-                reviews: Math.floor(Math.random() * 50) + 12,
-                isOnline: true,
+                hospital: 'Theo đơn thuốc đã quét',
+                rating: 5.0,
                 avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(cleanName)}&background=1B5FA6&color=fff&size=150`,
-                tags: ['Bác sĩ của bạn', 'Từ đơn thuốc'],
-                notes: app.note || 'Theo dõi chỉ số đái tháo đường và tái khám theo chỉ định.'
+                tags: ['Bác sĩ điều trị', 'Từ đơn thuốc đã quét'],
+                notes: app.note || 'Theo dõi chỉ số đái tháo đường và tái khám theo chỉ định.',
+                scheduled_at: app.scheduled_at
               });
             }
           }
         });
 
-        // Hợp nhất danh sách bác sĩ mặc định và bác sĩ được quét ra từ đơn thuốc
-        setDoctors([...DEFAULT_DOCTORS, ...scannedDoctors]);
+        // Chỉ hiển thị bác sĩ từ đơn thuốc thật, KHÔNG chứa bác sĩ ảo
+        setDoctors(scannedDoctors);
       } catch (error) {
-        console.error('Lỗi khi tải danh sách bác sĩ đã lưu', error);
+        console.error('Lỗi khi tải danh sách bác sĩ từ đơn thuốc', error);
       } finally {
         setIsLoading(false);
       }
@@ -108,7 +71,6 @@ export default function AppointmentsPage() {
   }, []);
 
   const handleDoctorClick = useCallback((doc) => {
-    // Chuyển hướng sang trang Profile của bác sĩ, truyền thông tin qua state
     navigate(`/doctor/${encodeURIComponent(doc.name)}`, { state: { doctor: doc } });
   }, [navigate]);
 
@@ -116,26 +78,84 @@ export default function AppointmentsPage() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div className={styles.titleBlock}>
-          <h1 className={`${styles.title} tour-step-7`}>Chuyên gia & Bác sĩ</h1>
-          <p className={styles.subtitle}>Kết nối trực tuyến với các chuyên gia y tế và bác sĩ điều trị của bạn.</p>
+          <h1 className={`${styles.title} tour-step-7`}>Bác sĩ & Lời dặn</h1>
+          <p className={styles.subtitle}>Thông tin bác sĩ điều trị và lời dặn trích xuất từ các đơn thuốc đã quét của bạn.</p>
         </div>
       </div>
 
       <div className={styles.banner}>
         <ShieldCheck size={20} className={styles.bannerIcon} />
-        <span>Hệ thống bao gồm các bác sĩ bạn đã quét từ đơn thuốc và các chuyên gia từ DIA+.</span>
+        <span>Danh sách tự động cập nhật Bác sĩ điều trị & Lời dặn ngay khi bạn chụp đơn thuốc.</span>
       </div>
 
       <div className={styles.list}>
         {isLoading ? (
-          <div className={styles.loading}>Đang tải danh sách bác sĩ...</div>
+          <div className={styles.loading}>Đang tải thông tin bác sĩ từ đơn thuốc...</div>
+        ) : doctors.length === 0 ? (
+          <div style={{
+            background: 'var(--color-surface)',
+            border: '1px solid var(--color-border)',
+            borderRadius: '24px',
+            padding: '36px 20px',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '16px',
+            marginTop: '12px'
+          }}>
+            <div style={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '50%',
+              background: 'var(--color-bg)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--color-primary)'
+            }}>
+              <Stethoscope size={32} />
+            </div>
+
+            <div style={{ maxWidth: '320px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--color-text-primary)', marginBottom: '8px' }}>
+                Chưa có Bác sĩ từ đơn thuốc
+              </h3>
+              <p style={{ fontSize: '13.5px', color: 'var(--color-text-secondary)', lineHeight: '1.5', margin: 0 }}>
+                Hãy quét/chụp ảnh đơn thuốc của bạn. Trợ lý AI DIA+ sẽ tự động nhận diện thông tin Bác sĩ điều trị và Lời dặn dặn dò tại đây.
+              </p>
+            </div>
+
+            <button
+              onClick={() => navigate('/scan')}
+              style={{
+                marginTop: '8px',
+                background: 'var(--color-primary)',
+                color: '#ffffff',
+                border: 'none',
+                padding: '12px 24px',
+                borderRadius: '20px',
+                fontSize: '14px',
+                fontWeight: '700',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.12)'
+              }}
+            >
+              <Camera size={18} />
+              <span>Quét đơn thuốc ngay</span>
+              <ArrowRight size={16} />
+            </button>
+          </div>
         ) : (
           doctors.map((doc) => (
             <div key={doc.id} className={styles.mockupDoctorCard} onClick={() => handleDoctorClick(doc)}>
               <div className={styles.mockupDoctorTop}>
                 <div className={styles.avatarWrap}>
                   <img src={doc.avatar} alt={doc.name} className={styles.mockupDoctorAvatar} />
-                  <div className={`${styles.statusDot} ${doc.isOnline ? styles.online : styles.busy}`}></div>
+                  <div className={`${styles.statusDot} ${styles.online}`}></div>
                 </div>
                 <div className={styles.mockupDoctorInfo}>
                   <div className={styles.mockupDoctorName}>
@@ -144,14 +164,15 @@ export default function AppointmentsPage() {
                   <div className={styles.mockupDoctorSub}>
                     {doc.specialty} | {doc.hospital}
                   </div>
-                  <div className={styles.mockupDoctorRatingRow}>
-                    <span className={styles.starText}>⭐ {doc.rating}</span>
-                    <span className={styles.timeText}>🕒 {doc.isOnline ? '10:30 - 17:30' : 'Hẹn trước'}</span>
-                  </div>
+                  {doc.notes && (
+                    <div style={{ fontSize: '12.5px', color: '#475569', marginTop: '6px', background: 'var(--color-bg)', padding: '6px 10px', borderRadius: '8px', border: '1px dashed var(--color-border)' }}>
+                      <strong>Lời dặn:</strong> {doc.notes}
+                    </div>
+                  )}
                 </div>
               </div>
               <button className={styles.fullWidthBookBtn} onClick={(e) => { e.stopPropagation(); handleDoctorClick(doc); }}>
-                Đặt lịch hẹn
+                Xem chi tiết & Lịch tái khám
               </button>
             </div>
           ))

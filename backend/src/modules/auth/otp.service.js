@@ -1,5 +1,4 @@
 const crypto = require('crypto');
-const nodemailer = require('nodemailer');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const logger = require('../../utils/logger');
@@ -50,16 +49,7 @@ function checkAndBumpSendLimit(target) {
   sendCounters.set(target, rec);
 }
 
-const GMAIL_USER = process.env.GMAIL_USER || process.env.MAIL_USER;
-const GMAIL_PASS = process.env.GMAIL_PASS || process.env.MAIL_PASS;
-
-const transporter = (GMAIL_USER && GMAIL_PASS) ? nodemailer.createTransport({
-  service: 'gmail',
-  auth: { user: GMAIL_USER, pass: GMAIL_PASS },
-  connectionTimeout: 5000,
-  greetingTimeout: 5000,
-  socketTimeout: 5000
-}) : null;
+const { getTransporter, getFromAddress } = require('../../utils/mailer');
 
 async function sendSmsViaEsms(phone, otpCode) {
   const apiKey = process.env.ESMS_API_KEY;
@@ -165,8 +155,9 @@ async function sendOtp(target, password) {
   }
 
   // 2. XỬ LÝ GỬI EMAIL CHO ĐỊA CHỈ EMAIL
+  const transporter = getTransporter();
   if (!transporter) {
-    logger.error('[EMAIL OTP] Chưa cấu hình GMAIL_USER/GMAIL_PASS (hoặc MAIL_USER/MAIL_PASS).');
+    logger.error('[EMAIL OTP] Chưa cấu hình RESEND_API_KEY hoặc GMAIL_USER/GMAIL_PASS (MAIL_USER/MAIL_PASS).');
     if (isProduction) {
       throw new Error('Hệ thống gửi email đang bảo trì. Vui lòng thử lại sau.');
     }
@@ -185,7 +176,7 @@ async function sendOtp(target, password) {
     // (OTP) cần tối giản, không ảnh ngoài, không nội dung marketing, và LUÔN có multipart
     // text+html để qua được các bộ lọc spam khắt khe.
     await transporter.sendMail({
-      from: `"DIA+" <${GMAIL_USER}>`,
+      from: getFromAddress(),
       to: target,
       subject: 'Mã xác thực OTP đăng ký DIA+',
       text: `Mã xác thực OTP đăng ký DIA+ của bạn là: ${otpCode}\n\nMã có hiệu lực trong 5 phút. Không chia sẻ mã này cho bất kỳ ai - DIA+ không bao giờ gọi điện yêu cầu cung cấp mã OTP.\n\nNếu bạn không yêu cầu mã này, vui lòng bỏ qua email này.\n\n— DIA+ (diaplus.vn)`,

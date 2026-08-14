@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const db = require('../../config/database');
 const { JWT_SECRET, JWT_EXPIRES_IN } = require('../../config/constants');
 const loginRequestStore = require('./loginRequest.store');
+const { getTransporter, getFromAddress } = require('../../utils/mailer');
 
 // Coi tài khoản là "đang có thiết bị hoạt động" nếu last_active_at (được auth.middleware
 // cập nhật mỗi khi có request kèm token hợp lệ) còn nằm trong khoảng thời gian này.
@@ -11,15 +12,9 @@ const ACTIVE_SESSION_THRESHOLD_MS = 45 * 1000;
 
 function sendNewDeviceEmail(user) {
   const is_demo = user.email && user.email.startsWith('demo_');
-  const GMAIL_USER = process.env.GMAIL_USER || process.env.MAIL_USER;
-  const GMAIL_PASS = process.env.GMAIL_PASS || process.env.MAIL_PASS;
-  if (!GMAIL_USER || !GMAIL_PASS || !user.email || is_demo) return;
-
-  const nodemailer = require('nodemailer');
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: { user: GMAIL_USER, pass: GMAIL_PASS }
-  });
+  if (!user.email || is_demo) return;
+  const transporter = getTransporter();
+  if (!transporter) return;
 
   const loginTime = new Date().toLocaleString('vi-VN');
 
@@ -27,7 +22,7 @@ function sendNewDeviceEmail(user) {
   // text/plain khiến Gmail âm thầm hủy thư (không vào cả Spam) khi test thật trên
   // production. Đơn giản hóa để cảnh báo bảo mật này thực sự tới được người dùng.
   transporter.sendMail({
-    from: `"DIA+" <${GMAIL_USER}>`,
+    from: getFromAddress(),
     to: user.email,
     subject: 'Cảnh báo: Đăng nhập thiết bị mới trên DIA+',
     text: `Xin chào ${user.name || 'Người dùng DIA+'},\n\nTài khoản DIA+ của bạn vừa được đăng nhập thành công vào lúc: ${loginTime}\nTài khoản: ${user.email}\n\nNếu không phải là bạn, hãy truy cập diaplus.vn và đổi mật khẩu ngay lập tức.\n\n— DIA+ (diaplus.vn)`,
@@ -70,19 +65,13 @@ function sendNewDeviceEmail(user) {
 
 function sendPasswordChangedEmail(user) {
   const is_demo = user.email && user.email.startsWith('demo_');
-  const GMAIL_USER = process.env.GMAIL_USER || process.env.MAIL_USER;
-  const GMAIL_PASS = process.env.GMAIL_PASS || process.env.MAIL_PASS;
-  if (!GMAIL_USER || !GMAIL_PASS || !user.email || is_demo) return;
-
-  const nodemailer = require('nodemailer');
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: { user: GMAIL_USER, pass: GMAIL_PASS }
-  });
+  if (!user.email || is_demo) return;
+  const transporter = getTransporter();
+  if (!transporter) return;
   const changeTime = new Date().toLocaleString('vi-VN');
 
   transporter.sendMail({
-    from: `"DIA+" <${GMAIL_USER}>`,
+    from: getFromAddress(),
     to: user.email,
     subject: 'Mật khẩu DIA+ của bạn vừa được thay đổi',
     text: `Xin chào ${user.name || 'Người dùng DIA+'},\n\nMật khẩu tài khoản DIA+ của bạn vừa được đặt lại vào lúc: ${changeTime}\nTài khoản: ${user.email}\n\nTất cả các thiết bị đang đăng nhập trước đó đã bị đăng xuất.\n\nNếu không phải là bạn, hãy truy cập diaplus.vn và liên hệ hỗ trợ ngay lập tức.\n\n— DIA+ (diaplus.vn)`,

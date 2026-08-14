@@ -19,3 +19,10 @@ services:
         sync: false
       - key: GEMINI_API_KEY
         sync: false
+      # Gửi mail OTP/cảnh báo bảo mật qua Resend (domain riêng diaplus.vn) thay vì Gmail cá
+      # nhân - Gmail có thể tự động chặn/giới hạn tài khoản gửi tự động bất cứ lúc nào mà
+      # không báo trước. Set giá trị này thì mailer.js tự ưu tiên dùng Resend.
+      - key: RESEND_API_KEY
+        sync: false
+      - key: ADMIN_DASHBOARD_KEY
+        sync: false

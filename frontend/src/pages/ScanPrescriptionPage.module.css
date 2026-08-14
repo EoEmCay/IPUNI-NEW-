@@ -309,6 +309,35 @@
   text-align: center;
 }
 
+/* Vòng radar quét quanh icon trung tâm - 2 vòng lệch nhịp (radarRingDelay) để lúc nào
+   cũng có ít nhất 1 vòng đang lan toả, tạo cảm giác "đang quét ảnh" liên tục. */
+.analyzingRadar {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radarRing {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--color-primary);
+  opacity: 0;
+  animation: radarSweep 2.4s ease-out infinite;
+}
+
+.radarRingDelay {
+  animation-delay: 1.2s;
+}
+
+@keyframes radarSweep {
+  0% { transform: scale(0.55); opacity: 0.55; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+
 .analyzingSpinner {
   width: 64px;
   height: 64px;
@@ -319,6 +348,7 @@
   background: var(--color-primary-light);
   color: var(--color-primary);
   animation: analyzingPulse 1.6s ease-in-out infinite;
+  box-shadow: 0 0 24px 4px color-mix(in srgb, var(--color-primary) 25%, transparent);
 }
 
 .analyzingTitle {
@@ -327,10 +357,77 @@
   color: var(--color-text-primary);
 }
 
-.analyzingHint {
+/* Dòng thông điệp tiến trình - key={stepIndex} ở JSX ép React remount mỗi lần đổi bước,
+   animation dưới đây chạy lại từ đầu mỗi lần remount, tạo hiệu ứng chữ trượt/mờ dần vào. */
+.analyzingStepRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 20px;
+  animation: stepFadeIn 0.4s ease both;
+}
+
+.analyzingStepIcon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.analyzingStepText {
   font-size: 13px;
   color: var(--color-text-secondary);
-  max-width: 280px;
+  font-weight: 600;
+}
+
+@keyframes stepFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.progressTrack {
+  width: 100%;
+  max-width: 240px;
+  height: 6px;
+  border-radius: 99px;
+  background: var(--color-border);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light), var(--color-primary));
+  background-size: 200% 100%;
+  animation: progressShimmer 1.4s linear infinite;
+  transition: width 0.9s ease;
+}
+
+@keyframes progressShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: 0 0; }
+}
+
+.tipBox {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-light);
+  max-width: 300px;
+  animation: stepFadeIn 0.4s ease both;
+}
+
+.tipIcon {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.tipText {
+  font-size: 12.5px;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+  text-align: left;
 }
 
 @keyframes analyzingPulse {

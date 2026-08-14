@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   CheckCircle, AlertCircle, Pill, User, Calendar, FileText,
   XCircle, ChevronDown, ChevronUp, Clock, Hash, Stethoscope, BookOpen, Info, Activity
@@ -12,20 +12,38 @@ import { metricsService } from '../services/metrics.service';
 import { useMedications } from '../hooks/useMedications';
 import { useToast } from '../hooks/useToast';
 import { useT } from '../hooks/useT';
-import useLangStore from '../store/langStore';
 import ScanCamera from '../components/scan/ScanCamera';
 import styles from './ScanPrescriptionPage.module.css';
 import { useNavigate } from 'react-router-dom';
+
+// Thông điệp tiến trình đổi theo giây trong lúc AI phân tích - tạo cảm giác thời gian
+// trôi nhanh hơn thay vì 1 dòng chữ đứng yên suốt quá trình chờ.
+const ANALYZE_STEPS = [
+  { icon: '📸', text: 'Đang tối ưu và xử lý độ nét của ảnh...' },
+  { icon: '🧠', text: 'AI Gemini Vision đang đọc chữ viết & đơn thuốc...' },
+  { icon: '💊', text: 'Đang bóc tách tên thuốc, liều dùng & giờ uống...' },
+  { icon: '🩺', text: 'Đang đồng bộ lời dặn bác sĩ & chỉ số xét nghiệm...' },
+];
+
+const HEALTH_TIPS = [
+  'Nhớ đo đường huyết lúc đói trước khi ăn sáng nhé!',
+  'Uống đủ nước giúp cơ thể chuyển hóa thuốc tốt hơn.',
+  'Vận động nhẹ 15 phút sau bữa ăn giúp ổn định đường huyết.',
+  'Luôn mang theo vài viên kẹo phòng khi hạ đường huyết đột ngột.',
+  'Ngủ đủ giấc mỗi đêm giúp cơ thể kiểm soát insulin hiệu quả hơn.',
+  'Ăn nhiều rau xanh giúp làm chậm hấp thu đường vào máu.',
+];
 
 export default function ScanPrescriptionPage() {
   const navigate = useNavigate();
   const { fetchMedications } = useMedications();
   const { showToast } = useToast();
   const t = useT();
-  const lang = useLangStore((s) => s.lang);
   const [imageFile, setImageFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analyzeElapsed, setAnalyzeElapsed] = useState(0);
+  const [tipOffset] = useState(() => Math.floor(Math.random() * HEALTH_TIPS.length));
   const [result, setResult] = useState(null);
   const [isSavingAll, setIsSavingAll] = useState(false);
   const [isAllSaved, setIsAllSaved] = useState(false);
@@ -48,6 +66,17 @@ export default function ScanPrescriptionPage() {
     setEditableMeds(result?.medications?.length ? result.medications.map((m) => ({ ...m })) : []);
     setInsulinConfirmed(false);
   }
+
+  // Đếm giây trong lúc AI đang phân tích - dùng để đổi thông điệp tiến trình, tăng dần
+  // progress bar và xoay vòng mẹo sức khỏe. Reset về 0 mỗi khi bắt đầu 1 lượt phân tích
+  // mới (isAnalyzing chuyển false -> true).
+  useEffect(() => {
+    if (!isAnalyzing) return undefined;
+    const interval = setInterval(() => {
+      setAnalyzeElapsed((s) => s + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isAnalyzing]);
 
   // Insulin sai liều gây hạ đường huyết nặng nhanh hơn bất kỳ nhóm thuốc tiểu đường nào
   // khác - bắt buộc xác nhận thủ công riêng, không chỉ dựa vào việc xem qua danh sách.
@@ -75,6 +104,7 @@ export default function ScanPrescriptionPage() {
   const handleAnalyze = useCallback(async () => {
     if (!imageFile) return;
 
+    setAnalyzeElapsed(0);
     setIsAnalyzing(true);
     try {
       const res = await scanService.analyzePrescription(imageFile);
@@ -216,13 +246,36 @@ export default function ScanPrescriptionPage() {
   if (isAnalyzing) {
     // Giữ nguyên TopBar/BottomNav (không dùng SplashScreen toàn màn hình) - người dùng
     // đang thao tác trong app, không phải đang mở/đăng nhập lại app.
+    const stepIndex = analyzeElapsed < 2 ? 0 : analyzeElapsed < 4 ? 1 : analyzeElapsed < 6 ? 2 : 3;
+    const step = ANALYZE_STEPS[stepIndex];
+    const progress = Math.min(95, 15 + analyzeElapsed * 9);
+    const tip = HEALTH_TIPS[(tipOffset + Math.floor(analyzeElapsed / 5)) % HEALTH_TIPS.length];
+
     return (
       <div className={styles.analyzingBlock}>
-        <div className={styles.analyzingSpinner}>
-          <Activity size={28} />
+        <div className={styles.analyzingRadar}>
+          <div className={styles.radarRing} />
+          <div className={`${styles.radarRing} ${styles.radarRingDelay}`} />
+          <div className={styles.analyzingSpinner}>
+            <Activity size={28} />
+          </div>
         </div>
+
         <p className={styles.analyzingTitle}>AI Vision đang phân tích đơn thuốc</p>
-        <p className={styles.analyzingHint}>Đang trích xuất thông tin thuốc & chỉ số xét nghiệm...</p>
+
+        <div className={styles.analyzingStepRow} key={stepIndex}>
+          <span className={styles.analyzingStepIcon}>{step.icon}</span>
+          <span className={styles.analyzingStepText}>{step.text}</span>
+        </div>
+
+        <div className={styles.progressTrack}>
+          <div className={styles.progressFill} style={{ width: `${progress}%` }} />
+        </div>
+
+        <div className={styles.tipBox} key={tip}>
+          <span className={styles.tipIcon}>💡</span>
+          <span className={styles.tipText}>{tip}</span>
+        </div>
       </div>
     );
   }

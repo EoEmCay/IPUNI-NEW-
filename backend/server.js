@@ -80,8 +80,8 @@ const apiLimiter = rateLimit({
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 phút
-  max: 1000, // Cho phép 1000 lần thử đăng nhập/đăng ký mỗi 15 phút để tránh khóa nhầm IP khi khảo sát đông người
-  message: { message: 'Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau 15 phút.' },
+  max: 60, // Tối đa 60 lần thử đăng nhập/đăng ký mỗi 15 phút / IP
+  message: { message: 'Thao tác quá nhiều lần. Vui lòng thử lại sau 15 phút.' },
   standardHeaders: true,
   legacyHeaders: false,
 });

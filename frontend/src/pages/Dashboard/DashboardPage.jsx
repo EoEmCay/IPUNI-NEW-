@@ -145,7 +145,7 @@ export default function DashboardPage() {
             ) : (
               <div className={`${styles.medicationHeader} tour-step-3`}>
                 <div className={styles.medicationTitle}>
-                  <Pill size={18} color="#1B5FA6" />
+                  <Pill size={18} color="var(--color-primary)" />
                   {t.dashboard.todayMeds}
                 </div>
                 <Link to="/medications" className={styles.medLink}>{t.dashboard.viewPrescription}</Link>

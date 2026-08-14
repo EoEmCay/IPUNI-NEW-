@@ -109,7 +109,7 @@ export default function DoctorProfile() {
         </div>
 
         {/* Lời dặn từ đơn thuốc / Bác sĩ */}
-        <div className={styles.notesBox} style={{ background: '#F0F9FF', border: '1px solid #BAE6FD', borderRadius: '16px', padding: '16px' }}>
+        <div className={styles.notesBox} style={{ background: 'var(--color-bg)', border: '1px solid var(--color-border)', borderRadius: '16px', padding: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', color: 'var(--color-primary)', fontWeight: '700', fontSize: '15px' }}>
             <Stethoscope size={18} />
             <span>Lời dặn của Bác sĩ (Chỉ dẫn điều trị)</span>

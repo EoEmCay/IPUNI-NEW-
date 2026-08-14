@@ -110,7 +110,11 @@ function AppRoutes() {
     <>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/admin" element={
+          <ProtectedRoute>
+            <AdminPage />
+          </ProtectedRoute>
+        } />
         <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : (
           <MobileWrapper>
             <LoginPage />

@@ -30,6 +30,7 @@ html {
   align-items: center;
   justify-content: space-between;
   padding: 14px 40px;
+  padding-top: calc(14px + var(--safe-top, env(safe-area-inset-top, 0px)));
   background: rgba(3, 7, 18, 0.75); /* Dark slate glass */
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);

@@ -1,11 +1,11 @@
 const isProduction = process.env.NODE_ENV === 'production';
 
+// Fail-fast: một secret đoán được (hardcode trong source công khai) mà server vẫn
+// chạy bình thường thì coi như không có bảo vệ gì. Chặn khởi động ngay thay vì chỉ log.
 if (isProduction) {
-  if (!process.env.JWT_SECRET) {
-    console.error('🚨 FATAL ERROR: JWT_SECRET environment variable is missing on production!');
-  }
-  if (!process.env.ADMIN_DASHBOARD_KEY) {
-    console.error('🚨 FATAL ERROR: ADMIN_DASHBOARD_KEY environment variable is missing on production!');
+  const missing = ['JWT_SECRET', 'ADMIN_DASHBOARD_KEY'].filter((key) => !process.env[key]);
+  if (missing.length > 0) {
+    throw new Error(`🚨 FATAL: thiếu biến môi trường bắt buộc ở production: ${missing.join(', ')}`);
   }
 }
 

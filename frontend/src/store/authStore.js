@@ -12,6 +12,12 @@ const useAuthStore = create((set) => ({
     set({ token, user, isAuthenticated: true });
   },
 
+  setToken: (token) => {
+    localStorage.setItem('diaplus_token', token);
+    updateTokenCache(token);
+    set({ token, isAuthenticated: true });
+  },
+
   setUser: (user) => set({ user }),
 
   logout: () => {

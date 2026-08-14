@@ -13,13 +13,22 @@ async function authMiddleware(req, res, next) {
     return sendError(res, 'Unauthorized', 401);
   }
   const token = authHeader.slice(7);
+
+  let decoded;
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    
-    // Check token version in DB
+    decoded = jwt.verify(token, JWT_SECRET);
+  } catch (err) {
+    return sendError(res, 'Token không hợp lệ hoặc đã hết hạn', 401);
+  }
+
+  // Từ đây trở đi, token JWT đã được xác thực hợp lệ — mọi lỗi tiếp theo (DB chập chờn,
+  // pool nguội sau khi idle...) là lỗi hạ tầng, KHÔNG được trả 401. Frontend (api.js) coi
+  // 401 = "phiên hết hạn" và tự đăng xuất + redirect /login ngay lập tức; một lần DB hiccup
+  // thoáng qua (dễ gặp nhất ngay sau khi vừa đăng nhập) sẽ đá người dùng ra ngoài oan.
+  try {
     const db = require('../config/database');
     const user = await db('users').where({ id: decoded.id }).first();
-    
+
     if (!user) {
       return sendError(res, 'Người dùng không tồn tại', 401);
     }
@@ -45,7 +54,7 @@ async function authMiddleware(req, res, next) {
     req.user = decoded;
     next();
   } catch (err) {
-    return sendError(res, 'Token không hợp lệ hoặc đã hết hạn', 401);
+    return sendError(res, 'Lỗi máy chủ, vui lòng thử lại', 500);
   }
 }
 

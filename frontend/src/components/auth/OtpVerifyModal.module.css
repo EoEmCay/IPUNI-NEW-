@@ -171,6 +171,62 @@
   text-align: center;
 }
 
+/* ─── BLOCKED PHASE (đã có tài khoản / gửi OTP thất bại) ─── */
+.blockedPhase {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 44px 28px 32px;
+  gap: 10px;
+  text-align: center;
+  animation: fadeSlide 0.35s ease both;
+}
+
+.blockedIconWrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.blockedIconWrap.isInfo {
+  background: linear-gradient(135deg, #1B5FA6, #2575E8);
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(27, 95, 166, 0.30);
+}
+
+.blockedIconWrap.isWarning {
+  background: #FEF2F2;
+  color: #EF4444;
+  font-size: 26px;
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.18);
+}
+
+.blockedTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.blockedMessage {
+  font-size: 13.5px;
+  color: #64748B;
+  font-weight: 500;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.blockedActions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 /* ─── CHOOSE PHASE ─── */
 .choosePhase {
   display: flex;

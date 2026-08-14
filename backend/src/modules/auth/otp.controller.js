@@ -1,3 +1,4 @@
+const db = require('../../config/database');
 const { sendOtp, verifyOtp, issueRegistrationTicket } = require('./otp.service');
 const { sendSuccess, sendError } = require('../../utils/response.helper');
 
@@ -11,12 +12,30 @@ async function register(req, res) {
       return sendError(res, 'Vui lòng cung cấp email/số điện thoại và mật khẩu.', 400);
     }
 
+    // Chặn TRƯỚC khi gửi OTP: nếu email/SĐT này đã có tài khoản, không tốn 1 lượt gửi
+    // mail/SMS thật (và không khiến người dùng đã có tài khoản tưởng nhầm là đang đăng ký).
+    const isPhoneTarget = !actualTarget.includes('@');
+    const existingUser = await db('users')
+      .where(isPhoneTarget ? { phone: actualTarget } : { email: actualTarget })
+      .first();
+
+    if (existingUser) {
+      return sendError(
+        res,
+        isPhoneTarget
+          ? 'Số điện thoại này đã có tài khoản. Vui lòng đăng nhập.'
+          : 'Email này đã có tài khoản. Vui lòng đăng nhập.',
+        409,
+        'ALREADY_REGISTERED'
+      );
+    }
+
     await sendOtp(actualTarget, password);
 
     return sendSuccess(res, null, 'Mã OTP đã được tạo và gửi thành công.');
   } catch (err) {
     const errorMsg = err.message || 'Lỗi không xác định.';
-    return sendError(res, `Không thể gửi OTP: ${errorMsg}`, 500);
+    return sendError(res, `Không thể gửi OTP: ${errorMsg}`, err.status || 500);
   }
 }
 

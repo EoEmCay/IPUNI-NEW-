@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
+import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth.service';
 import { useT } from '../../hooks/useT';
 import styles from './OtpVerifyModal.module.css';
@@ -35,9 +36,10 @@ const ArrowLeftSVG = () => (
 
 export default function OtpVerifyModal({ target: propTarget, email, phone, formData, onVerified, onClose }) {
   const t = useT();
+  const navigate = useNavigate();
   const actualTarget = propTarget || email || phone;
   const isPhone = !actualTarget.includes('@');
-  const [phase, setPhase] = useState('loading'); // 'loading' | 'choose' | 'input'
+  const [phase, setPhase] = useState('loading'); // 'loading' | 'choose' | 'input' | 'blocked'
   const [method, setMethod] = useState(isPhone ? 'phone' : 'email');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timeLeft, setTimeLeft] = useState(300);
@@ -45,26 +47,37 @@ export default function OtpVerifyModal({ target: propTarget, email, phone, formD
   const [sending, setSending] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [resent, setResent] = useState(false);
+  // { message, isAlreadyRegistered } - lý do bị chặn không cho vào màn nhập mã
+  const [blockedInfo, setBlockedInfo] = useState(null);
   const inputRefs = useRef([]);
 
-  // Loading phase: 1.5s then send OTP
-  useEffect(() => {
-    const t = setTimeout(async () => {
-      setMethod(isPhone ? 'phone' : 'email');
-      setSending(true);
-      setError('');
-      try {
-        await authService.sendOtp(actualTarget, formData.password);
-      } catch {
-        // fail silently
-      } finally {
-        setSending(false);
-      }
+  const attemptSendOtp = async () => {
+    setMethod(isPhone ? 'phone' : 'email');
+    setSending(true);
+    setError('');
+    try {
+      await authService.sendOtp(actualTarget, formData.password);
       setOtp(['', '', '', '', '', '']);
       setTimeLeft(300);
       setPhase('input');
       setTimeout(() => inputRefs.current[0]?.focus(), 150);
-    }, 1200);
+    } catch (err) {
+      // Không gửi được mã (đã có tài khoản, hết lượt gửi, lỗi mạng...) -> KHÔNG được
+      // âm thầm đưa người dùng vào màn "nhập mã" vì sẽ không bao giờ có mã nào tới.
+      const data = err?.response?.data;
+      setBlockedInfo({
+        message: data?.message || 'Không thể gửi mã xác thực. Vui lòng thử lại sau.',
+        isAlreadyRegistered: data?.code === 'ALREADY_REGISTERED',
+      });
+      setPhase('blocked');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  // Loading phase: 1.2s rồi mới gửi OTP (hiệu ứng "đang chuẩn bị")
+  useEffect(() => {
+    const t = setTimeout(() => { attemptSendOtp(); }, 1200);
     return () => clearTimeout(t);
   }, []);
 
@@ -141,11 +154,16 @@ export default function OtpVerifyModal({ target: propTarget, email, phone, formD
     try {
       await authService.sendOtp(actualTarget, formData.password);
       setResent(true);
+      setTimeLeft(300);
       setTimeout(() => setResent(false), 3000);
-    } catch {}
-    finally { setSending(false); }
-    setTimeLeft(300);
-    setTimeout(() => inputRefs.current[0]?.focus(), 50);
+      setTimeout(() => inputRefs.current[0]?.focus(), 50);
+    } catch (err) {
+      // Gửi lại thất bại (hết cooldown 60s, hết lượt/ngày...) -> hiển thị rõ lý do
+      // ngay trong ô lỗi có sẵn, thay vì im lặng để người dùng tưởng mã đã gửi lại.
+      setError(err?.response?.data?.message || 'Không thể gửi lại mã. Vui lòng thử lại sau.');
+    } finally {
+      setSending(false);
+    }
   };
 
   const maskedTarget = isPhone
@@ -171,6 +189,29 @@ export default function OtpVerifyModal({ target: propTarget, email, phone, formD
             </div>
             <p className={styles.loadingTitle}>{t.otp.preparing}<span className={styles.dots} /></p>
             <p className={styles.loadingSubtitle}>{t.otp.verifyingSecurity}</p>
+          </div>
+        )}
+
+        {/* ══════════ PHASE: BLOCKED (đã có tài khoản / không gửi được mã) ══════════ */}
+        {phase === 'blocked' && blockedInfo && (
+          <div className={styles.blockedPhase}>
+            <div className={`${styles.blockedIconWrap} ${blockedInfo.isAlreadyRegistered ? styles.isInfo : styles.isWarning}`}>
+              {blockedInfo.isAlreadyRegistered ? <ShieldSVG /> : <span>⚠</span>}
+            </div>
+            <p className={styles.blockedTitle}>
+              {blockedInfo.isAlreadyRegistered ? 'Email này đã có tài khoản' : 'Không thể gửi mã xác thực'}
+            </p>
+            <p className={styles.blockedMessage}>{blockedInfo.message}</p>
+            <div className={styles.blockedActions}>
+              {blockedInfo.isAlreadyRegistered ? (
+                <button className={styles.confirmBtn} onClick={() => navigate('/login')}>Đăng nhập ngay</button>
+              ) : (
+                <button className={styles.confirmBtn} onClick={attemptSendOtp} disabled={sending}>
+                  {sending ? t.otp.sending : 'Thử lại'}
+                </button>
+              )}
+              <button className={styles.resendBtn} onClick={onClose}>Đóng</button>
+            </div>
           </div>
         )}
 

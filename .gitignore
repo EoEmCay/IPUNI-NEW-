@@ -6,3 +6,9 @@ dist-ssr
 .DS_Store
 .env
 .env.local
+
+# File/thư mục trùng tên do xung đột đồng bộ iCloud Drive/Dropbox (vd "App.jsx 2",
+# "node_modules 2") - từng bị commit nhầm 4818 file một lần, chặn để không lặp lại.
+* 2
+* 2.*
+* 2/

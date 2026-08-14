@@ -177,40 +177,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* ── Doctor section (Danh sách Bác sĩ - Find Doctors style) ── */}
-        <div className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <span className={styles.sectionTitle}>
-              Danh sách Bác sĩ
-            </span>
-            <Link to="/appointments" className={styles.seeAll}>
-              Xem tất cả &gt;
-            </Link>
-          </div>
-          <div className={styles.doctorListSummary}>
-            <div 
-              className={styles.mockupDoctorCard}
-              onClick={() => navigate('/doctor/B%C3%A1c%20s%C4%A9%20DIA%2B')}
-            >
-              <div className={styles.mockupDoctorTop}>
-                <img 
-                  src="https://ui-avatars.com/api/?name=DIA%2B&background=1B5FA6&color=fff&size=150" 
-                  alt="Bác sĩ DIA+" 
-                  className={styles.mockupDoctorAvatar}
-                />
-                <div className={styles.mockupDoctorInfo}>
-                  <div className={styles.mockupDoctorName}>Chuyên gia Bác sĩ DIA+</div>
-                  <div className={styles.mockupDoctorSub}>Đái tháo đường &amp; Dinh dưỡng | DIA+ Center</div>
-                  <div className={styles.mockupDoctorRatingRow}>
-                    <span className={styles.starText}>⭐ 5.0</span>
-                    <span className={styles.timeText}>🕒 10:30 - 17:30</span>
-                  </div>
-                </div>
-              </div>
-              <button className={styles.fullWidthBookBtn}>Đặt lịch hẹn</button>
-            </div>
-          </div>
-        </div>
+
       </div>
 
       {showModal && (

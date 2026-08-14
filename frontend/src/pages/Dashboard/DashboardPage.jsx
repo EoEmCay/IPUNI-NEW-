@@ -166,8 +166,8 @@ export default function DashboardPage() {
               <>
                 {todayMedications.slice(0, 2).map((m) => <MedicationCard key={m.id} medication={m} />)}
                 {todayMedications.length > 2 && (
-                  <div style={{ textAlign: 'center', fontSize: '14px', color: 'var(--text-secondary)', marginTop: '8px' }}>
-                    {isCuteMode 
+                  <div className={styles.moreMedsHint}>
+                    {isCuteMode
                       ? t.dashboard.moreMedsCute.replace('{{count}}', todayMedications.length - 2)
                       : t.dashboard.moreMeds.replace('{{count}}', todayMedications.length - 2)}
                   </div>
@@ -176,8 +176,6 @@ export default function DashboardPage() {
             )}
           </div>
         </div>
-
-
       </div>
 
       {showModal && (

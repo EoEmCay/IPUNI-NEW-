@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Star, ShieldCheck, Stethoscope, Camera, Calendar, ArrowRight } from 'lucide-react';
+import { ShieldCheck, Stethoscope, Camera, ArrowRight } from 'lucide-react';
 import { appointmentsService } from '../../services/appointments.service';
 import styles from './AppointmentsPage.module.css';
 
@@ -48,7 +48,6 @@ export default function AppointmentsPage() {
                 title: title,
                 specialty: 'Bác sĩ điều trị',
                 hospital: 'Theo đơn thuốc đã quét',
-                rating: 5.0,
                 avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(cleanName)}&background=1B5FA6&color=fff&size=150`,
                 tags: ['Bác sĩ điều trị', 'Từ đơn thuốc đã quét'],
                 notes: app.note || 'Theo dõi chỉ số đái tháo đường và tái khám theo chỉ định.',
@@ -92,58 +91,19 @@ export default function AppointmentsPage() {
         {isLoading ? (
           <div className={styles.loading}>Đang tải thông tin bác sĩ từ đơn thuốc...</div>
         ) : doctors.length === 0 ? (
-          <div style={{
-            background: 'var(--color-surface)',
-            border: '1px solid var(--color-border)',
-            borderRadius: '24px',
-            padding: '36px 20px',
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '16px',
-            marginTop: '12px'
-          }}>
-            <div style={{
-              width: '64px',
-              height: '64px',
-              borderRadius: '50%',
-              background: 'var(--color-bg)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--color-primary)'
-            }}>
+          <div className={styles.emptyState}>
+            <div className={styles.emptyStateIcon}>
               <Stethoscope size={32} />
             </div>
 
-            <div style={{ maxWidth: '320px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--color-text-primary)', marginBottom: '8px' }}>
-                Chưa có Bác sĩ từ đơn thuốc
-              </h3>
-              <p style={{ fontSize: '13.5px', color: 'var(--color-text-secondary)', lineHeight: '1.5', margin: 0 }}>
+            <div className={styles.emptyStateText}>
+              <h3 className={styles.emptyStateTitle}>Chưa có Bác sĩ từ đơn thuốc</h3>
+              <p className={styles.emptyStateDesc}>
                 Hãy quét/chụp ảnh đơn thuốc của bạn. Trợ lý AI DIA+ sẽ tự động nhận diện thông tin Bác sĩ điều trị và Lời dặn dặn dò tại đây.
               </p>
             </div>
 
-            <button
-              onClick={() => navigate('/scan')}
-              style={{
-                marginTop: '8px',
-                background: 'var(--color-primary)',
-                color: '#ffffff',
-                border: 'none',
-                padding: '12px 24px',
-                borderRadius: '20px',
-                fontSize: '14px',
-                fontWeight: '700',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.12)'
-              }}
-            >
+            <button className={styles.emptyStateBtn} onClick={() => navigate('/scan')}>
               <Camera size={18} />
               <span>Quét đơn thuốc ngay</span>
               <ArrowRight size={16} />
@@ -165,7 +125,7 @@ export default function AppointmentsPage() {
                     {doc.specialty} | {doc.hospital}
                   </div>
                   {doc.notes && (
-                    <div style={{ fontSize: '12.5px', color: '#475569', marginTop: '6px', background: 'var(--color-bg)', padding: '6px 10px', borderRadius: '8px', border: '1px dashed var(--color-border)' }}>
+                    <div className={styles.doctorNotes}>
                       <strong>Lời dặn:</strong> {doc.notes}
                     </div>
                   )}

@@ -483,7 +483,7 @@
   border: 2px solid #E2E8F0;
   border-radius: 14px;
   background: #F8FAFC;
-  font-size: 24px;
+  font-size: 24px !important; /* giữ nguyên cỡ chữ lớn của ô OTP, không bị luật 16px toàn cục ép nhỏ lại */
   font-weight: 800;
   text-align: center;
   color: #0F172A;

@@ -85,6 +85,15 @@ button { cursor: pointer; border: none; background: none; font-family: var(--fon
 input, select, textarea { font-family: var(--font-body); outline: none; }
 a { text-decoration: none; color: inherit; }
 
+/* iOS Safari (kể cả PWA standalone) tự động zoom cả trang khi focus vào input có
+   font-size tính toán < 16px, và không phải lúc nào cũng tự zoom lại đúng - làm layout
+   như bị vỡ. Rất nhiều input trong app đang để 13-15px theo thiết kế; ép tối thiểu 16px
+   ở đây thay vì sửa từng file để đảm bảo không sót input nào, kể cả input thêm sau này.
+   Chênh lệch 1-3px gần như không nhận ra bằng mắt thường. */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
 .page-content {
   flex: 1;
   overflow-y: auto;

@@ -145,6 +145,7 @@
   width: 100%;
   max-width: 600px;
   height: 100vh;
+  height: 100dvh;
   border-radius: 0;
   display: flex;
   flex-direction: column;

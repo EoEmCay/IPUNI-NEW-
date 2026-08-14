@@ -4,6 +4,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh; /* toolbar Safari/Chrome mobile ẩn/hiện không để lộ khoảng hở phía sau overlay */
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(2px);
   display: flex;

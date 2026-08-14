@@ -12,10 +12,6 @@ export default function ScanHistoryPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedScan, setSelectedScan] = useState(null);
 
-  useEffect(() => {
-    loadHistory();
-  }, []);
-
   const loadHistory = async () => {
     try {
       const data = await scanHistoryService.getHistory();
@@ -26,6 +22,10 @@ export default function ScanHistoryPage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadHistory();
+  }, []);
 
   const handleDelete = async (id, e) => {
     if (e) e.stopPropagation();

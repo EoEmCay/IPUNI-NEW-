@@ -39,17 +39,17 @@ export default function SettingsPage() {
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
 
+  const loadSettings = async () => {
+    const data = await voiceAlertService.getAllSettings();
+    setSettings(data);
+  };
+
   useEffect(() => {
     loadSettings();
     return () => {
       voiceAlertService.stopAlert();
     };
   }, []);
-
-  const loadSettings = async () => {
-    const data = await voiceAlertService.getAllSettings();
-    setSettings(data);
-  };
 
   const startRecording = async (alertType) => {
     try {

@@ -412,7 +412,19 @@ async function resetPassword(target, newPassword) {
   return { token, user: sanitizeUser(user) };
 }
 
+// Xoá dấu vết "thiết bị đang hoạt động" khi đăng xuất chủ động. Nếu không làm việc này,
+// login() vẫn thấy last_active_at mới (được auth.middleware cập nhật liên tục trong lúc
+// dùng app) trong tối đa 45s sau - đăng nhập lại ngay sau khi đăng xuất (kịch bản rất phổ
+// biến khi test hoặc dùng thật) sẽ bị hiểu nhầm thành "có thiết bị khác đang hoạt động" và
+// bắt chờ duyệt, dù thực chất chỉ là chính thiết bị đó đăng nhập lại. Người dùng thấy màn
+// hình "chờ duyệt" bế tắc (không có thiết bị nào khác để duyệt), tưởng nhầm là mất dữ liệu
+// trong khi dữ liệu vẫn còn nguyên trong DB.
+async function logout(userId) {
+  if (!userId) return;
+  await db('users').where({ id: userId }).update({ last_active_at: null }).catch(() => {});
+}
+
 module.exports = {
-  login, register, getMe, googleLogin, demoLogin, acknowledgeSession,
+  login, register, getMe, googleLogin, demoLogin, acknowledgeSession, logout,
   getLoginStatus, getPendingApprovals, approveLogin, rejectLogin, changePassword, resetPassword,
 };

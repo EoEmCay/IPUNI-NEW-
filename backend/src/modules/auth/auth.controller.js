@@ -42,7 +42,8 @@ async function getMe(req, res, next) {
   }
 }
 
-function logout(req, res) {
+async function logout(req, res) {
+  await authService.logout(req.user?.id);
   sendSuccess(res, null, 'Đăng xuất thành công');
 }
 

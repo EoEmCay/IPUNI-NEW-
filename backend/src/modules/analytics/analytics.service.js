@@ -178,6 +178,63 @@ async function getUsers() {
   return users;
 }
 
+// Dọn sạch database trước khi bắt đầu dùng thật: giữ đúng 1 tài khoản (keepEmail) nhưng
+// xoá rỗng dữ liệu bên trong tài khoản đó luôn, xoá hẳn mọi tài khoản khác + dữ liệu của
+// họ. KHÔNG đụng bảng `advice` (nội dung tĩnh của app, không phải dữ liệu người dùng).
+// confirm=false (mặc định) chỉ trả về số liệu XEM TRƯỚC, không xoá gì cả.
+async function resetForLaunch(keepEmail, confirm) {
+  const keepUser = await db('users').where({ email: keepEmail }).first();
+  if (!keepUser) {
+    const err = new Error(`Không tìm thấy tài khoản "${keepEmail}" trong database.`);
+    err.status = 404;
+    throw err;
+  }
+
+  const [{ count: totalUsers }] = await db('users').count('id as count');
+  const otherUserIds = (await db('users').whereNot('id', keepUser.id).select('id')).map((u) => u.id);
+  const allUserIds = [keepUser.id, ...otherUserIds];
+
+  const countFor = async (table) => {
+    const has = await db.schema.hasTable(table);
+    if (!has) return 0;
+    const [{ count }] = await db(table).whereIn('user_id', allUserIds).count('id as count');
+    return Number(count);
+  };
+
+  const preview = {
+    keepEmail,
+    keepUserId: keepUser.id,
+    totalUsers: Number(totalUsers),
+    usersToDelete: otherUserIds.length,
+    metricsToDelete: await countFor('metrics'),
+    medicationsToDelete: await countFor('medications'),
+    appointmentsToDelete: await countFor('appointments'),
+    scanUsagesToDelete: await countFor('scan_usages'),
+    confirmed: !!confirm,
+  };
+
+  if (!confirm) return preview;
+
+  await db('metrics').whereIn('user_id', allUserIds).del();
+  await db('medications').whereIn('user_id', allUserIds).del();
+  await db('appointments').whereIn('user_id', allUserIds).del();
+  if (await db.schema.hasTable('scan_usages')) {
+    await db('scan_usages').whereIn('user_id', allUserIds).del();
+  }
+  if (await db.schema.hasTable('analytics_events')) {
+    await db('analytics_events').whereIn('user_id', allUserIds).del().catch(() => {});
+  }
+  if (otherUserIds.length > 0) {
+    await db('users').whereIn('id', otherUserIds).del();
+  }
+  await db('users').where({ id: keepUser.id }).update({
+    token_version: (keepUser.token_version || 1) + 1,
+    last_active_at: null,
+  });
+
+  return preview;
+}
+
 module.exports = {
   recordEvent,
   getOverview,
@@ -185,4 +242,5 @@ module.exports = {
   getCharts,
   getRecent,
   buildReport,
+  resetForLaunch,
 };

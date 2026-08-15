@@ -94,6 +94,21 @@ async function health(req, res, next) {
   }
 }
 
+// POST /analytics/reset-data  (admin) — dọn sạch DB trước khi dùng thật, xem
+// backend/scripts/resetForLaunch.js để chạy tương đương qua Shell nếu có quyền.
+// Body: { keepEmail?: string, confirm?: boolean }. confirm mặc định false (chỉ xem trước).
+async function resetData(req, res, next) {
+  try {
+    const keepEmail = (req.body && req.body.keepEmail) || 'khoi@example.com';
+    const confirm = !!(req.body && req.body.confirm);
+    const result = await service.resetForLaunch(keepEmail, confirm);
+    sendSuccess(res, result, confirm ? 'Đã xoá xong, chỉ còn tài khoản được giữ lại.' : 'Xem trước - chưa xoá gì cả.');
+  } catch (err) {
+    if (err.status) return sendError(res, err.message, err.status);
+    next(err);
+  }
+}
+
 module.exports = { track,  overview,
   getUsers,
-  charts, recent, exportSheets, health };
+  charts, recent, exportSheets, health, resetData };

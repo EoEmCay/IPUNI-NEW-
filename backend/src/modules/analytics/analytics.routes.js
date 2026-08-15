@@ -13,5 +13,6 @@ router.get('/charts', adminAuth, controller.charts);
 router.get('/recent', adminAuth, controller.recent);
 router.get('/health', adminAuth, controller.health);
 router.post('/export-sheets', adminAuth, controller.exportSheets);
+router.post('/reset-data', adminAuth, controller.resetData);
 
 module.exports = router;

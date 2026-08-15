@@ -2,6 +2,7 @@
   padding: 24px 16px 100px;
   background: var(--color-bg);
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 .header {
@@ -163,10 +164,6 @@
 
 .online {
   background-color: var(--color-success);
-}
-
-.busy {
-  background-color: var(--color-text-secondary);
 }
 
 .mockupDoctorInfo {

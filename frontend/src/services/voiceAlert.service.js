@@ -75,7 +75,7 @@ export const voiceAlertService = {
   async getAllSettings() {
     try {
       return (await localforage.getItem(VOICE_STORE_KEY)) || {};
-    } catch (e) {
+    } catch {
       return {};
     }
   },
@@ -153,24 +153,38 @@ export const voiceAlertService = {
           voices = window.speechSynthesis.getVoices();
         }
 
-        let viVoice = voices.find(v => 
-          v.lang === 'vi-VN' || 
-          v.lang === 'vi_VN' ||
-          v.name === 'Google Tiếng Việt' ||
-          v.name.includes('Linh') ||
-          v.name.includes('Vietnamese')
-        );
+        // Ưu tiên đúng giọng "chị Google" Tiếng Việt (chất lượng tốt hơn hẳn giọng hệ
+        // thống mặc định, đỡ nghe robot/chậm chạp). Google thường liệt kê 2 bản cho cùng
+        // 1 giọng: bản mạng (localService: false, âm thanh tự nhiên hơn - đây mới là bản
+        // "chị Google" thật) và bản cài sẵn trên máy (localService: true, chất lượng thấp
+        // hơn) - ưu tiên bản mạng nếu có cả hai.
+        const isGoogleVi = (v) => v.lang.toLowerCase().startsWith('vi') && v.name.toLowerCase().includes('google');
+        const googleViVoices = voices.filter(isGoogleVi);
+        let viVoice = googleViVoices.find((v) => v.localService === false) || googleViVoices[0];
+
         if (!viVoice) {
-          viVoice = voices.find(v => v.lang.includes('vi'));
+          viVoice = voices.find(v =>
+            v.lang === 'vi-VN' ||
+            v.lang === 'vi_VN' ||
+            v.name === 'Google Tiếng Việt' ||
+            v.name.includes('Linh') ||
+            v.name.includes('Vietnamese')
+          );
         }
-        
+        if (!viVoice) {
+          viVoice = voices.find(v => v.lang.toLowerCase().startsWith('vi'));
+        }
+
         if (viVoice) {
           utterance.voice = viVoice;
           // Đảm bảo lang khớp với voice để không bị xung đột trên một số máy Android
-          utterance.lang = viVoice.lang; 
+          utterance.lang = viVoice.lang;
         }
 
-        utterance.rate = 1.0;
+        // Tốc độ đọc nhanh, dứt khoát hơn mặc định (1.0 nghe chậm/nhàm chán) - vẫn trong
+        // ngưỡng nghe rõ chữ, không bị vấp âm.
+        utterance.rate = 1.2;
+        utterance.pitch = 1.0;
         
         window.speechSynthesis.speak(utterance);
       }

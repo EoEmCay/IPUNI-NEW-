@@ -19,7 +19,6 @@ export default function AddMetricModal({ onClose, onSave, onSuccess, defaultType
   const t = useT();
   const [measurementType, setMeasurementType] = useState(defaultType || MEASUREMENT_TYPES.GLUCOSE_FASTING);
   const [value, setValue] = useState('');
-  const [valueDiastolic, setValueDiastolic] = useState('');
   const [measuredDate, setMeasuredDate] = useState(date);
   const [measuredTime, setMeasuredTime] = useState(time);
   const [note, setNote] = useState('');
@@ -31,7 +30,6 @@ export default function AddMetricModal({ onClose, onSave, onSuccess, defaultType
 
   const handleSave = async () => {
     const num = parseFloat(value);
-    const numDia = parseFloat(valueDiastolic);
 
     if (!value || isNaN(num) || num < minValue || num > maxValue) {
       setError(`${meta.label}: ${minValue} – ${maxValue} ${unit}`);

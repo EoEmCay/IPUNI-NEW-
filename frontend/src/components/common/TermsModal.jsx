@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useT } from '../../hooks/useT';
 import styles from './TermsModal.module.css';
 

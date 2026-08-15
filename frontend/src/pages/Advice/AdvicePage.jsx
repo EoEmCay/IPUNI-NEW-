@@ -10,7 +10,7 @@ export default function AdvicePage() {
   const t = useT();
   const [category, setCategory] = useState('all');
   const [selected, setSelected] = useState(null);
-  const { advice, loading, fetchAdvice } = useAdvice();
+  const { advice, fetchAdvice } = useAdvice();
 
   const CATEGORIES = useMemo(() => [
     { value: 'all', label: `📖 ${t.advice.allAdvice}` },

@@ -1,4 +1,3 @@
-import React from 'react';
 import styles from './CutePillBox.module.css';
 
 export default function CutePillBox() {

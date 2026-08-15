@@ -27,7 +27,7 @@ const ArrowLeftSVG = () => (
 );
 
 export default function RegisterPage() {
-  const { register, completeRegistration } = useAuth();
+  const { completeRegistration } = useAuth();
   const navigate = useNavigate();
   const applyDefaultLook = useThemeStore((s) => s.applyDefaultLook);
 

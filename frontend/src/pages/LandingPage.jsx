@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Activity, Sparkles, ChevronRight, Play, X, Calendar, Mic, LineChart, CloudUpload, Clock, Link, Globe, Users, HeartPulse, ShieldCheck, Phone, Mail, Camera, ArrowRight } from 'lucide-react';
+import { Activity, Sparkles, Play, X, Calendar, Mic, LineChart, CloudUpload, Clock, Link, Globe, Users, HeartPulse, ShieldCheck, Phone, Mail, Camera, ArrowRight } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import useAuthStore from '../store/authStore';
 import { useT } from '../hooks/useT';
@@ -50,11 +50,8 @@ export default function LandingPage() {
   const [showModal, setShowModal] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
   const lang = useLangStore(s => s.lang);
-  const setLang = useLangStore(s => s.setLang);
   const t = useT();
   const text = t.landing;
-
-  const toggleLanguage = () => setLang(lang === 'vi' ? 'en' : lang === 'en' ? 'lo' : 'vi');
 
   useEffect(() => {
     if (isAuthenticated) navigate('/dashboard');

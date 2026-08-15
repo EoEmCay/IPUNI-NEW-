@@ -13,39 +13,6 @@ export default function OnboardingTour() {
   const navigate = useNavigate();
   const location = useLocation();
   const t = useT();
-  
-  useEffect(() => {
-    if (!user || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/') return;
-
-    const isDemoUser = user.is_demo || (user.email && user.email.startsWith('demo_'));
-    const forceTour = localStorage.getItem('diaplus_force_tour');
-    const hasSeenTour = localStorage.getItem('diaplus_has_seen_tour');
-    
-    if (forceTour || (isDemoUser && !hasSeenTour)) {
-      const timer = setTimeout(() => {
-        startTour();
-        localStorage.removeItem('diaplus_force_tour');
-        localStorage.setItem('diaplus_has_seen_tour', 'true');
-      }, 500);
-      
-      return () => clearTimeout(timer);
-    }
-
-    if (!isDemoUser && !hasSeenTour) {
-      const timer = setTimeout(() => {
-        setShowChoice(true);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [user, location.pathname]);
-
-  const handleChoice = (wantTour) => {
-    setShowChoice(false);
-    localStorage.setItem('diaplus_has_seen_tour', 'true');
-    if (wantTour) {
-      startTour();
-    }
-  };
 
   const steps = [
     {
@@ -90,15 +57,6 @@ export default function OnboardingTour() {
     }
   ];
 
-  const startTour = () => {
-    if (location.pathname !== '/dashboard') {
-      navigate('/dashboard');
-      setTimeout(() => initDriver(0), 300);
-    } else {
-      initDriver(0);
-    }
-  };
-
   const initDriver = (startIndex) => {
     const driverObj = driver({
       showProgress: true,
@@ -109,7 +67,7 @@ export default function OnboardingTour() {
       prevBtnText: t.tour.prevBtn,
       doneBtnText: t.tour.doneBtn,
       progressText: t.tour.progressText,
-      onNextClick: (el, step, opts) => {
+      onNextClick: () => {
         const nextIndex = driverObj.getActiveIndex() + 1;
         if (nextIndex < steps.length) {
           const nextStep = steps[nextIndex];
@@ -124,7 +82,7 @@ export default function OnboardingTour() {
           driverObj.destroy();
         }
       },
-      onPrevClick: (el, step, opts) => {
+      onPrevClick: () => {
         const prevIndex = driverObj.getActiveIndex() - 1;
         if (prevIndex >= 0) {
           const prevStep = steps[prevIndex];
@@ -142,7 +100,7 @@ export default function OnboardingTour() {
         popover: step.popover
       }))
     });
-    
+
     const targetEl = steps[startIndex].element;
     if (document.querySelector(targetEl)) {
       driverObj.drive(startIndex);
@@ -154,6 +112,49 @@ export default function OnboardingTour() {
             console.warn(`Tour step target not found: ${targetEl}`);
         }
       }, 500);
+    }
+  };
+
+  const startTour = () => {
+    if (location.pathname !== '/dashboard') {
+      navigate('/dashboard');
+      setTimeout(() => initDriver(0), 300);
+    } else {
+      initDriver(0);
+    }
+  };
+
+  useEffect(() => {
+    if (!user || location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/') return;
+
+    const isDemoUser = user.is_demo || (user.email && user.email.startsWith('demo_'));
+    const forceTour = localStorage.getItem('diaplus_force_tour');
+    const hasSeenTour = localStorage.getItem('diaplus_has_seen_tour');
+
+    if (forceTour || (isDemoUser && !hasSeenTour)) {
+      const timer = setTimeout(() => {
+        startTour();
+        localStorage.removeItem('diaplus_force_tour');
+        localStorage.setItem('diaplus_has_seen_tour', 'true');
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+
+    if (!isDemoUser && !hasSeenTour) {
+      const timer = setTimeout(() => {
+        setShowChoice(true);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, location.pathname]);
+
+  const handleChoice = (wantTour) => {
+    setShowChoice(false);
+    localStorage.setItem('diaplus_has_seen_tour', 'true');
+    if (wantTour) {
+      startTour();
     }
   };
 

@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { Pill, ChevronRight } from 'lucide-react';
-import { formatDateVN } from '../../utils/date';
 import useMedicationsStore from '../../store/medicationsStore';
-import { withDoctorPrefix } from '../../utils/doctor';
 import MedicationDetailModal from './MedicationDetailModal';
 import { useT } from '../../hooks/useT';
 import styles from './MedicationCard.module.css';

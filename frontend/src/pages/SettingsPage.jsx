@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Settings, Mic, Square, Play, Trash2, HeartPulse, Activity, ZoomIn, Crown, Sparkles, Bell, Shield, HelpCircle } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Settings, Mic, Square, Play, Trash2, Activity, ZoomIn, Crown, Sparkles, Bell, Shield, HelpCircle } from 'lucide-react';
 import { voiceAlertService, ALERT_TYPES } from '../services/voiceAlert.service';
 import useThemeStore from '../store/themeStore';
 import useAccessibilityStore from '../store/accessibilityStore';
@@ -77,7 +77,7 @@ export default function SettingsPage() {
 
       mediaRecorder.start();
       setRecordingId(alertType);
-    } catch (err) {
+    } catch {
       alert(s.micError);
     }
   };

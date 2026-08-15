@@ -19,7 +19,9 @@ export function useMedications() {
     try {
       const res = await medicationsService.getToday();
       setTodayMedications(res.data.data);
-    } catch {}
+    } catch {
+      // Bỏ qua - không chặn UI vì đây chỉ là dữ liệu phụ (thuốc hôm nay)
+    }
   }, [setTodayMedications]);
 
   return { medications, todayMedications, loading, fetchMedications, fetchToday };

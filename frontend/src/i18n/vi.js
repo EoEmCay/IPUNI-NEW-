@@ -78,7 +78,7 @@ const vi = {
     discoverSubtitle: 'Được thiết kế tỉ mỉ để mang lại trải nghiệm chăm sóc y tế thông minh, thân thiện và hiệu quả nhất.',
     f1Title: 'Giọng nói người thân',
     f1Desc: 'Tính năng độc quyền giúp thu âm giọng nói của con cháu để nhắc nhở uống thuốc hoặc cảnh báo đường huyết.',
-    f1Demo: '\"Ông ơi, đến giờ uống thuốc rồi nhé!\"',
+    f1Demo: '"Ông ơi, đến giờ uống thuốc rồi nhé!"',
     f1Effect: 'Xóa nhòa khoảng cách thế hệ bằng giọng nói thân thương',
     f2Title: 'Quét đơn thuốc AI',
     f2Desc: 'Chỉ cần một bức ảnh, AI của DIA+ sẽ tự động phân tích tên thuốc, công dụng và liều dùng chính xác.',

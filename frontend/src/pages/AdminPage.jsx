@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import api from '../services/api';
 import { Users, AlertTriangle, ShieldCheck, Database, Calendar } from 'lucide-react';
 import styles from './AdminPage.module.css';
@@ -7,14 +7,14 @@ export default function AdminPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [adminKey, setAdminKey] = useState('');
+  const [adminKey, setAdminKey] = useState(() => localStorage.getItem('ipuni_admin_key') || '');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
+
     try {
       const res = await api.get(`/analytics/users`, {
         headers: {
@@ -24,19 +24,12 @@ export default function AdminPage() {
       setUsers(res.data.data);
       setIsAuthenticated(true);
       localStorage.setItem('ipuni_admin_key', adminKey);
-    } catch (err) {
+    } catch {
       setError('Sai mã khóa quản trị hoặc lỗi kết nối đến máy chủ.');
     } finally {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    const savedKey = localStorage.getItem('ipuni_admin_key');
-    if (savedKey) {
-      setAdminKey(savedKey);
-    }
-  }, []);
 
   if (!isAuthenticated) {
     return (

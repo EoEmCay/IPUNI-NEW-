@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Activity, Heart, ShieldCheck, Sparkles } from 'lucide-react';
-import useThemeStore from '../../store/themeStore';
 import styles from './SplashScreen.module.css';
 
 export default function SplashScreen({ message, autoClose = false, onFinished }) {

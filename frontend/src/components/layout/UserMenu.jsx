@@ -2,13 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 import { User, Settings, LogOut, Palette, Globe } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useT } from '../../hooks/useT';
-import useLangStore from '../../store/langStore';
-
-const LANG_FLAGS = [
-  { code: 'vi', emoji: '🇻🇳', key: 'langVi' },
-  { code: 'en', emoji: '🇬🇧', key: 'langEn' },
-  { code: 'lo', emoji: '🇱🇦', key: 'langLo' },
-];
 import { useNavigate } from 'react-router-dom';
 import UserProfileModal from './UserProfileModal';
 import GiaoDienModal from './GiaoDienModal';
@@ -17,7 +10,6 @@ import styles from './UserMenu.module.css';
 export default function UserMenu() {
   const { user, logout } = useAuth();
   const t = useT();
-  const { lang, setLang } = useLangStore();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);

@@ -1,4 +1,4 @@
-import { Palette, Sparkles, Crown, Lock, Check } from 'lucide-react';
+import { Sparkles, Crown, Lock, Check } from 'lucide-react';
 import Modal from '../common/Modal';
 import useThemeStore from '../../store/themeStore';
 import styles from './GiaoDienModal.module.css';

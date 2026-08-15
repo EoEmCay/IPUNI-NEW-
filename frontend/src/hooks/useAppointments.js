@@ -19,7 +19,9 @@ export function useAppointments() {
     try {
       const res = await appointmentsService.getDoctorNotes();
       setDoctorNotes(res.data.data);
-    } catch {}
+    } catch {
+      // Bỏ qua - không chặn UI vì đây chỉ là dữ liệu phụ (ghi chú bác sĩ)
+    }
   }, []);
 
   return { appointments, doctorNotes, loading, fetchAppointments, fetchDoctorNotes };

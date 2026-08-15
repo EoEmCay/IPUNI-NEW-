@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Activity, Pill, Star } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useMetrics } from '../../hooks/useMetrics';
 import { useMedications } from '../../hooks/useMedications';
 import useThemeStore from '../../store/themeStore';
 import { useT } from '../../hooks/useT';
-import { MetricCard, AddMetricCard } from '../../components/metrics/MetricCard';
-import { AverageMetricCard } from '../../components/metrics/AverageMetricCard';
 import MedicationCard from '../../components/medications/MedicationCard';
 import AddMetricModal from '../../components/metrics/AddMetricModal';
 import SuccessToast from '../../components/common/SuccessToast';
@@ -39,7 +37,6 @@ function formatDate(t) {
 }
 
 export default function DashboardPage() {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const { fetchLatest, addMetric } = useMetrics();
   const { todayMedications, fetchToday } = useMedications();

@@ -2,7 +2,7 @@ import { Activity, Droplet } from 'lucide-react';
 import { useT } from '../../hooks/useT';
 import styles from './StatisticsCard.module.css';
 
-export default function StatisticsCard({ statistics, estimatedHbA1c, period, type }) {
+export default function StatisticsCard({ statistics, estimatedHbA1c, type }) {
   const t = useT();
 
   if (!statistics || statistics.count === 0) {

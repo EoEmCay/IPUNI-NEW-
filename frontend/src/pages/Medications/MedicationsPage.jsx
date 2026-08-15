@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Pill, Plus, Calendar as CalendarIcon, User, CalendarDays } from 'lucide-react';
+import { Pill, Calendar as CalendarIcon, User, CalendarDays } from 'lucide-react';
 import { useMedications } from '../../hooks/useMedications';
 import { useT } from '../../hooks/useT';
 import { withDoctorPrefix } from '../../utils/doctor';

@@ -97,6 +97,39 @@ async function health(req, res, next) {
   }
 }
 
+// POST /analytics/test-mail  (admin) — công cụ chẩn đoán tạm thời: gửi 1 email thật và
+// trả về NGUYÊN VĂN phản hồi SMTP (messageId, response, accepted/rejected) thay vì chỉ
+// "thành công/thất bại" chung chung như luồng OTP bình thường. Xoá sau khi dùng xong.
+async function testMail(req, res) {
+  try {
+    const { getTransporter, getFromAddress } = require('../../utils/mailer');
+    const transporter = getTransporter();
+    if (!transporter) {
+      return sendError(res, 'Không có transporter nào được cấu hình (thiếu RESEND_API_KEY lẫn GMAIL_USER/PASS)', 500);
+    }
+    const to = req.body?.to;
+    if (!to) return sendError(res, 'Thiếu "to" trong body', 400);
+
+    const info = await transporter.sendMail({
+      from: getFromAddress(),
+      to,
+      subject: 'DIA+ - Test chẩn đoán Resend',
+      text: `Email chẩn đoán, gửi lúc ${new Date().toISOString()}`,
+    });
+
+    sendSuccess(res, {
+      from: getFromAddress(),
+      messageId: info.messageId,
+      response: info.response,
+      accepted: info.accepted,
+      rejected: info.rejected,
+      envelope: info.envelope,
+    });
+  } catch (err) {
+    sendError(res, `Lỗi gửi mail: ${err.message}`, 500);
+  }
+}
+
 module.exports = { track,  overview,
   getUsers,
-  charts, recent, exportSheets, health };
+  charts, recent, exportSheets, health, testMail };

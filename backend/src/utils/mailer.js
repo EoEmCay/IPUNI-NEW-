@@ -8,23 +8,41 @@ const logger = require('./logger');
 // Gmail cá nhân dễ bị Google tự động chặn/giới hạn khi gửi tự động số lượng lớn). Nếu
 // chưa cấu hình RESEND_API_KEY thì fallback về Gmail (GMAIL_USER/PASS) như cũ, chủ yếu
 // để không phá vỡ máy dev cục bộ trong lúc chuyển đổi hạ tầng.
+//
+// QUAN TRỌNG: Resend được gọi qua HTTP API (api.resend.com), KHÔNG qua SMTP. Đã xác
+// nhận bằng chẩn đoán trực tiếp trên production rằng Render chặn hoàn toàn outbound SMTP
+// (cả cổng 465 lẫn 587 đều timeout ở mức TCP thô, dù DNS phân giải bình thường) - đây là
+// giới hạn phổ biến của các PaaS free-tier để chống spam, không phải lỗi cấu hình. HTTP
+// API tránh hoàn toàn vấn đề này vì chỉ là 1 request HTTPS thông thường (cổng 443).
 let cachedTransporter;
 let cachedFrom;
+
+function buildResendTransporter(apiKey) {
+  cachedFrom = process.env.MAIL_FROM || 'DIA+ <no-reply@diaplus.vn>';
+  logger.info(`[Mailer] Dùng Resend qua HTTP API (key ...${apiKey.slice(-4)}), from: ${cachedFrom}`);
+  return {
+    async sendMail({ from, to, subject, text, html }) {
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ from: from || cachedFrom, to, subject, text, html }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(`Resend API lỗi (${res.status}): ${body?.message || JSON.stringify(body)}`);
+      }
+      return { messageId: body.id, response: 'resend-api-ok', accepted: [to], rejected: [] };
+    },
+  };
+}
 
 function buildTransporter() {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
   if (RESEND_API_KEY) {
-    cachedFrom = process.env.MAIL_FROM || 'DIA+ <no-reply@diaplus.vn>';
-    logger.info(`[Mailer] Dùng Resend (key ...${RESEND_API_KEY.slice(-4)}), from: ${cachedFrom}`);
-    return nodemailer.createTransport({
-      host: 'smtp.resend.com',
-      port: 465,
-      secure: true,
-      auth: { user: 'resend', pass: RESEND_API_KEY },
-      connectionTimeout: 5000,
-      greetingTimeout: 5000,
-      socketTimeout: 5000,
-    });
+    return buildResendTransporter(RESEND_API_KEY);
   }
 
   const GMAIL_USER = process.env.GMAIL_USER || process.env.MAIL_USER;

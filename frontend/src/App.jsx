@@ -14,7 +14,6 @@ import MetricsPage from './pages/Metrics/MetricsPage';
 import MedicationsPage from './pages/Medications/MedicationsPage';
 import AppointmentsPage from './pages/Appointments/AppointmentsPage';
 import DoctorProfile from './pages/Appointments/DoctorProfile';
-import AudioCall from './pages/Appointments/AudioCall';
 import AdvicePage from './pages/Advice/AdvicePage';
 import ScanPrescriptionPage from './pages/ScanPrescriptionPage';
 import ScanHistoryPage from './pages/ScanHistoryPage';
@@ -27,11 +26,9 @@ function ProtectedRoute({ children }) {
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 }
 
-import SplashScreen from './components/common/SplashScreen';
 
 function AppRoutes() {
   const { token, isAuthenticated, setUser, logout, setToken } = useAuthStore();
-  const [showSplash, setShowSplash] = useState(true);
   const [showConflictModal, setShowConflictModal] = useState(false);
   const [pendingApprovals, setPendingApprovals] = useState([]);
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
@@ -96,7 +93,7 @@ function AppRoutes() {
       const res = await authService.acknowledgeSession();
       setToken(res.data.token);
       setShowConflictModal(false);
-    } catch (e) {
+    } catch {
       logout();
     }
   };
@@ -165,13 +162,6 @@ function AppRoutes() {
           <ProtectedRoute>
             <MobileWrapper>
               <DoctorProfile />
-            </MobileWrapper>
-          </ProtectedRoute>
-        } />
-        <Route path="/call/:id" element={
-          <ProtectedRoute>
-            <MobileWrapper>
-              <AudioCall />
             </MobileWrapper>
           </ProtectedRoute>
         } />

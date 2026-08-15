@@ -2,7 +2,12 @@
   "medications": [
     {
       "name": "metformin",
-      "aliases": ["glucophage", "diamet", "tiaphage", "gluformin"],
+      "aliases": [
+        "glucophage",
+        "diamet",
+        "tiaphage",
+        "gluformin"
+      ],
       "category": "Biguanides",
       "purpose": "Thuốc hạ đường huyết hàng đầu cho tiểu đường type 2, giảm lượng đường được gan sản xuất và tăng độ nhạy insulin của cơ thể",
       "mechanism": "Giảm sản xuất glucose ở gan, tăng nhạy cảm insulin, cải thiện hấp thu glucose ở cơ bắp",
@@ -15,7 +20,10 @@
     },
     {
       "name": "gliclazide",
-      "aliases": ["diamicron", "predian"],
+      "aliases": [
+        "diamicron",
+        "predian"
+      ],
       "category": "Sulfonylureas",
       "purpose": "Kích thích tuyến tụy tiết insulin nhiều hơn, hạ đường huyết hiệu quả",
       "mechanism": "Hoạt động trên tế bào beta tuyến tụy, tăng tiết insulin",
@@ -28,7 +36,11 @@
     },
     {
       "name": "glimepiride",
-      "aliases": ["amaryl", "glimet", "glimpi"],
+      "aliases": [
+        "amaryl",
+        "glimet",
+        "glimpi"
+      ],
       "category": "Meglitinides",
       "purpose": "Kích thích tuyến tụy tiết insulin, hạ đường huyết nhanh",
       "mechanism": "Kích hoạt kênh K-ATP trên tế bào beta, tăng tiết insulin",
@@ -41,7 +53,9 @@
     },
     {
       "name": "sitagliptin",
-      "aliases": ["januvia"],
+      "aliases": [
+        "januvia"
+      ],
       "category": "DPP-4 Inhibitors",
       "purpose": "Ức chế enzyme DPP-4, giúp tuyến tụy tiết insulin khi cần, giảm đường huyết",
       "mechanism": "Tăng GLP-1, kích thích tiết insulin phụ thuộc glucose",
@@ -54,7 +68,15 @@
     },
     {
       "name": "insulin",
-      "aliases": ["mixtard", "lantus", "novomix", "novorapid", "humulin", "humalog", "levemir"],
+      "aliases": [
+        "mixtard",
+        "lantus",
+        "novomix",
+        "novorapid",
+        "humulin",
+        "humalog",
+        "levemir"
+      ],
       "category": "Insulin",
       "purpose": "Bổ sung insulin cho cơ thể, kiểm soát đường huyết ở những bệnh nhân không đáp ứng với thuốc uống",
       "mechanism": "Thay thế insulin tự nhiên, cho phép glucose vào tế bào cơ bắp và mô mỡ",
@@ -67,7 +89,9 @@
     },
     {
       "name": "empagliflozin",
-      "aliases": ["jardiance"],
+      "aliases": [
+        "jardiance"
+      ],
       "category": "SGLT2 Inhibitors",
       "purpose": "Giảm tái hấp thu glucose ở thận, bài xuất glucose qua nước tiểu",
       "mechanism": "Ức chế SGLT2 transporter, glucose bị loại qua nước tiểu",
@@ -80,7 +104,9 @@
     },
     {
       "name": "dapagliflozin",
-      "aliases": ["forxiga"],
+      "aliases": [
+        "forxiga"
+      ],
       "category": "SGLT2 Inhibitors",
       "purpose": "Giảm đường huyết bằng cách bài xuất glucose qua nước tiểu",
       "mechanism": "Ức chế kênh SGLT2, giảm tái hấp thu glucose ở thận",
@@ -93,7 +119,9 @@
     },
     {
       "name": "acarbose",
-      "aliases": ["glucobay"],
+      "aliases": [
+        "glucobay"
+      ],
       "category": "Alpha-Glucosidase Inhibitor",
       "purpose": "Chậm hấp thu glucose ở ruột non, giảm nhanh đường huyết sau ăn",
       "mechanism": "Ức chế enzyme tiêu hóa carbs, giảm tốc độ hấp thu glucose",
@@ -106,7 +134,9 @@
     },
     {
       "name": "pioglitazone",
-      "aliases": ["actos"],
+      "aliases": [
+        "actos"
+      ],
       "category": "Thiazolidinediones",
       "purpose": "Tăng độ nhạy cảm insulin, giúp cơ thể sử dụng insulin hiệu quả hơn",
       "mechanism": "Hoạt động trên PPAR-gamma, tăng nhạy cảm insulin",
@@ -119,7 +149,9 @@
     },
     {
       "name": "linagliptin",
-      "aliases": ["trajenta"],
+      "aliases": [
+        "trajenta"
+      ],
       "category": "DPP-4 Inhibitors",
       "purpose": "Ức chế DPP-4, giúp tuyến tụy tiết insulin phù hợp",
       "mechanism": "Tăng GLP-1, kích thích tiết insulin phụ thuộc glucose",
@@ -132,7 +164,10 @@
     },
     {
       "name": "semaglutide",
-      "aliases": ["ozempic", "wegovy"],
+      "aliases": [
+        "ozempic",
+        "wegovy"
+      ],
       "category": "GLP-1 Receptor Agonist",
       "purpose": "Tiêm hàng tuần, giảm đường huyết và giảm cân hiệu quả",
       "mechanism": "Hoạt động như GLP-1, tăng tiết insulin, giảm cảm giác đói",
@@ -142,6 +177,69 @@
       "dosage": "0.25-2.4mg tiêm dưới da hàng tuần",
       "source": "ADA, Mayo Clinic, Vinmec",
       "notes": "Giảm cân 5-15%, bảo vệ tim, cần tư vấn bác sĩ về sử dụng"
+    },
+    {
+      "name": "candesartan",
+      "aliases": [
+        "atacand",
+        "blopress"
+      ],
+      "category": "Angiotensin II Receptor Blockers (ARB)",
+      "purpose": "Điều trị tăng huyết áp, đặc biệt hiệu quả trong bảo vệ thận ở bệnh nhân đái tháo đường có tổn thương thận",
+      "mechanism": "Ức chế thụ thể angiotensin II (AT1), làm giãn mạch máu, giảm huyết áp và giảm áp lực lọc cầu thận",
+      "sideEffects": "Chóng mặt, đau đầu, tăng kali máu, hạ huyết áp tư thế, hiếm gặp phù mạch",
+      "contraindications": "Phụ nữ có thai, hẹp động mạch thận 2 bên, dị ứng với thuốc nhóm ARB",
+      "interactions": "Thuốc lợi tiểu giữ kali, NSAIDs (giảm hiệu quả hạ áp), lithium",
+      "dosage": "Khởi đầu 4-8mg/ngày, có thể tăng tới 32mg/ngày, uống 1 lần/ngày",
+      "source": "Dược Thư Quốc Gia Việt Nam, Hội Tim mạch học Việt Nam",
+      "notes": "Thường phối hợp điều trị tăng huyết áp ở bệnh nhân đái tháo đường type 2 kèm bệnh thận"
+    },
+    {
+      "name": "losartan",
+      "aliases": [
+        "cozaar",
+        "hyzaar"
+      ],
+      "category": "Angiotensin II Receptor Blockers (ARB)",
+      "purpose": "Điều trị tăng huyết áp và bảo vệ thận ở bệnh nhân đái tháo đường type 2",
+      "mechanism": "Ức chế thụ thể angiotensin II (AT1), giãn mạch, giảm huyết áp",
+      "sideEffects": "Chóng mặt, mệt mỏi, tăng kali máu, hạ huyết áp",
+      "contraindications": "Phụ nữ có thai, hẹp động mạch thận 2 bên",
+      "interactions": "Thuốc lợi tiểu giữ kali, NSAIDs, lithium",
+      "dosage": "Khởi đầu 50mg/ngày, có thể tăng tới 100mg/ngày",
+      "source": "Dược Thư Quốc Gia Việt Nam, Hội Tim mạch học Việt Nam",
+      "notes": "Lựa chọn phổ biến khi bệnh nhân không dung nạp thuốc ức chế men chuyển (ACEi) do ho khan"
+    },
+    {
+      "name": "amlodipine",
+      "aliases": [
+        "amlor",
+        "norvasc"
+      ],
+      "category": "Calcium Channel Blockers (CCB)",
+      "purpose": "Điều trị tăng huyết áp và đau thắt ngực",
+      "mechanism": "Ức chế kênh calci type L, giãn cơ trơn mạch máu, giảm sức cản ngoại vi",
+      "sideEffects": "Phù mắt cá chân, đỏ bừng mặt, đau đầu, chóng mặt",
+      "contraindications": "Sốc tim, hẹp động mạch chủ nặng, dị ứng nhóm dihydropyridine",
+      "interactions": "Thuốc ức chế CYP3A4 (một số kháng nấm, kháng sinh) làm tăng nồng độ thuốc",
+      "dosage": "Khởi đầu 5mg/ngày, có thể tăng tới 10mg/ngày, uống 1 lần/ngày",
+      "source": "Dược Thư Quốc Gia Việt Nam, Hội Tim mạch học Việt Nam",
+      "notes": "Phù chân là tác dụng phụ thường gặp nhất, không nguy hiểm nhưng gây khó chịu"
+    },
+    {
+      "name": "atorvastatin",
+      "aliases": [
+        "lipitor"
+      ],
+      "category": "Statins (HMG-CoA Reductase Inhibitors)",
+      "purpose": "Hạ cholesterol xấu (LDL-C), phòng ngừa biến cố tim mạch ở bệnh nhân đái tháo đường",
+      "mechanism": "Ức chế men HMG-CoA reductase, giảm tổng hợp cholesterol tại gan",
+      "sideEffects": "Đau cơ, tăng men gan, hiếm gặp tiêu cơ vân",
+      "contraindications": "Bệnh gan hoạt động, phụ nữ có thai/cho con bú",
+      "interactions": "Thuốc kháng nấm nhóm azole, kháng sinh macrolide, nước ép bưởi làm tăng độc tính",
+      "dosage": "Thường 10-40mg/ngày, uống buổi tối",
+      "source": "Dược Thư Quốc Gia Việt Nam, Hội Tim mạch học Việt Nam",
+      "notes": "Khuyến cáo dùng cho hầu hết bệnh nhân đái tháo đường type 2 trên 40 tuổi để phòng ngừa tim mạch"
     }
   ]
 }

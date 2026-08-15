@@ -48,6 +48,9 @@
   padding: 24px;
   overflow-y: auto;
   flex: 1;
+  min-height: 0; /* bắt buộc để flex item thật sự cuộn được, không thì nó tự giãn theo
+                    nội dung thay vì bị giới hạn bởi max-height của .modal - cuộn/vuốt sẽ
+                    không hoạt động và nút "Tiếp tục" không bao giờ được bật */
   font-size: 14px;
   line-height: 1.6;
   color: #4B5563;

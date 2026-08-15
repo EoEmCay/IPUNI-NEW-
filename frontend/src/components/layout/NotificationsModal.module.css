@@ -63,6 +63,7 @@
 .content {
   flex: 1;
   overflow-y: auto;
+  min-height: 0; /* bắt buộc để flex item cuộn được trong flex-direction: column */
   padding: 16px;
 }
 

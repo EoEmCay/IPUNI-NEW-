@@ -76,6 +76,7 @@ async function exportSheets(req, res, next) {
 async function health(req, res, next) {
   try {
     const db = require('../../config/database');
+    const { getFromAddress } = require('../../utils/mailer');
     const start = Date.now();
     await db.raw('select 1');
     const dbLatency = Date.now() - start;
@@ -87,6 +88,8 @@ async function health(req, res, next) {
       memoryMb: Math.round(process.memoryUsage().rss / 1024 / 1024),
       nodeVersion: process.version,
       sheetsConfigured: !!process.env.GOOGLE_SHEETS_WEBHOOK_URL,
+      mailProvider: process.env.RESEND_API_KEY ? 'resend' : ((process.env.GMAIL_USER || process.env.MAIL_USER) ? 'gmail' : 'none'),
+      mailFrom: getFromAddress(),
       serverTime: new Date().toISOString(),
     });
   } catch (err) {

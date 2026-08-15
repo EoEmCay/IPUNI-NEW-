@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const logger = require('./logger');
 
 // Nơi duy nhất khởi tạo transporter gửi mail cho toàn bộ app - trước đây otp.service.js
 // và auth.service.js mỗi nơi tự dựng transporter Gmail riêng (3 chỗ trùng lặp).
@@ -14,6 +15,7 @@ function buildTransporter() {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
   if (RESEND_API_KEY) {
     cachedFrom = process.env.MAIL_FROM || 'DIA+ <no-reply@diaplus.vn>';
+    logger.info(`[Mailer] Dùng Resend (key ...${RESEND_API_KEY.slice(-4)}), from: ${cachedFrom}`);
     return nodemailer.createTransport({
       host: 'smtp.resend.com',
       port: 465,
@@ -29,6 +31,7 @@ function buildTransporter() {
   const GMAIL_PASS = process.env.GMAIL_PASS || process.env.MAIL_PASS;
   if (GMAIL_USER && GMAIL_PASS) {
     cachedFrom = process.env.MAIL_FROM || `DIA+ <${GMAIL_USER}>`;
+    logger.warn(`[Mailer] KHÔNG thấy RESEND_API_KEY - dùng Gmail fallback (${GMAIL_USER}).`);
     return nodemailer.createTransport({
       service: 'gmail',
       auth: { user: GMAIL_USER, pass: GMAIL_PASS },
@@ -38,6 +41,7 @@ function buildTransporter() {
     });
   }
 
+  logger.error('[Mailer] Không có RESEND_API_KEY lẫn GMAIL_USER/PASS - không thể gửi mail.');
   cachedFrom = null;
   return null;
 }

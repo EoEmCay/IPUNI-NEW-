@@ -81,18 +81,19 @@ const apiLimiter = rateLimit({
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 phút
-  max: 60, // Tối đa 60 lần thử đăng nhập/đăng ký mỗi 15 phút / IP
+  max: 1000, // Nới rất rộng để không chặn nhầm người dùng thật - vẫn còn 1 trần chặn bot dò mật khẩu hàng loạt
   message: { message: 'Thao tác quá nhiều lần. Vui lòng thử lại sau 15 phút.' },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-// Giới hạn RIÊNG, chặt hơn nhiều cho các endpoint gửi OTP - mỗi lần gửi tốn phí SMS/email
-// thật (eSMS/SpeedSMS/Gmail). authLimiter (1000 req/15') vốn dành cho login/register,
-// quá lỏng cho một endpoint có thể bị lợi dụng làm SMS bombing / cạn tiền tài khoản SMS.
+// Giới hạn RIÊNG cho các endpoint gửi OTP - mỗi lần gửi tốn phí SMS/email thật
+// (eSMS/SpeedSMS/Gmail), nên vẫn giữ trần thấp hơn authLimiter dù đã nới rộng, để tránh bị
+// lợi dụng làm SMS bombing / cạn tiền tài khoản SMS thật. otp.service.js còn giới hạn thêm
+// theo TỪNG target (60s cooldown, 10 lần/ngày) - độc lập với trần theo IP ở đây.
 const otpLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 giờ
-  max: 15, // Tối đa 15 lần gửi OTP / IP / giờ (otp.service.js còn giới hạn thêm theo target)
+  max: 100, // Tối đa 100 lần gửi OTP / IP / giờ
   message: { message: 'Bạn đã yêu cầu OTP quá nhiều lần. Vui lòng thử lại sau 1 giờ.' },
   standardHeaders: true,
   legacyHeaders: false,

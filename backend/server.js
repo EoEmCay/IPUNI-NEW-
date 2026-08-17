@@ -44,6 +44,10 @@ app.use((req, res, next) => {
 const allowedOrigins = [
   'http://localhost:5180',
   'http://localhost:5173',
+  'http://localhost:3000',
+  'https://localhost',         // WebView Capacitor Android (androidScheme: 'https')
+  'capacitor://localhost',     // WebView Capacitor iOS
+  'http://localhost',
   'https://diaplus-v2.vercel.app', // Tên miền frontend nếu có
   'https://diaplus.vn',
   'https://www.diaplus.vn',

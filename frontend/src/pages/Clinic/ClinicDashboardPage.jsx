@@ -33,6 +33,11 @@ export default function ClinicDashboardPage() {
     loadData();
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
 
+    // Poll cloud for real-time check-ins from phones on diaplus.vn
+    const cloudPoll = setInterval(() => {
+      clinicService.fetchPatientsFromCloud().then(() => loadData());
+    }, 3000);
+
     const handleSync = () => loadData();
     window.addEventListener('clinicSyncEvent', handleSync);
     window.addEventListener('storage', handleSync);

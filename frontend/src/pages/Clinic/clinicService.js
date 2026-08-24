@@ -1,4 +1,5 @@
 import { CLINIC_PROFILE, INITIAL_PATIENTS, INITIAL_NOTIFICATIONS } from './clinicDemoData';
+import api from '../../services/api';
 
 const STORAGE_KEYS = {
   CLINIC_PROFILE: 'diaplus_clinic_profile',
@@ -55,12 +56,26 @@ export const clinicService = {
   // Lấy danh sách bệnh nhân của phòng khám
   getPatients() {
     const data = localStorage.getItem(STORAGE_KEYS.PATIENTS);
-    if (!data) {
-      // Mặc định bắt đầu danh sách sạch (0 bệnh nhân ảo), chỉ hiển thị bệnh nhân thật quét QR
-      localStorage.setItem(STORAGE_KEYS.PATIENTS, JSON.stringify([]));
-      return [];
+    return data ? JSON.parse(data) : [];
+  },
+
+  // Đồng bộ danh sách bệnh nhân từ đám mây (Cloud Sync)
+  async fetchPatientsFromCloud(clinicId = 'PK-HOAN-MY-01') {
+    try {
+      const res = await api.get(`/clinic/patients?clinicId=${clinicId}`);
+      if (res.data?.success && Array.isArray(res.data.data)) {
+        const local = this.getPatients();
+        const map = new Map();
+        res.data.data.forEach(p => map.set(p.id, p));
+        local.forEach(p => map.set(p.id, p));
+        const merged = Array.from(map.values());
+        localStorage.setItem(STORAGE_KEYS.PATIENTS, JSON.stringify(merged));
+        return merged;
+      }
+    } catch (e) {
+      // Offline fallback to local
     }
-    return JSON.parse(data);
+    return this.getPatients();
   },
 
   // Lấy thông tin 1 bệnh nhân
@@ -84,6 +99,9 @@ export const clinicService = {
     });
     localStorage.setItem(STORAGE_KEYS.PATIENTS, JSON.stringify(updated));
     this.broadcastSync('PATIENT_UPDATED', { patientId });
+
+    // Sync cloud
+    api.post('/clinic/notes', { patientId, notes, nextAppointment }).catch(() => {});
     return updated.find(p => p.id === patientId);
   },
 
@@ -115,6 +133,9 @@ export const clinicService = {
     // Đồng bộ session phía app bệnh nhân
     localStorage.removeItem(STORAGE_KEYS.ACTIVE_PATIENT_SESSION);
     this.broadcastSync('PATIENT_CHECKOUT', { patientId });
+
+    // Sync cloud
+    api.post('/clinic/checkout', { patientId }).catch(() => {});
   },
 
   // Bệnh nhân QUÉT MÃ QR THẬT Check-in vào phòng khám
@@ -130,6 +151,7 @@ export const clinicService = {
 
     const newPatient = {
       id: realPatientData.id || `p-${Date.now()}`,
+      clinicId: profile.id,
       code: realPatientData.code || `DIA-${Math.floor(1000 + Math.random() * 9000)}`,
       name: realPatientData.name || 'Bệnh nhân DIA+',
       age: realPatientData.age || 50,
@@ -206,6 +228,19 @@ export const clinicService = {
     // Phát tín hiệu đồng bộ tức thì sang tab Dashboard của Bác sĩ
     this.broadcastSync('PATIENT_CHECKIN', { patient: newPatient });
 
+    // Sync cloud API so external phones on diaplus.vn instantly post to backend
+    api.post('/clinic/checkin', {
+      clinicId: profile.id,
+      name: newPatient.name,
+      phone: newPatient.phone,
+      gender: newPatient.gender,
+      age: newPatient.age,
+      glucose: newPatient.currentGlucose,
+      hba1c: newPatient.hba1c,
+      diabetesType: newPatient.diabetesType,
+      medications: newPatient.medications
+    }).catch(() => {});
+
     return newPatient;
   },
 
@@ -231,11 +266,7 @@ export const clinicService = {
   // Lấy thông báo phòng khám
   getNotifications() {
     const data = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS);
-    if (!data) {
-      localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify([]));
-      return [];
-    }
-    return JSON.parse(data);
+    return data ? JSON.parse(data) : [];
   },
 
   addNotification(notif) {
@@ -272,6 +303,7 @@ export const clinicService = {
     localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify([]));
     localStorage.removeItem(STORAGE_KEYS.ACTIVE_PATIENT_SESSION);
     this.broadcastSync('DATA_CLEARED', {});
+    api.post('/clinic/clear').catch(() => {});
   },
 
   // Nạp dữ liệu mẫu giả định khi cần thuyết trình

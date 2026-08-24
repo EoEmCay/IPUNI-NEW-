@@ -1,4 +1,4 @@
-import { CLINIC_PROFILE, INITIAL_PATIENTS, INITIAL_NOTIFICATIONS } from './clinicDemoData';
+import { CLINIC_PROFILE, INITIAL_PATIENTS, INITIAL_NOTIFICATIONS, MOCK_PATIENTS_SAMPLE, MOCK_NOTIFICATIONS_SAMPLE } from './clinicDemoData';
 import api from '../../services/api';
 
 const STORAGE_KEYS = {
@@ -56,7 +56,21 @@ export const clinicService = {
   // Lấy danh sách bệnh nhân của phòng khám
   getPatients() {
     const data = localStorage.getItem(STORAGE_KEYS.PATIENTS);
-    return data ? JSON.parse(data) : [];
+    if (!data) return [];
+    try {
+      const list = JSON.parse(data);
+      // Tự động dọn sạch dữ liệu ảo cũ, chỉ giữ lại bệnh nhân thật quét QR
+      const realOnly = list.filter(p => 
+        !['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8'].includes(p.id) &&
+        !['DIA-8801', 'DIA-8802', 'DIA-8803', 'DIA-8804', 'DIA-8805', 'DIA-8806', 'DIA-8807', 'DIA-8808'].includes(p.code)
+      );
+      if (realOnly.length !== list.length) {
+        localStorage.setItem(STORAGE_KEYS.PATIENTS, JSON.stringify(realOnly));
+      }
+      return realOnly;
+    } catch {
+      return [];
+    }
   },
 
   // Đồng bộ danh sách bệnh nhân từ đám mây (Cloud Sync)
@@ -266,7 +280,17 @@ export const clinicService = {
   // Lấy thông báo phòng khám
   getNotifications() {
     const data = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS);
-    return data ? JSON.parse(data) : [];
+    if (!data) return [];
+    try {
+      const list = JSON.parse(data);
+      const realOnly = list.filter(n => !['n1', 'n2', 'n3', 'n4', 'n5', 'n6'].includes(n.id));
+      if (realOnly.length !== list.length) {
+        localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(realOnly));
+      }
+      return realOnly;
+    } catch {
+      return [];
+    }
   },
 
   addNotification(notif) {
@@ -308,8 +332,8 @@ export const clinicService = {
 
   // Nạp dữ liệu mẫu giả định khi cần thuyết trình
   loadMockDemoData() {
-    localStorage.setItem(STORAGE_KEYS.PATIENTS, JSON.stringify(INITIAL_PATIENTS));
-    localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(INITIAL_NOTIFICATIONS));
+    localStorage.setItem(STORAGE_KEYS.PATIENTS, JSON.stringify(MOCK_PATIENTS_SAMPLE));
+    localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(MOCK_NOTIFICATIONS_SAMPLE));
     this.broadcastSync('DEMO_LOADED', {});
   },
 

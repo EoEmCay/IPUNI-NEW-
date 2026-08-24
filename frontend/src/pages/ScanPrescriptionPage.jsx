@@ -14,6 +14,7 @@ import { metricsService } from '../services/metrics.service';
 import { useMedications } from '../hooks/useMedications';
 import { useToast } from '../hooks/useToast';
 import { useT } from '../hooks/useT';
+import jsQR from 'jsqr';
 import ScanCamera from '../components/scan/ScanCamera';
 import LiveQRScanner from '../components/scan/LiveQRScanner';
 import styles from './ScanPrescriptionPage.module.css';
@@ -138,6 +139,74 @@ export default function ScanPrescriptionPage() {
 
     setAnalyzeElapsed(0);
     setIsAnalyzing(true);
+
+    // 1. Tự động kiểm tra nhanh xem ảnh chụp có phải là Mã QR Phòng Khám không (0.01 giây)
+    try {
+      const qrData = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            try {
+              const canvas = document.createElement('canvas');
+              canvas.width = img.width;
+              canvas.height = img.height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0);
+              const imageData = ctx.getImageData(0, 0, img.width, img.height);
+              const code = jsQR(imageData.data, imageData.width, imageData.height);
+              if (code && code.data) {
+                let parsed = null;
+                if (code.data.startsWith('{')) {
+                  parsed = JSON.parse(code.data);
+                } else if (code.data.includes('PK-') || code.data.includes('clinicId')) {
+                  parsed = { type: 'DIAPLUS_CLINIC_CHECKIN', raw: code.data };
+                }
+                resolve(parsed);
+                return;
+              }
+            } catch {}
+            resolve(null);
+          };
+          img.onerror = () => resolve(null);
+          img.src = e.target.result;
+        };
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(imageFile);
+      });
+
+      if (qrData) {
+        setIsAnalyzing(false);
+        setScanMode('clinic_qr');
+        
+        const profile = clinicService.getClinicProfile();
+        const targetClinicName = qrData.clinicName || profile.name;
+        const targetDoctorName = qrData.doctorName || profile.doctorName;
+
+        const newPatient = clinicService.checkinFromPatientApp({
+          name: user?.name || 'Bệnh nhân DIA+',
+          gender: user?.gender || 'Nam',
+          age: user?.age || 52,
+          phone: user?.phone || '0912 345 678',
+          glucose: 6.4,
+          hba1c: 6.8,
+          diabetesType: 'Type 2'
+        });
+
+        setCheckedInClinic({
+          clinicName: targetClinicName,
+          doctorName: targetDoctorName,
+          patientCode: newPatient.code
+        });
+
+        showToast(`🏥 Nhận diện thành công Mã QR Phòng Khám! Bạn đã check-in với ${targetDoctorName}.`, 'success');
+        return;
+      }
+    } catch (qrErr) {
+      console.warn('QR pre-scan skipped', qrErr);
+    }
+
+    // 2. Nếu là đơn thuốc y tế bình thường thì gửi sang AI Gemini Vision
     try {
       const res = await scanService.analyzePrescription(imageFile);
       const data = res.data.data;
@@ -167,7 +236,7 @@ export default function ScanPrescriptionPage() {
     } finally {
       setIsAnalyzing(false);
     }
-  }, [imageFile, showToast]);
+  }, [imageFile, showToast, t, user]);
 
   const handleSaveAll = useCallback(async () => {
     if (!editableMeds || editableMeds.length === 0) return;

@@ -1,0 +1,527 @@
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { 
+  Activity, Users, AlertCircle, Heart, Bell, QrCode, Search, 
+  RefreshCw, CheckCircle2, TrendingDown, TrendingUp, Minus, 
+  Clock, ShieldAlert, LogOut, ChevronRight, Filter, X, Smartphone, ArrowUpRight
+} from 'lucide-react';
+import { clinicService } from './clinicService';
+import PatientDetailModal from './PatientDetailModal';
+import ClinicQRCodeModal from './ClinicQRCodeModal';
+import styles from './ClinicDashboardPage.module.css';
+
+export default function ClinicDashboardPage() {
+  const navigate = useNavigate();
+  const [clinicProfile, setClinicProfile] = useState(null);
+  const [patients, setPatients] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedFilter, setSelectedFilter] = useState('all'); // 'all', 'emergency', 'meds_warning', 'normal', 'disconnected'
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [showNotifDrawer, setShowNotifDrawer] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Load data
+  const loadData = useCallback(() => {
+    setClinicProfile(clinicService.getClinicProfile());
+    setPatients(clinicService.getPatients());
+    setNotifications(clinicService.getNotifications());
+  }, []);
+
+  useEffect(() => {
+    loadData();
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+
+    const handleNotifEvent = () => loadData();
+    const handleSessionEvent = () => loadData();
+
+    window.addEventListener('clinicNotificationAdded', handleNotifEvent);
+    window.addEventListener('clinicSessionChanged', handleSessionEvent);
+
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('clinicNotificationAdded', handleNotifEvent);
+      window.removeEventListener('clinicSessionChanged', handleSessionEvent);
+    };
+  }, [loadData]);
+
+  // Handlers
+  const handleUpdateNotes = (patientId, notes, nextApp) => {
+    const updated = clinicService.updatePatientNotes(patientId, notes, nextApp);
+    loadData();
+    if (selectedPatient && selectedPatient.id === patientId) {
+      setSelectedPatient(updated);
+    }
+  };
+
+  const handleCheckout = (patientId) => {
+    clinicService.checkoutPatient(patientId);
+    loadData();
+  };
+
+  const handleResetDemo = () => {
+    if (window.confirm('Khôi phục dữ liệu demo mẫu của phòng khám?')) {
+      clinicService.resetDemoData();
+      loadData();
+    }
+  };
+
+  // KPIs
+  const kpis = useMemo(() => {
+    const activePatients = patients.filter(p => p.status === 'active');
+    const emergencyCases = activePatients.filter(p => p.glucoseStatus === 'emergency_low' || p.currentGlucose < 3.9);
+    const medsWarnings = activePatients.filter(p => p.adherenceScore < 70);
+    const overdueCount = patients.filter(p => p.status === 'overdue').length;
+
+    const avgAdherence = activePatients.length > 0 
+      ? Math.round(activePatients.reduce((acc, p) => acc + (p.adherenceScore || 0), 0) / activePatients.length)
+      : 0;
+
+    return {
+      totalActive: activePatients.length,
+      emergencyCount: emergencyCases.length,
+      avgAdherence,
+      overdueCount,
+      criticalPatient: emergencyCases[0] || null
+    };
+  }, [patients]);
+
+  // Filtered Patients
+  const filteredPatients = useMemo(() => {
+    return patients.filter(p => {
+      // Search
+      const matchesSearch = 
+        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.phone.includes(searchTerm);
+
+      if (!matchesSearch) return false;
+
+      // Filter
+      if (selectedFilter === 'emergency') {
+        return p.glucoseStatus === 'emergency_low' || p.currentGlucose < 3.9;
+      }
+      if (selectedFilter === 'meds_warning') {
+        return p.adherenceScore < 70;
+      }
+      if (selectedFilter === 'normal') {
+        return p.glucoseStatus === 'normal';
+      }
+      if (selectedFilter === 'disconnected') {
+        return p.deviceStatus === 'disconnected';
+      }
+      return true;
+    });
+  }, [patients, searchTerm, selectedFilter]);
+
+  const unreadNotifCount = useMemo(() => {
+    return notifications.filter(n => !n.read).length;
+  }, [notifications]);
+
+  return (
+    <div className={styles.clinicContainer}>
+      {/* Top Navigation Bar */}
+      <header className={styles.clinicNavbar}>
+        <div className={styles.brandArea}>
+          <div className={styles.brandLogo}>
+            DIA<span>+</span> CLINIC PORTAL
+          </div>
+          <span className={styles.clinicBadge}>Mã PK: {clinicProfile?.id}</span>
+          <div className={styles.clinicTitleGroup}>
+            <h1>{clinicProfile?.name}</h1>
+            <p>{clinicProfile?.department} • {clinicProfile?.address}</p>
+          </div>
+        </div>
+
+        <div className={styles.navActionGroup}>
+          <div style={{ fontSize: '13px', color: '#64748b', fontWeight: '600', marginRight: '8px' }}>
+            🕒 {currentTime.toLocaleTimeString('vi-VN')}
+          </div>
+
+          <button className={styles.qrBtn} onClick={() => setShowQRModal(true)}>
+            <QrCode size={16} /> Mã QR Check-in
+          </button>
+
+          <button 
+            className={styles.iconButton}
+            onClick={() => setShowNotifDrawer(true)}
+            title="Trung tâm thông báo"
+          >
+            <Bell size={18} />
+            {unreadNotifCount > 0 && (
+              <span className={styles.notifBadge}>{unreadNotifCount}</span>
+            )}
+          </button>
+
+          <button 
+            className={styles.iconButton}
+            onClick={handleResetDemo}
+            title="Làm mới dữ liệu demo"
+          >
+            <RefreshCw size={17} />
+          </button>
+
+          <div className={styles.doctorProfileChip}>
+            <div className={styles.doctorAvatar}>👨‍⚕️</div>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a' }}>{clinicProfile?.doctorName}</div>
+              <div style={{ fontSize: '11px', color: '#64748b' }}>{clinicProfile?.doctorTitle}</div>
+            </div>
+          </div>
+
+          <button 
+            className={styles.iconButton} 
+            onClick={() => navigate('/login')}
+            title="Đăng xuất / Quay về trang chính"
+          >
+            <LogOut size={16} color="#ef4444" />
+          </button>
+        </div>
+      </header>
+
+      {/* Flashing Red Emergency Banner */}
+      {kpis.criticalPatient && (
+        <div className={styles.emergencyTopBanner}>
+          <div className={styles.emergencyBannerLeft}>
+            <ShieldAlert size={26} />
+            <div>
+              <p className={styles.emergencyTitle}>
+                🚨 CẢNH BÁO KHẨN CẤP: Bệnh nhân {kpis.criticalPatient.name} ({kpis.criticalPatient.code}) đang bị hạ đường huyết cấp {kpis.criticalPatient.currentGlucose} mmol/L!
+              </p>
+              <p className={styles.emergencySubtitle}>
+                {kpis.criticalPatient.notes}
+              </p>
+            </div>
+          </div>
+          <button 
+            className={styles.emergencyActionBtn}
+            onClick={() => setSelectedPatient(kpis.criticalPatient)}
+          >
+            Xử trí ca cấp cứu ngay ➔
+          </button>
+        </div>
+      )}
+
+      {/* Main Content Area */}
+      <main className={styles.dashboardBody}>
+        {/* 4 KPI Summary Cards */}
+        <section className={styles.kpiGrid}>
+          <div className={styles.kpiCard}>
+            <div>
+              <p className={styles.kpiTitle}>Đang điều trị tại PK</p>
+              <h3 className={styles.kpiValue}>{kpis.totalActive}</h3>
+              <p className={styles.kpiSub}>Bệnh nhân đã quét QR check-in</p>
+            </div>
+            <div className={styles.kpiIconWrapper} style={{ background: '#e0f2fe', color: '#0284c7' }}>
+              <Users size={22} />
+            </div>
+          </div>
+
+          <div className={styles.kpiCard}>
+            <div>
+              <p className={styles.kpiTitle} style={{ color: '#dc2626' }}>Cảnh báo khẩn cấp</p>
+              <h3 className={styles.kpiValue} style={{ color: '#dc2626' }}>{kpis.emergencyCount}</h3>
+              <p className={styles.kpiSub}>Hạ đường huyết &lt; 3.9 / SOS</p>
+            </div>
+            <div className={styles.kpiIconWrapper} style={{ background: '#fee2e2', color: '#dc2626' }}>
+              <AlertCircle size={22} />
+            </div>
+          </div>
+
+          <div className={styles.kpiCard}>
+            <div>
+              <p className={styles.kpiTitle}>Tuân thủ phác đồ thuốc</p>
+              <h3 className={styles.kpiValue} style={{ color: kpis.avgAdherence >= 80 ? '#16a34a' : '#ca8a04' }}>
+                {kpis.avgAdherence}%
+              </h3>
+              <p className={styles.kpiSub}>Trung bình toàn phòng khám</p>
+            </div>
+            <div className={styles.kpiIconWrapper} style={{ background: '#dcfce7', color: '#16a34a' }}>
+              <CheckCircle2 size={22} />
+            </div>
+          </div>
+
+          <div className={styles.kpiCard}>
+            <div>
+              <p className={styles.kpiTitle}>Quá hạn tái khám</p>
+              <h3 className={styles.kpiValue} style={{ color: '#ea580c' }}>{kpis.overdueCount}</h3>
+              <p className={styles.kpiSub}>Cần điều dưỡng gọi nhắc lịch</p>
+            </div>
+            <div className={styles.kpiIconWrapper} style={{ background: '#ffedd5', color: '#ea580c' }}>
+              <Clock size={22} />
+            </div>
+          </div>
+        </section>
+
+        {/* Patient Table Card */}
+        <section className={styles.tableContainerCard}>
+          {/* Table Toolbar */}
+          <div className={styles.tableToolbar}>
+            <div className={styles.filterTabs}>
+              <button 
+                className={`${styles.filterTabBtn} ${selectedFilter === 'all' ? styles.activeFilterTab : ''}`}
+                onClick={() => setSelectedFilter('all')}
+              >
+                Tất cả ({patients.length})
+              </button>
+
+              <button 
+                className={`${styles.filterTabBtn} ${selectedFilter === 'emergency' ? styles.activeFilterTab : ''}`}
+                onClick={() => setSelectedFilter('emergency')}
+                style={{ color: selectedFilter === 'emergency' ? '#fff' : '#dc2626' }}
+              >
+                🚨 Hạ đường huyết / Cấp cứu ({patients.filter(p => p.currentGlucose < 3.9).length})
+              </button>
+
+              <button 
+                className={`${styles.filterTabBtn} ${selectedFilter === 'meds_warning' ? styles.activeFilterTab : ''}`}
+                onClick={() => setSelectedFilter('meds_warning')}
+              >
+                💊 Quên thuốc / Kém tuân thủ ({patients.filter(p => p.adherenceScore < 70).length})
+              </button>
+
+              <button 
+                className={`${styles.filterTabBtn} ${selectedFilter === 'normal' ? styles.activeFilterTab : ''}`}
+                onClick={() => setSelectedFilter('normal')}
+              >
+                🟢 Ổn định ({patients.filter(p => p.glucoseStatus === 'normal').length})
+              </button>
+
+              <button 
+                className={`${styles.filterTabBtn} ${selectedFilter === 'disconnected' ? styles.activeFilterTab : ''}`}
+                onClick={() => setSelectedFilter('disconnected')}
+              >
+                ⚪ Mất kết nối máy đo ({patients.filter(p => p.deviceStatus === 'disconnected').length})
+              </button>
+            </div>
+
+            <div className={styles.searchBox}>
+              <Search size={16} color="#94a3b8" />
+              <input 
+                type="text"
+                placeholder="Tìm tên, mã DIA, SĐT..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              {searchTerm && (
+                <button onClick={() => setSearchTerm('')} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                  <X size={14} color="#94a3b8" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Table Data */}
+          <div style={{ overflowX: 'auto' }}>
+            <table className={styles.patientTable}>
+              <thead>
+                <tr>
+                  <th>Bệnh nhân</th>
+                  <th>Phân loại ĐTĐ</th>
+                  <th>Đường huyết mới nhất</th>
+                  <th>Xu hướng</th>
+                  <th>Điểm tuân thủ thuốc</th>
+                  <th>Trạng thái máy đo</th>
+                  <th>Lịch tái khám</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredPatients.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
+                      Không tìm thấy bệnh nhân phù hợp với bộ lọc.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredPatients.map((patient) => {
+                    const isEmergency = patient.glucoseStatus === 'emergency_low' || patient.currentGlucose < 3.9;
+                    return (
+                      <tr 
+                        key={patient.id} 
+                        className={`${styles.patientRow} ${isEmergency ? styles.emergencyRow : ''}`}
+                        onClick={() => setSelectedPatient(patient)}
+                      >
+                        <td>
+                          <div className={styles.patientCell}>
+                            <div className={styles.patientAvatarSmall}>
+                              {patient.gender === 'Nữ' ? '👩' : '👨'}
+                            </div>
+                            <div>
+                              <strong style={{ fontSize: '14.5px', color: '#0f172a' }}>{patient.name}</strong>
+                              <div style={{ fontSize: '12px', color: '#64748b' }}>
+                                <span className={styles.patientCodeBadge}>{patient.code}</span> • {patient.age}t • {patient.phone}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td>
+                          <span style={{ fontSize: '13px', color: '#334155', fontWeight: '600' }}>
+                            {patient.diabetesType}
+                          </span>
+                        </td>
+
+                        <td>
+                          {patient.glucoseStatus === 'emergency_low' || patient.currentGlucose < 3.9 ? (
+                            <span className={`${styles.badge} ${styles.badgeEmergency}`}>
+                              🚨 {patient.currentGlucose} mmol/L
+                            </span>
+                          ) : patient.glucoseStatus === 'high' || patient.currentGlucose > 10.0 ? (
+                            <span className={`${styles.badge} ${styles.badgeHigh}`}>
+                              🟠 {patient.currentGlucose} mmol/L
+                            </span>
+                          ) : (
+                            <span className={`${styles.badge} ${styles.badgeNormal}`}>
+                              🟢 {patient.currentGlucose} mmol/L
+                            </span>
+                          )}
+                        </td>
+
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12.5px', fontWeight: '700' }}>
+                            {patient.glucoseTrend === 'falling_fast' && (
+                              <span style={{ color: '#dc2626', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                                <TrendingDown size={16} /> Tụt dốc nhanh
+                              </span>
+                            )}
+                            {patient.glucoseTrend === 'rising' && (
+                              <span style={{ color: '#ea580c', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                                <TrendingUp size={16} /> Đang tăng
+                              </span>
+                            )}
+                            {patient.glucoseTrend === 'stable' && (
+                              <span style={{ color: '#16a34a', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                                <Minus size={16} /> Ổn định
+                              </span>
+                            )}
+                            {patient.glucoseTrend === 'unknown' && (
+                              <span style={{ color: '#94a3b8' }}>Chưa rõ</span>
+                            )}
+                          </div>
+                        </td>
+
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ width: '48px', height: '6px', background: '#e2e8f0', borderRadius: '3px', overflow: 'hidden' }}>
+                              <div style={{ 
+                                width: `${patient.adherenceScore}%`, 
+                                height: '100%', 
+                                background: patient.adherenceScore >= 85 ? '#16a34a' : patient.adherenceScore >= 70 ? '#eab308' : '#dc2626' 
+                              }}></div>
+                            </div>
+                            <strong style={{ 
+                              fontSize: '13px', 
+                              color: patient.adherenceScore >= 85 ? '#16a34a' : patient.adherenceScore >= 70 ? '#ca8a04' : '#dc2626' 
+                            }}>
+                              {patient.adherenceScore}%
+                            </strong>
+                          </div>
+                        </td>
+
+                        <td>
+                          <span style={{ fontSize: '12.5px', color: '#475569' }}>
+                            {patient.deviceStatus === 'cgm_connected' && '🟢 Dexcom CGM'}
+                            {patient.deviceStatus === 'ble_synced' && '🔵 Máy đo Bluetooth'}
+                            {patient.deviceStatus === 'disconnected' && '⚪ Mất kết nối'}
+                          </span>
+                        </td>
+
+                        <td>
+                          <span style={{ fontSize: '12.5px', color: patient.status === 'overdue' ? '#dc2626' : '#64748b', fontWeight: patient.status === 'overdue' ? '700' : '500' }}>
+                            {patient.nextAppointment}
+                          </span>
+                        </td>
+
+                        <td>
+                          <button 
+                            className={styles.viewBtn}
+                            onClick={(e) => { e.stopPropagation(); setSelectedPatient(patient); }}
+                          >
+                            Xem hồ sơ ➔
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+
+      {/* Patient Detail Modal */}
+      {selectedPatient && (
+        <PatientDetailModal
+          patient={selectedPatient}
+          onClose={() => setSelectedPatient(null)}
+          onUpdateNotes={handleUpdateNotes}
+          onCheckout={handleCheckout}
+        />
+      )}
+
+      {/* QR Code Check-in Modal */}
+      {showQRModal && (
+        <ClinicQRCodeModal
+          clinicProfile={clinicProfile}
+          onClose={() => setShowQRModal(false)}
+        />
+      )}
+
+      {/* Notifications Drawer */}
+      {showNotifDrawer && (
+        <>
+          <div className={styles.notifDrawerOverlay} onClick={() => setShowNotifDrawer(false)} />
+          <div className={styles.notifDrawer}>
+            <div className={styles.notifDrawerHeader}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Bell size={20} color="#0284c7" />
+                <h3 style={{ margin: 0, fontSize: '17px', fontWeight: '800' }}>
+                  Trung tâm Thông Báo ({notifications.length})
+                </h3>
+              </div>
+              <button className={styles.closeBtn} onClick={() => setShowNotifDrawer(false)}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className={styles.notifList}>
+              {notifications.map((n) => (
+                <div 
+                  key={n.id} 
+                  className={`${styles.notifItem} ${!n.read ? styles.notifItemUnread : ''} ${n.severity === 'critical' ? styles.notifItemCritical : ''}`}
+                  onClick={() => {
+                    clinicService.markNotificationRead(n.id);
+                    loadData();
+                    if (n.patientId) {
+                      const p = clinicService.getPatientById(n.patientId);
+                      if (p) {
+                        setSelectedPatient(p);
+                        setShowNotifDrawer(false);
+                      }
+                    }
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', color: n.severity === 'critical' ? '#dc2626' : '#0284c7' }}>
+                      {n.type === 'emergency' ? '🚨 CẤP CỨU' : n.type === 'medication' ? '💊 THUỐC' : n.type === 'workflow' ? '🏥 CHECK-IN' : '⏰ TÁI KHÁM'}
+                    </span>
+                    <span style={{ fontSize: '11.5px', color: '#94a3b8' }}>{n.time}</span>
+                  </div>
+                  <strong style={{ fontSize: '13.5px', color: '#0f172a', display: 'block', marginBottom: '4px' }}>
+                    {n.title}
+                  </strong>
+                  <p style={{ fontSize: '12.5px', color: '#475569', margin: 0, lineHeight: '1.4' }}>
+                    {n.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}

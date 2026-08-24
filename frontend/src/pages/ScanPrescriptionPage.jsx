@@ -1,8 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
 import {
   CheckCircle, AlertCircle, Pill, User, Calendar, FileText,
-  XCircle, ChevronDown, ChevronUp, Clock, Hash, Stethoscope, BookOpen, Info, Activity
+  XCircle, ChevronDown, ChevronUp, Clock, Hash, Stethoscope, BookOpen, Info, Activity, QrCode, Building, Sparkles
 } from 'lucide-react';
+import { clinicService } from './Clinic/clinicService';
+import useAuthStore from '../store/authStore';
 import { scanService } from '../services/scan.service';
 import { medicationsService } from '../services/medications.service';
 import { appointmentsService } from '../services/appointments.service';
@@ -36,9 +38,11 @@ const HEALTH_TIPS = [
 
 export default function ScanPrescriptionPage() {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const { fetchMedications } = useMedications();
   const { showToast } = useToast();
   const t = useT();
+  const [scanMode, setScanMode] = useState('prescription'); // 'prescription' | 'clinic_qr'
   const [imageFile, setImageFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -49,6 +53,33 @@ export default function ScanPrescriptionPage() {
   const [isAllSaved, setIsAllSaved] = useState(false);
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [showVoicePrompt, setShowVoicePrompt] = useState(false);
+  const [checkedInClinic, setCheckedInClinic] = useState(null);
+
+  // Check if patient is already checked in to a clinic
+  useEffect(() => {
+    setCheckedInClinic(clinicService.getActivePatientClinicSession());
+  }, []);
+
+  const handleClinicQRCheckin = () => {
+    const profile = clinicService.getClinicProfile();
+    const newPatient = clinicService.checkinFromPatientApp({
+      name: user?.name || 'Bệnh nhân DIA+',
+      gender: user?.gender || 'Nam',
+      age: user?.age || 52,
+      phone: user?.phone || '0912 345 678',
+      glucose: 6.4,
+      hba1c: 6.8,
+      diabetesType: 'Type 2'
+    });
+
+    setCheckedInClinic({
+      clinicName: profile.name,
+      doctorName: profile.doctorName,
+      patientCode: newPatient.code
+    });
+
+    showToast(`🏥 Check-in thành công tại ${profile.name}! Bác sĩ đã nhận được hồ sơ của bạn trên Clinic Dashboard.`, 'success');
+  };
 
   // Thuốc do AI trích xuất KHÔNG được lưu thẳng vào danh sách thuốc đang dùng - người
   // dùng phải xem/sửa được từng trường (tên, liều, giờ uống) trước khi bấm lưu, vì AI
@@ -294,9 +325,158 @@ export default function ScanPrescriptionPage() {
           </button>
         </div>
         <p>{t.scan.subtitle}</p>
+
+        {/* Chuyển đổi giữa Quét Đơn Thuốc & Quét QR Phòng Khám */}
+        <div style={{ display: 'flex', gap: '8px', marginTop: '14px', background: 'rgba(0,0,0,0.04)', padding: '4px', borderRadius: '12px' }}>
+          <button
+            onClick={() => setScanMode('prescription')}
+            style={{
+              flex: 1,
+              padding: '8px 12px',
+              borderRadius: '10px',
+              border: 'none',
+              background: scanMode === 'prescription' ? '#ffffff' : 'transparent',
+              color: scanMode === 'prescription' ? 'var(--color-primary, #0284c7)' : '#64748b',
+              fontWeight: '700',
+              fontSize: '13px',
+              cursor: 'pointer',
+              boxShadow: scanMode === 'prescription' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              transition: 'all 0.2s'
+            }}
+          >
+            <Pill size={15} /> Quét Đơn Thuốc
+          </button>
+
+          <button
+            onClick={() => setScanMode('clinic_qr')}
+            style={{
+              flex: 1,
+              padding: '8px 12px',
+              borderRadius: '10px',
+              border: 'none',
+              background: scanMode === 'clinic_qr' ? '#ffffff' : 'transparent',
+              color: scanMode === 'clinic_qr' ? 'var(--color-primary, #0284c7)' : '#64748b',
+              fontWeight: '700',
+              fontSize: '13px',
+              cursor: 'pointer',
+              boxShadow: scanMode === 'clinic_qr' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              transition: 'all 0.2s'
+            }}
+          >
+            <QrCode size={15} /> QR Phòng Khám
+          </button>
+        </div>
       </div>
 
-      {!imageUrl ? (
+      {scanMode === 'clinic_qr' ? (
+        <div style={{ padding: '16px 0' }}>
+          {checkedInClinic ? (
+            <div style={{
+              background: '#f0fdf4',
+              border: '1px solid #bbf7d0',
+              borderRadius: '16px',
+              padding: '20px',
+              textAlign: 'center'
+            }}>
+              <div style={{ width: '48px', height: '48px', background: '#dcfce7', color: '#16a34a', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
+                <CheckCircle size={24} />
+              </div>
+              <h3 style={{ margin: '0 0 6px', fontSize: '17px', fontWeight: '800', color: '#15803d' }}>
+                Đang Điều Trị Tại Phòng Khám
+              </h3>
+              <p style={{ margin: '0 0 12px', fontSize: '13.5px', color: '#166534' }}>
+                {checkedInClinic.clinicName} • Bác sĩ: <strong>{checkedInClinic.doctorName}</strong>
+              </p>
+              <div style={{ fontSize: '12.5px', color: '#64748b', background: '#ffffff', padding: '10px', borderRadius: '10px', border: '1px solid #e2e8f0', marginBottom: '16px' }}>
+                Mã bệnh nhân của bạn: <strong>{checkedInClinic.patientCode}</strong>. Mọi chỉ số đo đường huyết của bạn đang được truyền trực tiếp đến Bác sĩ trên Clinic Dashboard.
+              </div>
+              <button
+                onClick={() => {
+                  clinicService.patientLeaveClinic();
+                  setCheckedInClinic(null);
+                  showToast('Đã kết thúc đợt khám tại phòng khám.', 'info');
+                }}
+                style={{
+                  background: '#dc2626',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '10px 18px',
+                  borderRadius: '10px',
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  cursor: 'pointer'
+                }}
+              >
+                Kết Thúc Khám & Rời Phòng Khám
+              </button>
+            </div>
+          ) : (
+            <div style={{
+              background: '#ffffff',
+              border: '1px solid #e2e8f0',
+              borderRadius: '20px',
+              padding: '24px 20px',
+              textAlign: 'center',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+            }}>
+              <div style={{
+                width: '64px',
+                height: '64px',
+                background: '#f0f9ff',
+                color: '#0284c7',
+                borderRadius: '16px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '14px'
+              }}>
+                <QrCode size={36} />
+              </div>
+              <h3 style={{ margin: '0 0 8px', fontSize: '18px', fontWeight: '800', color: '#0f172a' }}>
+                Quét Mã QR Tại Phòng Khám
+              </h3>
+              <p style={{ margin: '0 0 20px', fontSize: '13.5px', color: '#64748b', lineHeight: '1.5' }}>
+                Hướng camera vào mã QR đặt tại bàn khám của Bác sĩ hoặc quầy lễ tân để xác nhận bạn đang khám và đồng bộ chỉ số đường huyết trực tiếp sang màn hình của Bác sĩ.
+              </p>
+
+              {/* Action Button */}
+              <button
+                onClick={handleClinicQRCheckin}
+                style={{
+                  width: '100%',
+                  background: 'linear-gradient(90deg, #0284c7 0%, #0369a1 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '14px',
+                  borderRadius: '14px',
+                  fontSize: '14.5px',
+                  fontWeight: '800',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  boxShadow: '0 4px 12px rgba(2, 132, 199, 0.25)'
+                }}
+              >
+                <Building size={18} /> Quét & Check-in Phòng Khám Hoàn Mỹ
+              </button>
+
+              <div style={{ marginTop: '16px', fontSize: '12px', color: '#94a3b8' }}>
+                🔒 Dữ liệu được bảo mật và chỉ chia sẻ cho Bác sĩ phụ trách trong phiên khám
+              </div>
+            </div>
+          )}
+        </div>
+      ) : !imageUrl ? (
         <ScanCamera onImageScan={handleImageScan} />
       ) : (
         <>

@@ -1,0 +1,630 @@
+/* Clinic Dashboard Full Width Layout */
+.clinicContainer {
+  min-height: 100vh;
+  background: #f1f5f9;
+  color: #0f172a;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.clinicNavbar {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 12px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.brandArea {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brandLogo {
+  font-size: 22px;
+  font-weight: 900;
+  color: #0284c7;
+  display: flex;
+  align-items: center;
+  letter-spacing: -0.5px;
+}
+
+.brandLogo span {
+  color: #ef4444;
+}
+
+.clinicBadge {
+  background: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.clinicTitleGroup h1 {
+  font-size: 16px;
+  font-weight: 800;
+  margin: 0;
+  color: #0f172a;
+}
+
+.clinicTitleGroup p {
+  font-size: 12.5px;
+  color: #64748b;
+  margin: 2px 0 0;
+}
+
+.navActionGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.qrBtn {
+  background: #0284c7;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.qrBtn:hover {
+  background: #0369a1;
+}
+
+.iconButton {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  color: #334155;
+}
+
+.notifBadge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 2px solid #ffffff;
+}
+
+.doctorProfileChip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 12px 4px 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+}
+
+.doctorAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #0284c7;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+/* Red Emergency Top Banner */
+.emergencyTopBanner {
+  background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
+  padding: 12px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  animation: pulseEmergency 2s infinite ease-in-out;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+@keyframes pulseEmergency {
+  0% { opacity: 1; }
+  50% { opacity: 0.88; }
+  100% { opacity: 1; }
+}
+
+.emergencyBannerLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.emergencyTitle {
+  font-size: 14.5px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.emergencySubtitle {
+  font-size: 13px;
+  opacity: 0.92;
+  margin: 2px 0 0;
+}
+
+.emergencyActionBtn {
+  background: #ffffff;
+  color: #dc2626;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* Main Dashboard Body */
+.dashboardBody {
+  flex: 1;
+  padding: 24px 28px;
+  max-width: 1600px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* 4 KPI Cards */
+.kpiGrid {
+  display: grid;
+  grid-templateColumns: repeat(4, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.kpiCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.kpiTitle {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 6px;
+}
+
+.kpiValue {
+  font-size: 28px;
+  font-weight: 900;
+  color: #0f172a;
+  margin: 0 0 4px;
+}
+
+.kpiSub {
+  font-size: 12.5px;
+  color: #64748b;
+  margin: 0;
+}
+
+.kpiIconWrapper {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Table Area */
+.tableContainerCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.tableToolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filterTabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filterTabBtn {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.activeFilterTab {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 8px 14px;
+  border-radius: 10px;
+  width: 280px;
+}
+
+.searchBox input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 13.5px;
+  width: 100%;
+  color: #0f172a;
+}
+
+/* Patient Data Table */
+.patientTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.patientTable th {
+  padding: 12px 16px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 12.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.patientTable td {
+  padding: 16px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 14px;
+  color: #1e293b;
+  vertical-align: middle;
+}
+
+.patientRow:hover {
+  background: #f8fafc;
+  cursor: pointer;
+}
+
+.emergencyRow {
+  background: #fff1f2 !important;
+}
+
+.patientCell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.patientAvatarSmall {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #e0f2fe;
+  color: #0369a1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.badgeEmergency {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+  animation: pulseBadge 1.5s infinite;
+}
+
+@keyframes pulseBadge {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+
+.badgeHigh {
+  background: #ffedd5;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+}
+
+.badgeNormal {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.viewBtn {
+  background: #f1f5f9;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.viewBtn:hover {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+}
+
+/* Modals */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.patientDetailCard {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 860px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.modalHeader {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.patientInfoTop {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.patientAvatarLarge {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+}
+
+.patientCodeBadge {
+  background: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.closeBtn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.quickStatusBar {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 16px 24px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.quickStatBox {
+  display: flex;
+  flex-direction: column;
+}
+
+.quickStatLabel {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.modalTabs {
+  display: flex;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0 24px;
+  background: #ffffff;
+}
+
+.modalTabBtn {
+  padding: 14px 18px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 2px solid transparent;
+}
+
+.activeModalTab {
+  color: #0284c7;
+  border-bottom-color: #0284c7;
+}
+
+.tabContentArea {
+  padding: 24px;
+  flex: 1;
+}
+
+.modalFooter {
+  padding: 16px 24px;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 0 0 20px 20px;
+}
+
+/* QR Modal */
+.qrModalCard {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 440px;
+  padding: 24px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.printableStand {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+/* Notifications Drawer */
+.notifDrawerOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.4);
+  z-index: 90;
+}
+
+.notifDrawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 420px;
+  background: #ffffff;
+  box-shadow: -4px 0 25px rgba(0,0,0,0.15);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+}
+
+.notifDrawerHeader {
+  padding: 20px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notifList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.notifItem {
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.notifItemUnread {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+}
+
+.notifItemCritical {
+  background: #fff1f2;
+  border-color: #fecdd3;
+}

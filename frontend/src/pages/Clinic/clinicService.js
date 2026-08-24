@@ -91,14 +91,19 @@ export const clinicService = {
     if (!data) return [];
     try {
       const list = JSON.parse(data);
-      // Tự động dọn sạch dữ liệu ảo cũ, chỉ giữ lại bệnh nhân thật quét QR
-      const realOnly = list.filter(p => 
-        !['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8'].includes(p.id) &&
-        !['DIA-8801', 'DIA-8802', 'DIA-8803', 'DIA-8804', 'DIA-8805', 'DIA-8806', 'DIA-8807', 'DIA-8808'].includes(p.code)
-      );
-      if (realOnly.length !== list.length) {
-        localStorage.setItem(STORAGE_KEYS.PATIENTS, JSON.stringify(realOnly));
-      }
+      // Tự động dọn sạch dữ liệu ảo cũ & gộp bệnh nhân trùng lặp thành 1 người duy nhất
+      const uniqueMap = new Map();
+      list.forEach(p => {
+        if (!['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8'].includes(p.id) &&
+            !['DIA-8801', 'DIA-8802', 'DIA-8803', 'DIA-8804', 'DIA-8805', 'DIA-8806', 'DIA-8807', 'DIA-8808'].includes(p.code)) {
+          const key = (p.name || p.phone || p.id).trim().toLowerCase();
+          if (!uniqueMap.has(key)) {
+            uniqueMap.set(key, p);
+          }
+        }
+      });
+      const realOnly = Array.from(uniqueMap.values());
+      localStorage.setItem(STORAGE_KEYS.PATIENTS, JSON.stringify(realOnly));
       return realOnly;
     } catch {
       return [];
@@ -110,7 +115,14 @@ export const clinicService = {
     try {
       const res = await cloudApi.get(`/clinic/patients?clinicId=${clinicId}`);
       if (res.data?.success && Array.isArray(res.data.data)) {
-        const cloudList = res.data.data;
+        const uniqueMap = new Map();
+        res.data.data.forEach(p => {
+          const key = (p.name || p.phone || p.id).trim().toLowerCase();
+          if (!uniqueMap.has(key)) {
+            uniqueMap.set(key, p);
+          }
+        });
+        const cloudList = Array.from(uniqueMap.values());
         localStorage.setItem(STORAGE_KEYS.PATIENTS, JSON.stringify(cloudList));
         return cloudList;
       }

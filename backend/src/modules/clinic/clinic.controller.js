@@ -7,6 +7,17 @@ const clinicController = {
   async getPatients(req, res) {
     try {
       const { clinicId = 'PK-HOAN-MY-01' } = req.query;
+      
+      // Tự động gộp các bệnh nhân trùng tên hoặc trùng số điện thoại thành 1 người duy nhất
+      const uniqueMap = new Map();
+      clinicPatients.forEach(p => {
+        const key = (p.name || p.phone || p.id).trim().toLowerCase();
+        if (!uniqueMap.has(key)) {
+          uniqueMap.set(key, p);
+        }
+      });
+      clinicPatients = Array.from(uniqueMap.values());
+
       const filtered = clinicPatients.filter(p => p.clinicId === clinicId || !p.clinicId);
       res.json({ success: true, data: filtered });
     } catch (err) {
@@ -33,44 +44,73 @@ const clinicController = {
       const glucoseVal = Number(glucose) || 6.4;
       const glucoseStatus = glucoseVal < 3.9 ? 'emergency_low' : glucoseVal > 10.0 ? 'high' : 'normal';
 
-      const newPatient = {
-        id: `p-${Date.now()}`,
-        clinicId,
-        code: `DIA-${Math.floor(1000 + Math.random() * 9000)}`,
-        name,
-        age: Number(age) || 50,
-        gender,
-        phone,
-        diabetesType,
-        doctor: 'BS.CKII Nguyễn Văn An',
-        checkinAt: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' Hôm nay',
-        status: 'active',
-        deviceStatus: 'ble_synced',
-        deviceType: 'App DIA+ Live Web Sync',
-        lastSyncTime: 'Vừa quét QR xong',
-        currentGlucose: glucoseVal,
-        glucoseStatus,
-        glucoseTrend: 'stable',
-        hba1c: Number(hba1c) || 6.8,
-        adherenceScore: 94,
-        glucoseHistory24h: [
-          { time: '06:00', value: Number((glucoseVal - 0.4).toFixed(1)) },
-          { time: '08:30', value: Number((glucoseVal + 0.6).toFixed(1)) },
-          { time: '12:00', value: glucoseVal }
-        ],
-        medications: medications.length > 0 ? medications : [
-          { name: 'Metformin 500mg', dosage: '1 viên', timing: 'Sau ăn sáng', status: 'taken' },
-          { name: 'Januvia 100mg', dosage: '1 viên', timing: 'Sau ăn tối', status: 'pending' }
-        ],
-        medicationLogs: [
-          { time: '07:30', date: 'Hôm nay', medName: 'Metformin 500mg (1 viên)', status: 'taken', punctuality: 'on_time', note: 'Uống thuốc đúng giờ' }
-        ],
-        notes: notes || `Bệnh nhân vừa quét mã QR check-in qua App DIA+ từ điện thoại.`,
-        nextAppointment: 'Hôm nay'
-      };
+      // 1. Kiểm tra xem bệnh nhân này đã có trong danh sách chưa (theo tên hoặc SĐT)
+      const existingIdx = clinicPatients.findIndex(p => 
+        (phone && p.phone && p.phone === phone) || 
+        (name && p.name && p.name.trim().toLowerCase() === name.trim().toLowerCase())
+      );
 
-      // Đưa bệnh nhân lên đầu
-      clinicPatients = [newPatient, ...clinicPatients];
+      let targetPatient = null;
+
+      if (existingIdx >= 0) {
+        // Đã có -> CẬP NHẬT chỉ số mới nhất, GIỮ NGUYÊN MÃ DIA-xxxx (Không tạo thêm dòng mới)
+        const prev = clinicPatients[existingIdx];
+        targetPatient = {
+          ...prev,
+          age: Number(age) || prev.age,
+          gender: gender || prev.gender,
+          phone: phone || prev.phone,
+          status: 'active',
+          lastSyncTime: 'Vừa quét QR lại xong',
+          currentGlucose: glucoseVal,
+          glucoseStatus,
+          hba1c: Number(hba1c) || prev.hba1c,
+          notes: notes || prev.notes,
+          medications: medications.length > 0 ? medications : prev.medications
+        };
+
+        const others = clinicPatients.filter((_, idx) => idx !== existingIdx);
+        clinicPatients = [targetPatient, ...others];
+      } else {
+        // Bệnh nhân mới lần đầu quét
+        targetPatient = {
+          id: `p-${Date.now()}`,
+          clinicId,
+          code: `DIA-${Math.floor(1000 + Math.random() * 9000)}`,
+          name,
+          age: Number(age) || 50,
+          gender,
+          phone,
+          diabetesType,
+          doctor: 'BS.CKII Nguyễn Văn An',
+          checkinAt: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' Hôm nay',
+          status: 'active',
+          deviceStatus: 'ble_synced',
+          deviceType: 'App DIA+ Live Web Sync',
+          lastSyncTime: 'Vừa quét QR xong',
+          currentGlucose: glucoseVal,
+          glucoseStatus,
+          glucoseTrend: 'stable',
+          hba1c: Number(hba1c) || 6.8,
+          adherenceScore: 94,
+          glucoseHistory24h: [
+            { time: '06:00', value: Number((glucoseVal - 0.4).toFixed(1)) },
+            { time: '08:30', value: Number((glucoseVal + 0.6).toFixed(1)) },
+            { time: '12:00', value: glucoseVal }
+          ],
+          medications: medications.length > 0 ? medications : [
+            { name: 'Metformin 500mg', dosage: '1 viên', timing: 'Sau ăn sáng', status: 'taken' },
+            { name: 'Januvia 100mg', dosage: '1 viên', timing: 'Sau ăn tối', status: 'pending' }
+          ],
+          medicationLogs: [
+            { time: '07:30', date: 'Hôm nay', medName: 'Metformin 500mg (1 viên)', status: 'taken', punctuality: 'on_time', note: 'Uống thuốc đúng giờ' }
+          ],
+          notes: notes || `Bệnh nhân vừa quét mã QR check-in qua App DIA+ từ điện thoại.`,
+          nextAppointment: 'Hôm nay'
+        };
+
+        clinicPatients = [targetPatient, ...clinicPatients];
+      }
 
       // Thêm thông báo
       clinicNotifications = [{
@@ -78,16 +118,16 @@ const clinicController = {
         time: 'Vừa xong',
         read: false,
         type: glucoseStatus === 'emergency_low' ? 'emergency' : 'workflow',
-        patientId: newPatient.id,
-        patientName: `${newPatient.name} (${newPatient.code})`,
+        patientId: targetPatient.id,
+        patientName: `${targetPatient.name} (${targetPatient.code})`,
         title: glucoseStatus === 'emergency_low' 
-          ? `🚨 BÁO ĐỘNG HẠ ĐƯỜNG HUYẾT: ${newPatient.name} (${glucoseVal} mmol/L)` 
-          : `🎫 Bệnh nhân mới vừa quét QR Check-in!`,
-        desc: `Bệnh nhân ${newPatient.name} đã quét mã QR từ điện thoại và kết nối trực tiếp với Bác sĩ.`,
+          ? `🚨 BÁO ĐỘNG HẠ ĐƯỜNG HUYẾT: ${targetPatient.name} (${glucoseVal} mmol/L)` 
+          : `🎫 Bệnh nhân ${targetPatient.name} đã quét QR Check-in!`,
+        desc: `Cập nhật thông tin bệnh nhân ${targetPatient.name} tại bàn khám Bác sĩ.`,
         severity: glucoseStatus === 'emergency_low' ? 'critical' : 'info'
       }, ...clinicNotifications];
 
-      res.status(201).json({ success: true, data: newPatient });
+      res.status(201).json({ success: true, data: targetPatient });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
     }

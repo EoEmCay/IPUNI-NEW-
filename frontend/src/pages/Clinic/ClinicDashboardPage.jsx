@@ -27,16 +27,27 @@ export default function ClinicDashboardPage() {
     setClinicProfile(clinicService.getClinicProfile());
     setPatients(clinicService.getPatients());
     setNotifications(clinicService.getNotifications());
+
+    // Fetch live cloud patients
+    clinicService.fetchPatientsFromCloud().then((cloudList) => {
+      if (Array.isArray(cloudList)) {
+        setPatients(cloudList);
+      }
+    });
   }, []);
 
   useEffect(() => {
     loadData();
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
 
-    // Poll cloud for real-time check-ins from phones on diaplus.vn
+    // Poll cloud every 2 seconds for real-time check-ins from phones on diaplus.vn
     const cloudPoll = setInterval(() => {
-      clinicService.fetchPatientsFromCloud().then(() => loadData());
-    }, 3000);
+      clinicService.fetchPatientsFromCloud().then((cloudList) => {
+        if (Array.isArray(cloudList)) {
+          setPatients(cloudList);
+        }
+      });
+    }, 2000);
 
     const handleSync = () => loadData();
     window.addEventListener('clinicSyncEvent', handleSync);

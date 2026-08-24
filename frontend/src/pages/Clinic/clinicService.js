@@ -1,5 +1,12 @@
+import axios from 'axios';
 import { CLINIC_PROFILE, INITIAL_PATIENTS, INITIAL_NOTIFICATIONS, MOCK_PATIENTS_SAMPLE, MOCK_NOTIFICATIONS_SAMPLE } from './clinicDemoData';
-import api from '../../services/api';
+
+// Shared Cloud API endpoint so phone (diaplus.vn) and laptop (localhost or web) always sync with the exact same database
+const CLOUD_API_BASE = 'https://dia-5hzu.onrender.com/api/v1';
+const cloudApi = axios.create({
+  baseURL: CLOUD_API_BASE,
+  timeout: 15000
+});
 
 const STORAGE_KEYS = {
   CLINIC_PROFILE: 'diaplus_clinic_profile',
@@ -44,7 +51,7 @@ export const clinicService = {
   // Kiểm tra tài khoản phòng khám & Xác thực IP
   async checkClinicAuthAndIp(identifier, password, bypassIp = false) {
     try {
-      const res = await api.post('/clinic/auth-check', { identifier, password, bypassIp });
+      const res = await cloudApi.post('/clinic/auth-check', { identifier, password, bypassIp });
       if (res.data?.success && res.data?.isClinic) {
         if (res.data.isAllowedIp) {
           this.loginClinic(res.data.clinicId, res.data.doctorName);
@@ -101,15 +108,11 @@ export const clinicService = {
   // Đồng bộ danh sách bệnh nhân từ đám mây (Cloud Sync)
   async fetchPatientsFromCloud(clinicId = 'PK-HOAN-MY-01') {
     try {
-      const res = await api.get(`/clinic/patients?clinicId=${clinicId}`);
+      const res = await cloudApi.get(`/clinic/patients?clinicId=${clinicId}`);
       if (res.data?.success && Array.isArray(res.data.data)) {
-        const local = this.getPatients();
-        const map = new Map();
-        res.data.data.forEach(p => map.set(p.id, p));
-        local.forEach(p => map.set(p.id, p));
-        const merged = Array.from(map.values());
-        localStorage.setItem(STORAGE_KEYS.PATIENTS, JSON.stringify(merged));
-        return merged;
+        const cloudList = res.data.data;
+        localStorage.setItem(STORAGE_KEYS.PATIENTS, JSON.stringify(cloudList));
+        return cloudList;
       }
     } catch (e) {
       // Offline fallback to local
@@ -140,7 +143,7 @@ export const clinicService = {
     this.broadcastSync('PATIENT_UPDATED', { patientId });
 
     // Sync cloud
-    api.post('/clinic/notes', { patientId, notes, nextAppointment }).catch(() => {});
+    cloudApi.post('/clinic/notes', { patientId, notes, nextAppointment }).catch(() => {});
     return updated.find(p => p.id === patientId);
   },
 
@@ -174,7 +177,7 @@ export const clinicService = {
     this.broadcastSync('PATIENT_CHECKOUT', { patientId });
 
     // Sync cloud
-    api.post('/clinic/checkout', { patientId }).catch(() => {});
+    cloudApi.post('/clinic/checkout', { patientId }).catch(() => {});
   },
 
   // Bệnh nhân QUÉT MÃ QR THẬT Check-in vào phòng khám
@@ -268,7 +271,7 @@ export const clinicService = {
     this.broadcastSync('PATIENT_CHECKIN', { patient: newPatient });
 
     // Sync cloud API so external phones on diaplus.vn instantly post to backend
-    api.post('/clinic/checkin', {
+    cloudApi.post('/clinic/checkin', {
       clinicId: profile.id,
       name: newPatient.name,
       phone: newPatient.phone,
@@ -352,7 +355,7 @@ export const clinicService = {
     localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify([]));
     localStorage.removeItem(STORAGE_KEYS.ACTIVE_PATIENT_SESSION);
     this.broadcastSync('DATA_CLEARED', {});
-    api.post('/clinic/clear').catch(() => {});
+    cloudApi.post('/clinic/clear').catch(() => {});
   },
 
   // Nạp dữ liệu mẫu giả định khi cần thuyết trình

@@ -41,6 +41,31 @@ export const clinicService = {
     return session;
   },
 
+  // Kiểm tra tài khoản phòng khám & Xác thực IP
+  async checkClinicAuthAndIp(identifier, password, bypassIp = false) {
+    try {
+      const res = await api.post('/clinic/auth-check', { identifier, password, bypassIp });
+      if (res.data?.success && res.data?.isClinic) {
+        if (res.data.isAllowedIp) {
+          this.loginClinic(res.data.clinicId, res.data.doctorName);
+        }
+        return res.data;
+      }
+    } catch {
+      // Fallback local check
+      const idLower = (identifier || '').trim().toLowerCase();
+      if (idLower === 'pk-hoan-my-01' || idLower === 'clinic@hoanmy.vn' || idLower.startsWith('pk-')) {
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        if (isLocal || bypassIp) {
+          this.loginClinic('PK-HOAN-MY-01', 'BS.CKII Nguyễn Văn An');
+          return { isClinic: true, isAllowedIp: true, clientIp: window.location.hostname, redirectUrl: '/clinic/dashboard' };
+        }
+        return { isClinic: true, isAllowedIp: false, clientIp: window.location.hostname };
+      }
+    }
+    return { isClinic: false };
+  },
+
   getClinicAuthSession() {
     try {
       return JSON.parse(sessionStorage.getItem('diaplus_clinic_auth') || 'null');

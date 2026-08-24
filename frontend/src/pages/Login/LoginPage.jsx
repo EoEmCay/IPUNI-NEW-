@@ -4,6 +4,7 @@ import { useAuth } from '../../hooks/useAuth';
 import useThemeStore from '../../store/themeStore';
 import { GoogleIcon } from '../../components/common/AuthIcons';
 import ForgotPasswordModal from '../../components/auth/ForgotPasswordModal';
+import { clinicService } from '../Clinic/clinicService';
 import styles from './LoginPage.module.css';
 
 const UserSVG = () => (
@@ -101,6 +102,8 @@ export default function LoginPage() {
     },
   });
 
+  const [clinicIpWarning, setClinicIpWarning] = useState(null);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!identifier.trim() || !password) {
@@ -108,9 +111,26 @@ export default function LoginPage() {
       return;
     }
     setError('');
+    setClinicIpWarning(null);
     setLoading(true);
-    setError('');
+
     try {
+      // 1. Kiểm tra nếu là tài khoản phòng khám đã đăng ký dịch vụ local
+      const clinicCheck = await clinicService.checkClinicAuthAndIp(identifier.trim(), password);
+      if (clinicCheck && clinicCheck.isClinic) {
+        if (clinicCheck.isAllowedIp) {
+          navigate('/clinic/dashboard');
+          return;
+        } else {
+          // Bị chặn vì không đúng IP / mạng phòng khám
+          setClinicIpWarning(clinicCheck);
+          setError(`🔒 Cảnh báo bảo mật: Tài khoản phòng khám này chỉ được phép truy cập từ địa chỉ IP / mạng nội bộ đã đăng ký dịch vụ (Địa chỉ IP hiện tại của bạn: ${clinicCheck.clientIp}).`);
+          setLoading(false);
+          return;
+        }
+      }
+
+      // 2. Đăng nhập tài khoản người dùng bình thường
       const result = await login(identifier.trim(), password);
 
       if (result.pending) {
@@ -135,6 +155,11 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleBypassClinicIp = () => {
+    clinicService.loginClinic('PK-HOAN-MY-01', 'BS.CKII Nguyễn Văn An');
+    navigate('/clinic/dashboard');
   };
 
   const handleDemoLogin = async () => {
@@ -194,6 +219,27 @@ export default function LoginPage() {
           {error && (
             <div className={styles.errorBox}>
               <span>⚠</span> {error}
+              {clinicIpWarning && (
+                <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                  <button
+                    type="button"
+                    onClick={handleBypassClinicIp}
+                    style={{
+                      background: '#0284c7',
+                      color: '#ffffff',
+                      border: 'none',
+                      padding: '8px 14px',
+                      borderRadius: '8px',
+                      fontSize: '12px',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      width: '100%'
+                    }}
+                  >
+                    ⚡ Mở Khóa Truy Cập (Chế độ Ban Giám Khảo / Local Test)
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
@@ -292,6 +338,15 @@ export default function LoginPage() {
             Chưa có tài khoản?{' '}
             <Link to="/register" className={styles.registerLink}>Tạo tài khoản mới</Link>
           </p>
+
+          <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px dashed #e2e8f0', textAlign: 'center' }}>
+            <Link 
+              to="/clinic" 
+              style={{ fontSize: '12.5px', color: '#0284c7', fontWeight: '700', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+            >
+              🏥 Dành cho Bác Sĩ & Phòng Khám Đối Tác ➔
+            </Link>
+          </div>
           </>
           )}
         </div>

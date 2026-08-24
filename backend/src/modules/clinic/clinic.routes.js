@@ -8,5 +8,6 @@ router.post('/checkout', clinicController.checkout);
 router.post('/notes', clinicController.updateNotes);
 router.get('/notifications', clinicController.getNotifications);
 router.post('/clear', clinicController.clearAll);
+router.post('/auth-check', clinicController.checkClinicAuthAndIp);
 
 module.exports = router;

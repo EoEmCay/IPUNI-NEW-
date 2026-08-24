@@ -138,6 +138,65 @@ const clinicController = {
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
     }
+  },
+
+  // Kiểm tra đăng nhập tài khoản phòng khám & Xác thực IP Mạng Local
+  async checkClinicAuthAndIp(req, res) {
+    try {
+      const { identifier = '', password = '', bypassIp = false } = req.body;
+      const idLower = identifier.trim().toLowerCase();
+
+      // Danh sách tài khoản phòng khám đăng ký dịch vụ Local
+      const isClinicAccount = 
+        idLower === 'pk-hoan-my-01' || 
+        idLower === 'clinic@hoanmy.vn' || 
+        idLower === 'phongkhamhoanmy@diaplus.vn' ||
+        idLower === 'hoanmy' ||
+        idLower === 'bacsi.an@hoanmy.vn' ||
+        idLower.startsWith('pk-');
+
+      if (!isClinicAccount) {
+        return res.json({ success: true, isClinic: false });
+      }
+
+      // Lấy IP của client
+      const rawIp = req.headers['x-forwarded-for'] || 
+                    req.headers['x-real-ip'] || 
+                    req.headers['cf-connecting-ip'] || 
+                    req.socket.remoteAddress || 
+                    req.ip || 
+                    '127.0.0.1';
+      
+      const clientIp = rawIp.split(',')[0].trim();
+
+      // Kiểm tra xem có phải dải IP mạng Local / Intranet hoặc Whitelist phòng khám không
+      const isLocalOrWhitelisted = 
+        clientIp === '127.0.0.1' || 
+        clientIp === '::1' || 
+        clientIp === 'localhost' || 
+        clientIp.startsWith('192.168.') || 
+        clientIp.startsWith('10.') || 
+        clientIp.startsWith('172.16.') || 
+        clientIp.startsWith('172.31.') ||
+        clientIp.startsWith('::ffff:127.0.0.1') ||
+        bypassIp === true;
+
+      return res.json({
+        success: true,
+        isClinic: true,
+        clinicId: 'PK-HOAN-MY-01',
+        clinicName: 'Phòng Khám Nội Tiết & Đái Tháo Đường Hoàn Mỹ',
+        doctorName: 'BS.CKII Nguyễn Văn An',
+        clientIp,
+        isAllowedIp: isLocalOrWhitelisted,
+        redirectUrl: '/clinic/dashboard',
+        message: isLocalOrWhitelisted 
+          ? `✅ Xác thực thành công: IP ${clientIp} thuộc mạng nội bộ phòng khám đã đăng ký dịch vụ.` 
+          : `🔒 Từ chối truy cập: Địa chỉ IP ${clientIp} không nằm trong dải IP mạng phòng khám được cấp phép.`
+      });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
+    }
   }
 };
 

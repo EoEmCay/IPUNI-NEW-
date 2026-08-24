@@ -15,6 +15,7 @@ import { useMedications } from '../hooks/useMedications';
 import { useToast } from '../hooks/useToast';
 import { useT } from '../hooks/useT';
 import ScanCamera from '../components/scan/ScanCamera';
+import LiveQRScanner from '../components/scan/LiveQRScanner';
 import styles from './ScanPrescriptionPage.module.css';
 import { useNavigate } from 'react-router-dom';
 
@@ -419,59 +420,55 @@ export default function ScanPrescriptionPage() {
               </button>
             </div>
           ) : (
-            <div style={{
-              background: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '20px',
-              padding: '24px 20px',
-              textAlign: 'center',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
-            }}>
-              <div style={{
-                width: '64px',
-                height: '64px',
-                background: '#f0f9ff',
-                color: '#0284c7',
-                borderRadius: '16px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: '14px'
-              }}>
-                <QrCode size={36} />
-              </div>
-              <h3 style={{ margin: '0 0 8px', fontSize: '18px', fontWeight: '800', color: '#0f172a' }}>
-                Quét Mã QR Tại Phòng Khám
-              </h3>
-              <p style={{ margin: '0 0 20px', fontSize: '13.5px', color: '#64748b', lineHeight: '1.5' }}>
-                Hướng camera vào mã QR đặt tại bàn khám của Bác sĩ hoặc quầy lễ tân để xác nhận bạn đang khám và đồng bộ chỉ số đường huyết trực tiếp sang màn hình của Bác sĩ.
-              </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <LiveQRScanner
+                onScanSuccess={(qrData) => {
+                  const profile = clinicService.getClinicProfile();
+                  const targetClinicName = qrData.clinicName || profile.name;
+                  const targetDoctorName = qrData.doctorName || profile.doctorName;
 
-              {/* Action Button */}
-              <button
-                onClick={handleClinicQRCheckin}
-                style={{
-                  width: '100%',
-                  background: 'linear-gradient(90deg, #0284c7 0%, #0369a1 100%)',
-                  color: '#ffffff',
-                  border: 'none',
-                  padding: '14px',
-                  borderRadius: '14px',
-                  fontSize: '14.5px',
-                  fontWeight: '800',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  boxShadow: '0 4px 12px rgba(2, 132, 199, 0.25)'
+                  const newPatient = clinicService.checkinFromPatientApp({
+                    name: user?.name || 'Bệnh nhân DIA+',
+                    gender: user?.gender || 'Nam',
+                    age: user?.age || 52,
+                    phone: user?.phone || '0912 345 678',
+                    glucose: 6.4,
+                    hba1c: 6.8,
+                    diabetesType: 'Type 2'
+                  });
+
+                  setCheckedInClinic({
+                    clinicName: targetClinicName,
+                    doctorName: targetDoctorName,
+                    patientCode: newPatient.code
+                  });
+
+                  showToast(`🏥 Check-in thành công tại ${targetClinicName}! Bác sĩ đã nhận được hồ sơ của bạn trên Clinic Dashboard.`, 'success');
                 }}
-              >
-                <Building size={18} /> Quét & Check-in Phòng Khám Hoàn Mỹ
-              </button>
+              />
 
-              <div style={{ marginTop: '16px', fontSize: '12px', color: '#94a3b8' }}>
-                🔒 Dữ liệu được bảo mật và chỉ chia sẻ cho Bác sĩ phụ trách trong phiên khám
+              <div style={{ textAlign: 'center', background: '#f8fafc', padding: '14px', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
+                <p style={{ margin: '0 0 10px', fontSize: '13px', color: '#64748b' }}>
+                  Hoặc bạn có thể bấm thử nghiệm kết nối nhanh:
+                </p>
+                <button
+                  onClick={handleClinicQRCheckin}
+                  style={{
+                    background: '#0284c7',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '10px 18px',
+                    borderRadius: '10px',
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <Building size={15} /> Thử Check-in Vào Phòng Khám Hoàn Mỹ
+                </button>
               </div>
             </div>
           )}

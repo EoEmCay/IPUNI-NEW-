@@ -33,16 +33,39 @@ export default function ClinicDashboardPage() {
     loadData();
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
 
-    const handleNotifEvent = () => loadData();
-    const handleSessionEvent = () => loadData();
+    const handleSync = () => loadData();
+    window.addEventListener('clinicSyncEvent', handleSync);
+    window.addEventListener('storage', handleSync);
 
-    window.addEventListener('clinicNotificationAdded', handleNotifEvent);
-    window.addEventListener('clinicSessionChanged', handleSessionEvent);
+    let channel = null;
+    try {
+      channel = new BroadcastChannel('diaplus_clinic_sync_channel');
+      channel.onmessage = (e) => {
+        loadData();
+        if (e.data?.type === 'PATIENT_CHECKIN') {
+          // Play arrival chime
+          try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+            osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+          } catch {}
+        }
+      };
+    } catch {}
 
     return () => {
       clearInterval(timer);
-      window.removeEventListener('clinicNotificationAdded', handleNotifEvent);
-      window.removeEventListener('clinicSessionChanged', handleSessionEvent);
+      window.removeEventListener('clinicSyncEvent', handleSync);
+      window.removeEventListener('storage', handleSync);
+      if (channel) channel.close();
     };
   }, [loadData]);
 
@@ -60,11 +83,16 @@ export default function ClinicDashboardPage() {
     loadData();
   };
 
-  const handleResetDemo = () => {
-    if (window.confirm('Khôi phục dữ liệu demo mẫu của phòng khám?')) {
-      clinicService.resetDemoData();
+  const handleClearAll = () => {
+    if (window.confirm('Xóa sạch danh sách bệnh nhân để kiểm tra quét mã QR thật?')) {
+      clinicService.clearAllPatients();
       loadData();
     }
+  };
+
+  const handleLoadDemo = () => {
+    clinicService.loadMockDemoData();
+    loadData();
   };
 
   // KPIs
@@ -155,11 +183,37 @@ export default function ClinicDashboardPage() {
           </button>
 
           <button 
-            className={styles.iconButton}
-            onClick={handleResetDemo}
-            title="Làm mới dữ liệu demo"
+            onClick={handleClearAll}
+            style={{
+              background: '#fee2e2',
+              color: '#b91c1c',
+              border: '1px solid #fecdd3',
+              padding: '6px 12px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: '700',
+              cursor: 'pointer'
+            }}
+            title="Xóa sạch danh sách để quét thật"
           >
-            <RefreshCw size={17} />
+            🧹 Xóa để test quét
+          </button>
+
+          <button 
+            onClick={handleLoadDemo}
+            style={{
+              background: '#f0f9ff',
+              color: '#0284c7',
+              border: '1px solid #bae6fd',
+              padding: '6px 12px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: '700',
+              cursor: 'pointer'
+            }}
+            title="Nạp dữ liệu mẫu thuyết trình"
+          >
+            📊 Nạp dữ liệu mẫu
           </button>
 
           <div className={styles.doctorProfileChip}>
@@ -330,8 +384,34 @@ export default function ClinicDashboardPage() {
               <tbody>
                 {filteredPatients.length === 0 ? (
                   <tr>
-                    <td colSpan={8} style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                      Không tìm thấy bệnh nhân phù hợp với bộ lọc.
+                    <td colSpan={8} style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>
+                      <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '64px', height: '64px', borderRadius: '50%', background: '#f0f9ff', color: '#0284c7', marginBottom: '14px' }}>
+                        <QrCode size={32} />
+                      </div>
+                      <h4 style={{ margin: '0 0 6px', fontSize: '16px', color: '#0f172a', fontWeight: '800' }}>
+                        Chưa có bệnh nhân nào quét mã QR check-in
+                      </h4>
+                      <p style={{ margin: '0 auto 16px', fontSize: '13.5px', color: '#64748b', maxWidth: '440px', lineHeight: '1.5' }}>
+                        Mời người bệnh mở camera trên App DIA+ (<strong>/scan</strong>) quét mã QR của phòng khám. Khi quét xong, thông tin bệnh nhân sẽ lập tức nhảy vào bảng theo dõi này.
+                      </p>
+                      <button
+                        onClick={() => setShowQRModal(true)}
+                        style={{
+                          background: '#0284c7',
+                          color: '#ffffff',
+                          border: 'none',
+                          padding: '10px 20px',
+                          borderRadius: '10px',
+                          fontWeight: '700',
+                          fontSize: '13.5px',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <QrCode size={16} /> Bật Mã QR Check-in Bàn Khám
+                      </button>
                     </td>
                   </tr>
                 ) : (

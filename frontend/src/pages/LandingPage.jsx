@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Activity, Sparkles, Play, X, Calendar, Mic, LineChart, CloudUpload, Clock, Link, Globe, Users, HeartPulse, ShieldCheck, Phone, Mail, Camera, ArrowRight } from 'lucide-react';
+import { Activity, Sparkles, X, Calendar, Mic, LineChart, CloudUpload, Clock, Link, Globe, Users, HeartPulse, ShieldCheck, Phone, Mail, Camera, ArrowRight } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import useAuthStore from '../store/authStore';
 import { useT } from '../hooks/useT';
@@ -82,7 +82,6 @@ export default function LandingPage() {
         </div>
         <div className={styles.navMenu}>
           <a href="#home" className={styles.navLink}>{text.navHome}</a>
-          <a href="#video-showcase" className={styles.navLink}>Video Dự Án</a>
           <a href="#features" className={styles.navLink}>{text.navFeatures}</a>
           <a href="#impact" className={styles.navLink}>{text.navImpact}</a>
           <a href="#contact" className={styles.navLink}>{text.navContact}</a>
@@ -124,9 +123,6 @@ export default function LandingPage() {
             <button onClick={() => setShowModal(true)} className={styles.heroBtn}>
               {text.heroBtn} <ArrowRight size={18} />
             </button>
-            <a href="#video-showcase" className={styles.heroVideoBtn}>
-              <Play size={16} fill="currentColor" /> Xem Video Dự Án
-            </a>
           </div>
           {/* Download Badges */}
           <div className={styles.storeRow}>

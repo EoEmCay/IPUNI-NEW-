@@ -225,6 +225,7 @@ const clinicController = {
         code, 
         userId, 
         phone, 
+        name = 'Bệnh nhân DIA+',
         prescriptionImage, 
         prescriptionDate, 
         hospitalName, 
@@ -233,45 +234,78 @@ const clinicController = {
         medications = [] 
       } = req.body;
 
-      const patient = clinicPatients.find(p => 
+      let patient = clinicPatients.find(p => 
         (patientId && p.id === patientId) ||
         (code && p.code === code) ||
         (userId && p.userId && String(p.userId) === String(userId)) ||
-        (phone && p.phone === phone)
+        (phone && p.phone && p.phone === phone)
       );
 
-      if (patient) {
-        patient.prescriptionImage = prescriptionImage;
-        patient.prescriptionDate = prescriptionDate || new Date().toISOString().split('T')[0];
-        patient.prescriptionHospital = hospitalName || '';
-        patient.prescriptionDoctor = doctorName || '';
-        patient.prescriptionDiagnosis = diagnosis || '';
-        if (medications && medications.length > 0) {
-          patient.medications = medications.map(m => ({
-            name: m.name,
-            dosage: m.dosage || '1 viên',
-            timing: m.instructions || m.frequency || 'Theo chỉ định',
-            status: 'pending'
-          }));
-          patient.adherenceScore = 95;
-        }
-
-        clinicNotifications.unshift({
-          id: `n-${Date.now()}`,
-          time: 'Vừa xong',
-          read: false,
-          type: 'prescription',
-          title: '📸 Đơn thuốc mới được tải lên',
-          message: `Bệnh nhân ${patient.name} (${patient.code}) vừa chụp quét đơn thuốc mới.`,
-          patientId: patient.id
-        });
-
-        return sendSuccess(res, { message: 'Đã cập nhật ảnh đơn thuốc thành công', patient });
+      if (!patient) {
+        // Tự động thêm bệnh nhân vào danh sách phòng khám nếu chưa có
+        patient = {
+          id: patientId || `p-${Date.now()}`,
+          userId: userId || null,
+          clinicId: 'PK-HOAN-MY-01',
+          code: code || `DIA-${Math.floor(1000 + Math.random() * 9000)}`,
+          name: name || 'Bệnh nhân DIA+',
+          age: 50,
+          gender: 'Nam',
+          phone: phone || '',
+          diabetesType: diagnosis || 'Type 2',
+          doctor: 'BS.CKII Nguyễn Văn An',
+          checkinAt: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' Hôm nay',
+          status: 'active',
+          deviceStatus: 'ble_synced',
+          deviceType: 'App DIA+ Live Web Sync',
+          lastSyncTime: 'Vừa quét đơn thuốc xong',
+          currentGlucose: null,
+          glucoseStatus: 'unmeasured',
+          glucoseTrend: 'unknown',
+          hba1c: null,
+          prescriptionImage: null,
+          prescriptionDate: null,
+          prescriptionHospital: null,
+          prescriptionDoctor: null,
+          prescriptionDiagnosis: null,
+          adherenceScore: null,
+          glucoseHistory24h: [],
+          medications: [],
+          medicationLogs: [],
+          notes: 'Bệnh nhân vừa chụp gửi đơn thuốc qua App DIA+.',
+          nextAppointment: 'Hôm nay'
+        };
+        clinicPatients.unshift(patient);
       }
 
-      sendError(res, 'Không tìm thấy bệnh nhân', 404);
+      patient.prescriptionImage = prescriptionImage;
+      patient.prescriptionDate = prescriptionDate || new Date().toISOString().split('T')[0];
+      patient.prescriptionHospital = hospitalName || '';
+      patient.prescriptionDoctor = doctorName || '';
+      patient.prescriptionDiagnosis = diagnosis || '';
+      if (medications && medications.length > 0) {
+        patient.medications = medications.map(m => ({
+          name: m.name,
+          dosage: m.dosage || '1 viên',
+          timing: m.instructions || m.frequency || 'Theo chỉ định',
+          status: 'pending'
+        }));
+        patient.adherenceScore = 95;
+      }
+
+      clinicNotifications.unshift({
+        id: `n-${Date.now()}`,
+        time: 'Vừa xong',
+        read: false,
+        type: 'prescription',
+        title: '📸 Đơn thuốc mới được tải lên',
+        message: `Bệnh nhân ${patient.name} (${patient.code}) vừa chụp quét đơn thuốc mới.`,
+        patientId: patient.id
+      });
+
+      return res.json({ success: true, message: 'Đã cập nhật ảnh đơn thuốc thành công', data: patient });
     } catch (err) {
-      sendError(res, err.message);
+      return res.status(500).json({ success: false, message: err.message });
     }
   },
 

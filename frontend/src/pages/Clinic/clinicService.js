@@ -1,4 +1,5 @@
 import axios from 'axios';
+import api from '../../services/api';
 import { CLINIC_PROFILE, INITIAL_PATIENTS, INITIAL_NOTIFICATIONS, MOCK_PATIENTS_SAMPLE, MOCK_NOTIFICATIONS_SAMPLE } from './clinicDemoData';
 
 // Shared Cloud API endpoint so phone (diaplus.vn) and laptop (localhost or web) always sync with the exact same database
@@ -39,13 +40,18 @@ export const clinicService = {
     const profile = this.getClinicProfile();
     const session = {
       isClinicLoggedIn: true,
-      clinicCode: clinicCode || profile.id,
-      doctorName: doctorName || profile.doctorName,
+      clinicId: profile.id,
       clinicName: profile.name,
+      doctorName: doctorName || profile.doctorName,
       loginAt: new Date().toISOString()
     };
-    sessionStorage.setItem('diaplus_clinic_auth', JSON.stringify(session));
+    localStorage.setItem(STORAGE_KEYS.CLINIC_PROFILE, JSON.stringify({ ...profile, ...session }));
     return session;
+  },
+
+  // Đăng xuất phòng khám
+  logoutClinic() {
+    localStorage.removeItem(STORAGE_KEYS.CLINIC_PROFILE);
   },
 
   // Kiểm tra tài khoản phòng khám & Xác thực IP
@@ -75,27 +81,26 @@ export const clinicService = {
 
   getClinicAuthSession() {
     try {
-      return JSON.parse(sessionStorage.getItem('diaplus_clinic_auth') || 'null');
+      const profile = JSON.parse(localStorage.getItem(STORAGE_KEYS.CLINIC_PROFILE) || 'null');
+      return profile?.isClinicLoggedIn ? profile : null;
     } catch {
       return null;
     }
   },
 
-  logoutClinic() {
-    sessionStorage.removeItem('diaplus_clinic_auth');
-  },
-
-  // Lấy danh sách bệnh nhân của phòng khám
+  // Lấy danh sách bệnh nhân
   getPatients() {
-    const data = localStorage.getItem(STORAGE_KEYS.PATIENTS);
-    if (!data) return [];
     try {
-      const list = JSON.parse(data);
-      // Tự động dọn sạch dữ liệu ảo cũ & gộp bệnh nhân trùng lặp: ưu tiên userId, id, code
+      const data = localStorage.getItem(STORAGE_KEYS.PATIENTS);
+      if (!data) {
+        return [];
+      }
+      const parsed = JSON.parse(data);
+      if (!Array.isArray(parsed)) return [];
+      
       const uniqueMap = new Map();
-      list.forEach(p => {
-        if (!['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8'].includes(p.id) &&
-            !['DIA-8801', 'DIA-8802', 'DIA-8803', 'DIA-8804', 'DIA-8805', 'DIA-8806', 'DIA-8807', 'DIA-8808'].includes(p.code)) {
+      parsed.forEach(p => {
+        if (p && (p.name || p.id)) {
           const key = p.userId 
             ? `user_${p.userId}` 
             : (p.phone && !p.phone.includes('0912 345 678') ? `phone_${p.phone}` : (p.id || p.code));
@@ -105,34 +110,78 @@ export const clinicService = {
         }
       });
       const realOnly = Array.from(uniqueMap.values());
-      localStorage.setItem(STORAGE_KEYS.PATIENTS, JSON.stringify(realOnly));
       return realOnly;
     } catch {
       return [];
     }
   },
 
-  // Đồng bộ danh sách bệnh nhân từ đám mây (Cloud Sync)
+  // Lưu danh sách bệnh nhân
+  savePatients(patients) {
+    localStorage.setItem(STORAGE_KEYS.PATIENTS, JSON.stringify(patients));
+    this.broadcastSync('PATIENTS_UPDATED', { count: patients.length });
+  },
+
+  // Đồng bộ danh sách bệnh nhân từ backend (thử cả api local và cloudApi)
   async fetchPatientsFromCloud(clinicId = 'PK-HOAN-MY-01') {
+    let cloudList = [];
+
+    // 1. Thử gọi backend API chính (trên local là http://localhost:3001)
     try {
-      const res = await cloudApi.get(`/clinic/patients?clinicId=${clinicId}`);
-      if (res.data?.success && Array.isArray(res.data.data)) {
-        const uniqueMap = new Map();
-        res.data.data.forEach(p => {
-          const key = p.userId 
-            ? `user_${p.userId}` 
-            : (p.phone && !p.phone.includes('0912 345 678') ? `phone_${p.phone}` : (p.id || p.code));
-          if (!uniqueMap.has(key)) {
-            uniqueMap.set(key, p);
-          }
-        });
-        const cloudList = Array.from(uniqueMap.values());
-        localStorage.setItem(STORAGE_KEYS.PATIENTS, JSON.stringify(cloudList));
-        return cloudList;
+      const res = await api.get(`/clinic/patients?clinicId=${clinicId}`, { timeout: 4000 });
+      if (res.data?.success && Array.isArray(res.data.data) && res.data.data.length > 0) {
+        cloudList = res.data.data;
       }
     } catch (e) {
-      // Offline fallback to local
+      // Local backend offline hoặc không phản hồi
     }
+
+    // 2. Thử gọi Cloud API Render
+    try {
+      const cloudRes = await cloudApi.get(`/clinic/patients?clinicId=${clinicId}`, { timeout: 5000 });
+      if (cloudRes.data?.success && Array.isArray(cloudRes.data.data)) {
+        if (cloudList.length === 0) {
+          cloudList = cloudRes.data.data;
+        } else {
+          // Merge kết quả từ cả 2 nguồn
+          cloudList = [...cloudList, ...cloudRes.data.data];
+        }
+      }
+    } catch (e) {
+      // Cloud unreachable
+    }
+
+    if (cloudList.length > 0) {
+      const uniqueMap = new Map();
+      const localPatients = this.getPatients();
+      const merged = [...cloudList, ...localPatients];
+      
+      merged.forEach(p => {
+        const key = p.userId 
+          ? `user_${p.userId}` 
+          : (p.phone && !p.phone.includes('0912 345 678') ? `phone_${p.phone}` : (p.id || p.code));
+        if (!uniqueMap.has(key)) {
+          uniqueMap.set(key, p);
+        } else {
+          // Nếu một trong hai bên đã có prescriptionImage thì giữ lại
+          const existing = uniqueMap.get(key);
+          if (!existing.prescriptionImage && p.prescriptionImage) {
+            existing.prescriptionImage = p.prescriptionImage;
+            existing.prescriptionDate = p.prescriptionDate;
+            existing.prescriptionHospital = p.prescriptionHospital;
+            existing.prescriptionDoctor = p.prescriptionDoctor;
+            existing.prescriptionDiagnosis = p.prescriptionDiagnosis;
+          }
+          if ((!existing.medications || existing.medications.length === 0) && p.medications && p.medications.length > 0) {
+            existing.medications = p.medications;
+          }
+        }
+      });
+      const finalList = Array.from(uniqueMap.values());
+      localStorage.setItem(STORAGE_KEYS.PATIENTS, JSON.stringify(finalList));
+      return finalList;
+    }
+
     return this.getPatients();
   },
 
@@ -312,8 +361,7 @@ export const clinicService = {
     // Phát tín hiệu đồng bộ tức thì sang tab Dashboard của Bác sĩ
     this.broadcastSync('PATIENT_CHECKIN', { patient: newPatient });
 
-    // Sync cloud API so external phones on diaplus.vn instantly post to backend
-    cloudApi.post('/clinic/checkin', {
+    const checkinPayload = {
       id: newPatient.id,
       userId: newPatient.userId,
       code: newPatient.code,
@@ -331,7 +379,11 @@ export const clinicService = {
       prescriptionDoctor: newPatient.prescriptionDoctor,
       prescriptionDiagnosis: newPatient.prescriptionDiagnosis,
       medications: newPatient.medications
-    }).catch(() => {});
+    };
+
+    // Gửi đồng thời tới cả backend local (nếu đang chạy dev) và Cloud Render
+    api.post('/clinic/checkin', checkinPayload).catch(() => {});
+    cloudApi.post('/clinic/checkin', checkinPayload).catch(() => {});
 
     return newPatient;
   },
@@ -343,13 +395,15 @@ export const clinicService = {
     const patientCode = prescriptionData.patientCode || session?.patientCode;
     const userId = prescriptionData.userId || session?.userId;
     const phone = prescriptionData.phone || session?.phone;
+    const name = prescriptionData.name || session?.name;
 
     // 1. Cập nhật localStorage
     const patients = this.getPatients();
     const idx = patients.findIndex(p => 
       (patientId && p.id === patientId) ||
       (patientCode && p.code === patientCode) ||
-      (userId && p.userId && String(p.userId) === String(userId))
+      (userId && p.userId && String(p.userId) === String(userId)) ||
+      (phone && p.phone && p.phone === phone)
     );
 
     if (idx >= 0) {
@@ -368,22 +422,69 @@ export const clinicService = {
         patients[idx].adherenceScore = 95;
       }
       this.savePatients(patients);
+    } else {
+      const newP = {
+        id: patientId || `p-${Date.now()}`,
+        userId: userId || null,
+        clinicId: 'PK-HOAN-MY-01',
+        code: patientCode || `DIA-${Math.floor(1000 + Math.random() * 9000)}`,
+        name: name || 'Bệnh nhân DIA+',
+        age: 50,
+        gender: 'Nam',
+        phone: phone || '',
+        diabetesType: prescriptionData.diagnosis || 'Type 2',
+        doctor: 'BS.CKII Nguyễn Văn An',
+        checkinAt: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' Hôm nay',
+        status: 'active',
+        deviceStatus: 'ble_synced',
+        deviceType: 'App DIA+ Live Web Sync',
+        lastSyncTime: 'Vừa quét đơn thuốc xong',
+        currentGlucose: null,
+        glucoseStatus: 'unmeasured',
+        glucoseTrend: 'unknown',
+        hba1c: null,
+        prescriptionImage: prescriptionData.prescriptionImage,
+        prescriptionDate: prescriptionData.prescriptionDate || new Date().toISOString().split('T')[0],
+        prescriptionHospital: prescriptionData.hospitalName || '',
+        prescriptionDoctor: prescriptionData.doctorName || '',
+        prescriptionDiagnosis: prescriptionData.diagnosis || '',
+        adherenceScore: null,
+        glucoseHistory24h: [],
+        medications: (prescriptionData.medications || []).map(m => ({
+          name: m.name,
+          dosage: m.dosage || '1 viên',
+          timing: m.instructions || m.frequency || 'Theo chỉ định',
+          status: 'pending'
+        })),
+        medicationLogs: [],
+        notes: 'Bệnh nhân vừa chụp gửi đơn thuốc qua App DIA+.',
+        nextAppointment: 'Hôm nay'
+      };
+      this.savePatients([newP, ...patients]);
     }
 
-    // 2. Gửi Cloud API
+    const payload = {
+      patientId,
+      code: patientCode,
+      userId,
+      phone,
+      name,
+      prescriptionImage: prescriptionData.prescriptionImage,
+      prescriptionDate: prescriptionData.prescriptionDate,
+      hospitalName: prescriptionData.hospitalName,
+      doctorName: prescriptionData.doctorName,
+      diagnosis: prescriptionData.diagnosis,
+      medications: prescriptionData.medications
+    };
+
+    // 2. Gửi Cloud & Local API
     try {
-      await cloudApi.post('/clinic/prescription', {
-        patientId,
-        code: patientCode,
-        userId,
-        phone,
-        prescriptionImage: prescriptionData.prescriptionImage,
-        prescriptionDate: prescriptionData.prescriptionDate,
-        hospitalName: prescriptionData.hospitalName,
-        doctorName: prescriptionData.doctorName,
-        diagnosis: prescriptionData.diagnosis,
-        medications: prescriptionData.medications
-      });
+      await api.post('/clinic/prescription', payload);
+    } catch (err) {
+      console.warn('[ClinicService] Local api prescription sync warning', err?.message);
+    }
+    try {
+      await cloudApi.post('/clinic/prescription', payload);
     } catch (err) {
       console.warn('[ClinicService] Cloud prescription sync warning', err?.message);
     }
@@ -392,7 +493,7 @@ export const clinicService = {
     this.broadcastSync('PATIENT_PRESCRIPTION_UPLOADED', {
       patientId,
       patientCode,
-      patientName: session?.name || 'Bệnh nhân',
+      patientName: name || session?.name || 'Bệnh nhân',
       prescriptionImage: prescriptionData.prescriptionImage,
       medications: prescriptionData.medications
     });
@@ -402,7 +503,7 @@ export const clinicService = {
         payload: { 
           patientId, 
           patientCode,
-          patientName: session?.name || 'Bệnh nhân',
+          patientName: name || session?.name || 'Bệnh nhân',
           prescriptionImage: prescriptionData.prescriptionImage 
         } 
       }

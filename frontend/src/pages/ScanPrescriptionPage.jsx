@@ -271,34 +271,36 @@ export default function ScanPrescriptionPage() {
         showToast(t.scanResult?.notPrescription || 'Ảnh không phải là một đơn thuốc. Vui lòng chụp lại đơn thuốc.', 'error');
       } else if (data.isPrescription && !data.isDiabetesPrescription) {
         showToast(t.scanResult?.notDiabetes || 'Đây không phải đơn thuốc điều trị đái tháo đường. DIA+ chỉ hỗ trợ đơn thuốc tiểu đường.', 'error');
-      } else {
-        const reader = new FileReader();
-        reader.readAsDataURL(imageFile);
-        reader.onloadend = async () => {
-          try {
-            await scanHistoryService.saveScan(data, reader.result);
-
-            // Tự động đồng bộ ảnh đơn thuốc sang phòng khám nếu bệnh nhân đang trong phiên khám
-            const session = clinicService.getActivePatientClinicSession();
-            if (session) {
-              await clinicService.syncPrescriptionToClinic({
-                patientId: session.patientId,
-                patientCode: session.patientCode,
-                userId: session.userId,
-                prescriptionImage: reader.result,
-                prescriptionDate: data.prescriptionDate || new Date().toISOString().split('T')[0],
-                hospitalName: data.hospitalName || '',
-                doctorName: data.doctorName || '',
-                diagnosis: data.diagnosis || '',
-                medications: data.medications || []
-              });
-              showToast('📸 Đã truyền ảnh đơn thuốc trực tiếp đến Bác sĩ trên Clinic Dashboard!', 'success');
-            }
-          } catch (e) {
-            console.error('Failed to save to history', e);
-          }
-        };
       }
+
+      // Luôn đọc ảnh và truyền ngay sang cho Bác sĩ trên Clinic Dashboard
+      const reader = new FileReader();
+      reader.readAsDataURL(imageFile);
+      reader.onloadend = async () => {
+        try {
+          if (data && !data.error) {
+            await scanHistoryService.saveScan(data, reader.result);
+          }
+
+          const session = clinicService.getActivePatientClinicSession();
+          await clinicService.syncPrescriptionToClinic({
+            patientId: session?.patientId,
+            patientCode: session?.patientCode || user?.user_code,
+            userId: session?.userId || user?.id,
+            phone: session?.phone || user?.phone || user?.email,
+            name: session?.name || user?.name,
+            prescriptionImage: reader.result,
+            prescriptionDate: data?.prescriptionDate || new Date().toISOString().split('T')[0],
+            hospitalName: data?.hospitalName || '',
+            doctorName: data?.doctorName || '',
+            diagnosis: data?.diagnosis || user?.diagnosis || '',
+            medications: data?.medications || []
+          });
+          showToast('📸 Đã truyền ảnh đơn thuốc trực tiếp đến Bác sĩ trên Clinic Dashboard!', 'success');
+        } catch (e) {
+          console.error('Failed to save or sync prescription', e);
+        }
+      };
     } catch (err) {
       const msg = err.response?.data?.message || 'Lỗi kết nối đến server';
       showToast(msg, 'error');
@@ -386,6 +388,26 @@ export default function ScanPrescriptionPage() {
       } else {
         showToast(`${t.scanResult?.addPartial} ${successCount}, thất bại ${failCount}.`, 'error');
       }
+
+      // Đồng bộ danh sách thuốc đã xác nhận sang hồ sơ phòng khám
+      try {
+        const session = clinicService.getActivePatientClinicSession();
+        clinicService.syncPrescriptionToClinic({
+          patientId: session?.patientId,
+          patientCode: session?.patientCode || user?.user_code,
+          userId: session?.userId || user?.id,
+          phone: session?.phone || user?.phone || user?.email,
+          name: session?.name || user?.name,
+          prescriptionDate: result?.prescriptionDate || new Date().toISOString().split('T')[0],
+          hospitalName: result?.hospitalName || '',
+          doctorName: result?.doctorName || '',
+          diagnosis: result?.diagnosis || user?.diagnosis || '',
+          medications: editableMeds
+        });
+      } catch (syncErr) {
+        console.warn('Sync confirmed meds error', syncErr);
+      }
+
       fetchMedications();
 
       // Check if user has voice alerts configured
@@ -399,7 +421,7 @@ export default function ScanPrescriptionPage() {
     } finally {
       setIsSavingAll(false);
     }
-  }, [result, editableMeds, requiresInsulinConfirm, insulinConfirmed, fetchMedications, showToast]);
+  }, [result, editableMeds, requiresInsulinConfirm, insulinConfirmed, fetchMedications, showToast, user]);
 
   const handleRetake = useCallback(() => {
     if (imageUrl) URL.revokeObjectURL(imageUrl);

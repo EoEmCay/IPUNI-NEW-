@@ -849,15 +849,82 @@ export default function ScanPrescriptionPage() {
                               )}
                             </div>
 
-                            <div className={styles.editableRow}>
-                              <span className={styles.detailLabel}>{t.scanResult?.timeToTake}</span>
-                              <input
-                                className={styles.editableInput}
-                                type="text"
-                                placeholder="07:00, 19:00"
-                                value={(med.times || []).join(', ')}
-                                onChange={(e) => handleMedTimesChange(i, e.target.value)}
-                              />
+                            <div style={{ background: '#F1F5F9', padding: '10px 12px', borderRadius: 8, margin: '8px 0' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                                <span style={{ fontSize: 12, fontWeight: 700, color: '#334155' }}>⏰ Chọn nhanh giờ uống:</span>
+                                <span style={{ fontSize: 11, color: '#64748B' }}>Bấm để chọn/bỏ chọn cữ</span>
+                              </div>
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+                                {[
+                                  { label: '🌅 Sáng', time: '07:00' },
+                                  { label: '☀️ Trưa', time: '11:30' },
+                                  { label: '🌆 Chiều', time: '15:30' },
+                                  { label: '🌙 Tối', time: '18:30' },
+                                  { label: '🛌 Trước ngủ', time: '21:30' }
+                                ].map((p, idx) => {
+                                  const currentTimes = med.times || [];
+                                  const isSelected = currentTimes.includes(p.time);
+                                  return (
+                                    <button
+                                      key={idx}
+                                      type="button"
+                                      onClick={() => {
+                                        let nextArr = [...currentTimes];
+                                        if (isSelected) {
+                                          nextArr = nextArr.filter(t => t !== p.time);
+                                        } else {
+                                          nextArr.push(p.time);
+                                          nextArr.sort();
+                                        }
+                                        handleMedFieldChange(i, 'times', nextArr);
+                                      }}
+                                      style={{
+                                        fontSize: 11,
+                                        padding: '4px 8px',
+                                        borderRadius: 6,
+                                        border: isSelected ? '1.5px solid #2563EB' : '1px solid #CBD5E1',
+                                        background: isSelected ? '#EFF6FF' : 'white',
+                                        color: isSelected ? '#1D4ED8' : '#475569',
+                                        fontWeight: isSelected ? 700 : 500,
+                                        cursor: 'pointer'
+                                      }}
+                                    >
+                                      {p.label} ({p.time})
+                                    </button>
+                                  );
+                                })}
+                              </div>
+
+                              <div className={styles.editableRow} style={{ marginBottom: 6 }}>
+                                <span className={styles.detailLabel}>{t.scanResult?.timeToTake}</span>
+                                <input
+                                  className={styles.editableInput}
+                                  type="text"
+                                  placeholder="07:00, 18:00"
+                                  value={(med.times || []).join(', ')}
+                                  onChange={(e) => handleMedTimesChange(i, e.target.value)}
+                                />
+                              </div>
+
+                              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#334155', cursor: 'pointer' }}>
+                                <input
+                                  type="checkbox"
+                                  checked={Boolean(med.is_alternate_day || (med.frequency && med.frequency.includes('cách ngày')))}
+                                  onChange={(e) => {
+                                    const checked = e.target.checked;
+                                    handleMedFieldChange(i, 'is_alternate_day', checked);
+                                    let freq = med.frequency || '1 lần/ngày';
+                                    if (checked && !freq.includes('cách ngày')) {
+                                      freq = `${freq} (Cách ngày)`;
+                                    } else if (!checked) {
+                                      freq = freq.replace(' (Cách ngày)', '');
+                                    }
+                                    handleMedFieldChange(i, 'frequency', freq);
+                                  }}
+                                  style={{ width: 15, height: 15, accentColor: '#2563EB' }}
+                                />
+                                <span>📅 Thuốc uống cách ngày (2 ngày 1 lần)</span>
+                              </label>
                             </div>
                             <div className={styles.editableRow}>
                               <span className={styles.detailLabel}>{t.scanResult?.usage}</span>

@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Pill, ChevronRight } from 'lucide-react';
 import useMedicationsStore from '../../store/medicationsStore';
+import { recordMedicationIntake } from '../../store/medicationAdherenceStore';
 import MedicationDetailModal from './MedicationDetailModal';
 import { checkMedicationTimeEligibility } from '../../utils/medicationTime';
 import { useT } from '../../hooks/useT';
@@ -32,11 +33,18 @@ export default function MedicationCard({ medication }) {
     return checkMedicationTimeEligibility(medication, currentTime);
   }, [medication, currentTime]);
 
-  const isTaken = status === 'taken';
-  const isLocked = !isTaken && !timeEligibility.isTimeArrived;
-  const isLate = !isTaken && (status === 'late' || timeEligibility.isLate);
+  const isRestDay = timeEligibility.isRestDay;
+  const isTaken = !isRestDay && status === 'taken';
+  const isLocked = !isRestDay && !isTaken && !timeEligibility.isTimeArrived;
+  const isLate = !isRestDay && !isTaken && (status === 'late' || timeEligibility.isLate);
 
   const handleStatusToggle = () => {
+    if (isRestDay) {
+      setToastMsg(`📅 Hôm nay là ngày nghỉ cữ của ${medication.name}. Bác không cần uống hôm nay nhé!`);
+      setTimeout(() => setToastMsg(null), 3500);
+      return;
+    }
+
     if (isLocked) {
       const timeHint = timeEligibility.earliestUpcomingTime || 'sau';
       setToastMsg(`⏳ Chưa tới giờ uống ${medication.name} (Lịch: ${timeHint}). Vui lòng uống đúng giờ nhé!`);
@@ -44,12 +52,16 @@ export default function MedicationCard({ medication }) {
       return;
     }
 
-    setMedicationStatus(medication.id, isTaken ? 'pending' : 'taken');
+    const nextStatus = isTaken ? 'pending' : 'taken';
+    setMedicationStatus(medication.id, nextStatus);
+    recordMedicationIntake(medication, nextStatus);
   };
 
   // Xác định text hiển thị trên nút
   let buttonLabel;
-  if (isTaken) {
+  if (isRestDay) {
+    buttonLabel = '📅 Nghỉ cữ';
+  } else if (isTaken) {
     buttonLabel = `✓ ${t.medCard?.statusTaken || 'Đã uống'}`;
   } else if (isLocked) {
     buttonLabel = timeEligibility.earliestUpcomingTime 
@@ -68,17 +80,28 @@ export default function MedicationCard({ medication }) {
         <div className={styles.name}>{medication.name} {medication.dosage}</div>
         <div className={styles.frequency}>{medication.frequency}: {times}</div>
         {medication.instructions && <div className={styles.instructions}>{medication.instructions}</div>}
+        {isRestDay && (
+          <div style={{ marginTop: 4 }}>
+            <span style={{ fontSize: 11, background: '#F3F4F6', color: '#6B7280', padding: '2px 8px', borderRadius: 6, display: 'inline-flex', alignItems: 'center', gap: 4, fontWeight: 600 }}>
+              📅 Uống cách ngày • Hôm nay nghỉ cữ
+            </span>
+          </div>
+        )}
 
-        <button className={styles.detailBtn} onClick={() => setShowDetail(true)}>
-          {t.medCard?.details || 'Chi tiết'} <ChevronRight size={13} />
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
+          <button className={styles.detailBtn} onClick={() => setShowDetail(true)}>
+            {t.medCard?.details || 'Chi tiết'} <ChevronRight size={13} />
+          </button>
+        </div>
       </div>
 
       <button
         className={`${styles.statusSelect} ${isLocked ? styles.statusSelectLocked : ''}`}
         onClick={handleStatusToggle}
         style={
-          isLocked
+          isRestDay
+            ? { background: '#F3F4F6', color: '#9CA3AF', borderColor: '#E5E7EB', cursor: 'pointer' }
+            : isLocked
             ? {}
             : isTaken
             ? { background: STATUS_STYLES.taken.bg, color: STATUS_STYLES.taken.color, borderColor: STATUS_STYLES.taken.border, cursor: 'pointer' }
@@ -87,7 +110,9 @@ export default function MedicationCard({ medication }) {
             : { background: STATUS_STYLES.pending.bg, color: STATUS_STYLES.pending.color, borderColor: STATUS_STYLES.pending.border, cursor: 'pointer' }
         }
         title={
-          isLocked
+          isRestDay
+            ? 'Hôm nay là ngày nghỉ cữ của thuốc này'
+            : isLocked
             ? `Chưa tới giờ uống (${timeEligibility.earliestUpcomingTime || ''}). Sẽ cho phép chọn khi tới giờ!`
             : isTaken
             ? 'Đã uống - Bấm để thay đổi'

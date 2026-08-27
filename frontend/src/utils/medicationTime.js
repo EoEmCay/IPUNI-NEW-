@@ -1,3 +1,94 @@
+export const MEAL_TIME_PRESETS = [
+  { key: 'morning', label: 'Sáng', time: '07:00', icon: '🌅' },
+  { key: 'noon', label: 'Trưa', time: '11:30', icon: '☀️' },
+  { key: 'afternoon', label: 'Chiều', time: '15:30', icon: '🌆' },
+  { key: 'evening', label: 'Tối', time: '18:30', icon: '🌙' },
+  { key: 'bedtime', label: 'Trước ngủ', time: '21:30', icon: '🛌' },
+];
+
+/**
+ * Kiểm tra đơn thuốc có chỉ định uống cách ngày hay không
+ */
+export function isAlternateDayDose(medication) {
+  if (!medication) return false;
+  const text = `${medication.frequency || ''} ${medication.instructions || ''} ${medication.dosage || ''}`.toLowerCase();
+  return (
+    text.includes('cách ngày') ||
+    text.includes('mỗi 2 ngày') ||
+    text.includes('2 ngày 1 lần') ||
+    text.includes('alternate') ||
+    text.includes('2-4-6') ||
+    text.includes('3-5-7') ||
+    medication.is_alternate_day === true
+  );
+}
+
+/**
+ * Kiểm tra xem ngày cụ thể có phải là ngày uống thuốc hay ngày nghỉ cữ
+ * @returns { isScheduled: boolean, isRestDay: boolean, label: string }
+ */
+export function isDoseScheduledForDate(medication, dateObj = new Date()) {
+  if (!medication) return { isScheduled: true, isRestDay: false, label: '' };
+
+  const text = `${medication.frequency || ''} ${medication.instructions || ''}`.toLowerCase();
+
+  // Kiểm tra lịch cố định Thứ 2, 4, 6 (Mon=1, Wed=3, Fri=5)
+  if (text.includes('2-4-6') || text.includes('thứ 2, 4, 6') || text.includes('thứ 2,4,6')) {
+    const day = dateObj.getDay();
+    const isMonWedFri = day === 1 || day === 3 || day === 5;
+    return {
+      isScheduled: isMonWedFri,
+      isRestDay: !isMonWedFri,
+      label: isMonWedFri ? 'Lịch Thứ 2, 4, 6' : 'Nghỉ cữ (Hôm nay không phải T2, T4, T6)'
+    };
+  }
+
+  // Kiểm tra lịch cố định Thứ 3, 5, 7 (Tue=2, Thu=4, Sat=6)
+  if (text.includes('3-5-7') || text.includes('thứ 3, 5, 7') || text.includes('thứ 3,5,7')) {
+    const day = dateObj.getDay();
+    const isTueThuSat = day === 2 || day === 4 || day === 6;
+    return {
+      isScheduled: isTueThuSat,
+      isRestDay: !isTueThuSat,
+      label: isTueThuSat ? 'Lịch Thứ 3, 5, 7' : 'Nghỉ cữ (Hôm nay không phải T3, T5, T7)'
+    };
+  }
+
+  // Kiểm tra cách ngày (1 ngày uống, 1 ngày nghỉ)
+  if (isAlternateDayDose(medication)) {
+    const startDate = medication.prescribed_at || medication.created_at || '2026-01-01';
+    const startMs = new Date(startDate).setHours(0, 0, 0, 0);
+    const targetMs = new Date(dateObj).setHours(0, 0, 0, 0);
+    const daysDiff = Math.round(Math.abs(targetMs - startMs) / (1000 * 60 * 60 * 24));
+    const isTakeDay = daysDiff % 2 === 0;
+
+    return {
+      isScheduled: isTakeDay,
+      isRestDay: !isTakeDay,
+      label: isTakeDay ? '📅 Cách ngày • Hôm nay có lịch uống' : '📅 Cách ngày • Hôm nay nghỉ cữ'
+    };
+  }
+
+  // Mặc định uống hàng ngày
+  return {
+    isScheduled: true,
+    isRestDay: false,
+    label: 'Hàng ngày'
+  };
+}
+
+/**
+ * Kiểm tra xem đơn thuốc có ghi giờ cụ thể không hay chỉ ghi chung chung Sáng/Trưa/Chiều
+ */
+export function hasGenericMealTimes(medication) {
+  if (!medication) return true;
+  const rawTimes = medication.times;
+  // Nếu có mảng times nhưng được map từ từ khóa Sáng/Trưa/Chiều
+  const text = `${medication.frequency || ''} ${medication.timing || ''} ${medication.instructions || ''}`.toLowerCase();
+  const hasSpecificTime = /\b\d{1,2}[:h]\d{2}\b/.test(text);
+  return !hasSpecificTime;
+}
+
 /**
  * Trích xuất danh sách giờ uống dạng HH:mm từ thuốc (hỗ trợ mảng, chuỗi JSON, chuỗi phân tách hoặc từ khóa buổi)
  */
@@ -86,12 +177,26 @@ export function timeStringToMinutes(timeStr) {
  * }
  */
 export function checkMedicationTimeEligibility(medication, dateObj = new Date()) {
+  // Kiểm tra thuốc cách ngày: nếu hôm nay là ngày nghỉ cữ
+  const scheduleCheck = isDoseScheduledForDate(medication, dateObj);
+  if (scheduleCheck.isRestDay) {
+    return {
+      isTimeArrived: false,
+      isRestDay: true,
+      restDayLabel: scheduleCheck.label,
+      earliestUpcomingTime: null,
+      isLate: false,
+      times: extractMedicationTimes(medication)
+    };
+  }
+
   const times = extractMedicationTimes(medication);
 
   // Nếu thuốc không ghi bất kỳ giờ uống nào, mặc định cho phép uống để không khóa nhầm
   if (times.length === 0) {
     return {
       isTimeArrived: true,
+      isRestDay: false,
       earliestUpcomingTime: null,
       isLate: false,
       times: []
@@ -108,6 +213,7 @@ export function checkMedicationTimeEligibility(medication, dateObj = new Date())
   if (timesInMinutes.length === 0) {
     return {
       isTimeArrived: true,
+      isRestDay: false,
       earliestUpcomingTime: null,
       isLate: false,
       times
@@ -127,6 +233,7 @@ export function checkMedicationTimeEligibility(medication, dateObj = new Date())
 
   return {
     isTimeArrived,
+    isRestDay: false,
     earliestUpcomingTime,
     isLate,
     times

@@ -62,21 +62,75 @@ export default function MedicationFormModal({ onClose, onSuccess }) {
           </div>
           <div style={{ flex: 1 }}>
             <label style={{ display: 'block', fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 6 }}>Tần suất</label>
-            <input 
-              type="text" name="frequency" 
-              value={formData.frequency} onChange={handleChange}
-              style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid var(--color-border)', fontSize: 15 }} 
+            <select 
+              name="frequency" 
+              value={formData.frequency} 
+              onChange={handleChange}
+              style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid var(--color-border)', fontSize: 14, background: 'white' }}
               required 
-            />
+            >
+              <option value="1 lần/ngày">1 lần/ngày (Hàng ngày)</option>
+              <option value="2 lần/ngày">2 lần/ngày (Sáng & Tối)</option>
+              <option value="3 lần/ngày">3 lần/ngày (Sáng, Trưa & Tối)</option>
+              <option value="Cách ngày (2 ngày 1 lần)">📅 Cách ngày (2 ngày 1 lần)</option>
+              <option value="Thứ 2, 4, 6">📅 Lịch Thứ 2, 4, 6</option>
+              <option value="Thứ 3, 5, 7">📅 Lịch Thứ 3, 5, 7</option>
+              <option value="Khi cần">Khi cần thiết</option>
+            </select>
           </div>
         </div>
         <div>
-          <label style={{ display: 'block', fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 6 }}>Giờ nhắc uống (Cách nhau dấu phẩy)</label>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+            <label style={{ fontSize: 13, color: 'var(--color-text-secondary)' }}>Giờ nhắc uống</label>
+            <span style={{ fontSize: 11, color: '#64748B' }}>Bấm chọn nhanh buổi:</span>
+          </div>
+          
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+            {[
+              { label: '🌅 Sáng', time: '07:00' },
+              { label: '☀️ Trưa', time: '11:30' },
+              { label: '🌆 Chiều', time: '15:30' },
+              { label: '🌙 Tối', time: '18:30' },
+              { label: '🛌 Trước ngủ', time: '21:30' }
+            ].map((p, idx) => {
+              const timesArr = formData.times.split(',').map(s => s.trim()).filter(Boolean);
+              const isSelected = timesArr.includes(p.time);
+              return (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => {
+                    let nextArr = [...timesArr];
+                    if (isSelected) {
+                      nextArr = nextArr.filter(t => t !== p.time);
+                    } else {
+                      nextArr.push(p.time);
+                      nextArr.sort();
+                    }
+                    setFormData(prev => ({ ...prev, times: nextArr.join(', ') }));
+                  }}
+                  style={{
+                    fontSize: 11.5,
+                    padding: '4px 9px',
+                    borderRadius: 6,
+                    border: isSelected ? '1.5px solid var(--color-primary)' : '1px solid #CBD5E1',
+                    background: isSelected ? '#EFF6FF' : 'white',
+                    color: isSelected ? '#1D4ED8' : '#475569',
+                    fontWeight: isSelected ? 700 : 500,
+                    cursor: 'pointer'
+                  }}
+                >
+                  {p.label} ({p.time})
+                </button>
+              );
+            })}
+          </div>
+
           <input 
             type="text" name="times" 
             value={formData.times} onChange={handleChange}
             style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid var(--color-border)', fontSize: 15 }} 
-            placeholder="VD: 08:00, 20:00" 
+            placeholder="VD: 07:00, 18:00" 
             required 
           />
         </div>

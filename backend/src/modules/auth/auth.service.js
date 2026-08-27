@@ -117,6 +117,9 @@ function sanitizeUser(user) {
   return {
     id: user.id, user_code: user.user_code, name: user.name,
     address: user.address, email: user.email, phone: user.phone,
+    cccd: user.cccd,
+    role: user.role || 'patient',
+    clinic_id: user.clinic_id || null,
     diagnosis: user.diagnosis, plan: user.plan,
     is_demo, created_at: is_demo ? user.created_at : undefined
   };
@@ -142,6 +145,8 @@ function signToken(user, expiresIn = JWT_EXPIRES_IN) {
       email: user.email, 
       phone: user.phone, 
       diagnosis: user.diagnosis,
+      role: user.role || 'patient',
+      clinic_id: user.clinic_id || null,
       token_version: user.token_version || 1
     },
     JWT_SECRET,
@@ -153,6 +158,7 @@ async function login(identifier, password) {
   const user = await db('users')
     .where({ email: identifier })
     .orWhere({ phone: identifier })
+    .orWhere({ cccd: identifier })
     .first();
   if (!user) throw { status: 401, message: 'Thông tin đăng nhập không đúng' };
 

@@ -1,0 +1,145 @@
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.state {
+  text-align: center;
+  padding: 60px 16px;
+  color: var(--color-text-secondary, #6b7a8d);
+}
+
+.back {
+  background: none;
+  border: none;
+  color: var(--color-primary, #1b5fa6);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+  margin-bottom: 8px;
+}
+
+.head h1 {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-text-primary, #1a2332);
+}
+
+.hcard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--color-text-secondary, #6b7a8d);
+}
+
+.section {
+  margin-top: 22px;
+}
+
+.section > h2,
+.section > summary {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--color-text-primary, #1a2332);
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.hCrit {
+  color: #dc2626 !important;
+}
+
+.alertCrit,
+.alertWarn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  border-radius: var(--radius-md, 12px);
+  padding: 10px 14px;
+  margin-bottom: 8px;
+}
+
+.alertCrit { background: #fee2e2; }
+.alertWarn { background: #fef3c7; }
+
+.alertCrit p,
+.alertWarn p {
+  font-size: 13px;
+  margin: 2px 0;
+}
+
+.alertCrit small,
+.alertWarn small {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.alertCrit button,
+.alertWarn button {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.adh {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: var(--radius-md, 12px);
+  padding: 14px 18px;
+}
+
+.big {
+  font-size: 32px;
+  font-weight: 900;
+}
+
+.adhMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--color-text-secondary, #6b7a8d);
+}
+
+.med,
+.appt,
+.logRow,
+.metricRow {
+  font-size: 13px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border, #f1f5f9);
+}
+
+.metricRow {
+  display: grid;
+  grid-template-columns: 90px 100px 1fr;
+  gap: 8px;
+  align-items: center;
+}
+
+.tag {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #eef4ff;
+  color: #1b5fa6;
+  padding: 1px 8px;
+  border-radius: 8px;
+}
+
+.s_taken { color: #16a34a; }
+.s_skipped { color: #64748b; }
+.s_missed { color: #dc2626; }

@@ -576,6 +576,33 @@ const clinicController = {
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
     }
+  },
+
+  patientDetail: async (req, res, next) => {
+    try {
+      const days = Math.min(Math.max(parseInt(req.query.days, 10) || 30, 7), 180);
+      const svc = require('./clinic.service');
+      const { sendSuccess, sendError } = require('../../utils/response.helper');
+      const patientId = Number(req.params.id);
+      const userId = req.user ? req.user.id : 1;
+      sendSuccess(res, await svc.getPatientDetail(userId, patientId, days));
+    } catch (err) {
+      if (err.status) return res.status(err.status).json({ success: false, message: err.message });
+      next(err);
+    }
+  },
+
+  acknowledgeAlert: async (req, res, next) => {
+    try {
+      const svc = require('./clinic.service');
+      const { sendSuccess } = require('../../utils/response.helper');
+      const alertId = Number(req.params.alertId);
+      const userId = req.user ? req.user.id : 1;
+      sendSuccess(res, await svc.acknowledgeAlert(userId, alertId));
+    } catch (err) {
+      if (err.status) return res.status(err.status).json({ success: false, message: err.message });
+      next(err);
+    }
   }
 };
 

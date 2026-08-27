@@ -1,7 +1,58 @@
+import { create } from 'zustand';
 import { isDoseScheduledForDate, extractMedicationTimes } from '../utils/medicationTime';
+import { medicationsService } from '../services/medications.service';
 
 const LOGS_STORAGE_KEY = 'diaplus_medication_intake_logs_v1';
 const CAREGIVER_STORAGE_KEY = 'diaplus_caregiver_info_v1';
+
+const keyFor = (medId, slot, ymd) => `${medId}|${slot || ''}|${ymd}`;
+
+export const useMedicationAdherenceStore = create((set, get) => ({
+  doseStatus: {}, // { key -> 'taken' | 'skipped' }
+  summary: null, // kết quả /medications/adherence
+  loading: false,
+
+  keyFor,
+
+  async hydrateFromLogs(days = 2) {
+    try {
+      const res = await medicationsService.getLogs(days);
+      const map = {};
+      for (const l of res.data.data || []) {
+        const ymd = new Date(l.scheduled_for).toISOString().slice(0, 10);
+        map[keyFor(l.medication_id, l.slot_time, ymd)] = l.status;
+      }
+      set({ doseStatus: map });
+    } catch { /* im lặng */ }
+  },
+
+  async logDose(medId, { slot, scheduledFor, status = 'taken' } = {}) {
+    const ymd = (scheduledFor ? new Date(scheduledFor) : new Date()).toISOString().slice(0, 10);
+    const k = keyFor(medId, slot, ymd);
+    const prev = get().doseStatus[k];
+    set((s) => ({ doseStatus: { ...s.doseStatus, [k]: status } })); // optimistic
+    try {
+      await medicationsService.logDose(medId, { slot, scheduledFor, status });
+      get().fetchSummary();
+    } catch {
+      set((s) => {
+        const n = { ...s.doseStatus };
+        if (prev) n[k] = prev; else delete n[k];
+        return { doseStatus: n };
+      });
+    }
+  },
+
+  async fetchSummary(days = 30) {
+    set({ loading: true });
+    try {
+      const res = await medicationsService.getAdherence(days);
+      set({ summary: res.data.data });
+    } finally {
+      set({ loading: false });
+    }
+  },
+}));
 
 // Lấy toàn bộ nhật ký uống thuốc từ localStorage
 export function getIntakeLogs() {
@@ -50,6 +101,17 @@ export function recordMedicationIntake(medication, status = 'taken', dateObj = n
   }
 
   saveIntakeLogs(logs);
+
+  // Đồng bộ lên backend DB nếu có thể
+  try {
+    if (medication && medication.id && typeof medication.id === 'number') {
+      medicationsService.logDose(medication.id, {
+        status: status === 'taken' ? 'taken' : 'skipped',
+        takenAt: new Date().toISOString()
+      }).catch(() => {});
+    }
+  } catch {}
+
   return entry;
 }
 
@@ -190,3 +252,5 @@ export function calculateAdherenceStats(medications = [], days = 7) {
     history
   };
 }
+
+export default useMedicationAdherenceStore;

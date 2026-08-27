@@ -1,4 +1,6 @@
 const svc = require('./medications.service');
+const adherence = require('./adherence.service');
+const { publish } = require('../../realtime/eventBus');
 const { sendSuccess, sendError } = require('../../utils/response.helper');
 
 async function getMedications(req, res, next) {
@@ -15,7 +17,7 @@ async function createMedication(req, res, next) {
 
 async function updateMedication(req, res, next) {
   try {
-    const data = await svc.updateMedication(req.user.id, req.params.id, req.body);
+    const data = await svc.updateMedication(req.user.id, req.params.id, req.validatedBody || req.body);
     sendSuccess(res, data, 'Đã cập nhật thuốc');
   } catch (err) {
     if (err.status) return sendError(res, err.message, err.status);
@@ -33,4 +35,38 @@ async function deleteMedication(req, res, next) {
   }
 }
 
-module.exports = { getMedications, getTodayMedications, createMedication, updateMedication, deleteMedication };
+async function logDose(req, res, next) {
+  try {
+    const log = await adherence.logDose(req.user.id, Number(req.params.id), req.validatedBody || req.body || {});
+    publish('patient.medication_logged', { patientId: req.user.id, log });
+    sendSuccess(res, log, 'Đã ghi nhận', 201);
+  } catch (err) {
+    if (err.status) return sendError(res, err.message, err.status);
+    next(err);
+  }
+}
+
+async function getAdherence(req, res, next) {
+  try {
+    const days = Math.min(Math.max(parseInt(req.query.days, 10) || 30, 7), 180);
+    sendSuccess(res, await adherence.computeAdherence(req.user.id, days));
+  } catch (err) { next(err); }
+}
+
+async function getDoseHistory(req, res, next) {
+  try {
+    const days = Math.min(Math.max(parseInt(req.query.days, 10) || 30, 1), 180);
+    sendSuccess(res, await adherence.getDoseHistory(req.user.id, days));
+  } catch (err) { next(err); }
+}
+
+module.exports = {
+  getMedications,
+  getTodayMedications,
+  createMedication,
+  updateMedication,
+  deleteMedication,
+  logDose,
+  getAdherence,
+  getDoseHistory,
+};

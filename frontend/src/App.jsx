@@ -21,6 +21,7 @@ import SettingsPage from './pages/SettingsPage';
 import AdminPage from './pages/AdminPage';
 import ClinicLoginPage from './pages/Clinic/ClinicLoginPage';
 import ClinicDashboardPage from './pages/Clinic/ClinicDashboardPage';
+import ClinicPatientPage from './pages/Clinic/ClinicPatientPage';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuthStore();
@@ -115,6 +116,7 @@ function AppRoutes() {
         } />
         <Route path="/clinic" element={<ClinicLoginPage />} />
         <Route path="/clinic/dashboard" element={<ClinicDashboardPage />} />
+        <Route path="/clinic/patients/:id" element={<ClinicPatientPage />} />
         <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : (
           <MobileWrapper>
             <LoginPage />

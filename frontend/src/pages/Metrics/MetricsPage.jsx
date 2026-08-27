@@ -7,6 +7,7 @@ import BloodGlucoseChart from '../../components/metrics/BloodGlucoseChart';
 import MetricHistoryItem from '../../components/metrics/MetricHistoryItem';
 import AddMetricModal from '../../components/metrics/AddMetricModal';
 import StatisticsCard from '../../components/metrics/StatisticsCard';
+import ExportReportButton from '../../components/reports/ExportReportButton';
 import { voiceAlertService, ALERT_TYPES } from '../../services/voiceAlert.service';
 import { getMetricStatus } from '../../constants/metrics';
 import Button from '../../components/common/Button';
@@ -76,6 +77,9 @@ export default function MetricsPage() {
           period={statistics?.period || t.metrics.days90} 
           type={activeType} 
         />
+        <div style={{ marginTop: '12px' }}>
+          <ExportReportButton days={30} />
+        </div>
       </div>
 
       <div className={styles.historySection}>

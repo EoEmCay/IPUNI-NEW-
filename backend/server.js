@@ -108,11 +108,16 @@ const otpLimiter = rateLimit({
 // Áp dụng giới hạn chung cho toàn bộ API
 app.use('/api/', apiLimiter);
 
+app.set('trust proxy', 1);
+
+const dashboardRoutes = require('./src/modules/dashboard/dashboard.routes');
+
 app.use('/api/v1/auth/register-otp', otpLimiter);
 app.use('/api/v1/auth/verify-otp', otpLimiter);
 app.use('/api/v1/auth/forgot-password-otp', otpLimiter);
 app.use('/api/v1/auth/verify-reset-otp', otpLimiter);
 app.use('/api/v1/auth', authLimiter, authRoutes);
+app.use('/api/v1/dashboard', dashboardRoutes);
 app.use('/api/v1/metrics', metricsRoutes);
 app.use('/api/v1/medications', medicationsRoutes);
 app.use('/api/v1/appointments', appointmentsRoutes);
@@ -129,6 +134,7 @@ app.use(errorMiddleware);
 
 const db = require('./src/config/database');
 const { cleanupExpiredDemos } = require('./src/utils/cleanupDemo');
+const { startMissedDoseJob } = require('./src/jobs/missedDoseChecker');
 
 async function startServer() {
   try {
@@ -137,9 +143,6 @@ async function startServer() {
     // await db.seed.run();
     // logger.info('[Hệ thống] Đã chạy seeds thành công');
   } catch (err) {
-    // Fail-fast: KHÔNG khởi động server với schema có thể sai lệch. Trước đây lỗi này chỉ
-    // được log rồi server vẫn app.listen() bình thường - gây lỗi 500 rải rác khó debug thay
-    // vì một lỗi khởi động rõ ràng ngay lập tức.
     logger.error(`[Hệ thống] Lỗi khi chạy db init: ${err.message}`);
     process.exit(1);
   }
@@ -152,8 +155,20 @@ async function startServer() {
     setInterval(() => {
       cleanupExpiredDemos();
     }, 10 * 60 * 1000); // Mỗi 10 phút
+
+    // Khởi chạy job kiểm tra cữ thuốc bị bỏ quên để cảnh báo người nhà
+    try {
+      startMissedDoseJob();
+      logger.info('[Hệ thống] Đã khởi động job kiểm tra liều thuốc quên định kỳ (5 phút)');
+    } catch (e) {
+      logger.error(`[Hệ thống] Lỗi khởi động MissedDoseJob: ${e.message}`);
+    }
   });
   server.timeout = 300000;
 }
+
+process.on('unhandledRejection', (reason) => {
+  logger.error('[UnhandledRejection]', reason);
+});
 
 startServer();

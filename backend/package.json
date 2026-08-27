@@ -7,7 +7,9 @@
     "start": "node server.js",
     "migrate": "knex migrate:latest",
     "migrate:rollback": "knex migrate:rollback",
-    "seed": "knex seed:run"
+    "seed": "knex seed:run",
+    "test": "node src/modules/medications/medicationSchedule.test.js",
+    "test:schedule": "node src/modules/medications/medicationSchedule.test.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.103.0",

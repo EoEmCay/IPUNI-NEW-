@@ -1,6 +1,7 @@
 const svc = require('./scan.service');
 const { sendSuccess, sendError } = require('../../utils/response.helper');
 const { findMedicationInDatabase } = require('./scan.service');
+const { publish } = require('../../realtime/eventBus');
 
 const fs = require('fs');
 
@@ -46,6 +47,14 @@ async function analyzePrescription(req, res, next) {
         scanned_at: db.fn.now(),
         result: result.isDiabetesPrescription ? 'prescription' : result.isLabReport ? 'lab_report' : 'other'
       }).catch(e => console.error('[Scan Usage Record Error]:', e.message));
+    }
+
+    if (result && (result.isPrescription || result.isDiabetesPrescription)) {
+      publish('patient.prescription_scanned', {
+        patientId: user.id,
+        medications: (result.medications || []).map((m) => m.name),
+        doctorName: result.doctorName || null,
+      });
     }
 
     sendSuccess(res, result, 'Phân tích đơn thuốc thành công');

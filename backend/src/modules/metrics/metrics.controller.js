@@ -1,6 +1,8 @@
 const metricsService = require('./metrics.service');
 const MetricsCalculator = require('./metrics.calculator');
 const { sendSuccess, sendError } = require('../../utils/response.helper');
+const { publish } = require('../../realtime/eventBus');
+const { evaluateAndQueueAlerts } = require('../clinic/alert.service');
 
 async function getMetrics(req, res, next) {
   try {
@@ -95,6 +97,19 @@ async function createMetric(req, res, next) {
       estimated_hba1c: null,
       note
     });
+
+    // Đồng bộ realtime cho phòng khám + đánh giá cờ đỏ lâm sàng (không chặn response)
+    publish('patient.metric_added', {
+      patientId: req.user.id,
+      metric: {
+        id: metric.id,
+        type: metric.measurement_type,
+        value: metric.value,
+        status: metric.status,
+        at: metric.measured_at,
+      },
+    });
+    evaluateAndQueueAlerts(req.user.id).catch(() => {});
 
     sendSuccess(res, metric, 'Metric recorded successfully', 201);
   } catch (err) {

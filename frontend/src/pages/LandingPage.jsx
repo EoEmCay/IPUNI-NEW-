@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Activity, Sparkles, X, Calendar, Mic, LineChart, CloudUpload, Clock, Link, Globe, Users, HeartPulse, ShieldCheck, Phone, Mail, Camera, ArrowRight } from 'lucide-react';
+import { Activity, Sparkles, X, Calendar, Mic, LineChart, CloudUpload, Clock, Link, Globe, Users, HeartPulse, ShieldCheck, Phone, Mail, Camera, ArrowRight, Play } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import useAuthStore from '../store/authStore';
 import { useT } from '../hooks/useT';

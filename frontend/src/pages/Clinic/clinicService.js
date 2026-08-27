@@ -88,18 +88,26 @@ export const clinicService = {
     }
   },
 
-  // Lấy danh sách bệnh nhân
+  // Lấy danh sách bệnh nhân (kết hợp bệnh nhân quét thật + user ảo demo)
   getPatients() {
     try {
       const data = localStorage.getItem(STORAGE_KEYS.PATIENTS);
-      if (!data) {
-        return [];
+      let list = [];
+      if (data) {
+        try {
+          const parsed = JSON.parse(data);
+          if (Array.isArray(parsed)) list = parsed;
+        } catch {}
       }
-      const parsed = JSON.parse(data);
-      if (!Array.isArray(parsed)) return [];
-      
+
+      // Đảm bảo luôn có sẵn các ca user ảo demo (MOCK_PATIENTS_SAMPLE) để demo đầy đủ các ca cảnh báo
+      const hasMock = list.some(p => p.id && p.id.startsWith('p') && p.code && p.code.startsWith('DIA-880'));
+      if (!hasMock) {
+        list = [...list, ...MOCK_PATIENTS_SAMPLE];
+      }
+
       const uniqueMap = new Map();
-      parsed.forEach(p => {
+      list.forEach(p => {
         if (p && (p.name || p.id)) {
           const key = p.userId 
             ? `user_${p.userId}` 
@@ -109,10 +117,10 @@ export const clinicService = {
           }
         }
       });
-      const realOnly = Array.from(uniqueMap.values());
-      return realOnly;
+      const finalList = Array.from(uniqueMap.values());
+      return finalList;
     } catch {
-      return [];
+      return MOCK_PATIENTS_SAMPLE;
     }
   },
 

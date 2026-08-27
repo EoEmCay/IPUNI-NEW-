@@ -341,6 +341,29 @@
 
 .emergencyRow {
   background: #fff1f2 !important;
+  border-left: 4px solid #ef4444 !important;
+  animation: pulseEmergency 2.5s infinite ease-in-out;
+}
+
+.highCrisisRow {
+  background: #fff7ed !important;
+  border-left: 4px solid #f97316 !important;
+}
+
+.medsWarningRow {
+  background: #fffbeb !important;
+  border-left: 4px solid #f59e0b !important;
+}
+
+.overdueRow {
+  background: #faf5ff !important;
+  border-left: 4px solid #a855f7 !important;
+}
+
+@keyframes pulseEmergency {
+  0% { background-color: #fff1f2; }
+  50% { background-color: #ffe4e6; }
+  100% { background-color: #fff1f2; }
 }
 
 .patientCell {

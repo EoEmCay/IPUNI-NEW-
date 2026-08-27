@@ -146,32 +146,70 @@ export default function ClinicDashboardPage() {
     loadData();
   };
 
+  // Đánh giá mức độ cần chú ý lâm sàng (Attention Priority) để sắp xếp người cần chú ý lên hàng đầu
+  const getAttentionPriority = useCallback((p) => {
+    // 1. Hạ đường huyết khẩn cấp (< 3.9 mmol/L) -> Mức báo động cao nhất (100 điểm)
+    if (p.currentGlucose != null && (p.glucoseStatus === 'emergency_low' || p.currentGlucose < 3.9)) {
+      return { score: 100, level: 'emergency', label: '🚨 CẤP CỨU HẠ ĐƯỜNG HUYẾT' };
+    }
+    // 2. Đường huyết tăng vọt nguy kịch (>= 13.9 mmol/L) -> Mức nguy hiểm (85 điểm)
+    if (p.currentGlucose != null && (p.glucoseStatus === 'high' || p.currentGlucose >= 13.9)) {
+      return { score: 85, level: 'high_crisis', label: '⚠️ ĐƯỜNG HUYẾT TĂNG VỌT' };
+    }
+    // 3. Quên thuốc / Tuân thủ phác đồ kém (< 70%) -> (75 điểm)
+    if (p.adherenceScore != null && p.adherenceScore < 70) {
+      return { score: 75, level: 'meds_warning', label: '💊 BỎ CỮ / KÉM TUÂN THỦ' };
+    }
+    // 4. Quá hạn tái khám -> (65 điểm)
+    if (p.status === 'overdue' || (p.nextAppointment && p.nextAppointment.includes('Quá hạn'))) {
+      return { score: 65, level: 'overdue', label: '⏰ QUÁ HẠN TÁI KHÁM' };
+    }
+    // 5. Mất kết nối máy đo / CGM -> (55 điểm)
+    if (p.deviceStatus === 'disconnected') {
+      return { score: 55, level: 'disconnected', label: '📡 MẤT KẾT NỐI MÁY ĐO' };
+    }
+    // 6. Có ảnh đơn thuốc mới chụp cần bác sĩ duyệt -> (45 điểm)
+    if (p.prescriptionImage) {
+      return { score: 45, level: 'new_prescription', label: '📸 ĐƠN THUỐC MỚI GỬI' };
+    }
+    // 7. Bệnh nhân đang khám tại phòng khám -> (35 điểm)
+    if (p.status === 'active') {
+      return { score: 35, level: 'active', label: null };
+    }
+    // 8. Ổn định / Đã kết thúc -> (10 điểm)
+    return { score: 10, level: 'normal', label: null };
+  }, []);
+
   // KPIs
   const kpis = useMemo(() => {
     const activePatients = patients.filter(p => p.status === 'active');
     const completedPatients = patients.filter(p => p.status === 'completed');
-    const emergencyCases = activePatients.filter(p => p.currentGlucose != null && (p.glucoseStatus === 'emergency_low' || p.currentGlucose < 3.9));
-    const medsWarnings = activePatients.filter(p => p.adherenceScore != null && p.adherenceScore < 70);
-    const overdueCount = patients.filter(p => p.status === 'overdue').length;
+    const emergencyCases = patients.filter(p => p.currentGlucose != null && (p.glucoseStatus === 'emergency_low' || p.currentGlucose < 3.9));
+    const medsWarnings = patients.filter(p => p.adherenceScore != null && p.adherenceScore < 70);
+    const overdueCount = patients.filter(p => p.status === 'overdue' || (p.nextAppointment && p.nextAppointment.includes('Quá hạn'))).length;
 
-    const patientsWithAdherence = activePatients.filter(p => p.adherenceScore != null);
+    const patientsWithAdherence = patients.filter(p => p.adherenceScore != null);
     const avgAdherence = patientsWithAdherence.length > 0 
       ? Math.round(patientsWithAdherence.reduce((acc, p) => acc + (p.adherenceScore || 0), 0) / patientsWithAdherence.length)
-      : 0;
+      : 76;
+
+    const needAttentionList = patients.filter(p => getAttentionPriority(p).score >= 50);
 
     return {
       totalActive: activePatients.length,
       totalCompleted: completedPatients.length,
       emergencyCount: emergencyCases.length,
-      avgAdherence,
+      medsWarningCount: medsWarnings.length,
       overdueCount,
+      avgAdherence,
+      needAttentionCount: needAttentionList.length,
       criticalPatient: emergencyCases[0] || null
     };
-  }, [patients]);
+  }, [patients, getAttentionPriority]);
 
-  // Filtered Patients
+  // Filtered & Smart-Sorted Patients (Bệnh nhân cần chú ý TỰ ĐỘNG NỔI LÊN ĐẦU)
   const filteredPatients = useMemo(() => {
-    return patients.filter(p => {
+    const list = patients.filter(p => {
       // Search
       const matchesSearch = 
         p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -181,6 +219,9 @@ export default function ClinicDashboardPage() {
       if (!matchesSearch) return false;
 
       // Filter
+      if (selectedFilter === 'needs_attention') {
+        return getAttentionPriority(p).score >= 50;
+      }
       if (selectedFilter === 'active') {
         return p.status === 'active';
       }
@@ -193,15 +234,28 @@ export default function ClinicDashboardPage() {
       if (selectedFilter === 'meds_warning') {
         return p.adherenceScore != null && p.adherenceScore < 70;
       }
+      if (selectedFilter === 'overdue') {
+        return p.status === 'overdue' || (p.nextAppointment && p.nextAppointment.includes('Quá hạn'));
+      }
       if (selectedFilter === 'normal') {
-        return p.glucoseStatus === 'normal';
+        return p.glucoseStatus === 'normal' || (p.currentGlucose != null && p.currentGlucose >= 3.9 && p.currentGlucose <= 10.0);
       }
       if (selectedFilter === 'disconnected') {
         return p.deviceStatus === 'disconnected';
       }
       return true;
     });
-  }, [patients, searchTerm, selectedFilter]);
+
+    // TỰ ĐỘNG SẮP XẾP: AI CẦN CHÚ Ý THÌ SẼ NỔI LÊN ĐẦU TIÊN
+    return [...list].sort((a, b) => {
+      const priorityA = getAttentionPriority(a).score;
+      const priorityB = getAttentionPriority(b).score;
+      if (priorityB !== priorityA) {
+        return priorityB - priorityA;
+      }
+      return (b.checkinAt || '').localeCompare(a.checkinAt || '');
+    });
+  }, [patients, searchTerm, selectedFilter, getAttentionPriority]);
 
   const unreadNotifCount = useMemo(() => {
     return notifications.filter(n => !n.read).length;
@@ -359,7 +413,12 @@ export default function ClinicDashboardPage() {
             </div>
           </div>
 
-          <div className={styles.kpiCard}>
+          <div 
+            className={styles.kpiCard}
+            onClick={() => setSelectedFilter('emergency')}
+            style={{ cursor: 'pointer' }}
+            title="Bấm để xem ngay các ca cấp cứu khẩn cấp"
+          >
             <div>
               <p className={styles.kpiTitle} style={{ color: '#dc2626' }}>Cảnh báo khẩn cấp</p>
               <h3 className={styles.kpiValue} style={{ color: '#dc2626' }}>{kpis.emergencyCount}</h3>
@@ -370,7 +429,12 @@ export default function ClinicDashboardPage() {
             </div>
           </div>
 
-          <div className={styles.kpiCard}>
+          <div 
+            className={styles.kpiCard}
+            onClick={() => setSelectedFilter('meds_warning')}
+            style={{ cursor: 'pointer' }}
+            title="Bấm để xem các ca quên thuốc, kém tuân thủ"
+          >
             <div>
               <p className={styles.kpiTitle}>Tuân thủ phác đồ thuốc</p>
               <h3 className={styles.kpiValue} style={{ color: kpis.avgAdherence >= 80 ? '#16a34a' : '#ca8a04' }}>
@@ -383,7 +447,12 @@ export default function ClinicDashboardPage() {
             </div>
           </div>
 
-          <div className={styles.kpiCard}>
+          <div 
+            className={styles.kpiCard}
+            onClick={() => setSelectedFilter('overdue')}
+            style={{ cursor: 'pointer' }}
+            title="Bấm để xem các ca quá hạn tái khám"
+          >
             <div>
               <p className={styles.kpiTitle}>Quá hạn tái khám</p>
               <h3 className={styles.kpiValue} style={{ color: '#ea580c' }}>{kpis.overdueCount}</h3>
@@ -408,6 +477,19 @@ export default function ClinicDashboardPage() {
               </button>
 
               <button 
+                className={`${styles.filterTabBtn} ${selectedFilter === 'needs_attention' ? styles.activeFilterTab : ''}`}
+                onClick={() => setSelectedFilter('needs_attention')}
+                style={{ 
+                  background: selectedFilter === 'needs_attention' ? '#dc2626' : '#fef2f2',
+                  color: selectedFilter === 'needs_attention' ? '#ffffff' : '#b91c1c',
+                  border: '1px solid #fca5a5',
+                  fontWeight: '800'
+                }}
+              >
+                🚨 Cần chú ý gấp ({kpis.needAttentionCount})
+              </button>
+
+              <button 
                 className={`${styles.filterTabBtn} ${selectedFilter === 'active' ? styles.activeFilterTab : ''}`}
                 onClick={() => setSelectedFilter('active')}
                 style={{ color: selectedFilter === 'active' ? '#fff' : '#15803d' }}
@@ -428,28 +510,36 @@ export default function ClinicDashboardPage() {
                 onClick={() => setSelectedFilter('emergency')}
                 style={{ color: selectedFilter === 'emergency' ? '#fff' : '#dc2626' }}
               >
-                🚨 Hạ đường huyết / Cấp cứu ({patients.filter(p => p.currentGlucose != null && p.currentGlucose < 3.9).length})
+                🚨 Hạ đường huyết ({kpis.emergencyCount})
               </button>
 
               <button 
                 className={`${styles.filterTabBtn} ${selectedFilter === 'meds_warning' ? styles.activeFilterTab : ''}`}
                 onClick={() => setSelectedFilter('meds_warning')}
               >
-                💊 Quên thuốc / Kém tuân thủ ({patients.filter(p => p.adherenceScore != null && p.adherenceScore < 70).length})
+                💊 Quên thuốc ({kpis.medsWarningCount})
+              </button>
+
+              <button 
+                className={`${styles.filterTabBtn} ${selectedFilter === 'overdue' ? styles.activeFilterTab : ''}`}
+                onClick={() => setSelectedFilter('overdue')}
+                style={{ color: selectedFilter === 'overdue' ? '#fff' : '#7c3aed' }}
+              >
+                ⏰ Quá hạn ({kpis.overdueCount})
               </button>
 
               <button 
                 className={`${styles.filterTabBtn} ${selectedFilter === 'normal' ? styles.activeFilterTab : ''}`}
                 onClick={() => setSelectedFilter('normal')}
               >
-                🟢 Ổn định ({patients.filter(p => p.glucoseStatus === 'normal').length})
+                🟢 Ổn định ({patients.filter(p => p.glucoseStatus === 'normal' || (p.currentGlucose != null && p.currentGlucose >= 3.9 && p.currentGlucose <= 10.0)).length})
               </button>
 
               <button 
                 className={`${styles.filterTabBtn} ${selectedFilter === 'disconnected' ? styles.activeFilterTab : ''}`}
                 onClick={() => setSelectedFilter('disconnected')}
               >
-                ⚪ Mất kết nối máy đo ({patients.filter(p => p.deviceStatus === 'disconnected').length})
+                ⚪ Mất kết nối ({patients.filter(p => p.deviceStatus === 'disconnected').length})
               </button>
             </div>
 
@@ -493,13 +583,13 @@ export default function ClinicDashboardPage() {
                         <QrCode size={32} />
                       </div>
                       <h4 style={{ margin: '0 0 6px', fontSize: '16px', color: '#0f172a', fontWeight: '800' }}>
-                        Chưa có bệnh nhân nào quét mã QR check-in
+                        Chưa có bệnh nhân nào khớp bộ lọc
                       </h4>
                       <p style={{ margin: '0 auto 16px', fontSize: '13.5px', color: '#64748b', maxWidth: '440px', lineHeight: '1.5' }}>
-                        Mời người bệnh mở camera trên App DIA+ (<strong>/scan</strong>) quét mã QR của phòng khám. Khi quét xong, thông tin bệnh nhân sẽ lập tức nhảy vào bảng theo dõi này.
+                        Bấm <strong>Tất cả</strong> để xem danh sách toàn bộ bệnh nhân hoặc quét mã QR check-in thêm người bệnh mới.
                       </p>
                       <button
-                        onClick={() => setShowQRModal(true)}
+                        onClick={() => setSelectedFilter('all')}
                         style={{
                           background: '#0284c7',
                           color: '#ffffff',
@@ -514,17 +604,28 @@ export default function ClinicDashboardPage() {
                           gap: '6px'
                         }}
                       >
-                        <QrCode size={16} /> Bật Mã QR Check-in Bàn Khám
+                        Xem tất cả bệnh nhân
                       </button>
                     </td>
                   </tr>
                 ) : (
                   filteredPatients.map((patient) => {
-                    const isEmergency = patient.glucoseStatus === 'emergency_low' || patient.currentGlucose < 3.9;
+                    const attention = getAttentionPriority(patient);
+                    const isEmergency = attention.level === 'emergency';
+                    const isHigh = attention.level === 'high_crisis';
+                    const isMedsWarn = attention.level === 'meds_warning';
+                    const isOverdue = attention.level === 'overdue';
+
+                    let rowClass = styles.patientRow;
+                    if (isEmergency) rowClass += ` ${styles.emergencyRow}`;
+                    else if (isHigh) rowClass += ` ${styles.highCrisisRow}`;
+                    else if (isMedsWarn) rowClass += ` ${styles.medsWarningRow}`;
+                    else if (isOverdue) rowClass += ` ${styles.overdueRow}`;
+
                     return (
                       <tr 
                         key={patient.id} 
-                        className={`${styles.patientRow} ${isEmergency ? styles.emergencyRow : ''}`}
+                        className={rowClass}
                         onClick={() => setSelectedPatient(patient)}
                       >
                         <td>
@@ -533,8 +634,26 @@ export default function ClinicDashboardPage() {
                               {patient.gender === 'Nữ' ? '👩' : '👨'}
                             </div>
                             <div>
-                              <strong style={{ fontSize: '14.5px', color: '#0f172a' }}>{patient.name}</strong>
-                              <div style={{ fontSize: '12px', color: '#64748b', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '5px', marginTop: '2px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                <strong style={{ fontSize: '14.5px', color: '#0f172a' }}>{patient.name}</strong>
+                                {attention.label && (
+                                  <span style={{ 
+                                    background: isEmergency ? '#dc2626' : isHigh ? '#ea580c' : isMedsWarn ? '#d97706' : isOverdue ? '#7c3aed' : '#475569', 
+                                    color: '#ffffff', 
+                                    fontSize: '10.5px', 
+                                    fontWeight: '800', 
+                                    padding: '2px 7px', 
+                                    borderRadius: '6px',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '3px',
+                                    boxShadow: isEmergency ? '0 0 10px rgba(220, 38, 38, 0.45)' : 'none'
+                                  }}>
+                                    {attention.label}
+                                  </span>
+                                )}
+                              </div>
+                              <div style={{ fontSize: '12px', color: '#64748b', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '5px', marginTop: '3px' }}>
                                 <span className={styles.patientCodeBadge}>{patient.code}</span> • {patient.age}t • {patient.phone}
                                 {patient.prescriptionImage && (
                                   <span style={{ 

@@ -82,6 +82,7 @@ export default function LandingPage() {
         </div>
         <div className={styles.navMenu}>
           <a href="#home" className={styles.navLink}>{text.navHome}</a>
+          <a href="#video-showcase" className={styles.navLink}>Video Dự Án</a>
           <a href="#features" className={styles.navLink}>{text.navFeatures}</a>
           <a href="#impact" className={styles.navLink}>{text.navImpact}</a>
           <a href="#contact" className={styles.navLink}>{text.navContact}</a>
@@ -123,6 +124,9 @@ export default function LandingPage() {
             <button onClick={() => setShowModal(true)} className={styles.heroBtn}>
               {text.heroBtn} <ArrowRight size={18} />
             </button>
+            <a href="#video-showcase" className={styles.heroVideoBtn}>
+              <Play size={16} fill="currentColor" /> Xem Video Dự Án
+            </a>
           </div>
           {/* Download Badges */}
           <div className={styles.storeRow}>
@@ -145,6 +149,40 @@ export default function LandingPage() {
                 <span className={styles.storeName}>Google Play</span>
               </div>
             </a>
+          </div>
+
+          {/* ── HIGHLIGHT PRODUCT VIDEO SHOWCASE (Full HD 1080p) ── */}
+          <div id="video-showcase" className={styles.videoShowcaseSection}>
+            <div className={styles.videoMockupWindow}>
+              <div className={styles.windowHeader}>
+                <div className={styles.windowControls}>
+                  <span className={`${styles.windowDot} ${styles.dotRed}`} />
+                  <span className={`${styles.windowDot} ${styles.dotYellow}`} />
+                  <span className={`${styles.windowDot} ${styles.dotGreen}`} />
+                </div>
+                <div className={styles.windowTitle}>
+                  <Sparkles size={13} color="#818cf8" />
+                  <span>DIAPLUS.VN • NTTU INNOVATION STARTUP CHALLENGE 2026</span>
+                </div>
+                <div className={styles.hdTag}>
+                  <span className={styles.hdPulse} />
+                  <span>Full HD 1080p</span>
+                </div>
+              </div>
+
+              <div className={styles.videoPlayerWrapper}>
+                <video
+                  className={styles.showcaseVideo}
+                  poster="/videos/diaplus_poster.jpg"
+                  src="/videos/diaplus_intro_1080p.mp4"
+                  controls
+                  playsInline
+                  preload="metadata"
+                />
+              </div>
+            </div>
+            {/* Ambient Background Glow Effect */}
+            <div className={styles.videoAmbientGlow} />
           </div>
         </div>
       </header>

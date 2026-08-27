@@ -175,20 +175,16 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* ── NTTU Innovation Challenge Video Promo Banner ── */}
+        {/* ── Video Promo Banner ── */}
         <div className={styles.section}>
           <div className={styles.videoBannerCard} onClick={() => setShowVideoModal(true)}>
             <div className={styles.videoBannerLeft}>
-              <div className={styles.videoBadge}>
-                <Sparkles size={13} color="#818cf8" />
-                <span>NTTU INNOVATION STARTUP CHALLENGE 2026</span>
-              </div>
               <h3 className={styles.videoTitle}>Xem Video Giới Thiệu Dự Án DIA+</h3>
               <p className={styles.videoDesc}>
                 Khám phá giải pháp công nghệ AI chăm sóc bệnh nhân đái tháo đường thông minh.
               </p>
               <span className={styles.watchNowBtn}>
-                <Play size={13} fill="currentColor" /> Xem Video (Full HD 1080p)
+                <Play size={13} fill="currentColor" /> Xem Video
               </span>
             </div>
             <div className={styles.videoThumbWrap}>
@@ -196,7 +192,6 @@ export default function DashboardPage() {
               <div className={styles.playIconRing}>
                 <Play size={18} fill="#ffffff" color="#ffffff" />
               </div>
-              <span className={styles.hdTagSmall}>1080p</span>
             </div>
           </div>
         </div>
@@ -267,7 +262,7 @@ export default function DashboardPage() {
             <div className={styles.videoModalHeader}>
               <div className={styles.videoModalTitle}>
                 <Sparkles size={16} color="#818cf8" />
-                <span>DIAPLUS.VN • NTTU INNOVATION STARTUP CHALLENGE 2026</span>
+                <span>Video Giới Thiệu Dự Án DIA+</span>
               </div>
               <button className={styles.closeBtn} onClick={() => setShowVideoModal(false)}>
                 <X size={20} />

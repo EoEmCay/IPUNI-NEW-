@@ -151,25 +151,9 @@ export default function LandingPage() {
             </a>
           </div>
 
-          {/* ── HIGHLIGHT PRODUCT VIDEO SHOWCASE (Full HD 1080p) ── */}
+          {/* ── HIGHLIGHT PRODUCT VIDEO SHOWCASE ── */}
           <div id="video-showcase" className={styles.videoShowcaseSection}>
             <div className={styles.videoMockupWindow}>
-              <div className={styles.windowHeader}>
-                <div className={styles.windowControls}>
-                  <span className={`${styles.windowDot} ${styles.dotRed}`} />
-                  <span className={`${styles.windowDot} ${styles.dotYellow}`} />
-                  <span className={`${styles.windowDot} ${styles.dotGreen}`} />
-                </div>
-                <div className={styles.windowTitle}>
-                  <Sparkles size={13} color="#818cf8" />
-                  <span>DIAPLUS.VN • NTTU INNOVATION STARTUP CHALLENGE 2026</span>
-                </div>
-                <div className={styles.hdTag}>
-                  <span className={styles.hdPulse} />
-                  <span>Full HD 1080p</span>
-                </div>
-              </div>
-
               <div className={styles.videoPlayerWrapper}>
                 <video
                   className={styles.showcaseVideo}

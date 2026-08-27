@@ -15,7 +15,20 @@ const clinicController = {
           ? `user_${p.userId}` 
           : (p.phone && !p.phone.includes('0912 345 678') ? `phone_${p.phone}` : (p.id || p.code));
         if (!uniqueMap.has(key)) {
-          uniqueMap.set(key, p);
+          uniqueMap.set(key, { ...p });
+        } else {
+          // Luôn giữ ảnh đơn thuốc thật nếu một trong các bản ghi có ảnh
+          const existing = uniqueMap.get(key);
+          if (p.prescriptionImage) {
+            existing.prescriptionImage = p.prescriptionImage;
+            existing.prescriptionDate = p.prescriptionDate || existing.prescriptionDate;
+            existing.prescriptionHospital = p.prescriptionHospital || existing.prescriptionHospital;
+            existing.prescriptionDoctor = p.prescriptionDoctor || existing.prescriptionDoctor;
+            existing.prescriptionDiagnosis = p.prescriptionDiagnosis || existing.prescriptionDiagnosis;
+          }
+          if (p.medications && p.medications.length > 0 && (!existing.medications || existing.medications.length === 0)) {
+            existing.medications = p.medications;
+          }
         }
       });
       clinicPatients = Array.from(uniqueMap.values());
@@ -278,20 +291,29 @@ const clinicController = {
         clinicPatients.unshift(patient);
       }
 
-      patient.prescriptionImage = prescriptionImage;
-      patient.prescriptionDate = prescriptionDate || new Date().toISOString().split('T')[0];
-      patient.prescriptionHospital = hospitalName || '';
-      patient.prescriptionDoctor = doctorName || '';
-      patient.prescriptionDiagnosis = diagnosis || '';
-      if (medications && medications.length > 0) {
-        patient.medications = medications.map(m => ({
-          name: m.name,
-          dosage: m.dosage || '1 viên',
-          timing: m.instructions || m.frequency || 'Theo chỉ định',
-          status: 'pending'
-        }));
-        patient.adherenceScore = 95;
-      }
+      clinicPatients.forEach(p => {
+        if (
+          (patientId && p.id === patientId) ||
+          (code && p.code === code) ||
+          (userId && p.userId && String(p.userId) === String(userId)) ||
+          (phone && p.phone && p.phone === phone)
+        ) {
+          p.prescriptionImage = prescriptionImage;
+          p.prescriptionDate = prescriptionDate || new Date().toISOString().split('T')[0];
+          p.prescriptionHospital = hospitalName || p.prescriptionHospital || '';
+          p.prescriptionDoctor = doctorName || p.prescriptionDoctor || '';
+          p.prescriptionDiagnosis = diagnosis || p.prescriptionDiagnosis || '';
+          if (medications && medications.length > 0) {
+            p.medications = medications.map(m => ({
+              name: m.name,
+              dosage: m.dosage || '1 viên',
+              timing: m.instructions || m.frequency || 'Theo chỉ định',
+              status: 'pending'
+            }));
+            p.adherenceScore = 95;
+          }
+        }
+      });
 
       clinicNotifications.unshift({
         id: `n-${Date.now()}`,

@@ -118,7 +118,11 @@ export const clinicService = {
 
   // Lưu danh sách bệnh nhân
   savePatients(patients) {
-    localStorage.setItem(STORAGE_KEYS.PATIENTS, JSON.stringify(patients));
+    try {
+      localStorage.setItem(STORAGE_KEYS.PATIENTS, JSON.stringify(patients));
+    } catch (e) {
+      console.warn('localStorage quota warning in savePatients', e);
+    }
     this.broadcastSync('PATIENTS_UPDATED', { count: patients.length });
   },
 
@@ -163,22 +167,26 @@ export const clinicService = {
         if (!uniqueMap.has(key)) {
           uniqueMap.set(key, p);
         } else {
-          // Nếu một trong hai bên đã có prescriptionImage thì giữ lại
+          // Luôn giữ ảnh đơn thuốc thật nếu một trong hai nguồn có ảnh
           const existing = uniqueMap.get(key);
-          if (!existing.prescriptionImage && p.prescriptionImage) {
+          if (p.prescriptionImage) {
             existing.prescriptionImage = p.prescriptionImage;
-            existing.prescriptionDate = p.prescriptionDate;
-            existing.prescriptionHospital = p.prescriptionHospital;
-            existing.prescriptionDoctor = p.prescriptionDoctor;
-            existing.prescriptionDiagnosis = p.prescriptionDiagnosis;
+            existing.prescriptionDate = p.prescriptionDate || existing.prescriptionDate;
+            existing.prescriptionHospital = p.prescriptionHospital || existing.prescriptionHospital;
+            existing.prescriptionDoctor = p.prescriptionDoctor || existing.prescriptionDoctor;
+            existing.prescriptionDiagnosis = p.prescriptionDiagnosis || existing.prescriptionDiagnosis;
           }
-          if ((!existing.medications || existing.medications.length === 0) && p.medications && p.medications.length > 0) {
+          if (p.medications && p.medications.length > 0) {
             existing.medications = p.medications;
           }
         }
       });
       const finalList = Array.from(uniqueMap.values());
-      localStorage.setItem(STORAGE_KEYS.PATIENTS, JSON.stringify(finalList));
+      try {
+        localStorage.setItem(STORAGE_KEYS.PATIENTS, JSON.stringify(finalList));
+      } catch (err) {
+        console.warn('localStorage quota warning in fetchPatientsFromCloud', err);
+      }
       return finalList;
     }
 

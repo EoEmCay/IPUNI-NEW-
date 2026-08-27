@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { Capacitor } from '@capacitor/core';
 import useAuthStore from './store/authStore';
 import { authService } from './services/auth.service';
 import PendingApprovalModal from './components/auth/PendingApprovalModal';
@@ -105,10 +106,17 @@ function AppRoutes() {
     window.location.href = '/login';
   };
 
+  const isNativeApp = Capacitor.isNativePlatform() || window.matchMedia('(display-mode: standalone)').matches;
+
   return (
     <>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={
+          isNativeApp
+            ? (isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />)
+            : <LandingPage />
+        } />
+        <Route path="/landing" element={<LandingPage />} />
         <Route path="/admin" element={
           <ProtectedRoute>
             <AdminPage />

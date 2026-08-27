@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Activity, Pill, Star, Play, Sparkles, X } from 'lucide-react';
+import { Activity, Pill, Star } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useMetrics } from '../../hooks/useMetrics';
 import { useMedications } from '../../hooks/useMedications';
@@ -44,7 +44,6 @@ export default function DashboardPage() {
   const t = useT();
   const [showModal, setShowModal] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
-  const [showVideoModal, setShowVideoModal] = useState(false);
   const [modalDefaultType, setModalDefaultType] = useState('glucose_fasting');
 
   useEffect(() => {
@@ -175,27 +174,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* ── Video Promo Banner ── */}
-        <div className={styles.section}>
-          <div className={styles.videoBannerCard} onClick={() => setShowVideoModal(true)}>
-            <div className={styles.videoBannerLeft}>
-              <h3 className={styles.videoTitle}>Xem Video Giới Thiệu Dự Án DIA+</h3>
-              <p className={styles.videoDesc}>
-                Khám phá giải pháp công nghệ AI chăm sóc bệnh nhân đái tháo đường thông minh.
-              </p>
-              <span className={styles.watchNowBtn}>
-                <Play size={13} fill="currentColor" /> Xem Video
-              </span>
-            </div>
-            <div className={styles.videoThumbWrap}>
-              <img src="/videos/diaplus_poster.jpg" alt="Video DIA+" className={styles.videoThumbImg} />
-              <div className={styles.playIconRing}>
-                <Play size={18} fill="#ffffff" color="#ffffff" />
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* ── Medication section (Categories replacement) ── */}
         <div className={styles.section}>
           <div className={isCuteMode ? styles.medicationCardCute : styles.medicationCard}>
@@ -254,32 +232,6 @@ export default function DashboardPage() {
 
       {showSuccessToast && (
         <SuccessToast onClose={() => setShowSuccessToast(false)} />
-      )}
-
-      {showVideoModal && (
-        <div className={styles.videoModalOverlay} onClick={() => setShowVideoModal(false)}>
-          <div className={styles.videoModalContent} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.videoModalHeader}>
-              <div className={styles.videoModalTitle}>
-                <Sparkles size={16} color="#818cf8" />
-                <span>Video Giới Thiệu Dự Án DIA+</span>
-              </div>
-              <button className={styles.closeBtn} onClick={() => setShowVideoModal(false)}>
-                <X size={20} />
-              </button>
-            </div>
-            <div className={styles.videoModalPlayer}>
-              <video
-                src="/videos/diaplus_intro_1080p.mp4"
-                poster="/videos/diaplus_poster.jpg"
-                controls
-                autoPlay
-                playsInline
-                className={styles.modalVideoElement}
-              />
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );

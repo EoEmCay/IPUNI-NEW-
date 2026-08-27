@@ -79,7 +79,7 @@ export default function ScanPrescriptionPage() {
     }
   }, [user]);
 
-  const handlePerformCheckin = useCallback((qrData = {}) => {
+  const handlePerformCheckin = useCallback(async (qrData = {}) => {
     const profile = clinicService.getClinicProfile();
     const targetClinicName = qrData?.clinicName || profile.name;
     const targetDoctorName = qrData?.doctorName || profile.doctorName;
@@ -93,6 +93,29 @@ export default function ScanPrescriptionPage() {
     const effectiveGlucose = userLatestMetrics?.glucose_fasting?.value || userLatestMetrics?.glucose_postmeal?.value || null;
     const effectiveHba1c = userLatestMetrics?.hba1c?.value || null;
 
+    // Đính kèm ảnh đơn thuốc đã quét gần đây nhất nếu có
+    let latestScanImage = null;
+    let latestScanMeds = [];
+    let latestScanHospital = '';
+    let latestScanDoctor = '';
+    let latestScanDate = '';
+    let latestScanDiagnosis = '';
+
+    try {
+      const history = await scanHistoryService.getHistory();
+      if (history && history.length > 0) {
+        const latest = history[0];
+        latestScanImage = latest.image || null;
+        latestScanMeds = latest.result?.medications || [];
+        latestScanHospital = latest.result?.hospitalName || '';
+        latestScanDoctor = latest.result?.doctorName || '';
+        latestScanDate = latest.result?.prescriptionDate || latest.date;
+        latestScanDiagnosis = latest.result?.diagnosis || '';
+      }
+    } catch (e) {
+      console.warn('Could not read scan history', e);
+    }
+
     const newPatient = clinicService.checkinFromPatientApp({
       userId: effectiveUserId,
       userCode: effectiveCode,
@@ -103,7 +126,18 @@ export default function ScanPrescriptionPage() {
       email: user?.email || '',
       glucose: effectiveGlucose,
       hba1c: effectiveHba1c,
-      diabetesType: user?.diagnosis || 'Type 2'
+      diabetesType: user?.diagnosis || 'Type 2',
+      prescriptionImage: latestScanImage,
+      prescriptionDate: latestScanDate,
+      prescriptionHospital: latestScanHospital,
+      prescriptionDoctor: latestScanDoctor,
+      prescriptionDiagnosis: latestScanDiagnosis,
+      medications: latestScanMeds.length > 0 ? latestScanMeds.map(m => ({
+        name: m.name,
+        dosage: m.dosage || '1 viên',
+        timing: m.instructions || m.frequency || 'Theo chỉ định',
+        status: 'pending'
+      })) : []
     });
 
     setCheckedInClinic({
@@ -117,7 +151,7 @@ export default function ScanPrescriptionPage() {
     });
 
     showToast(`🏥 Check-in thành công tại ${targetClinicName}! Bác sĩ đã nhận được hồ sơ của ${effectiveName}.`, 'success');
-  }, [user, showToast]);
+  }, [user, userLatestMetrics, showToast]);
 
   const handleClinicQRCheckin = () => {
     handlePerformCheckin();
@@ -238,12 +272,28 @@ export default function ScanPrescriptionPage() {
       } else if (data.isPrescription && !data.isDiabetesPrescription) {
         showToast(t.scanResult?.notDiabetes || 'Đây không phải đơn thuốc điều trị đái tháo đường. DIA+ chỉ hỗ trợ đơn thuốc tiểu đường.', 'error');
       } else {
-        // Save to history on success or lab report
         const reader = new FileReader();
         reader.readAsDataURL(imageFile);
         reader.onloadend = async () => {
           try {
             await scanHistoryService.saveScan(data, reader.result);
+
+            // Tự động đồng bộ ảnh đơn thuốc sang phòng khám nếu bệnh nhân đang trong phiên khám
+            const session = clinicService.getActivePatientClinicSession();
+            if (session) {
+              await clinicService.syncPrescriptionToClinic({
+                patientId: session.patientId,
+                patientCode: session.patientCode,
+                userId: session.userId,
+                prescriptionImage: reader.result,
+                prescriptionDate: data.prescriptionDate || new Date().toISOString().split('T')[0],
+                hospitalName: data.hospitalName || '',
+                doctorName: data.doctorName || '',
+                diagnosis: data.diagnosis || '',
+                medications: data.medications || []
+              });
+              showToast('📸 Đã truyền ảnh đơn thuốc trực tiếp đến Bác sĩ trên Clinic Dashboard!', 'success');
+            }
           } catch (e) {
             console.error('Failed to save to history', e);
           }

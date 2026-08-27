@@ -43,7 +43,12 @@ const clinicController = {
         hba1c = null,
         diabetesType = 'Type 2',
         medications = [],
-        notes = ''
+        notes = '',
+        prescriptionImage = null,
+        prescriptionDate = null,
+        prescriptionHospital = null,
+        prescriptionDoctor = null,
+        prescriptionDiagnosis = null
       } = req.body;
 
       const glucoseVal = glucose != null ? Number(glucose) : null;
@@ -74,6 +79,11 @@ const clinicController = {
           currentGlucose: glucoseVal != null ? glucoseVal : prev.currentGlucose,
           glucoseStatus: glucoseVal != null ? glucoseStatus : prev.glucoseStatus,
           hba1c: hba1c != null ? Number(hba1c) : prev.hba1c,
+          prescriptionImage: prescriptionImage || prev.prescriptionImage,
+          prescriptionDate: prescriptionDate || prev.prescriptionDate,
+          prescriptionHospital: prescriptionHospital || prev.prescriptionHospital,
+          prescriptionDoctor: prescriptionDoctor || prev.prescriptionDoctor,
+          prescriptionDiagnosis: prescriptionDiagnosis || prev.prescriptionDiagnosis,
           notes: notes || prev.notes,
           medications: medications.length > 0 ? medications : prev.medications
         };
@@ -102,6 +112,11 @@ const clinicController = {
           glucoseStatus,
           glucoseTrend: glucoseVal != null ? 'stable' : 'unknown',
           hba1c: hba1c != null ? Number(hba1c) : null,
+          prescriptionImage: prescriptionImage || null,
+          prescriptionDate: prescriptionDate || null,
+          prescriptionHospital: prescriptionHospital || null,
+          prescriptionDoctor: prescriptionDoctor || null,
+          prescriptionDiagnosis: prescriptionDiagnosis || null,
           adherenceScore: medications.length > 0 ? 94 : null,
           glucoseHistory24h: glucoseVal != null ? [
             { time: '06:00', value: Number((glucoseVal - 0.4).toFixed(1)) },
@@ -199,6 +214,64 @@ const clinicController = {
       res.json({ success: true, message: 'Đã xóa danh sách' });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
+    }
+  },
+
+  // Bệnh nhân tải lên / quét đơn thuốc mới khi đang trong đợt khám
+  async uploadPrescription(req, res) {
+    try {
+      const { 
+        patientId, 
+        code, 
+        userId, 
+        phone, 
+        prescriptionImage, 
+        prescriptionDate, 
+        hospitalName, 
+        doctorName, 
+        diagnosis, 
+        medications = [] 
+      } = req.body;
+
+      const patient = clinicPatients.find(p => 
+        (patientId && p.id === patientId) ||
+        (code && p.code === code) ||
+        (userId && p.userId && String(p.userId) === String(userId)) ||
+        (phone && p.phone === phone)
+      );
+
+      if (patient) {
+        patient.prescriptionImage = prescriptionImage;
+        patient.prescriptionDate = prescriptionDate || new Date().toISOString().split('T')[0];
+        patient.prescriptionHospital = hospitalName || '';
+        patient.prescriptionDoctor = doctorName || '';
+        patient.prescriptionDiagnosis = diagnosis || '';
+        if (medications && medications.length > 0) {
+          patient.medications = medications.map(m => ({
+            name: m.name,
+            dosage: m.dosage || '1 viên',
+            timing: m.instructions || m.frequency || 'Theo chỉ định',
+            status: 'pending'
+          }));
+          patient.adherenceScore = 95;
+        }
+
+        clinicNotifications.unshift({
+          id: `n-${Date.now()}`,
+          time: 'Vừa xong',
+          read: false,
+          type: 'prescription',
+          title: '📸 Đơn thuốc mới được tải lên',
+          message: `Bệnh nhân ${patient.name} (${patient.code}) vừa chụp quét đơn thuốc mới.`,
+          patientId: patient.id
+        });
+
+        return sendSuccess(res, { message: 'Đã cập nhật ảnh đơn thuốc thành công', patient });
+      }
+
+      sendError(res, 'Không tìm thấy bệnh nhân', 404);
+    } catch (err) {
+      sendError(res, err.message);
     }
   },
 

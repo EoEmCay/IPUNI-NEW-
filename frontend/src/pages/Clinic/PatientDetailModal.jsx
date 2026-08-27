@@ -2,16 +2,20 @@ import { useState } from 'react';
 import { 
   X, Activity, Heart, AlertTriangle, CheckCircle2, Clock, 
   Pill, Calendar, Stethoscope, Phone, MessageSquare, 
-  TrendingDown, TrendingUp, Minus, ArrowRight, UserCheck, ShieldAlert
+  TrendingDown, TrendingUp, Minus, ArrowRight, UserCheck, ShieldAlert,
+  FileText, Camera, ZoomIn, ZoomOut, RotateCw, Download, Maximize2
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 import styles from './ClinicDashboardPage.module.css';
 
 export default function PatientDetailModal({ patient, onClose, onUpdateNotes, onCheckout }) {
-  const [activeTab, setActiveTab] = useState('chart'); // 'chart', 'meds', 'doctor_notes'
+  const [activeTab, setActiveTab] = useState('chart'); // 'chart', 'meds', 'doctor_notes', 'prescription_photo'
   const [notesText, setNotesText] = useState(patient?.notes || '');
   const [nextAppDate, setNextAppDate] = useState(patient?.nextAppointment || '');
   const [isSaved, setIsSaved] = useState(false);
+  const [showLightbox, setShowLightbox] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [rotation, setRotation] = useState(0);
 
   if (!patient) return null;
 
@@ -142,6 +146,28 @@ export default function PatientDetailModal({ patient, onClose, onUpdateNotes, on
             <Stethoscope size={16} />
             <span>Chỉ định & Lời dặn Bác sĩ</span>
           </button>
+
+          <button 
+            className={`${styles.modalTabBtn} ${activeTab === 'prescription_photo' ? styles.activeModalTab : ''}`}
+            onClick={() => setActiveTab('prescription_photo')}
+            style={{ position: 'relative' }}
+          >
+            <Camera size={16} />
+            <span>Ảnh chụp đơn thuốc gốc</span>
+            {patient.prescriptionImage && (
+              <span style={{ 
+                background: '#2563eb', 
+                color: '#fff', 
+                fontSize: '10.5px', 
+                fontWeight: '700', 
+                padding: '1px 6px', 
+                borderRadius: '8px', 
+                marginLeft: '4px' 
+              }}>
+                Có ảnh
+              </span>
+            )}
+          </button>
         </div>
 
         {/* Tab 1: Biểu đồ đường huyết */}
@@ -200,6 +226,39 @@ export default function PatientDetailModal({ patient, onClose, onUpdateNotes, on
         {/* Tab 2: Tần suất & Lịch sử uống thuốc */}
         {activeTab === 'meds' && (
           <div className={styles.tabContentArea}>
+            {patient.prescriptionImage && (
+              <div style={{
+                background: '#eff6ff',
+                border: '1px solid #bfdbfe',
+                borderRadius: '12px',
+                padding: '10px 14px',
+                marginBottom: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13.5px', color: '#1e40af', fontWeight: '600' }}>
+                  <Camera size={16} />
+                  <span>Người bệnh có gửi kèm ảnh chụp đơn thuốc gốc của bệnh viện.</span>
+                </div>
+                <button 
+                  onClick={() => setActiveTab('prescription_photo')}
+                  style={{
+                    background: '#2563eb',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Xem ảnh gốc ➔
+                </button>
+              </div>
+            )}
+
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
               {/* Đơn thuốc hiện tại */}
               <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
@@ -341,6 +400,264 @@ export default function PatientDetailModal({ patient, onClose, onUpdateNotes, on
                   </span>
                 )}
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 4: 📸 Ảnh chụp đơn thuốc gốc của bệnh nhân */}
+        {activeTab === 'prescription_photo' && (
+          <div className={styles.tabContentArea}>
+            {patient.prescriptionImage ? (
+              <div>
+                {/* Thanh thông tin trích xuất của đơn thuốc */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                  gap: '12px',
+                  background: '#f8fafc',
+                  padding: '14px 18px',
+                  borderRadius: '14px',
+                  border: '1px solid #e2e8f0',
+                  marginBottom: '20px'
+                }}>
+                  <div>
+                    <span style={{ fontSize: '12px', color: '#64748b', display: 'block' }}>🏥 Cơ sở y tế kê đơn</span>
+                    <strong style={{ fontSize: '13.5px', color: '#0f172a' }}>{patient.prescriptionHospital || 'Bệnh viện Đa khoa / Ngoại trú'}</strong>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '12px', color: '#64748b', display: 'block' }}>👨‍⚕️ Bác sĩ kê đơn</span>
+                    <strong style={{ fontSize: '13.5px', color: '#0f172a' }}>{patient.prescriptionDoctor || 'Chưa ghi rõ'}</strong>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '12px', color: '#64748b', display: 'block' }}>📅 Ngày kê đơn</span>
+                    <strong style={{ fontSize: '13.5px', color: '#0f172a' }}>{patient.prescriptionDate || 'Gần đây'}</strong>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '12px', color: '#64748b', display: 'block' }}>🩺 Chẩn đoán</span>
+                    <strong style={{ fontSize: '13.5px', color: '#0284c7' }}>{patient.prescriptionDiagnosis || patient.diabetesType}</strong>
+                  </div>
+                </div>
+
+                {/* Bố cục 2 cột: Cột trái ảnh chụp gốc, cột phải danh sách thuốc trích xuất */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '20px' }}>
+                  {/* Cột trái: Ảnh chụp gốc */}
+                  <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                      <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '700', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <Camera size={18} color="#0284c7" />
+                        Ảnh chụp đơn thuốc gốc
+                      </h4>
+                      <button 
+                        onClick={() => { setShowLightbox(true); setZoomLevel(1); setRotation(0); }}
+                        style={{
+                          background: '#ffffff',
+                          border: '1px solid #cbd5e1',
+                          borderRadius: '8px',
+                          padding: '5px 10px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          color: '#334155',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                      >
+                        <Maximize2 size={13} /> Phóng to toàn màn hình
+                      </button>
+                    </div>
+
+                    <div 
+                      onClick={() => { setShowLightbox(true); setZoomLevel(1); setRotation(0); }}
+                      style={{ 
+                        position: 'relative', 
+                        borderRadius: '12px', 
+                        overflow: 'hidden', 
+                        cursor: 'zoom-in',
+                        border: '2px solid #e2e8f0',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+                        maxHeight: '380px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: '#0f172a'
+                      }}
+                      title="Bấm để phóng to xem chi tiết chữ ký & dấu mộc viện"
+                    >
+                      <img 
+                        src={patient.prescriptionImage} 
+                        alt="Đơn thuốc bệnh nhân" 
+                        style={{ maxWidth: '100%', maxHeight: '380px', objectFit: 'contain' }}
+                      />
+                      <div style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
+                        padding: '12px 16px',
+                        color: '#ffffff',
+                        fontSize: '12px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                        <span>🔍 Bấm vào ảnh để phóng to, xoay và đọc rõ nét</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Cột phải: Thuốc trích xuất đối chiếu */}
+                  <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                    <h4 style={{ margin: '0 0 12px', fontSize: '15px', fontWeight: '700', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Pill size={18} color="#16a34a" />
+                      Thuốc AI đã nhận diện từ đơn
+                    </h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '340px', overflowY: 'auto' }}>
+                      {(!patient.medications || patient.medications.length === 0) ? (
+                        <div style={{ textAlign: 'center', padding: '30px 10px', color: '#64748b', fontSize: '13px' }}>
+                          Chưa có thông tin thuốc được trích xuất.
+                        </div>
+                      ) : (
+                        patient.medications.map((m, idx) => (
+                          <div key={idx} style={{ background: '#ffffff', padding: '10px 12px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                            <strong style={{ fontSize: '13.5px', color: '#0f172a', display: 'block' }}>{m.name}</strong>
+                            <div style={{ fontSize: '12px', color: '#475569', marginTop: '2px' }}>
+                              Liều lượng: <strong>{m.dosage}</strong>
+                            </div>
+                            <div style={{ fontSize: '12px', color: '#0284c7', marginTop: '1px' }}>
+                              Cữ uống: {m.timing}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    <div style={{ marginTop: '12px', padding: '8px 12px', background: '#ecfdf5', borderRadius: '8px', border: '1px solid #a7f3d0', fontSize: '12px', color: '#065f46' }}>
+                      💡 Bác sĩ có thể đối chiếu mắt thường giữa ảnh chụp bên trái và danh sách thuốc bên phải để xác nhận phác đồ.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '60px 20px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', color: '#64748b' }}>
+                <Camera size={44} color="#94a3b8" style={{ marginBottom: '12px' }} />
+                <h4 style={{ margin: '0 0 6px', fontSize: '16px', fontWeight: '700', color: '#1e293b' }}>
+                  Bệnh nhân chưa chụp tải lên ảnh đơn thuốc
+                </h4>
+                <p style={{ fontSize: '13.5px', color: '#64748b', maxWidth: '500px', margin: '0 auto 16px' }}>
+                  Khi người bệnh mở ứng dụng <strong>DIA+</strong> trên điện thoại và chọn chức năng <strong>"Quét đơn thuốc"</strong>, ảnh chụp gốc sẽ tự động gửi thẳng vào màn hình này của Bác sĩ.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Lightbox / Zoom Modal cho Bác sĩ */}
+        {showLightbox && patient.prescriptionImage && (
+          <div 
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(15, 23, 42, 0.95)',
+              zIndex: 99999,
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+            onClick={() => setShowLightbox(false)}
+          >
+            {/* Thanh công cụ Lightbox */}
+            <div 
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '14px 24px',
+                background: 'rgba(30, 41, 59, 0.9)',
+                backdropFilter: 'blur(8px)',
+                borderBottom: '1px solid rgba(255,255,255,0.1)'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{ color: '#ffffff', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <FileText size={20} color="#38bdf8" />
+                <span style={{ fontWeight: '700', fontSize: '15px' }}>
+                  Ảnh đơn thuốc gốc: {patient.name} ({patient.code})
+                </span>
+                <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                  Phóng to: {Math.round(zoomLevel * 100)}% • Góc xoay: {rotation}°
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button 
+                  onClick={() => setZoomLevel(z => Math.min(z + 0.25, 3))}
+                  style={{ background: 'rgba(255,255,255,0.12)', border: 'none', color: '#fff', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px' }}
+                >
+                  <ZoomIn size={16} /> Phóng to
+                </button>
+                <button 
+                  onClick={() => setZoomLevel(z => Math.max(z - 0.25, 0.5))}
+                  style={{ background: 'rgba(255,255,255,0.12)', border: 'none', color: '#fff', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px' }}
+                >
+                  <ZoomOut size={16} /> Thu nhỏ
+                </button>
+                <button 
+                  onClick={() => setRotation(r => (r + 90) % 360)}
+                  style={{ background: 'rgba(255,255,255,0.12)', border: 'none', color: '#fff', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px' }}
+                >
+                  <RotateCw size={16} /> Xoay ảnh
+                </button>
+                <button 
+                  onClick={() => { setZoomLevel(1); setRotation(0); }}
+                  style={{ background: 'rgba(255,255,255,0.12)', border: 'none', color: '#fff', padding: '8px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '13px' }}
+                >
+                  Mặc định
+                </button>
+                <a 
+                  href={patient.prescriptionImage} 
+                  download={`don-thuoc-${patient.code}.jpg`}
+                  style={{ background: '#0284c7', textDecoration: 'none', color: '#fff', padding: '8px 14px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', fontWeight: '700' }}
+                >
+                  <Download size={16} /> Tải ảnh
+                </a>
+                <button 
+                  onClick={() => setShowLightbox(false)}
+                  style={{ background: '#ef4444', border: 'none', color: '#fff', padding: '8px 14px', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', fontWeight: '700', marginLeft: '8px' }}
+                >
+                  <X size={16} /> Đóng
+                </button>
+              </div>
+            </div>
+
+            {/* Khung hiển thị ảnh */}
+            <div 
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflow: 'auto',
+                padding: '24px'
+              }}
+              onClick={() => setShowLightbox(false)}
+            >
+              <img 
+                src={patient.prescriptionImage} 
+                alt="Đơn thuốc phóng to"
+                style={{
+                  maxWidth: '90%',
+                  maxHeight: '85vh',
+                  objectFit: 'contain',
+                  transform: `scale(${zoomLevel}) rotate(${rotation}deg)`,
+                  transition: 'transform 0.15s ease-out',
+                  borderRadius: '8px',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.5)'
+                }}
+                onClick={(e) => e.stopPropagation()}
+              />
             </div>
           </div>
         )}

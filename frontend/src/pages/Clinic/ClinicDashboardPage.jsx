@@ -70,6 +70,10 @@ export default function ClinicDashboardPage() {
         const name = e.detail?.payload?.patientName || 'Bệnh nhân';
         setCheckoutToast(`🚪 ${name} vừa bấm kết thúc đợt khám & check-out khỏi phòng khám!`);
         setTimeout(() => setCheckoutToast(null), 8000);
+      } else if (e?.detail?.type === 'PATIENT_PRESCRIPTION_UPLOADED') {
+        const name = e.detail?.payload?.patientName || 'Bệnh nhân';
+        setCheckoutToast(`📸 ${name} vừa chụp quét một đơn thuốc mới! Bấm vào hồ sơ để xem ảnh gốc.`);
+        setTimeout(() => setCheckoutToast(null), 10000);
       }
     };
     window.addEventListener('clinicSyncEvent', handleSync);
@@ -99,6 +103,10 @@ export default function ClinicDashboardPage() {
           const name = e.data?.payload?.patientName || 'Bệnh nhân';
           setCheckoutToast(`🚪 ${name} vừa bấm kết thúc đợt khám & check-out khỏi phòng khám!`);
           setTimeout(() => setCheckoutToast(null), 8000);
+        } else if (e.data?.type === 'PATIENT_PRESCRIPTION_UPLOADED') {
+          const name = e.data?.payload?.patientName || 'Bệnh nhân';
+          setCheckoutToast(`📸 ${name} vừa chụp quét một đơn thuốc mới! Bấm vào hồ sơ để xem ảnh gốc.`);
+          setTimeout(() => setCheckoutToast(null), 10000);
         }
       };
     } catch {}
@@ -526,8 +534,21 @@ export default function ClinicDashboardPage() {
                             </div>
                             <div>
                               <strong style={{ fontSize: '14.5px', color: '#0f172a' }}>{patient.name}</strong>
-                              <div style={{ fontSize: '12px', color: '#64748b' }}>
+                              <div style={{ fontSize: '12px', color: '#64748b', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '5px', marginTop: '2px' }}>
                                 <span className={styles.patientCodeBadge}>{patient.code}</span> • {patient.age}t • {patient.phone}
+                                {patient.prescriptionImage && (
+                                  <span style={{ 
+                                    background: '#eff6ff', 
+                                    color: '#2563eb', 
+                                    fontSize: '11px', 
+                                    fontWeight: '700', 
+                                    padding: '1px 6px', 
+                                    borderRadius: '6px', 
+                                    border: '1px solid #bfdbfe'
+                                  }}>
+                                    📸 Có ảnh đơn thuốc
+                                  </span>
+                                )}
                               </div>
                             </div>
                           </div>

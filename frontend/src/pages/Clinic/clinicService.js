@@ -250,6 +250,11 @@ export const clinicService = {
       glucoseStatus: glucoseStatus,
       glucoseTrend: glucoseVal != null ? 'stable' : 'unknown',
       hba1c: realPatientData.hba1c != null ? Number(realPatientData.hba1c) : null,
+      prescriptionImage: realPatientData.prescriptionImage || existingPatient?.prescriptionImage || null,
+      prescriptionDate: realPatientData.prescriptionDate || existingPatient?.prescriptionDate || null,
+      prescriptionHospital: realPatientData.prescriptionHospital || existingPatient?.prescriptionHospital || '',
+      prescriptionDoctor: realPatientData.prescriptionDoctor || existingPatient?.prescriptionDoctor || '',
+      prescriptionDiagnosis: realPatientData.prescriptionDiagnosis || existingPatient?.prescriptionDiagnosis || '',
       adherenceScore: realPatientData.adherenceScore != null 
         ? realPatientData.adherenceScore 
         : (realPatientData.medications && realPatientData.medications.length > 0 ? 90 : null),
@@ -320,10 +325,88 @@ export const clinicService = {
       glucose: newPatient.currentGlucose,
       hba1c: newPatient.hba1c,
       diabetesType: newPatient.diabetesType,
+      prescriptionImage: newPatient.prescriptionImage,
+      prescriptionDate: newPatient.prescriptionDate,
+      prescriptionHospital: newPatient.prescriptionHospital,
+      prescriptionDoctor: newPatient.prescriptionDoctor,
+      prescriptionDiagnosis: newPatient.prescriptionDiagnosis,
       medications: newPatient.medications
     }).catch(() => {});
 
     return newPatient;
+  },
+
+  // Đồng bộ ảnh đơn thuốc mới chụp sang Dashboard phòng khám
+  async syncPrescriptionToClinic(prescriptionData) {
+    const session = this.getActivePatientClinicSession();
+    const patientId = prescriptionData.patientId || session?.patientId;
+    const patientCode = prescriptionData.patientCode || session?.patientCode;
+    const userId = prescriptionData.userId || session?.userId;
+    const phone = prescriptionData.phone || session?.phone;
+
+    // 1. Cập nhật localStorage
+    const patients = this.getPatients();
+    const idx = patients.findIndex(p => 
+      (patientId && p.id === patientId) ||
+      (patientCode && p.code === patientCode) ||
+      (userId && p.userId && String(p.userId) === String(userId))
+    );
+
+    if (idx >= 0) {
+      patients[idx].prescriptionImage = prescriptionData.prescriptionImage;
+      patients[idx].prescriptionDate = prescriptionData.prescriptionDate || new Date().toISOString().split('T')[0];
+      patients[idx].prescriptionHospital = prescriptionData.hospitalName || '';
+      patients[idx].prescriptionDoctor = prescriptionData.doctorName || '';
+      patients[idx].prescriptionDiagnosis = prescriptionData.diagnosis || '';
+      if (prescriptionData.medications && prescriptionData.medications.length > 0) {
+        patients[idx].medications = prescriptionData.medications.map(m => ({
+          name: m.name,
+          dosage: m.dosage || '1 viên',
+          timing: m.instructions || m.frequency || 'Theo chỉ định',
+          status: 'pending'
+        }));
+        patients[idx].adherenceScore = 95;
+      }
+      this.savePatients(patients);
+    }
+
+    // 2. Gửi Cloud API
+    try {
+      await cloudApi.post('/clinic/prescription', {
+        patientId,
+        code: patientCode,
+        userId,
+        phone,
+        prescriptionImage: prescriptionData.prescriptionImage,
+        prescriptionDate: prescriptionData.prescriptionDate,
+        hospitalName: prescriptionData.hospitalName,
+        doctorName: prescriptionData.doctorName,
+        diagnosis: prescriptionData.diagnosis,
+        medications: prescriptionData.medications
+      });
+    } catch (err) {
+      console.warn('[ClinicService] Cloud prescription sync warning', err?.message);
+    }
+
+    // 3. Báo tin hiệu tức thời sang các tab Dashboard
+    this.broadcastSync('PATIENT_PRESCRIPTION_UPLOADED', {
+      patientId,
+      patientCode,
+      patientName: session?.name || 'Bệnh nhân',
+      prescriptionImage: prescriptionData.prescriptionImage,
+      medications: prescriptionData.medications
+    });
+    window.dispatchEvent(new CustomEvent('clinicSyncEvent', {
+      detail: { 
+        type: 'PATIENT_PRESCRIPTION_UPLOADED', 
+        payload: { 
+          patientId, 
+          patientCode,
+          patientName: session?.name || 'Bệnh nhân',
+          prescriptionImage: prescriptionData.prescriptionImage 
+        } 
+      }
+    }));
   },
 
   // Lấy phiên điều trị hiện tại của bệnh nhân (trên app B2C)

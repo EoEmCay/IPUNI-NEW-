@@ -56,6 +56,13 @@ export default function ScanPrescriptionPage() {
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [showVoicePrompt, setShowVoicePrompt] = useState(false);
   const [checkedInClinic, setCheckedInClinic] = useState(null);
+  const [userLatestMetrics, setUserLatestMetrics] = useState(null);
+
+  useEffect(() => {
+    metricsService.getLatest().then((res) => {
+      setUserLatestMetrics(res.data?.data || null);
+    }).catch(() => {});
+  }, [user]);
 
   // Check if patient is already checked in to a clinic, ensuring session belongs to current user account
   useEffect(() => {
@@ -83,16 +90,19 @@ export default function ScanPrescriptionPage() {
     const effectivePhone = user?.phone || (user?.email ? user.email : `09${Math.floor(10000000 + Math.random() * 90000000)}`);
     const effectiveCode = user?.user_code || `DIA-${Math.floor(1000 + Math.random() * 9000)}`;
 
+    const effectiveGlucose = userLatestMetrics?.glucose_fasting?.value || userLatestMetrics?.glucose_postmeal?.value || null;
+    const effectiveHba1c = userLatestMetrics?.hba1c?.value || null;
+
     const newPatient = clinicService.checkinFromPatientApp({
       userId: effectiveUserId,
       userCode: effectiveCode,
       name: effectiveName,
       gender: user?.gender || 'Nam',
-      age: user?.age || 52,
+      age: user?.age || 50,
       phone: effectivePhone,
       email: user?.email || '',
-      glucose: 6.4,
-      hba1c: 6.8,
+      glucose: effectiveGlucose,
+      hba1c: effectiveHba1c,
       diabetesType: user?.diagnosis || 'Type 2'
     });
 

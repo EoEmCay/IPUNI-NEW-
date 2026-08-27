@@ -39,15 +39,15 @@ const clinicController = {
         phone = '',
         gender = 'Nam',
         age = 50,
-        glucose = 6.4,
-        hba1c = 6.8,
+        glucose = null,
+        hba1c = null,
         diabetesType = 'Type 2',
         medications = [],
         notes = ''
       } = req.body;
 
-      const glucoseVal = Number(glucose) || 6.4;
-      const glucoseStatus = glucoseVal < 3.9 ? 'emergency_low' : glucoseVal > 10.0 ? 'high' : 'normal';
+      const glucoseVal = glucose != null ? Number(glucose) : null;
+      const glucoseStatus = glucoseVal == null ? 'unmeasured' : (glucoseVal < 3.9 ? 'emergency_low' : glucoseVal > 10.0 ? 'high' : 'normal');
 
       // 1. Kiểm tra xem bệnh nhân này đã có trong danh sách chưa (khớp theo userId, id, code, hoặc SĐT thật)
       const existingIdx = clinicPatients.findIndex(p => 
@@ -71,9 +71,9 @@ const clinicController = {
           phone: phone || prev.phone,
           status: 'active',
           lastSyncTime: 'Vừa quét QR lại xong',
-          currentGlucose: glucoseVal,
-          glucoseStatus,
-          hba1c: Number(hba1c) || prev.hba1c,
+          currentGlucose: glucoseVal != null ? glucoseVal : prev.currentGlucose,
+          glucoseStatus: glucoseVal != null ? glucoseStatus : prev.glucoseStatus,
+          hba1c: hba1c != null ? Number(hba1c) : prev.hba1c,
           notes: notes || prev.notes,
           medications: medications.length > 0 ? medications : prev.medications
         };
@@ -95,26 +95,21 @@ const clinicController = {
           doctor: 'BS.CKII Nguyễn Văn An',
           checkinAt: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' Hôm nay',
           status: 'active',
-          deviceStatus: 'ble_synced',
+          deviceStatus: glucoseVal != null ? 'ble_synced' : 'disconnected',
           deviceType: 'App DIA+ Live Web Sync',
           lastSyncTime: 'Vừa quét QR xong',
           currentGlucose: glucoseVal,
           glucoseStatus,
-          glucoseTrend: 'stable',
-          hba1c: Number(hba1c) || 6.8,
-          adherenceScore: 94,
-          glucoseHistory24h: [
+          glucoseTrend: glucoseVal != null ? 'stable' : 'unknown',
+          hba1c: hba1c != null ? Number(hba1c) : null,
+          adherenceScore: medications.length > 0 ? 94 : null,
+          glucoseHistory24h: glucoseVal != null ? [
             { time: '06:00', value: Number((glucoseVal - 0.4).toFixed(1)) },
             { time: '08:30', value: Number((glucoseVal + 0.6).toFixed(1)) },
             { time: '12:00', value: glucoseVal }
-          ],
-          medications: medications.length > 0 ? medications : [
-            { name: 'Metformin 500mg', dosage: '1 viên', timing: 'Sau ăn sáng', status: 'taken' },
-            { name: 'Januvia 100mg', dosage: '1 viên', timing: 'Sau ăn tối', status: 'pending' }
-          ],
-          medicationLogs: [
-            { time: '07:30', date: 'Hôm nay', medName: 'Metformin 500mg (1 viên)', status: 'taken', punctuality: 'on_time', note: 'Uống thuốc đúng giờ' }
-          ],
+          ] : [],
+          medications: medications || [],
+          medicationLogs: [],
           notes: notes || `Bệnh nhân vừa quét mã QR check-in qua App DIA+ từ điện thoại.`,
           nextAppointment: 'Hôm nay'
         };

@@ -224,8 +224,8 @@ export const clinicService = {
       (realPatientData.phone && !realPatientData.phone.includes('0912 345 678') && p.phone === realPatientData.phone)
     );
 
-    const glucoseVal = Number(realPatientData.glucose) || 6.2;
-    const glucoseStatus = glucoseVal < 3.9 ? 'emergency_low' : glucoseVal > 10.0 ? 'high' : 'normal';
+    const glucoseVal = realPatientData.glucose != null ? Number(realPatientData.glucose) : null;
+    const glucoseStatus = glucoseVal == null ? 'unmeasured' : (glucoseVal < 3.9 ? 'emergency_low' : glucoseVal > 10.0 ? 'high' : 'normal');
 
     const existingPatient = existingIndex >= 0 ? patients[existingIndex] : null;
 
@@ -242,32 +242,26 @@ export const clinicService = {
       doctor: profile.doctorName,
       checkinAt: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' Hôm nay',
       status: 'active',
-      deviceStatus: 'ble_synced',
+      deviceStatus: glucoseVal != null ? 'ble_synced' : 'disconnected',
       deviceType: realPatientData.deviceType || 'App DIA+ Live Sync',
       lastSyncTime: 'Vừa quét QR xong',
       
       currentGlucose: glucoseVal,
       glucoseStatus: glucoseStatus,
-      glucoseTrend: 'stable',
-      hba1c: Number(realPatientData.hba1c) || 6.8,
-      adherenceScore: realPatientData.adherenceScore || 92,
+      glucoseTrend: glucoseVal != null ? 'stable' : 'unknown',
+      hba1c: realPatientData.hba1c != null ? Number(realPatientData.hba1c) : null,
+      adherenceScore: realPatientData.adherenceScore != null 
+        ? realPatientData.adherenceScore 
+        : (realPatientData.medications && realPatientData.medications.length > 0 ? 90 : null),
       
-      glucoseHistory24h: realPatientData.glucoseHistory24h || [
+      glucoseHistory24h: realPatientData.glucoseHistory24h || (glucoseVal != null ? [
         { time: '06:00', value: Number((glucoseVal - 0.4).toFixed(1)) },
         { time: '08:30', value: Number((glucoseVal + 0.8).toFixed(1)) },
         { time: '12:00', value: glucoseVal }
-      ],
+      ] : []),
 
-      medications: realPatientData.medications && realPatientData.medications.length > 0 
-        ? realPatientData.medications 
-        : [
-          { name: 'Metformin 500mg', dosage: '1 viên', timing: 'Sau ăn sáng', status: 'taken' },
-          { name: 'Januvia 100mg', dosage: '1 viên', timing: 'Sau ăn tối', status: 'pending' }
-        ],
-
-      medicationLogs: realPatientData.medicationLogs || [
-        { time: '07:30', date: 'Hôm nay', medName: 'Metformin 500mg (1 viên)', status: 'taken', punctuality: 'on_time', note: 'Uống thuốc đúng giờ' }
-      ],
+      medications: realPatientData.medications || [],
+      medicationLogs: realPatientData.medicationLogs || [],
 
       notes: realPatientData.notes || `Bệnh nhân vừa quét mã QR check-in tại bàn khám của ${profile.doctorName}.`,
       nextAppointment: 'Hôm nay'

@@ -142,12 +142,13 @@ export default function ClinicDashboardPage() {
   const kpis = useMemo(() => {
     const activePatients = patients.filter(p => p.status === 'active');
     const completedPatients = patients.filter(p => p.status === 'completed');
-    const emergencyCases = activePatients.filter(p => p.glucoseStatus === 'emergency_low' || p.currentGlucose < 3.9);
-    const medsWarnings = activePatients.filter(p => p.adherenceScore < 70);
+    const emergencyCases = activePatients.filter(p => p.currentGlucose != null && (p.glucoseStatus === 'emergency_low' || p.currentGlucose < 3.9));
+    const medsWarnings = activePatients.filter(p => p.adherenceScore != null && p.adherenceScore < 70);
     const overdueCount = patients.filter(p => p.status === 'overdue').length;
 
-    const avgAdherence = activePatients.length > 0 
-      ? Math.round(activePatients.reduce((acc, p) => acc + (p.adherenceScore || 0), 0) / activePatients.length)
+    const patientsWithAdherence = activePatients.filter(p => p.adherenceScore != null);
+    const avgAdherence = patientsWithAdherence.length > 0 
+      ? Math.round(patientsWithAdherence.reduce((acc, p) => acc + (p.adherenceScore || 0), 0) / patientsWithAdherence.length)
       : 0;
 
     return {
@@ -179,10 +180,10 @@ export default function ClinicDashboardPage() {
         return p.status === 'completed';
       }
       if (selectedFilter === 'emergency') {
-        return p.glucoseStatus === 'emergency_low' || p.currentGlucose < 3.9;
+        return p.currentGlucose != null && (p.glucoseStatus === 'emergency_low' || p.currentGlucose < 3.9);
       }
       if (selectedFilter === 'meds_warning') {
-        return p.adherenceScore < 70;
+        return p.adherenceScore != null && p.adherenceScore < 70;
       }
       if (selectedFilter === 'normal') {
         return p.glucoseStatus === 'normal';
@@ -419,14 +420,14 @@ export default function ClinicDashboardPage() {
                 onClick={() => setSelectedFilter('emergency')}
                 style={{ color: selectedFilter === 'emergency' ? '#fff' : '#dc2626' }}
               >
-                🚨 Hạ đường huyết / Cấp cứu ({patients.filter(p => p.currentGlucose < 3.9).length})
+                🚨 Hạ đường huyết / Cấp cứu ({patients.filter(p => p.currentGlucose != null && p.currentGlucose < 3.9).length})
               </button>
 
               <button 
                 className={`${styles.filterTabBtn} ${selectedFilter === 'meds_warning' ? styles.activeFilterTab : ''}`}
                 onClick={() => setSelectedFilter('meds_warning')}
               >
-                💊 Quên thuốc / Kém tuân thủ ({patients.filter(p => p.adherenceScore < 70).length})
+                💊 Quên thuốc / Kém tuân thủ ({patients.filter(p => p.adherenceScore != null && p.adherenceScore < 70).length})
               </button>
 
               <button 
@@ -539,11 +540,15 @@ export default function ClinicDashboardPage() {
                         </td>
 
                         <td>
-                          {patient.glucoseStatus === 'emergency_low' || patient.currentGlucose < 3.9 ? (
+                          {patient.currentGlucose == null ? (
+                            <span style={{ fontSize: '12.5px', color: '#94a3b8', fontStyle: 'italic' }}>
+                              ⚪ Chưa đo
+                            </span>
+                          ) : (patient.glucoseStatus === 'emergency_low' || patient.currentGlucose < 3.9) ? (
                             <span className={`${styles.badge} ${styles.badgeEmergency}`}>
                               🚨 {patient.currentGlucose} mmol/L
                             </span>
-                          ) : patient.glucoseStatus === 'high' || patient.currentGlucose > 10.0 ? (
+                          ) : (patient.glucoseStatus === 'high' || patient.currentGlucose > 10.0) ? (
                             <span className={`${styles.badge} ${styles.badgeHigh}`}>
                               🟠 {patient.currentGlucose} mmol/L
                             </span>
@@ -571,28 +576,34 @@ export default function ClinicDashboardPage() {
                                 <Minus size={16} /> Ổn định
                               </span>
                             )}
-                            {patient.glucoseTrend === 'unknown' && (
+                            {(!patient.glucoseTrend || patient.glucoseTrend === 'unknown') && (
                               <span style={{ color: '#94a3b8' }}>Chưa rõ</span>
                             )}
                           </div>
                         </td>
 
                         <td>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div style={{ width: '48px', height: '6px', background: '#e2e8f0', borderRadius: '3px', overflow: 'hidden' }}>
-                              <div style={{ 
-                                width: `${patient.adherenceScore}%`, 
-                                height: '100%', 
-                                background: patient.adherenceScore >= 85 ? '#16a34a' : patient.adherenceScore >= 70 ? '#eab308' : '#dc2626' 
-                              }}></div>
+                          {patient.adherenceScore == null ? (
+                            <span style={{ fontSize: '12.5px', color: '#94a3b8', fontStyle: 'italic' }}>
+                              Chưa có đơn thuốc
+                            </span>
+                          ) : (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <div style={{ width: '48px', height: '6px', background: '#e2e8f0', borderRadius: '3px', overflow: 'hidden' }}>
+                                <div style={{ 
+                                  width: `${patient.adherenceScore}%`, 
+                                  height: '100%', 
+                                  background: patient.adherenceScore >= 85 ? '#16a34a' : patient.adherenceScore >= 70 ? '#eab308' : '#dc2626' 
+                                }}></div>
+                              </div>
+                              <strong style={{ 
+                                 fontSize: '13px', 
+                                color: patient.adherenceScore >= 85 ? '#16a34a' : patient.adherenceScore >= 70 ? '#ca8a04' : '#dc2626' 
+                              }}>
+                                {patient.adherenceScore}%
+                              </strong>
                             </div>
-                            <strong style={{ 
-                               fontSize: '13px', 
-                              color: patient.adherenceScore >= 85 ? '#16a34a' : patient.adherenceScore >= 70 ? '#ca8a04' : '#dc2626' 
-                            }}>
-                              {patient.adherenceScore}%
-                            </strong>
-                          </div>
+                          )}
                         </td>
 
                         <td>

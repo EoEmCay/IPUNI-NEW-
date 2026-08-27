@@ -38,12 +38,13 @@ function formatDate(t) {
 
 export default function DashboardPage() {
   const { user } = useAuth();
-  const { fetchLatest, addMetric } = useMetrics();
+  const { latestMetrics, fetchLatest, addMetric } = useMetrics();
   const { todayMedications, fetchToday } = useMedications();
   const { isCuteMode } = useThemeStore();
   const t = useT();
   const [showModal, setShowModal] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [modalDefaultType, setModalDefaultType] = useState('glucose_fasting');
 
   useEffect(() => {
     fetchLatest();
@@ -58,6 +59,15 @@ export default function DashboardPage() {
   const handleMetricSuccess = () => {
     setShowSuccessToast(true);
   };
+
+  const handleOpenAddModal = (type = 'glucose_fasting') => {
+    setModalDefaultType(type);
+    setShowModal(true);
+  };
+
+  const fastingGlucose = latestMetrics?.glucose_fasting?.value;
+  const hba1cVal = latestMetrics?.hba1c?.value;
+  const bloodPressureVal = latestMetrics?.blood_pressure?.value;
 
   return (
     <div className={styles.page}>
@@ -99,31 +109,67 @@ export default function DashboardPage() {
 
           {/* Horizontal scrollable blue metric cards */}
           <div className={styles.horizontalMetricsRow}>
-            <div className={styles.blueMetricCard}>
+            <div 
+              className={styles.blueMetricCard} 
+              onClick={() => handleOpenAddModal('glucose_fasting')}
+              style={{ cursor: 'pointer' }}
+              title="Bấm để ghi nhận chỉ số đường huyết"
+            >
               <div className={styles.blueMetricHeader}>
                 <span className={styles.blueMetricTitle}>Glucose (Đói)</span>
                 <Activity size={16} color="#ffffff" />
               </div>
-              <div className={styles.blueMetricValue}>6.2 <span className={styles.blueMetricUnit}>mmol/L</span></div>
-              <div className={styles.blueMetricFooter}>📅 7 ngày qua • Bình thường</div>
+              <div className={styles.blueMetricValue}>
+                {fastingGlucose != null ? fastingGlucose : '--'}{' '}
+                <span className={styles.blueMetricUnit}>mmol/L</span>
+              </div>
+              <div className={styles.blueMetricFooter}>
+                {fastingGlucose != null 
+                  ? `📅 Gần nhất • ${fastingGlucose < 3.9 ? '🚨 Thấp' : fastingGlucose > 7.0 ? '🟠 Cao' : 'Bình thường'}`
+                  : '➕ Chưa có dữ liệu • Bấm nhập'}
+              </div>
             </div>
 
-            <div className={styles.blueMetricCard}>
+            <div 
+              className={styles.blueMetricCard}
+              onClick={() => handleOpenAddModal('hba1c')}
+              style={{ cursor: 'pointer' }}
+              title="Bấm để ghi nhận chỉ số HbA1c"
+            >
               <div className={styles.blueMetricHeader}>
                 <span className={styles.blueMetricTitle}>HbA1c</span>
                 <Activity size={16} color="#ffffff" />
               </div>
-              <div className={styles.blueMetricValue}>6.5 <span className={styles.blueMetricUnit}>%</span></div>
-              <div className={styles.blueMetricFooter}>📅 7 ngày qua • Tốt</div>
+              <div className={styles.blueMetricValue}>
+                {hba1cVal != null ? hba1cVal : '--'}{' '}
+                <span className={styles.blueMetricUnit}>%</span>
+              </div>
+              <div className={styles.blueMetricFooter}>
+                {hba1cVal != null 
+                  ? `📅 Gần nhất • ${hba1cVal > 7.0 ? 'Cần kiểm soát' : 'Tốt'}`
+                  : '➕ Chưa xét nghiệm • Bấm nhập'}
+              </div>
             </div>
 
-            <div className={styles.blueMetricCard}>
+            <div 
+              className={styles.blueMetricCard}
+              onClick={() => handleOpenAddModal('blood_pressure')}
+              style={{ cursor: 'pointer' }}
+              title="Bấm để ghi nhận huyết áp"
+            >
               <div className={styles.blueMetricHeader}>
                 <span className={styles.blueMetricTitle}>Huyết áp</span>
                 <Activity size={16} color="#ffffff" />
               </div>
-              <div className={styles.blueMetricValue}>120/80 <span className={styles.blueMetricUnit}>mmHg</span></div>
-              <div className={styles.blueMetricFooter}>📅 7 ngày qua • Ổn định</div>
+              <div className={styles.blueMetricValue}>
+                {bloodPressureVal != null ? bloodPressureVal : '--'}{' '}
+                <span className={styles.blueMetricUnit}>mmHg</span>
+              </div>
+              <div className={styles.blueMetricFooter}>
+                {bloodPressureVal != null 
+                  ? '📅 Gần nhất • Đã đo'
+                  : '➕ Chưa đo huyết áp • Bấm nhập'}
+              </div>
             </div>
           </div>
         </div>
@@ -180,6 +226,7 @@ export default function DashboardPage() {
           onClose={() => setShowModal(false)}
           onSave={handleSave}
           onSuccess={handleMetricSuccess}
+          defaultType={modalDefaultType}
         />
       )}
 

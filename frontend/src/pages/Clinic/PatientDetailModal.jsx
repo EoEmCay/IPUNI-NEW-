@@ -22,6 +22,9 @@ export default function PatientDetailModal({ patient, onClose, onUpdateNotes, on
   };
 
   const getGlucoseBadge = (val, status) => {
+    if (val == null) {
+      return <span style={{ fontSize: '13px', color: '#94a3b8', fontStyle: 'italic' }}>⚪ Chưa đo</span>;
+    }
     if (status === 'emergency_low' || val < 3.9) {
       return <span className={`${styles.badge} ${styles.badgeEmergency}`}>🚨 {val} mmol/L (Hạ đường huyết cấp)</span>;
     }
@@ -77,24 +80,30 @@ export default function PatientDetailModal({ patient, onClose, onUpdateNotes, on
 
           <div className={styles.quickStatBox}>
             <span className={styles.quickStatLabel}>Chỉ số HbA1c gần nhất</span>
-            <span style={{ fontSize: '18px', fontWeight: '800', color: patient.hba1c > 8.0 ? '#ea580c' : '#0284c7' }}>
-              {patient.hba1c}%
+            <span style={{ fontSize: '18px', fontWeight: '800', color: patient.hba1c != null && patient.hba1c > 8.0 ? '#ea580c' : '#0284c7' }}>
+              {patient.hba1c != null ? `${patient.hba1c}%` : '--'}
             </span>
           </div>
 
           <div className={styles.quickStatBox}>
             <span className={styles.quickStatLabel}>Tuân thủ phác đồ thuốc</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
-              <span style={{ 
-                fontSize: '18px', 
-                fontWeight: '800', 
-                color: patient.adherenceScore >= 85 ? '#16a34a' : patient.adherenceScore >= 70 ? '#ca8a04' : '#dc2626' 
-              }}>
-                {patient.adherenceScore}%
-              </span>
-              <span style={{ fontSize: '12px', color: '#64748b' }}>
-                {patient.adherenceScore >= 85 ? '(Rất tốt)' : patient.adherenceScore >= 70 ? '(Trung bình)' : '(Kém/Quên cữ)'}
-              </span>
+              {patient.adherenceScore != null ? (
+                <>
+                  <span style={{ 
+                    fontSize: '18px', 
+                    fontWeight: '800', 
+                    color: patient.adherenceScore >= 85 ? '#16a34a' : patient.adherenceScore >= 70 ? '#ca8a04' : '#dc2626' 
+                  }}>
+                    {patient.adherenceScore}%
+                  </span>
+                  <span style={{ fontSize: '12px', color: '#64748b' }}>
+                    {patient.adherenceScore >= 85 ? '(Rất tốt)' : patient.adherenceScore >= 70 ? '(Trung bình)' : '(Kém/Quên cữ)'}
+                  </span>
+                </>
+              ) : (
+                <span style={{ fontSize: '13px', color: '#94a3b8', fontStyle: 'italic' }}>Chưa có đơn thuốc</span>
+              )}
             </div>
           </div>
 
@@ -152,27 +161,35 @@ export default function PatientDetailModal({ patient, onClose, onUpdateNotes, on
               </div>
             </div>
 
-            <div style={{ width: '100%', height: '240px', background: '#f8fafc', borderRadius: '16px', padding: '16px 12px 0 0' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={patient.glucoseHistory24h}>
-                  <defs>
-                    <linearGradient id="colorGlucose" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#0284c7" stopOpacity={0.4}/>
-                      <stop offset="95%" stopColor="#0284c7" stopOpacity={0.0}/>
-                    </linearGradient>
-                  </defs>
-                  <XAxis dataKey="time" stroke="#94a3b8" fontSize={12} />
-                  <YAxis domain={[2, 16]} stroke="#94a3b8" fontSize={12} unit=" mmol" />
-                  <Tooltip 
-                    formatter={(val) => [`${val} mmol/L`, 'Đường huyết']}
-                    contentStyle={{ borderRadius: '10px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                  />
-                  <ReferenceLine y={10.0} stroke="#f97316" strokeDasharray="3 3" label={{ value: 'Ngưỡng cao (10.0)', fill: '#f97316', fontSize: 11 }} />
-                  <ReferenceLine y={3.9} stroke="#ef4444" strokeDasharray="3 3" label={{ value: 'Ngưỡng hạ (3.9)', fill: '#ef4444', fontSize: 11 }} />
-                  <Area type="monotone" dataKey="value" stroke="#0284c7" strokeWidth={3} fillOpacity={1} fill="url(#colorGlucose)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
+            {(!patient.glucoseHistory24h || patient.glucoseHistory24h.length === 0) ? (
+              <div style={{ textAlign: 'center', padding: '50px 20px', background: '#f8fafc', borderRadius: '16px', border: '1px solid #e2e8f0', color: '#64748b' }}>
+                <Activity size={36} color="#94a3b8" style={{ marginBottom: '8px' }} />
+                <p style={{ margin: '0 0 4px', fontWeight: '700', color: '#334155', fontSize: '15px' }}>Bệnh nhân chưa có dữ liệu đo đường huyết 24h</p>
+                <span style={{ fontSize: '13px' }}>Đồ thị sẽ tự động hiển thị khi người bệnh đo đường huyết trên App DIA+ hoặc kết nối cảm biến CGM.</span>
+              </div>
+            ) : (
+              <div style={{ width: '100%', height: '240px', background: '#f8fafc', borderRadius: '16px', padding: '16px 12px 0 0' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={patient.glucoseHistory24h}>
+                    <defs>
+                      <linearGradient id="colorGlucose" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#0284c7" stopOpacity={0.4}/>
+                        <stop offset="95%" stopColor="#0284c7" stopOpacity={0.0}/>
+                      </linearGradient>
+                    </defs>
+                    <XAxis dataKey="time" stroke="#94a3b8" fontSize={12} />
+                    <YAxis domain={[2, 16]} stroke="#94a3b8" fontSize={12} unit=" mmol" />
+                    <Tooltip 
+                      formatter={(val) => [`${val} mmol/L`, 'Đường huyết']}
+                      contentStyle={{ borderRadius: '10px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                    />
+                    <ReferenceLine y={10.0} stroke="#f97316" strokeDasharray="3 3" label={{ value: 'Ngưỡng cao (10.0)', fill: '#f97316', fontSize: 11 }} />
+                    <ReferenceLine y={3.9} stroke="#ef4444" strokeDasharray="3 3" label={{ value: 'Ngưỡng hạ (3.9)', fill: '#ef4444', fontSize: 11 }} />
+                    <Area type="monotone" dataKey="value" stroke="#0284c7" strokeWidth={3} fillOpacity={1} fill="url(#colorGlucose)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            )}
 
             <div style={{ marginTop: '16px', padding: '12px 16px', background: '#f0f9ff', borderRadius: '12px', border: '1px solid #bae6fd', fontSize: '13px', color: '#0369a1' }}>
               💡 <strong>Nhận định chuyên môn:</strong> {patient.notes}
@@ -191,37 +208,49 @@ export default function PatientDetailModal({ patient, onClose, onUpdateNotes, on
                   Đơn thuốc đang điều trị
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {patient.medications.map((m, idx) => (
-                    <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff', padding: '10px 12px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
-                      <div>
-                        <strong style={{ fontSize: '14px', color: '#0f172a' }}>{m.name}</strong>
-                        <div style={{ fontSize: '12.5px', color: '#64748b' }}>Liều: {m.dosage} • Cữ: {m.timing}</div>
-                      </div>
-                      <span style={{ fontSize: '11.5px', fontWeight: '700', padding: '3px 8px', borderRadius: '8px', background: m.status === 'taken' ? '#dcfce7' : m.status === 'missed' ? '#fee2e2' : '#fef9c3', color: m.status === 'taken' ? '#15803d' : m.status === 'missed' ? '#b91c1c' : '#854d0e' }}>
-                        {m.status === 'taken' ? 'Đã uống' : m.status === 'missed' ? 'Bỏ cữ' : 'Chờ uống'}
-                      </span>
+                  {(!patient.medications || patient.medications.length === 0) ? (
+                    <div style={{ textAlign: 'center', padding: '24px 10px', color: '#64748b', fontSize: '13px' }}>
+                      Bệnh nhân chưa thêm hoặc quét đơn thuốc nào.
                     </div>
-                  ))}
+                  ) : (
+                    patient.medications.map((m, idx) => (
+                      <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff', padding: '10px 12px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                        <div>
+                          <strong style={{ fontSize: '14px', color: '#0f172a' }}>{m.name}</strong>
+                          <div style={{ fontSize: '12.5px', color: '#64748b' }}>Liều: {m.dosage} • Cữ: {m.timing}</div>
+                        </div>
+                        <span style={{ fontSize: '11.5px', fontWeight: '700', padding: '3px 8px', borderRadius: '8px', background: m.status === 'taken' ? '#dcfce7' : m.status === 'missed' ? '#fee2e2' : '#fef9c3', color: m.status === 'taken' ? '#15803d' : m.status === 'missed' ? '#b91c1c' : '#854d0e' }}>
+                          {m.status === 'taken' ? 'Đã uống' : m.status === 'missed' ? 'Bỏ cữ' : 'Chờ uống'}
+                        </span>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
 
               {/* Tỷ lệ tuân thủ & Phân tích */}
               <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
                 <h4 style={{ margin: '0 0 12px', fontSize: '15px', fontWeight: '700', color: '#1e293b' }}>
-                  📊 Điểm Tuân Thủ Phác Đồ: <span style={{ color: '#0284c7' }}>{patient.adherenceScore}%</span>
+                  📊 Điểm Tuân Thủ Phác Đồ: <span style={{ color: '#0284c7' }}>{patient.adherenceScore != null ? `${patient.adherenceScore}%` : 'Chưa có'}</span>
                 </h4>
-                <div style={{ width: '100%', height: '10px', background: '#e2e8f0', borderRadius: '5px', overflow: 'hidden', marginBottom: '12px' }}>
-                  <div style={{ 
-                    width: `${patient.adherenceScore}%`, 
-                    height: '100%', 
-                    background: patient.adherenceScore >= 85 ? '#16a34a' : patient.adherenceScore >= 70 ? '#eab308' : '#dc2626' 
-                  }}></div>
-                </div>
-                <p style={{ fontSize: '13px', color: '#475569', lineHeight: '1.5', margin: 0 }}>
-                  {patient.adherenceScore >= 85 
-                    ? 'Bệnh nhân có kỷ luật dùng thuốc rất cao. Ít khi quên cữ.' 
-                    : 'Bệnh nhân thường xuyên quên cữ thuốc khi đi làm hoặc vào buổi tối, gây dao động đường huyết lớn.'}
-                </p>
+                {patient.adherenceScore != null ? (
+                  <>
+                    <div style={{ width: '100%', height: '10px', background: '#e2e8f0', borderRadius: '5px', overflow: 'hidden', marginBottom: '12px' }}>
+                      <div style={{ 
+                        width: `${patient.adherenceScore}%`, 
+                        height: '100%', 
+                        background: patient.adherenceScore >= 85 ? '#16a34a' : patient.adherenceScore >= 70 ? '#eab308' : '#dc2626' 
+                      }}></div>
+                    </div>
+                    <p style={{ fontSize: '13px', color: '#475569', lineHeight: '1.5', margin: 0 }}>
+                      {patient.adherenceScore >= 85 
+                        ? 'Bệnh nhân có kỷ luật dùng thuốc rất cao. Ít khi quên cữ.' 
+                        : 'Bệnh nhân thường xuyên quên cữ thuốc khi đi làm hoặc vào buổi tối, gây dao động đường huyết lớn.'}
+                    </p>
+                  </>
+                ) : (
+                  <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>Chưa có đơn thuốc để tính điểm tuân thủ.</p>
+                )}
               </div>
             </div>
 
@@ -230,37 +259,42 @@ export default function PatientDetailModal({ patient, onClose, onUpdateNotes, on
               📋 Dòng thời gian uống thuốc & tiêm insulin thực tế
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {patient.medicationLogs.map((log, idx) => (
-                <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ fontSize: '13px', fontWeight: '700', color: '#0284c7', minWidth: '75px' }}>
-                      🕒 {log.time}
+              {(!patient.medicationLogs || patient.medicationLogs.length === 0) ? (
+                <div style={{ textAlign: 'center', padding: '20px 10px', background: '#f8fafc', borderRadius: '12px', color: '#64748b', fontSize: '13px' }}>
+                  Chưa có lịch sử ghi nhận uống thuốc.
+                </div>
+              ) : (
+                patient.medicationLogs.map((log, idx) => (
+                  <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ fontSize: '13px', fontWeight: '700', color: '#0284c7', minWidth: '75px' }}>
+                        🕒 {log.time}
+                      </div>
+                      <div>
+                        <strong style={{ fontSize: '13.5px', color: '#1e293b' }}>{log.medName}</strong>
+                        <div style={{ fontSize: '12px', color: '#64748b' }}>{log.note}</div>
+                      </div>
                     </div>
                     <div>
-                      <strong style={{ fontSize: '13.5px', color: '#1e293b' }}>{log.medName}</strong>
-                      <div style={{ fontSize: '12px', color: '#64748b' }}>{log.note}</div>
+                      {log.punctuality === 'on_time' && (
+                        <span style={{ background: '#dcfce7', color: '#166534', padding: '3px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: '700' }}>
+                          🟢 Đúng giờ
+                        </span>
+                      )}
+                      {log.punctuality === 'late' && (
+                        <span style={{ background: '#fef9c3', color: '#854d0e', padding: '3px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: '700' }}>
+                          🟡 Uống trễ
+                        </span>
+                      )}
+                      {log.punctuality === 'missed' && (
+                        <span style={{ background: '#fee2e2', color: '#991b1b', padding: '3px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: '700' }}>
+                          🔴 Bỏ lỡ cữ thuốc
+                        </span>
+                      )}
                     </div>
                   </div>
-
-                  <div>
-                    {log.punctuality === 'on_time' && (
-                      <span style={{ background: '#dcfce7', color: '#166534', padding: '3px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: '700' }}>
-                        🟢 Đúng giờ
-                      </span>
-                    )}
-                    {log.punctuality === 'late' && (
-                      <span style={{ background: '#fef9c3', color: '#854d0e', padding: '3px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: '700' }}>
-                        🟡 Uống trễ
-                      </span>
-                    )}
-                    {log.punctuality === 'missed' && (
-                      <span style={{ background: '#fee2e2', color: '#991b1b', padding: '3px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: '700' }}>
-                        🔴 Bỏ lỡ cữ thuốc
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         )}

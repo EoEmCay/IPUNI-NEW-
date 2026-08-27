@@ -91,12 +91,14 @@ export const clinicService = {
     if (!data) return [];
     try {
       const list = JSON.parse(data);
-      // Tự động dọn sạch dữ liệu ảo cũ & gộp bệnh nhân trùng lặp thành 1 người duy nhất
+      // Tự động dọn sạch dữ liệu ảo cũ & gộp bệnh nhân trùng lặp: ưu tiên userId, id, code
       const uniqueMap = new Map();
       list.forEach(p => {
         if (!['p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'p7', 'p8'].includes(p.id) &&
             !['DIA-8801', 'DIA-8802', 'DIA-8803', 'DIA-8804', 'DIA-8805', 'DIA-8806', 'DIA-8807', 'DIA-8808'].includes(p.code)) {
-          const key = (p.name || p.phone || p.id).trim().toLowerCase();
+          const key = p.userId 
+            ? `user_${p.userId}` 
+            : (p.phone && !p.phone.includes('0912 345 678') ? `phone_${p.phone}` : (p.id || p.code));
           if (!uniqueMap.has(key)) {
             uniqueMap.set(key, p);
           }
@@ -117,7 +119,9 @@ export const clinicService = {
       if (res.data?.success && Array.isArray(res.data.data)) {
         const uniqueMap = new Map();
         res.data.data.forEach(p => {
-          const key = (p.name || p.phone || p.id).trim().toLowerCase();
+          const key = p.userId 
+            ? `user_${p.userId}` 
+            : (p.phone && !p.phone.includes('0912 345 678') ? `phone_${p.phone}` : (p.id || p.code));
           if (!uniqueMap.has(key)) {
             uniqueMap.set(key, p);
           }
@@ -160,14 +164,22 @@ export const clinicService = {
   },
 
   // Bác sĩ kết thúc đợt điều trị / Bệnh nhân check-out
-  checkoutPatient(patientId) {
+  async checkoutPatient(patientId, extraInfo = {}) {
     const patients = this.getPatients();
+    let targetName = 'Bệnh nhân';
+    const checkoutTime = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' Hôm nay';
     const updated = patients.map(p => {
-      if (p.id === patientId) {
+      const isMatch = (patientId && (p.id === patientId || p.code === patientId)) ||
+                      (extraInfo.code && p.code === extraInfo.code) ||
+                      (extraInfo.userId && p.userId && String(p.userId) === String(extraInfo.userId)) ||
+                      (extraInfo.phone && p.phone && !extraInfo.phone.includes('0912 345 678') && p.phone === extraInfo.phone) ||
+                      (extraInfo.name && p.name && p.name.trim().toLowerCase() === extraInfo.name.trim().toLowerCase());
+      if (isMatch) {
+        targetName = p.name || targetName;
         return {
           ...p,
           status: 'completed', // Đã kết thúc điều trị
-          checkoutAt: new Date().toLocaleString('vi-VN')
+          checkoutAt: checkoutTime
         };
       }
       return p;
@@ -178,18 +190,25 @@ export const clinicService = {
     this.addNotification({
       type: 'workflow',
       patientId,
-      patientName: patients.find(p => p.id === patientId)?.name || 'Bệnh nhân',
+      patientName: targetName,
       title: '🚪 Đã kết thúc đợt điều trị',
-      desc: `Bác sĩ đã hoàn tất phiên khám cho bệnh nhân. Hồ sơ đã chuyển vào lịch sử.`,
+      desc: `Bác sĩ/bệnh nhân đã hoàn tất phiên khám. Hồ sơ đã chuyển vào lịch sử hoàn tất.`,
       severity: 'info'
     });
 
     // Đồng bộ session phía app bệnh nhân
     localStorage.removeItem(STORAGE_KEYS.ACTIVE_PATIENT_SESSION);
-    this.broadcastSync('PATIENT_CHECKOUT', { patientId });
+    window.dispatchEvent(new CustomEvent('clinicSessionChanged'));
+    this.broadcastSync('PATIENT_CHECKOUT', { patientId, patientName: targetName, checkoutTime, ...extraInfo });
 
-    // Sync cloud
-    cloudApi.post('/clinic/checkout', { patientId }).catch(() => {});
+    // Sync cloud API
+    try {
+      await cloudApi.post('/clinic/checkout', { patientId, ...extraInfo });
+      // Fetch latest from cloud to ensure local cache has cloud's completed status
+      await this.fetchPatientsFromCloud();
+    } catch (err) {
+      console.warn('Cloud checkout warning', err);
+    }
   },
 
   // Bệnh nhân QUÉT MÃ QR THẬT Check-in vào phòng khám
@@ -197,21 +216,29 @@ export const clinicService = {
     const patients = this.getPatients();
     const profile = this.getClinicProfile();
 
-    // Check if patient with same phone or id already exists
-    const existingIndex = patients.findIndex(p => p.phone === realPatientData.phone || p.id === realPatientData.id);
+    // Check if patient with same userId, id, code, or phone already exists
+    const existingIndex = patients.findIndex(p => 
+      (realPatientData.userId && p.userId && String(p.userId) === String(realPatientData.userId)) ||
+      (p.id === realPatientData.id) ||
+      (p.code && realPatientData.code && p.code === realPatientData.code) ||
+      (realPatientData.phone && !realPatientData.phone.includes('0912 345 678') && p.phone === realPatientData.phone)
+    );
 
     const glucoseVal = Number(realPatientData.glucose) || 6.2;
     const glucoseStatus = glucoseVal < 3.9 ? 'emergency_low' : glucoseVal > 10.0 ? 'high' : 'normal';
 
+    const existingPatient = existingIndex >= 0 ? patients[existingIndex] : null;
+
     const newPatient = {
-      id: realPatientData.id || `p-${Date.now()}`,
+      id: existingPatient?.id || realPatientData.id || `p-${Date.now()}`,
+      userId: realPatientData.userId || existingPatient?.userId || null,
       clinicId: profile.id,
-      code: realPatientData.code || `DIA-${Math.floor(1000 + Math.random() * 9000)}`,
-      name: realPatientData.name || 'Bệnh nhân DIA+',
-      age: realPatientData.age || 50,
-      gender: realPatientData.gender || 'Nam',
-      phone: realPatientData.phone || '0901 234 567',
-      diabetesType: realPatientData.diabetesType || 'Type 2',
+      code: existingPatient?.code || realPatientData.code || realPatientData.userCode || `DIA-${Math.floor(1000 + Math.random() * 9000)}`,
+      name: realPatientData.name || existingPatient?.name || 'Bệnh nhân DIA+',
+      age: realPatientData.age || existingPatient?.age || 50,
+      gender: realPatientData.gender || existingPatient?.gender || 'Nam',
+      phone: realPatientData.phone || existingPatient?.phone || `09${Math.floor(10000000 + Math.random() * 90000000)}`,
+      diabetesType: realPatientData.diabetesType || existingPatient?.diabetesType || 'Type 2',
       doctor: profile.doctorName,
       checkinAt: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' Hôm nay',
       status: 'active',
@@ -275,15 +302,22 @@ export const clinicService = {
       doctorName: profile.doctorName,
       checkinAt: new Date().toISOString(),
       patientId: newPatient.id,
-      patientCode: newPatient.code
+      patientCode: newPatient.code,
+      userId: newPatient.userId,
+      phone: newPatient.phone,
+      name: newPatient.name
     };
     localStorage.setItem(STORAGE_KEYS.ACTIVE_PATIENT_SESSION, JSON.stringify(patientSession));
+    window.dispatchEvent(new CustomEvent('clinicSessionChanged'));
 
     // Phát tín hiệu đồng bộ tức thì sang tab Dashboard của Bác sĩ
     this.broadcastSync('PATIENT_CHECKIN', { patient: newPatient });
 
     // Sync cloud API so external phones on diaplus.vn instantly post to backend
     cloudApi.post('/clinic/checkin', {
+      id: newPatient.id,
+      userId: newPatient.userId,
+      code: newPatient.code,
       clinicId: profile.id,
       name: newPatient.name,
       phone: newPatient.phone,
@@ -308,13 +342,19 @@ export const clinicService = {
   },
 
   // Bệnh nhân tự bấm rời phòng khám trên app B2C
-  patientLeaveClinic() {
+  async patientLeaveClinic() {
     const session = this.getActivePatientClinicSession();
-    if (session && session.patientId) {
-      this.checkoutPatient(session.patientId);
+    if (session) {
+      await this.checkoutPatient(session.patientId, {
+        code: session.patientCode,
+        userId: session.userId,
+        phone: session.phone,
+        name: session.name
+      });
     }
     localStorage.removeItem(STORAGE_KEYS.ACTIVE_PATIENT_SESSION);
-    this.broadcastSync('PATIENT_LEAVE', {});
+    window.dispatchEvent(new CustomEvent('clinicSessionChanged'));
+    this.broadcastSync('PATIENT_LEAVE', { session });
   },
 
   // Lấy thông báo phòng khám

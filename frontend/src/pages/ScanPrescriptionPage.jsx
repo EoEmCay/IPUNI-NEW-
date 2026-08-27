@@ -57,30 +57,60 @@ export default function ScanPrescriptionPage() {
   const [showVoicePrompt, setShowVoicePrompt] = useState(false);
   const [checkedInClinic, setCheckedInClinic] = useState(null);
 
-  // Check if patient is already checked in to a clinic
+  // Check if patient is already checked in to a clinic, ensuring session belongs to current user account
   useEffect(() => {
-    setCheckedInClinic(clinicService.getActivePatientClinicSession());
-  }, []);
+    const session = clinicService.getActivePatientClinicSession();
+    if (session) {
+      if (user?.id && session.userId && String(session.userId) !== String(user.id)) {
+        clinicService.patientLeaveClinic();
+        setCheckedInClinic(null);
+      } else {
+        setCheckedInClinic(session);
+      }
+    } else {
+      setCheckedInClinic(null);
+    }
+  }, [user]);
 
-  const handleClinicQRCheckin = () => {
+  const handlePerformCheckin = useCallback((qrData = {}) => {
     const profile = clinicService.getClinicProfile();
+    const targetClinicName = qrData?.clinicName || profile.name;
+    const targetDoctorName = qrData?.doctorName || profile.doctorName;
+
+    // Use current logged-in user's profile to distinguish accounts
+    const effectiveUserId = user?.id || (user?.email ? user.email : `anon-${Date.now()}`);
+    const effectiveName = user?.name || (user?.email ? user.email.split('@')[0] : `Bệnh nhân DIA+`);
+    const effectivePhone = user?.phone || (user?.email ? user.email : `09${Math.floor(10000000 + Math.random() * 90000000)}`);
+    const effectiveCode = user?.user_code || `DIA-${Math.floor(1000 + Math.random() * 9000)}`;
+
     const newPatient = clinicService.checkinFromPatientApp({
-      name: user?.name || 'Bệnh nhân DIA+',
+      userId: effectiveUserId,
+      userCode: effectiveCode,
+      name: effectiveName,
       gender: user?.gender || 'Nam',
       age: user?.age || 52,
-      phone: user?.phone || '0912 345 678',
+      phone: effectivePhone,
+      email: user?.email || '',
       glucose: 6.4,
       hba1c: 6.8,
-      diabetesType: 'Type 2'
+      diabetesType: user?.diagnosis || 'Type 2'
     });
 
     setCheckedInClinic({
-      clinicName: profile.name,
-      doctorName: profile.doctorName,
-      patientCode: newPatient.code
+      clinicName: targetClinicName,
+      doctorName: targetDoctorName,
+      patientCode: newPatient.code,
+      patientId: newPatient.id,
+      userId: effectiveUserId,
+      phone: effectivePhone,
+      name: effectiveName
     });
 
-    showToast(`🏥 Check-in thành công tại ${profile.name}! Bác sĩ đã nhận được hồ sơ của bạn trên Clinic Dashboard.`, 'success');
+    showToast(`🏥 Check-in thành công tại ${targetClinicName}! Bác sĩ đã nhận được hồ sơ của ${effectiveName}.`, 'success');
+  }, [user, showToast]);
+
+  const handleClinicQRCheckin = () => {
+    handlePerformCheckin();
   };
 
   // Thuốc do AI trích xuất KHÔNG được lưu thẳng vào danh sách thuốc đang dùng - người
@@ -178,28 +208,7 @@ export default function ScanPrescriptionPage() {
       if (qrData) {
         setIsAnalyzing(false);
         setScanMode('clinic_qr');
-        
-        const profile = clinicService.getClinicProfile();
-        const targetClinicName = qrData.clinicName || profile.name;
-        const targetDoctorName = qrData.doctorName || profile.doctorName;
-
-        const newPatient = clinicService.checkinFromPatientApp({
-          name: user?.name || 'Bệnh nhân DIA+',
-          gender: user?.gender || 'Nam',
-          age: user?.age || 52,
-          phone: user?.phone || '0912 345 678',
-          glucose: 6.4,
-          hba1c: 6.8,
-          diabetesType: 'Type 2'
-        });
-
-        setCheckedInClinic({
-          clinicName: targetClinicName,
-          doctorName: targetDoctorName,
-          patientCode: newPatient.code
-        });
-
-        showToast(`🏥 Nhận diện thành công Mã QR Phòng Khám! Bạn đã check-in với ${targetDoctorName}.`, 'success');
+        handlePerformCheckin(qrData);
         return;
       }
     } catch (qrErr) {
@@ -469,8 +478,12 @@ export default function ScanPrescriptionPage() {
                 Mã bệnh nhân của bạn: <strong>{checkedInClinic.patientCode}</strong>. Mọi chỉ số đo đường huyết của bạn đang được truyền trực tiếp đến Bác sĩ trên Clinic Dashboard.
               </div>
               <button
-                onClick={() => {
-                  clinicService.patientLeaveClinic();
+                onClick={async () => {
+                  try {
+                    await clinicService.patientLeaveClinic();
+                  } catch (e) {
+                    console.warn('Leave clinic warning', e);
+                  }
                   setCheckedInClinic(null);
                   showToast('Đã kết thúc đợt khám tại phòng khám.', 'info');
                 }}
@@ -492,27 +505,7 @@ export default function ScanPrescriptionPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <LiveQRScanner
                 onScanSuccess={(qrData) => {
-                  const profile = clinicService.getClinicProfile();
-                  const targetClinicName = qrData.clinicName || profile.name;
-                  const targetDoctorName = qrData.doctorName || profile.doctorName;
-
-                  const newPatient = clinicService.checkinFromPatientApp({
-                    name: user?.name || 'Bệnh nhân DIA+',
-                    gender: user?.gender || 'Nam',
-                    age: user?.age || 52,
-                    phone: user?.phone || '0912 345 678',
-                    glucose: 6.4,
-                    hba1c: 6.8,
-                    diabetesType: 'Type 2'
-                  });
-
-                  setCheckedInClinic({
-                    clinicName: targetClinicName,
-                    doctorName: targetDoctorName,
-                    patientCode: newPatient.code
-                  });
-
-                  showToast(`🏥 Check-in thành công tại ${targetClinicName}! Bác sĩ đã nhận được hồ sơ của bạn trên Clinic Dashboard.`, 'success');
+                  handlePerformCheckin(qrData);
                 }}
               />
 

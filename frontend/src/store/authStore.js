@@ -22,7 +22,9 @@ const useAuthStore = create((set) => ({
 
   logout: () => {
     localStorage.removeItem('diaplus_token');
+    localStorage.removeItem('diaplus_patient_active_clinic_session');
     updateTokenCache(null);
+    window.dispatchEvent(new CustomEvent('clinicSessionChanged'));
     set({ token: null, user: null, isAuthenticated: false });
   },
 }));

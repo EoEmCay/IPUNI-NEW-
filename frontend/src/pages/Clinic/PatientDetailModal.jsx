@@ -329,7 +329,7 @@ export default function PatientDetailModal({ patient, onClose, onUpdateNotes, on
           </div>
 
           <div>
-            {patient.status === 'active' && (
+            {patient.status === 'active' ? (
               <button 
                 onClick={() => {
                   if (window.confirm(`Xác nhận hoàn tất phiên khám và xuất viện cho bệnh nhân ${patient.name}?`)) {
@@ -341,6 +341,10 @@ export default function PatientDetailModal({ patient, onClose, onUpdateNotes, on
               >
                 <UserCheck size={16} /> Kết thúc đợt điều trị (Check-out)
               </button>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#f8fafc', border: '1px solid #cbd5e1', padding: '8px 16px', borderRadius: '10px', color: '#475569', fontSize: '13px', fontWeight: '700' }}>
+                <CheckCircle2 size={16} color="#16a34a" /> Đã hoàn tất khám ({patient.checkoutAt || 'Đã check-out'})
+              </div>
             )}
           </div>
         </div>

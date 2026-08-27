@@ -8,10 +8,12 @@ const clinicController = {
     try {
       const { clinicId = 'PK-HOAN-MY-01' } = req.query;
       
-      // Tự động gộp các bệnh nhân trùng tên hoặc trùng số điện thoại thành 1 người duy nhất
+      // Tự động gộp các bệnh nhân trùng lặp: ưu tiên userId, nếu không thì id hoặc code
       const uniqueMap = new Map();
       clinicPatients.forEach(p => {
-        const key = (p.name || p.phone || p.id).trim().toLowerCase();
+        const key = p.userId 
+          ? `user_${p.userId}` 
+          : (p.phone && !p.phone.includes('0912 345 678') ? `phone_${p.phone}` : (p.id || p.code));
         if (!uniqueMap.has(key)) {
           uniqueMap.set(key, p);
         }
@@ -29,9 +31,12 @@ const clinicController = {
   async checkin(req, res) {
     try {
       const { 
+        id,
+        userId,
+        code,
         clinicId = 'PK-HOAN-MY-01', 
         name = 'Bệnh nhân DIA+', 
-        phone = '0901 234 567',
+        phone = '',
         gender = 'Nam',
         age = 50,
         glucose = 6.4,
@@ -44,10 +49,12 @@ const clinicController = {
       const glucoseVal = Number(glucose) || 6.4;
       const glucoseStatus = glucoseVal < 3.9 ? 'emergency_low' : glucoseVal > 10.0 ? 'high' : 'normal';
 
-      // 1. Kiểm tra xem bệnh nhân này đã có trong danh sách chưa (theo tên hoặc SĐT)
+      // 1. Kiểm tra xem bệnh nhân này đã có trong danh sách chưa (khớp theo userId, id, code, hoặc SĐT thật)
       const existingIdx = clinicPatients.findIndex(p => 
-        (phone && p.phone && p.phone === phone) || 
-        (name && p.name && p.name.trim().toLowerCase() === name.trim().toLowerCase())
+        (userId && p.userId && String(p.userId) === String(userId)) ||
+        (id && p.id === id) ||
+        (code && p.code === code) ||
+        (phone && p.phone && !phone.includes('0912 345 678') && p.phone === phone)
       );
 
       let targetPatient = null;
@@ -57,6 +64,8 @@ const clinicController = {
         const prev = clinicPatients[existingIdx];
         targetPatient = {
           ...prev,
+          name: name || prev.name,
+          userId: userId || prev.userId,
           age: Number(age) || prev.age,
           gender: gender || prev.gender,
           phone: phone || prev.phone,
@@ -74,13 +83,14 @@ const clinicController = {
       } else {
         // Bệnh nhân mới lần đầu quét
         targetPatient = {
-          id: `p-${Date.now()}`,
+          id: id || `p-${Date.now()}`,
+          userId: userId || null,
           clinicId,
-          code: `DIA-${Math.floor(1000 + Math.random() * 9000)}`,
+          code: code || `DIA-${Math.floor(1000 + Math.random() * 9000)}`,
           name,
           age: Number(age) || 50,
           gender,
-          phone,
+          phone: phone || `09${Math.floor(10000000 + Math.random() * 90000000)}`,
           diabetesType,
           doctor: 'BS.CKII Nguyễn Văn An',
           checkinAt: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' Hôm nay',
@@ -136,9 +146,26 @@ const clinicController = {
   // Bác sĩ / Bệnh nhân check-out
   async checkout(req, res) {
     try {
-      const { patientId } = req.body;
-      clinicPatients = clinicPatients.map(p => p.id === patientId ? { ...p, status: 'completed', checkoutAt: new Date().toLocaleString('vi-VN') } : p);
-      res.json({ success: true, message: 'Đã checkout' });
+      const { patientId, code, userId, phone, name } = req.body;
+      let updatedCount = 0;
+      const checkoutTime = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' Hôm nay';
+      clinicPatients = clinicPatients.map(p => {
+        const isMatch = (patientId && (p.id === patientId || p.code === patientId)) ||
+                        (code && p.code === code) ||
+                        (userId && p.userId && String(p.userId) === String(userId)) ||
+                        (phone && p.phone && !phone.includes('0912 345 678') && p.phone === phone) ||
+                        (name && p.name && p.name.trim().toLowerCase() === name.trim().toLowerCase());
+        if (isMatch) {
+          updatedCount++;
+          return { 
+            ...p, 
+            status: 'completed', 
+            checkoutAt: checkoutTime 
+          };
+        }
+        return p;
+      });
+      res.json({ success: true, message: 'Đã checkout', updatedCount });
     } catch (err) {
       res.status(500).json({ success: false, message: err.message });
     }

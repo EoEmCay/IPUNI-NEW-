@@ -17,9 +17,14 @@ export default function ClinicActiveBadge() {
 
   if (!activeSession) return null;
 
-  const handleLeave = () => {
+  const handleLeave = async () => {
     if (window.confirm(`Bạn có chắc muốn kết thúc đợt khám tại ${activeSession.clinicName}?`)) {
-      clinicService.patientLeaveClinic();
+      try {
+        await clinicService.patientLeaveClinic();
+      } catch (e) {
+        console.warn(e);
+      }
+      setActiveSession(null);
     }
   };
 

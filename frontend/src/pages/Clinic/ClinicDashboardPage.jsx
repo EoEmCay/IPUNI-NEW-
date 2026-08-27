@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Activity, Users, AlertCircle, Heart, Bell, QrCode, Search, 
@@ -16,11 +16,13 @@ export default function ClinicDashboardPage() {
   const [patients, setPatients] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('all'); // 'all', 'emergency', 'meds_warning', 'normal', 'disconnected'
+  const [selectedFilter, setSelectedFilter] = useState('all'); // 'all', 'active', 'completed', 'emergency', 'meds_warning', 'normal', 'disconnected'
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [showQRModal, setShowQRModal] = useState(false);
   const [showNotifDrawer, setShowNotifDrawer] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [checkoutToast, setCheckoutToast] = useState(null);
+  const prevPatientStatusRef = useRef({});
 
   // Load data
   const loadData = useCallback(() => {
@@ -36,6 +38,19 @@ export default function ClinicDashboardPage() {
     });
   }, []);
 
+  // Detect status change from active -> completed for real-time notification
+  useEffect(() => {
+    patients.forEach(p => {
+      const key = p.id || p.code;
+      const prev = prevPatientStatusRef.current[key];
+      if (prev && prev === 'active' && p.status === 'completed') {
+        setCheckoutToast(`🚪 Bệnh nhân ${p.name} (${p.code}) vừa bấm kết thúc đợt khám & check-out khỏi phòng khám!`);
+        setTimeout(() => setCheckoutToast(null), 8000);
+      }
+      prevPatientStatusRef.current[key] = p.status;
+    });
+  }, [patients]);
+
   useEffect(() => {
     loadData();
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -49,7 +64,14 @@ export default function ClinicDashboardPage() {
       });
     }, 2000);
 
-    const handleSync = () => loadData();
+    const handleSync = (e) => {
+      loadData();
+      if (e?.detail?.type === 'PATIENT_CHECKOUT' || e?.detail?.type === 'PATIENT_LEAVE') {
+        const name = e.detail?.payload?.patientName || 'Bệnh nhân';
+        setCheckoutToast(`🚪 ${name} vừa bấm kết thúc đợt khám & check-out khỏi phòng khám!`);
+        setTimeout(() => setCheckoutToast(null), 8000);
+      }
+    };
     window.addEventListener('clinicSyncEvent', handleSync);
     window.addEventListener('storage', handleSync);
 
@@ -73,12 +95,17 @@ export default function ClinicDashboardPage() {
             osc.start();
             osc.stop(audioCtx.currentTime + 0.3);
           } catch {}
+        } else if (e.data?.type === 'PATIENT_CHECKOUT' || e.data?.type === 'PATIENT_LEAVE') {
+          const name = e.data?.payload?.patientName || 'Bệnh nhân';
+          setCheckoutToast(`🚪 ${name} vừa bấm kết thúc đợt khám & check-out khỏi phòng khám!`);
+          setTimeout(() => setCheckoutToast(null), 8000);
         }
       };
     } catch {}
 
     return () => {
       clearInterval(timer);
+      clearInterval(cloudPoll);
       window.removeEventListener('clinicSyncEvent', handleSync);
       window.removeEventListener('storage', handleSync);
       if (channel) channel.close();
@@ -114,6 +141,7 @@ export default function ClinicDashboardPage() {
   // KPIs
   const kpis = useMemo(() => {
     const activePatients = patients.filter(p => p.status === 'active');
+    const completedPatients = patients.filter(p => p.status === 'completed');
     const emergencyCases = activePatients.filter(p => p.glucoseStatus === 'emergency_low' || p.currentGlucose < 3.9);
     const medsWarnings = activePatients.filter(p => p.adherenceScore < 70);
     const overdueCount = patients.filter(p => p.status === 'overdue').length;
@@ -124,6 +152,7 @@ export default function ClinicDashboardPage() {
 
     return {
       totalActive: activePatients.length,
+      totalCompleted: completedPatients.length,
       emergencyCount: emergencyCases.length,
       avgAdherence,
       overdueCount,
@@ -143,6 +172,12 @@ export default function ClinicDashboardPage() {
       if (!matchesSearch) return false;
 
       // Filter
+      if (selectedFilter === 'active') {
+        return p.status === 'active';
+      }
+      if (selectedFilter === 'completed') {
+        return p.status === 'completed';
+      }
       if (selectedFilter === 'emergency') {
         return p.glucoseStatus === 'emergency_low' || p.currentGlucose < 3.9;
       }
@@ -250,6 +285,33 @@ export default function ClinicDashboardPage() {
         </div>
       </header>
 
+      {/* Realtime Checkout Toast Notification */}
+      {checkoutToast && (
+        <div style={{
+          background: 'linear-gradient(90deg, #0f172a 0%, #1e293b 100%)',
+          color: '#ffffff',
+          padding: '12px 24px',
+          margin: '12px 28px 0',
+          borderRadius: '12px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
+          borderLeft: '4px solid #22c55e'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13.5px', fontWeight: '700' }}>
+            <CheckCircle2 size={18} color="#22c55e" />
+            <span>{checkoutToast}</span>
+          </div>
+          <button 
+            onClick={() => setCheckoutToast(null)}
+            style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex' }}
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
       {/* Flashing Red Emergency Banner */}
       {kpis.criticalPatient && (
         <div className={styles.emergencyTopBanner}>
@@ -337,6 +399,22 @@ export default function ClinicDashboardPage() {
               </button>
 
               <button 
+                className={`${styles.filterTabBtn} ${selectedFilter === 'active' ? styles.activeFilterTab : ''}`}
+                onClick={() => setSelectedFilter('active')}
+                style={{ color: selectedFilter === 'active' ? '#fff' : '#15803d' }}
+              >
+                🟢 Đang khám ({kpis.totalActive})
+              </button>
+
+              <button 
+                className={`${styles.filterTabBtn} ${selectedFilter === 'completed' ? styles.activeFilterTab : ''}`}
+                onClick={() => setSelectedFilter('completed')}
+                style={{ color: selectedFilter === 'completed' ? '#fff' : '#475569' }}
+              >
+                ✅ Đã kết thúc ({kpis.totalCompleted})
+              </button>
+
+              <button 
                 className={`${styles.filterTabBtn} ${selectedFilter === 'emergency' ? styles.activeFilterTab : ''}`}
                 onClick={() => setSelectedFilter('emergency')}
                 style={{ color: selectedFilter === 'emergency' ? '#fff' : '#dc2626' }}
@@ -392,6 +470,7 @@ export default function ClinicDashboardPage() {
                   <th>Đường huyết mới nhất</th>
                   <th>Xu hướng</th>
                   <th>Điểm tuân thủ thuốc</th>
+                  <th>Trạng thái khám</th>
                   <th>Trạng thái máy đo</th>
                   <th>Lịch tái khám</th>
                   <th>Thao tác</th>
@@ -400,7 +479,7 @@ export default function ClinicDashboardPage() {
               <tbody>
                 {filteredPatients.length === 0 ? (
                   <tr>
-                    <td colSpan={8} style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>
+                    <td colSpan={9} style={{ textAlign: 'center', padding: '60px 20px', color: '#64748b' }}>
                       <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '64px', height: '64px', borderRadius: '50%', background: '#f0f9ff', color: '#0284c7', marginBottom: '14px' }}>
                         <QrCode size={32} />
                       </div>
@@ -508,12 +587,46 @@ export default function ClinicDashboardPage() {
                               }}></div>
                             </div>
                             <strong style={{ 
-                              fontSize: '13px', 
+                               fontSize: '13px', 
                               color: patient.adherenceScore >= 85 ? '#16a34a' : patient.adherenceScore >= 70 ? '#ca8a04' : '#dc2626' 
                             }}>
                               {patient.adherenceScore}%
                             </strong>
                           </div>
+                        </td>
+
+                        <td>
+                          {patient.status === 'completed' ? (
+                            <span style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '5px',
+                              padding: '4px 10px',
+                              borderRadius: '12px',
+                              background: '#f1f5f9',
+                              color: '#475569',
+                              fontSize: '12px',
+                              fontWeight: '700',
+                              border: '1px solid #cbd5e1'
+                            }}>
+                              <CheckCircle2 size={13} color="#16a34a" /> Đã kết thúc ({patient.checkoutAt ? patient.checkoutAt.split(' ')[0] : 'Hoàn tất'})
+                            </span>
+                          ) : (
+                            <span style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              padding: '4px 10px',
+                              borderRadius: '12px',
+                              background: '#dcfce7',
+                              color: '#15803d',
+                              fontSize: '12px',
+                              fontWeight: '700',
+                              border: '1px solid #bbf7d0'
+                            }}>
+                              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#16a34a', display: 'inline-block' }} /> Đang khám
+                            </span>
+                          )}
                         </td>
 
                         <td>

@@ -24,6 +24,16 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>DIA+ dùng camera để bạn chụp ảnh đơn thuốc, kết quả xét nghiệm cho AI phân tích.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>DIA+ cần truy cập thư viện ảnh để bạn chọn ảnh đơn thuốc đã chụp sẵn.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>DIA+ lưu báo cáo theo dõi (PDF) vào thư viện/tệp của bạn.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>DIA+ dùng micro để bạn ghi âm giọng người thân làm âm báo nhắc uống thuốc.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

@@ -38,7 +38,7 @@ export default function ExportReportButton({ days = 30, patientOverride = null }
     try {
       const model = await collect();
       if (kind === 'pdf') await exportPdf(model);
-      else exportCsv(model);
+      else await exportCsv(model);
     } catch (e) {
       setErr(e?.message || 'Không tạo được báo cáo');
     } finally {

@@ -1,7 +1,22 @@
 import { useRef, useEffect, useState } from 'react';
 import { Camera, Upload, ImagePlus } from 'lucide-react';
 import { useT } from '../../hooks/useT';
+import { isNative } from '../../lib/native';
 import styles from './ScanCamera.module.css';
+
+/** Lấy ảnh qua camera/thư viện của iOS/Android (Capacitor). Trả về File dùng chung với luồng web. */
+async function nativeGetPhoto(fromCamera) {
+  const { Camera: CapCamera, CameraResultType, CameraSource } = await import('@capacitor/camera');
+  const photo = await CapCamera.getPhoto({
+    quality: 80,
+    allowEditing: false,
+    resultType: CameraResultType.Uri,
+    source: fromCamera ? CameraSource.Camera : CameraSource.Photos,
+  });
+  const res = await fetch(photo.webPath);
+  const blob = await res.blob();
+  return new File([blob], `prescription.${photo.format || 'jpg'}`, { type: blob.type || 'image/jpeg' });
+}
 
 export default function ScanCamera({ onImageScan }) {
   const fileInputRef = useRef(null);
@@ -22,7 +37,19 @@ export default function ScanCamera({ onImageScan }) {
     e.target.value = '';
   };
 
+  const handleNative = async (fromCamera) => {
+    try {
+      const file = await nativeGetPhoto(fromCamera);
+      onImageScan(file);
+    } catch (err) {
+      if (!/cancel/i.test(err?.message || '')) setCameraFailed(true);
+    }
+  };
+
   useEffect(() => {
+    // Trên app native: KHÔNG mở getUserMedia — dùng camera hệ thống qua plugin.
+    if (isNative) return undefined;
+
     const startCamera = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -67,10 +94,13 @@ export default function ScanCamera({ onImageScan }) {
     });
   };
 
+  const pickCamera = () => (isNative ? handleNative(true) : cameraInputRef.current?.click());
+  const pickLibrary = () => (isNative ? handleNative(false) : fileInputRef.current?.click());
+
   return (
     <div className={styles.container}>
-      {/* Camera view - chỉ hiện khi camera sẵn sàng */}
-      {cameraReady && (
+      {/* Camera view trực tiếp — chỉ dùng trên web khi getUserMedia sẵn sàng */}
+      {!isNative && cameraReady && (
         <div className={styles.cameraSection}>
           <video
             ref={videoRef}
@@ -89,7 +119,7 @@ export default function ScanCamera({ onImageScan }) {
               {t.scan.capture}
             </button>
             <button
-              onClick={() => fileInputRef.current?.click()}
+              onClick={pickLibrary}
               className={styles.uploadBtnSmall}
             >
               <Upload size={20} />
@@ -99,8 +129,8 @@ export default function ScanCamera({ onImageScan }) {
         </div>
       )}
 
-      {/* Fallback - hiện khi camera không khả dụng HOẶC chưa sẵn sàng */}
-      {!cameraReady && (
+      {/* Fallback / màn hình chính trên native */}
+      {(isNative || !cameraReady) && (
         <div className={styles.fallback}>
           <div className={styles.fallbackContent}>
             <div className={styles.fallbackIcon}>
@@ -110,7 +140,7 @@ export default function ScanCamera({ onImageScan }) {
             <p>{t.scan.cameraFallbackDesc}</p>
             <div style={{ display: 'flex', gap: '12px', width: '100%', maxWidth: '300px' }}>
               <button
-                onClick={() => cameraInputRef.current?.click()}
+                onClick={pickCamera}
                 className={styles.uploadBtn}
                 style={{ flex: 1, padding: '12px 0', justifyContent: 'center' }}
               >
@@ -118,7 +148,7 @@ export default function ScanCamera({ onImageScan }) {
                 {t.scan.captureBtn}
               </button>
               <button
-                onClick={() => fileInputRef.current?.click()}
+                onClick={pickLibrary}
                 className={styles.uploadBtn}
                 style={{ flex: 1, padding: '12px 0', justifyContent: 'center', backgroundColor: 'var(--color-bg-secondary)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
               >

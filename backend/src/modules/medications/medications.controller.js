@@ -60,6 +60,13 @@ async function getDoseHistory(req, res, next) {
   } catch (err) { next(err); }
 }
 
+async function getUpcomingDoses(req, res, next) {
+  try {
+    const days = Math.min(Math.max(parseInt(req.query.days, 10) || 14, 1), 30);
+    sendSuccess(res, await adherence.getUpcomingDoses(req.user.id, days));
+  } catch (err) { next(err); }
+}
+
 module.exports = {
   getMedications,
   getTodayMedications,
@@ -69,4 +76,5 @@ module.exports = {
   logDose,
   getAdherence,
   getDoseHistory,
+  getUpcomingDoses,
 };

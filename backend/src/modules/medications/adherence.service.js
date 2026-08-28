@@ -135,4 +135,29 @@ async function getDoseHistory(userId, days = 30) {
     .select('l.*', 'm.name as medication_name', 'm.dosage');
 }
 
-module.exports = { computeAdherence, logDose, getDoseHistory, POOR_ADHERENCE_THRESHOLD };
+/**
+ * Các liều SẮP TỚI trong `days` ngày — dùng để lên lịch Local Notification trên app native.
+ * @returns {Promise<Array<{medicationId, name, dosage, instant, slot}>>}
+ */
+async function getUpcomingDoses(userId, days = 14) {
+  const now = new Date();
+  const until = new Date(now.getTime() + days * 86400000);
+  const meds = await getActiveMeds(userId);
+
+  const out = [];
+  for (const med of meds) {
+    if (med.schedule_type === 'as_needed') continue;
+    for (const dose of sched.enumerateDoses(med, now, until)) {
+      out.push({
+        medicationId: med.id,
+        name: med.name,
+        dosage: med.dosage || '',
+        instant: dose.instant.toISOString(),
+        slot: dose.slot,
+      });
+    }
+  }
+  return out.sort((a, b) => new Date(a.instant) - new Date(b.instant)).slice(0, 200);
+}
+
+module.exports = { computeAdherence, logDose, getDoseHistory, getUpcomingDoses, POOR_ADHERENCE_THRESHOLD };

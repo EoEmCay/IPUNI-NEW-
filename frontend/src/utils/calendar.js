@@ -1,3 +1,5 @@
+import { saveOrShareFile } from './saveFile';
+
 /**
  * Hỗ trợ tạo và tải tệp .ics để thêm lịch uống thuốc vào ứng dụng Lịch của điện thoại (iOS, Android, Google Calendar,...)
  *
@@ -129,16 +131,12 @@ function downloadIcsFile(events, filename) {
   ];
 
   const icsString = icsLines.join('\r\n');
-  const blob = new Blob([icsString], { type: 'text/calendar;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', filename);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  // Web: <a download>. Native (WKWebView chặn download): ghi Filesystem + Share sheet.
+  saveOrShareFile({
+    fileName: filename,
+    data: new Blob([icsString], { type: 'text/calendar;charset=utf-8;' }),
+    mimeType: 'text/calendar',
+  });
 }
 
 function getTodayStr(now) {

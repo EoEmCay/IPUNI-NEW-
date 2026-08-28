@@ -13,6 +13,7 @@ export const medicationsService = {
   // Tuân thủ thuốc + nhật ký liều
   getAdherence: (days = 30) => cachedGet(api, '/medications/adherence', { params: { days } }, 60_000),
   getLogs: (days = 30) => cachedGet(api, '/medications/logs', { params: { days } }, 60_000),
+  getUpcomingDoses: (days = 14) => api.get('/medications/upcoming-doses', { params: { days } }),
   logDose: async (id, body) => {
     const r = await api.post(`/medications/${id}/logs`, body);
     invalidate('/medications/adherence');

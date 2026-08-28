@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import useAuthStore from './store/authStore';
 import { authService } from './services/auth.service';
+import { syncMedicationReminders } from './lib/medReminders';
 import PendingApprovalModal from './components/auth/PendingApprovalModal';
 import ChangePasswordModal from './components/auth/ChangePasswordModal';
 import AppLayout from './components/layout/AppLayout';
@@ -107,6 +108,17 @@ function AppRoutes() {
   };
 
   const isNativeApp = Capacitor.isNativePlatform() || window.matchMedia('(display-mode: standalone)').matches;
+
+  // App native: đồng bộ lịch nhắc uống thuốc (Local Notification) khi đăng nhập & khi mở lại app
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform() || !isAuthenticated) return undefined;
+    syncMedicationReminders();
+    let handle;
+    import('@capacitor/app').then(({ App: CapApp }) => {
+      CapApp.addListener('resume', () => syncMedicationReminders()).then((h) => { handle = h; });
+    });
+    return () => { handle?.remove?.(); };
+  }, [isAuthenticated]);
 
   return (
     <>

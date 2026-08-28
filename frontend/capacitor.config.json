@@ -2,8 +2,28 @@
   "appId": "vn.diaplus.app",
   "appName": "DIA+",
   "webDir": "dist",
+  "backgroundColor": "#1B5FA6",
   "server": {
     "androidScheme": "https",
     "iosScheme": "https"
+  },
+  "ios": {
+    "contentInset": "always",
+    "backgroundColor": "#F4F6F9"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "backgroundColor": "#1B5FA6",
+      "showSpinner": false,
+      "launchAutoHide": true
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon",
+      "iconColor": "#1B5FA6"
+    },
+    "Keyboard": {
+      "resize": "native"
+    }
   }
 }

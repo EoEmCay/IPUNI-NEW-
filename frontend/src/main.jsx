@@ -7,8 +7,12 @@ import './store/accessibilityStore';
 import App from './App.jsx';
 
 import ErrorBoundary from './components/common/ErrorBoundary.jsx';
+import { initNative } from './lib/native';
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
+
+// Khởi tạo lớp native (Capacitor: status bar, splash, bàn phím, nút back) — no-op trên web
+initNative();
 
 const GOOGLE_CLIENT_ID = '1081815970127-p67o922i2g7vdc6leqkj1f1e5rq1du6d.apps.googleusercontent.com';
 

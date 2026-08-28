@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import useAuthStore from '../store/authStore';
 import useThemeStore from '../store/themeStore';
 import { authService } from '../services/auth.service';
+import { clearMedicationReminders } from '../lib/medReminders';
 
 export function useAuth() {
   const { user, token, isAuthenticated, setAuth, setUser, logout: storeLogout } = useAuthStore();
@@ -106,6 +107,7 @@ export function useAuth() {
   const logout = () => {
     storeLogout();
     resetTheme();
+    clearMedicationReminders(); // huỷ nhắc thuốc (Local Notification) khi đăng xuất — no-op trên web
   };
 
   const updateProfile = async (data) => {

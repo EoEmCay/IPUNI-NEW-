@@ -9,6 +9,7 @@ router.use(authMiddleware);
 router.get('/today', controller.getTodayMedications);
 router.get('/adherence', controller.getAdherence);
 router.get('/logs', controller.getDoseHistory);
+router.get('/upcoming-doses', controller.getUpcomingDoses);
 router.get('/', controller.getMedications);
 router.post('/', validate(createMedicationSchema), controller.createMedication);
 router.post('/:id/logs', validate(logDoseSchema), controller.logDose);

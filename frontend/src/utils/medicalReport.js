@@ -10,6 +10,8 @@
  * PDF: jspdf + jspdf-autotable (lazy-load). Excel: CSV UTF-8 BOM (không cần thư viện).
  */
 
+import { saveOrShareFile } from './saveFile';
+
 const RANGE = { low: 3.9, highTIR: 10.0 }; // TIR 3.9–10.0 mmol/L (~70–180 mg/dL)
 
 function pad(n) { return String(n).padStart(2, '0'); }
@@ -208,7 +210,7 @@ export async function exportPdf(model) {
   doc.text('Ký, ghi rõ họ tên & ngày:', M, y);
 
   const fname = `DIA+_So_theo_doi_${(p.name || 'benh_nhan').replace(/\s+/g, '_')}_${model.generatedAt.slice(0, 10)}.pdf`;
-  doc.save(fname);
+  await saveOrShareFile({ fileName: fname, data: doc.output('blob'), mimeType: 'application/pdf' });
 }
 
 /* ─────────────── Excel (CSV UTF-8 BOM) ─────────────── */
@@ -218,7 +220,7 @@ function csvCell(v) {
   return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
-export function exportCsv(model) {
+export async function exportCsv(model) {
   const rows = [];
   rows.push(['SỔ THEO DÕI ĐÁI THÁO ĐƯỜNG — DIA+']);
   rows.push(['Bệnh nhân', model.patient?.name || '', 'CCCD', model.patient?.cccd || '']);
@@ -261,13 +263,9 @@ export function exportCsv(model) {
   );
 
   const csv = '\uFEFF' + rows.map((r) => r.map(csvCell).join(',')).join('\r\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `DIA+_So_theo_doi_${model.generatedAt.slice(0, 10)}.csv`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
+  await saveOrShareFile({
+    fileName: `DIA+_So_theo_doi_${model.generatedAt.slice(0, 10)}.csv`,
+    data: new Blob([csv], { type: 'text/csv;charset=utf-8;' }),
+    mimeType: 'text/csv',
+  });
 }

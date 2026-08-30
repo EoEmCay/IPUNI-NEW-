@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useT } from '../../hooks/useT';
+import { GoogleIcon } from './AuthIcons';
 import styles from './MockGoogleLoginModal.module.css';
 
 export default function MockGoogleLoginModal({ onClose, onLogin }) {
@@ -11,26 +12,28 @@ export default function MockGoogleLoginModal({ onClose, onLogin }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !email.includes('@')) {
-      setError(t.mockGoogle.invalidEmail);
+      setError(t.mockGoogle?.invalidEmail || 'Vui lòng nhập địa chỉ email Google hợp lệ');
       return;
     }
     setError('');
     setLoading(true);
     try {
-      await onLogin(email);
+      await onLogin(email.trim().toLowerCase());
     } catch (err) {
-      setError(err?.response?.data?.message || t.mockGoogle.loginFailed);
+      setError(err?.response?.data?.message || t.mockGoogle?.loginFailed || 'Đăng nhập Google thất bại');
       setLoading(false);
     }
   };
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.modal}>
+    <div className={styles.overlay} onClick={onClose}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
-          <img src="/logo.jpg" alt="Google" style={{ width: '100px', objectFit: 'contain', mixBlendMode: 'multiply' }} />
-          <h2 className={styles.title}>{t.mockGoogle.title}</h2>
-          <p className={styles.subtitle}>{t.mockGoogle.subtitle}</p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '56px', height: '56px', borderRadius: '50%', background: '#F8FAFC', border: '1px solid #E2E8F0', marginBottom: '12px' }}>
+            <GoogleIcon className={styles.gIcon} style={{ width: '28px', height: '28px' }} />
+          </div>
+          <h2 className={styles.title}>{t.mockGoogle?.title || 'Đăng nhập bằng Google'}</h2>
+          <p className={styles.subtitle}>{t.mockGoogle?.subtitle || 'Sử dụng tài khoản Google để tiếp tục vào DIA+'}</p>
         </div>
         
         <form onSubmit={handleSubmit} className={styles.content}>
@@ -39,19 +42,19 @@ export default function MockGoogleLoginModal({ onClose, onLogin }) {
             <input 
               type="email" 
               className={styles.input} 
-              placeholder={t.mockGoogle.placeholder} 
+              placeholder={t.mockGoogle?.placeholder || 'Nhập địa chỉ Gmail của bạn (vd: ten@gmail.com)'} 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoFocus
             />
           </div>
           <p className={styles.infoText}>
-            {t.mockGoogle.infoText}
+            {t.mockGoogle?.infoText || 'Để bảo vệ an toàn cho tài khoản, hệ thống sẽ xác thực và liên kết dữ liệu y tế với email Google của bạn.'}
           </p>
           <div className={styles.footer}>
-            <button type="button" onClick={onClose} className={styles.btnSecondary}>{t.mockGoogle.cancel}</button>
+            <button type="button" onClick={onClose} className={styles.btnSecondary}>{t.mockGoogle?.cancel || 'Hủy'}</button>
             <button type="submit" disabled={loading} className={styles.btnPrimary}>
-              {loading ? t.mockGoogle.processing : t.mockGoogle.next}
+              {loading ? (t.mockGoogle?.processing || 'Đang xử lý...') : (t.mockGoogle?.next || 'Tiếp tục')}
             </button>
           </div>
         </form>

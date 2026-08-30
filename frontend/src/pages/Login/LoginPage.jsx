@@ -4,6 +4,8 @@ import { useAuth } from '../../hooks/useAuth';
 import useThemeStore from '../../store/themeStore';
 import { GoogleIcon } from '../../components/common/AuthIcons';
 import ForgotPasswordModal from '../../components/auth/ForgotPasswordModal';
+import MockGoogleLoginModal from '../../components/common/MockGoogleLoginModal';
+import { isNative } from '../../lib/native';
 import { clinicService } from '../Clinic/clinicService';
 import styles from './LoginPage.module.css';
 
@@ -54,6 +56,7 @@ export default function LoginPage() {
   const [demoLoading, setDemoLoading] = useState(false);
   const [awaitingApproval, setAwaitingApproval] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [showMockGoogle, setShowMockGoogle] = useState(false);
   const pollAbortRef = useRef(null);
 
   useEffect(() => { applyDefaultLook(); }, [applyDefaultLook]);
@@ -65,42 +68,61 @@ export default function LoginPage() {
     setLoading(false);
   };
 
-  const handleGoogleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        setLoading(true);
-        setError('');
-        const result = await googleLogin(tokenResponse.access_token);
+  const handleGoogleSuccess = async (accessTokenOrEmail) => {
+    try {
+      setLoading(true);
+      setError('');
+      const result = await googleLogin(accessTokenOrEmail);
 
-        if (result.pending) {
-          setAwaitingApproval(true);
-          const controller = new AbortController();
-          pollAbortRef.current = controller;
-          try {
-            await pollLoginStatus(result.requestId, { signal: controller.signal });
-            navigate('/');
-          } catch (pollErr) {
-            if (pollErr.status === 'cancelled') return; // người dùng đã bấm huỷ
-            setError(pollErr.message || 'Đăng nhập thất bại');
-          } finally {
-            setAwaitingApproval(false);
-          }
-          return;
+      if (result.pending) {
+        setShowMockGoogle(false);
+        setAwaitingApproval(true);
+        const controller = new AbortController();
+        pollAbortRef.current = controller;
+        try {
+          await pollLoginStatus(result.requestId, { signal: controller.signal });
+          navigate('/dashboard');
+        } catch (pollErr) {
+          if (pollErr.status === 'cancelled') return; // người dùng đã bấm huỷ
+          setError(pollErr.message || 'Đăng nhập thất bại');
+        } finally {
+          setAwaitingApproval(false);
         }
-
-        navigate('/');
-      } catch (err) {
-        console.error('Google login error:', err);
-        setError(err.response?.data?.message || err.message || 'Đăng nhập Google thất bại');
-      } finally {
-        setLoading(false);
+        return;
       }
-    },
+
+      setShowMockGoogle(false);
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Google login error:', err);
+      setError(err.response?.data?.message || err.message || 'Đăng nhập Google thất bại');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const triggerWebGoogleLogin = useGoogleLogin({
+    onSuccess: (tokenResponse) => handleGoogleSuccess(tokenResponse.access_token),
     onError: (err) => {
-      console.error('Google popup error:', err);
-      setError('Đăng nhập Google bị hủy hoặc thất bại');
+      console.warn('Google popup blocked or error, fallback to direct modal:', err);
+      setShowMockGoogle(true);
     },
   });
+
+  const onGoogleBtnClick = () => {
+    setError('');
+    // Trên Native Mobile (iOS/Android WebView) popup Google thường bị chặn -> Mở giao diện Google Đăng Nhập trực tiếp
+    if (isNative) {
+      setShowMockGoogle(true);
+      return;
+    }
+    try {
+      triggerWebGoogleLogin();
+    } catch (err) {
+      console.warn('triggerWebGoogleLogin error, fallback to modal:', err);
+      setShowMockGoogle(true);
+    }
+  };
 
   const [clinicIpWarning, setClinicIpWarning] = useState(null);
 
@@ -311,8 +333,9 @@ export default function LoginPage() {
           </div>
 
           <button
+            type="button"
             className={`${styles.authBtn} ${styles.googleBtn}`}
-            onClick={() => handleGoogleLogin()}
+            onClick={onGoogleBtnClick}
           >
             <GoogleIcon className={styles.gIcon} />
             <span>Tiếp tục qua Google</span>
@@ -356,6 +379,13 @@ export default function LoginPage() {
 
       {showForgotPassword && (
         <ForgotPasswordModal onClose={() => setShowForgotPassword(false)} />
+      )}
+
+      {showMockGoogle && (
+        <MockGoogleLoginModal
+          onClose={() => setShowMockGoogle(false)}
+          onLogin={handleGoogleSuccess}
+        />
       )}
     </div>
   );

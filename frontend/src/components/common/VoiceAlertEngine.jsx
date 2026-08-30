@@ -3,6 +3,7 @@ import { voiceAlertService, ALERT_TYPES } from '../../services/voiceAlert.servic
 import { useMedications } from '../../hooks/useMedications';
 import { useToast } from '../../hooks/useToast';
 import { useT } from '../../hooks/useT';
+import { blinkFlash } from '../../lib/native';
 
 export default function VoiceAlertEngine() {
   const { medications, fetchMedications } = useMedications();
@@ -48,6 +49,7 @@ export default function VoiceAlertEngine() {
       });
 
       if (triggeredType && medsToTake.length > 0) {
+        blinkFlash(4, 0.15);
         voiceAlertService.playAlert(triggeredType, medsToTake);
         
         const baseMsg = t.common?.medReminderMsg || 'Đã đến giờ uống thuốc:';

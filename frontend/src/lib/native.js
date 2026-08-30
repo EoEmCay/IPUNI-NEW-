@@ -47,3 +47,24 @@ export async function copyText(text) {
   await navigator.clipboard.writeText(String(text));
   return true;
 }
+
+/** Plugin Flashlight native để nháy đèn flash LED của iPhone / Android */
+const FlashAlert = Capacitor.registerPlugin('FlashAlert', {
+  web: () => ({
+    blink: async () => ({ success: false }),
+    isAvailable: async () => ({ available: false })
+  })
+});
+
+/** Nháy đèn flash LED camera 4 lần liên tiếp để báo động uống thuốc */
+export async function blinkFlash(count = 4, interval = 0.15) {
+  if (!isNative) return false;
+  try {
+    const res = await FlashAlert.blink({ count, interval });
+    return res?.success ?? false;
+  } catch (e) {
+    console.warn('[FlashAlert] Lỗi nháy flash:', e?.message);
+    return false;
+  }
+}
+

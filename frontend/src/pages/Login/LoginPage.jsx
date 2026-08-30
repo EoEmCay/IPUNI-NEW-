@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { AlertCircle, Building2 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import useThemeStore from '../../store/themeStore';
 import { GoogleIcon } from '../../components/common/AuthIcons';
@@ -240,9 +241,10 @@ export default function LoginPage() {
 
           {error && (
             <div className={styles.errorBox}>
-              <span>⚠</span> {error}
+              <AlertCircle size={16} style={{ flexShrink: 0 }} />
+              <span>{error}</span>
               {clinicIpWarning && (
-                <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid rgba(239, 68, 68, 0.2)', width: '100%' }}>
                   <button
                     type="button"
                     onClick={handleBypassClinicIp}
@@ -258,7 +260,7 @@ export default function LoginPage() {
                       width: '100%'
                     }}
                   >
-                    ⚡ Mở Khóa Truy Cập (Chế độ Ban Giám Khảo / Local Test)
+                    Mở Khóa Truy Cập (Chế độ Ban Giám Khảo / Local Test)
                   </button>
                 </div>
               )}
@@ -365,9 +367,9 @@ export default function LoginPage() {
           <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px dashed #e2e8f0', textAlign: 'center' }}>
             <Link 
               to="/clinic" 
-              style={{ fontSize: '12.5px', color: '#0284c7', fontWeight: '700', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+              style={{ fontSize: '12.5px', color: '#0284c7', fontWeight: '700', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}
             >
-              🏥 Dành cho Bác Sĩ & Phòng Khám Đối Tác ➔
+              <Building2 size={15} /> Dành cho Bác Sĩ & Phòng Khám Đối Tác →
             </Link>
           </div>
           </>

@@ -125,8 +125,8 @@ export default function DashboardPage() {
               </div>
               <div className={styles.blueMetricFooter}>
                 {fastingGlucose != null 
-                  ? `📅 Gần nhất • ${fastingGlucose < 3.9 ? '🚨 Thấp' : fastingGlucose > 7.0 ? '🟠 Cao' : 'Bình thường'}`
-                  : '➕ Chưa có dữ liệu • Bấm nhập'}
+                  ? `Gần nhất • ${fastingGlucose > 7.0 ? 'Cao' : fastingGlucose < 3.9 ? 'Thấp' : 'Bình thường'}`
+                  : 'Chưa có dữ liệu • Bấm nhập'}
               </div>
             </div>
 
@@ -134,7 +134,7 @@ export default function DashboardPage() {
               className={styles.blueMetricCard}
               onClick={() => handleOpenAddModal('hba1c')}
               style={{ cursor: 'pointer' }}
-              title="Bấm để ghi nhận chỉ số HbA1c"
+              title="Bấm để ghi nhận HbA1c"
             >
               <div className={styles.blueMetricHeader}>
                 <span className={styles.blueMetricTitle}>HbA1c</span>
@@ -146,8 +146,8 @@ export default function DashboardPage() {
               </div>
               <div className={styles.blueMetricFooter}>
                 {hba1cVal != null 
-                  ? `📅 Gần nhất • ${hba1cVal > 7.0 ? 'Cần kiểm soát' : 'Tốt'}`
-                  : '➕ Chưa xét nghiệm • Bấm nhập'}
+                  ? `Gần nhất • ${hba1cVal > 7.0 ? 'Cần kiểm soát' : 'Tốt'}`
+                  : 'Chưa xét nghiệm • Bấm nhập'}
               </div>
             </div>
 
@@ -167,8 +167,8 @@ export default function DashboardPage() {
               </div>
               <div className={styles.blueMetricFooter}>
                 {bloodPressureVal != null 
-                  ? '📅 Gần nhất • Đã đo'
-                  : '➕ Chưa đo huyết áp • Bấm nhập'}
+                  ? 'Gần nhất • Đã đo'
+                  : 'Chưa đo huyết áp • Bấm nhập'}
               </div>
             </div>
           </div>

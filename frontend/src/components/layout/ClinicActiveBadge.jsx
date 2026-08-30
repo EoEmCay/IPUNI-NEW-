@@ -43,8 +43,8 @@ export default function ClinicActiveBadge() {
       zIndex: 40
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <div style={{ background: '#ffffff', color: '#0284c7', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px' }}>
-          🏥
+        <div style={{ background: '#ffffff', color: '#0284c7', width: '24px', height: '24px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Stethoscope size={14} color="#0284c7" />
         </div>
         <div>
           <span>Đang điều trị: <strong>{activeSession.clinicName}</strong></span>

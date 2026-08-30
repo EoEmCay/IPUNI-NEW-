@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import jsQR from 'jsqr';
-import { Camera, RefreshCw, Upload, CheckCircle2, AlertCircle, Sparkles, X } from 'lucide-react';
+import { Camera, RefreshCw, Upload, CheckCircle2, AlertCircle, Sparkles, X, QrCode } from 'lucide-react';
 
 export default function LiveQRScanner({ onScanSuccess, onClose }) {
   const videoRef = useRef(null);
@@ -186,7 +186,7 @@ export default function LiveQRScanner({ onScanSuccess, onClose }) {
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '18px' }}>📷</span>
+          <QrCode size={18} color="#38bdf8" />
           <strong style={{ fontSize: '15px' }}>Quét Mã QR Bàn Khám Bác Sĩ</strong>
         </div>
         {onClose && (

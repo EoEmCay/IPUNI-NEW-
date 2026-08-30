@@ -48,19 +48,38 @@ export async function copyText(text) {
   return true;
 }
 
-/** Plugin Flashlight native để nháy đèn flash LED của iPhone / Android */
+/** Plugin Flashlight native để nháy đèn flash LED và rung thiết bị của iPhone / Android */
 const FlashAlert = Capacitor.registerPlugin('FlashAlert', {
   web: () => ({
     blink: async () => ({ success: false }),
+    vibrate: async () => ({ success: false }),
     isAvailable: async () => ({ available: false })
   })
 });
 
-/** Nháy đèn flash LED camera 4 lần liên tiếp để báo động uống thuốc */
+/** Kích hoạt rung vật lý trên điện thoại (Haptic feedback / Vibrate) */
+export async function vibrateDevice() {
+  if (isNative) {
+    try {
+      await FlashAlert.vibrate();
+      return true;
+    } catch { /* fallback */ }
+  }
+  if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+    try {
+      navigator.vibrate([400, 150, 400, 150, 400]);
+      return true;
+    } catch { /* ignore */ }
+  }
+  return false;
+}
+
+/** Nháy đèn flash LED camera 4 lần liên tiếp kết hợp rung để báo động uống thuốc */
 export async function blinkFlash(count = 4, interval = 0.15) {
+  vibrateDevice();
   if (!isNative) return false;
   try {
-    const res = await FlashAlert.blink({ count, interval });
+    const res = await FlashAlert.blink({ count, interval, vibrate: true });
     return res?.success ?? false;
   } catch (e) {
     console.warn('[FlashAlert] Lỗi nháy flash:', e?.message);

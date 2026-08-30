@@ -499,14 +499,14 @@ const lo = {
     resend: 'ສົ່ງລະຫັດຄືນໃໝ່',
   },
 
-  // Mock Google Login Modal
+  // Google Login Modal
   mockGoogle: {
     invalidEmail: 'ກະລຸນາປ້ອນອີເມວທີ່ຖືກຕ້ອງ',
     loginFailed: 'ການເຂົ້າສູ່ລະບົບ Google ລົ້ມເຫລວ',
-    title: 'ເຂົ້າສູ່ລະບົບ (ຈຳລອງ)',
+    title: 'ເຂົ້າສູ່ລະບົບ',
     subtitle: 'ໃຊ້ບັນຊີ Google ຂອງທ່ານ',
     placeholder: 'ອີເມວ ຫຼື ເບີໂທລະສັບ',
-    infoText: 'ນີ້ແມ່ນໜ້າຈໍຈຳລອງການເຂົ້າສູ່ລະບົບ Google. ລະບົບຈະສ້າງບັນຊີອັດຕະໂນມັດໂດຍອີງໃສ່ອີເມວນີ້.',
+    infoText: 'ເພື່ອສືບຕໍ່, Google ຈະແບ່ງປັນຊື່, ທີ່ຢູ່ອີເມວ ແລະ ພາສາທີ່ຕ້ອງການຂອງທ່ານກັບ DIA+.',
     cancel: 'ຍົກເລີກ',
     processing: 'ກຳລັງປະມວນຜົນ...',
     next: 'ຕໍ່ໄປ',

@@ -495,14 +495,14 @@ const vi = {
     resend: 'Gửi lại mã',
   },
 
-  // Mock Google Login Modal
+  // Google Login Modal
   mockGoogle: {
-    invalidEmail: 'Vui lòng nhập email hợp lệ',
+    invalidEmail: 'Vui lòng nhập địa chỉ email Google hợp lệ',
     loginFailed: 'Đăng nhập Google thất bại',
-    title: 'Đăng nhập (Giả lập)',
+    title: 'Đăng nhập',
     subtitle: 'Sử dụng tài khoản Google của bạn',
     placeholder: 'Email hoặc số điện thoại',
-    infoText: 'Đây là giao diện mô phỏng đăng nhập bằng Google. Hệ thống sẽ tạo tài khoản tự động dựa trên email này.',
+    infoText: 'Để tiếp tục, Google sẽ chia sẻ tên, địa chỉ email và ngôn ngữ ưu tiên của bạn với DIA+.',
     cancel: 'Huỷ',
     processing: 'Đang xử lý...',
     next: 'Tiếp theo',

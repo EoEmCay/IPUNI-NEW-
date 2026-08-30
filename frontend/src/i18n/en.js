@@ -499,14 +499,14 @@ const en = {
     resend: 'Resend code',
   },
 
-  // Mock Google Login Modal
+  // Google Login Modal
   mockGoogle: {
-    invalidEmail: 'Please enter a valid email',
+    invalidEmail: 'Please enter a valid Google email address',
     loginFailed: 'Google login failed',
-    title: 'Sign in (Mock)',
+    title: 'Sign in',
     subtitle: 'Use your Google Account',
     placeholder: 'Email or phone',
-    infoText: 'This is a mock Google login interface. The system will automatically create an account based on this email.',
+    infoText: 'To continue, Google will share your name, email address, and language preference with DIA+.',
     cancel: 'Cancel',
     processing: 'Processing...',
     next: 'Next',

@@ -88,12 +88,14 @@
 
 .page {
   padding: 16px;
+  padding-bottom: var(--page-bottom-gap, calc(80px + env(safe-area-inset-bottom)));
   display: flex;
   flex-direction: column;
   gap: 24px;
   min-height: 100vh;
   min-height: 100dvh;
   background: var(--color-bg);
+  overflow-x: hidden;
 }
 
 .header {
@@ -103,7 +105,7 @@
 
 .header h1 {
   margin: 0 0 8px 0;
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
 }
 
@@ -118,7 +120,8 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  padding: 0 4px;
+  padding: 0 96px;
+  min-height: 40px;
 }
 
 .headerTop h1 {
@@ -147,7 +150,9 @@
   border-radius: 12px;
   overflow: hidden;
   background: #f0f0f0;
-  height: 400px;
+  height: 340px;
+  max-height: 46dvh;
+  width: 100%;
 }
 
 .imagePreview img {
@@ -158,22 +163,24 @@
 
 .imageActions {
   position: absolute;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 14px;
+  left: 12px;
+  right: 12px;
   display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
   gap: 10px;
-  white-space: nowrap;
 }
 
 .analyzeBtn {
-  padding: 12px 20px;
+  min-height: 44px;
+  padding: 12px 22px;
   background: var(--color-primary);
   color: #fff;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 15px;
   cursor: pointer;
   transition: opacity 0.15s;
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
@@ -184,13 +191,14 @@
 }
 
 .retakeBtn {
-  padding: 12px 20px;
-  background: rgba(0,0,0,0.55);
+  min-height: 44px;
+  padding: 12px 22px;
+  background: rgba(0,0,0,0.62);
   color: #fff;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 15px;
   cursor: pointer;
   transition: opacity 0.15s;
 }
@@ -644,32 +652,40 @@
 }
 
 .addBtn {
-  margin-top: 4px;
-  padding: 10px 16px;
+  margin-top: 12px;
+  min-height: 48px;
+  padding: 14px 18px;
   background: var(--color-primary);
   color: #fff;
   border: none;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 600;
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
   transition: opacity 0.15s;
   width: 100%;
+  box-shadow: 0 4px 14px rgba(27,95,166,0.28);
 }
 
 .addBtn:active {
   opacity: 0.8;
 }
 
+.addBtn:disabled {
+  opacity: 0.55;
+  box-shadow: none;
+}
+
 .savedBtn {
-  margin-top: 4px;
-  padding: 10px 16px;
+  margin-top: 12px;
+  min-height: 48px;
+  padding: 14px 18px;
   background: var(--color-success);
   color: #fff;
   border: none;
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  font-weight: 600;
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 700;
   cursor: default;
   width: 100%;
   display: flex;
@@ -748,10 +764,50 @@
   background: #F0FDF4;
   border-color: var(--color-success);
   color: #166534;
+  padding: 12px 14px;
 }
 
 .diabetesBanner svg {
   color: var(--color-success);
+}
+
+.diabetesBanner p {
+  opacity: 0.95;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+/* Bảng chọn nhanh cữ giờ uống — lưới 2 cột, chạm dễ cho người lớn tuổi */
+.quickTimeGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.quickTimeBtn {
+  min-height: 44px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.quickTimeBtn.quickTimeActive {
+  border-color: #2563EB;
+  background: #EFF6FF;
+  color: #1D4ED8;
+  font-weight: 800;
 }
 
 /* ── Lời dặn bác sĩ ── */
@@ -902,7 +958,8 @@
   background: var(--color-primary-light);
   border: 1px solid var(--color-primary);
   color: var(--color-primary);
-  padding: 6px 14px;
+  min-height: 38px;
+  padding: 8px 14px;
   border-radius: 20px;
   display: flex;
   align-items: center;
@@ -975,17 +1032,26 @@
    người dùng tự kiểm tra/sửa lại chứ không lưu thẳng vào danh sách thuốc ── */
 .editableRow {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
   font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.editableRow .detailLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
 }
 
 .editableInput {
-  flex: 1;
-  padding: 6px 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 11px 12px;
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-sm);
-  font-size: 13px;
+  font-size: 16px;
   color: var(--color-text-primary);
   background: var(--color-surface);
   font-family: inherit;

@@ -5,6 +5,7 @@
   --color-surface: #FFFFFF;
   --color-text-primary: #1A2332;
   --color-text-secondary: #54616F;
+  --color-text-muted: #64748B;
   --color-success: #22C55E;
   --color-danger: #EF4444;
   --color-warning: #F59E0B;
@@ -13,6 +14,13 @@
   --color-topbar-height: 56px;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  /* Bề rộng tối đa của khung app (mobile-first). Dùng chung cho TopBar / BottomNav / Modal
+     để không bị lệch nhau trên màn hình rộng. */
+  --app-max-width: 480px;
+  /* Khoảng chừa dưới cùng cho mọi trang: chiều cao BottomNav + nút Quét nhô lên + safe area */
+  --page-bottom-gap: calc(var(--color-nav-height) + 24px + var(--safe-bottom));
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
@@ -28,6 +36,7 @@
   --color-surface: #FFFFFF;
   --color-text-primary: #1C1200;
   --color-text-secondary: #8A6A00;
+  --color-text-muted: #8A6A00;
   --color-success: #22C55E;
   --color-danger: #EF4444;
   --color-warning: #D97706;
@@ -47,6 +56,7 @@
   --color-surface: #FFFFFF;
   --color-text-primary: #2D1B69;
   --color-text-secondary: #695780;
+  --color-text-muted: #7C6B8E;
   --color-success: #34D399;
   --color-danger: #F87171;
   --color-warning: #FBBF24;
@@ -72,6 +82,9 @@ html, body {
   margin: 0;
   padding: 0;
   transition: color 0.3s ease;
+  /* Tuyệt đối không để cuộn ngang cả trang trên mobile */
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
 }
 
 #root {
@@ -79,17 +92,17 @@ html, body {
   display: flex;
   flex-direction: column;
   width: 100%;
+  overflow-x: hidden;
 }
 
 button { cursor: pointer; border: none; background: none; font-family: var(--font-body); transition: background-color 0.3s ease; }
 input, select, textarea { font-family: var(--font-body); outline: none; }
 a { text-decoration: none; color: inherit; }
+img, video, canvas, svg { max-width: 100%; }
 
-/* iOS Safari (kể cả PWA standalone) tự động zoom cả trang khi focus vào input có
+/* iOS Safari (kể cả PWA/Capacitor standalone) tự động zoom cả trang khi focus vào input có
    font-size tính toán < 16px, và không phải lúc nào cũng tự zoom lại đúng - làm layout
-   như bị vỡ. Rất nhiều input trong app đang để 13-15px theo thiết kế; ép tối thiểu 16px
-   ở đây thay vì sửa từng file để đảm bảo không sót input nào, kể cả input thêm sau này.
-   Chênh lệch 1-3px gần như không nhận ra bằng mắt thường. */
+   như bị vỡ. Ép tối thiểu 16px ở đây để không sót input nào, kể cả input thêm sau này. */
 input, select, textarea {
   font-size: 16px !important;
 }
@@ -97,21 +110,95 @@ input, select, textarea {
 .page-content {
   flex: 1;
   overflow-y: auto;
-  padding-bottom: calc(var(--color-nav-height) + var(--safe-bottom) + 16px);
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  /* Chừa đủ chỗ để BottomNav + nút Quét (nhô lên) không che nội dung/nút cuối trang */
+  padding-bottom: var(--page-bottom-gap);
   padding-top: calc(var(--color-topbar-height) + var(--safe-top));
 }
 
 ::-webkit-scrollbar { display: none; }
 * { scrollbar-width: none; }
 
+/* Khoá cuộn nền khi mở Modal / Bottom Sheet */
+body.no-scroll {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+/* Vùng chạm tối thiểu 44x44 (Apple HIG / Material) cho nút/tab/chip */
+.tap-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── Bottom Sheet / Mobile Dialog dùng chung ─── */
+.sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 9000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: sheetFadeIn 0.2s ease;
+}
+.sheet {
+  width: 100%;
+  max-width: var(--app-max-width);
+  background: var(--color-surface);
+  border-radius: 22px 22px 0 0;
+  max-height: 92dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: sheetSlideUp 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.sheet-header {
+  flex: 0 0 auto;
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 16px 14px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  z-index: 2;
+}
+.sheet-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 16px;
+}
+.sheet-footer {
+  flex: 0 0 auto;
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  gap: 10px;
+  padding: 12px 16px calc(12px + var(--safe-bottom));
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+@keyframes sheetFadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sheetSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
 /* Driver.js Font Override */
 .driver-popover, .driver-popover * {
   font-family: 'Be Vietnam Pro', sans-serif !important;
 }
 
-/* ─── PWA Standalone Mode ─── */
+/* ─── PWA / Native Standalone Mode ─── */
 @media all and (display-mode: standalone) {
-  /* Hide any browser-like UI hints when running as installed app */
   body {
     overscroll-behavior-y: contain; /* prevent pull-to-refresh */
     -webkit-tap-highlight-color: transparent;

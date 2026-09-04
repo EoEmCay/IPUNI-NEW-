@@ -854,7 +854,7 @@ export default function ScanPrescriptionPage() {
                                 <span style={{ fontSize: 12, fontWeight: 700, color: '#334155' }}>⏰ Chọn nhanh giờ uống:</span>
                                 <span style={{ fontSize: 11, color: '#64748B' }}>Bấm để chọn/bỏ chọn cữ</span>
                               </div>
-                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+                              <div className={styles.quickTimeGrid}>
                                 {[
                                   { label: '🌅 Sáng', time: '07:00' },
                                   { label: '☀️ Trưa', time: '11:30' },
@@ -868,6 +868,7 @@ export default function ScanPrescriptionPage() {
                                     <button
                                       key={idx}
                                       type="button"
+                                      className={`${styles.quickTimeBtn} ${isSelected ? styles.quickTimeActive : ''}`}
                                       onClick={() => {
                                         let nextArr = [...currentTimes];
                                         if (isSelected) {
@@ -878,18 +879,8 @@ export default function ScanPrescriptionPage() {
                                         }
                                         handleMedFieldChange(i, 'times', nextArr);
                                       }}
-                                      style={{
-                                        fontSize: 11,
-                                        padding: '4px 8px',
-                                        borderRadius: 6,
-                                        border: isSelected ? '1.5px solid #2563EB' : '1px solid #CBD5E1',
-                                        background: isSelected ? '#EFF6FF' : 'white',
-                                        color: isSelected ? '#1D4ED8' : '#475569',
-                                        fontWeight: isSelected ? 700 : 500,
-                                        cursor: 'pointer'
-                                      }}
                                     >
-                                      {p.label} ({p.time})
+                                      {p.label} {p.time}
                                     </button>
                                   );
                                 })}

@@ -1,18 +1,20 @@
 .topbar {
   position: fixed;
   top: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  margin: 0 auto;
   width: 100%;
-  max-width: 430px;
+  max-width: var(--app-max-width, 480px);
+  box-sizing: border-box;
   height: calc(var(--color-topbar-height) + var(--safe-top));
   padding-top: var(--safe-top);
   background: var(--color-primary);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-left: 16px;
-  padding-right: 16px;
+  padding-left: max(16px, var(--safe-left));
+  padding-right: max(16px, var(--safe-right));
   z-index: 999;
   box-shadow: 0 2px 8px rgba(27,95,166,0.18);
   transition: background 0.3s ease, box-shadow 0.3s ease;
@@ -38,8 +40,8 @@
 
 .iconBtn,
 .bellBtn {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: rgba(255,255,255,0.15);
   display: flex;
@@ -48,6 +50,7 @@
   color: #fff;
   border: none;
   cursor: pointer;
+  flex-shrink: 0;
   transition: background 0.15s;
 }
 

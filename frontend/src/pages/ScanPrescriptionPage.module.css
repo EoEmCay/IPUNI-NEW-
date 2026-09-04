@@ -631,13 +631,14 @@
 .elderlyModalOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.65);
+  background: rgba(15, 23, 42, 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  z-index: 100005;
   padding: 16px;
-  backdrop-filter: blur(4px);
+  padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
+  backdrop-filter: blur(5px);
   animation: fadeIn 0.2s ease-out;
 }
 
@@ -651,12 +652,14 @@
   border-radius: 20px;
   width: 100%;
   max-width: 520px;
-  max-height: 90vh;
+  height: min(90dvh, 750px);
+  max-height: 90dvh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
 }
 
 @keyframes modalPop {
@@ -668,9 +671,11 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 18px 20px 14px;
+  padding: 16px 20px;
   border-bottom: 1px solid #f1f5f9;
   background: #f8fafc;
+  flex-shrink: 0;
+  z-index: 10;
 }
 
 .elderlyModalTitle {
@@ -708,6 +713,8 @@
   flex-direction: column;
   gap: 16px;
   -webkit-overflow-scrolling: touch;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .elderlySummaryCard {
@@ -1415,40 +1422,46 @@
 .wizardOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.7);
+  background: rgba(15, 23, 42, 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  padding: 16px;
+  z-index: 99999;
+  padding: 12px;
+  padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
   backdrop-filter: blur(5px);
   animation: fadeIn 0.2s ease-out;
+  box-sizing: border-box;
 }
 
 .wizardModal {
   background: #ffffff;
-  border-radius: 24px;
+  border-radius: 20px;
   width: 100%;
-  max-width: 540px;
-  max-height: 92vh;
+  max-width: 520px;
+  height: min(92dvh, 780px);
+  max-height: 92dvh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
 }
 
 .wizardHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
+  padding: 14px 18px;
   border-bottom: 1px solid #f1f5f9;
   background: #ffffff;
+  flex-shrink: 0;
+  z-index: 10;
 }
 
 .wizardTitle {
-  font-size: 17px;
+  font-size: 16.5px;
   font-weight: 800;
   color: #0f172a;
   margin: 0;
@@ -1465,14 +1478,15 @@
   background: #f1f5f9;
   border: none;
   border-radius: 50%;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #64748b;
   cursor: pointer;
   transition: all 0.15s;
+  flex-shrink: 0;
 }
 
 .wizardCloseBtn:hover {
@@ -1481,13 +1495,14 @@
 }
 
 .wizardBody {
-  padding: 16px 20px;
+  padding: 16px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 14px;
   -webkit-overflow-scrolling: touch;
-  flex: 1;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .wizardStep1 {
@@ -1499,11 +1514,13 @@
 .wizardImageContainer {
   position: relative;
   width: 100%;
-  height: 260px;
-  border-radius: 16px;
+  height: 200px;
+  max-height: 220px;
+  border-radius: 14px;
   overflow: hidden;
   background: #0f172a;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
 }
 
 .wizardImage {
@@ -1514,16 +1531,16 @@
 
 .wizardRetakeOverlayBtn {
   position: absolute;
-  bottom: 12px;
+  bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(30, 41, 59, 0.85);
   backdrop-filter: blur(8px);
   color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 8px 24px;
+  padding: 8px 22px;
   border-radius: 20px;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
@@ -1538,8 +1555,8 @@
 .wizardDiagnosisCard {
   background: #f0fdf4;
   border: 1.5px solid #22c55e;
-  border-radius: 16px;
-  padding: 14px 16px;
+  border-radius: 14px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -1557,7 +1574,7 @@
 }
 
 .wizardDiagTitle {
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 800;
   color: #15803d;
   line-height: 1.3;
@@ -1573,8 +1590,8 @@
 .wizardDoctorCard {
   background: #ffffff;
   border: 1.5px solid #fde68a;
-  border-radius: 16px;
-  padding: 14px 16px;
+  border-radius: 14px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -1639,28 +1656,71 @@
   line-height: 1.5;
 }
 
-.wizardFooter {
-  padding: 14px 20px;
-  border-top: 1px solid #f1f5f9;
-  background: #ffffff;
-}
-
-.wizardConfirmBtn {
+.wizardStep1InlineConfirmBtn {
   width: 100%;
-  padding: 13px;
+  min-height: 48px;
+  padding: 12px 18px;
   border: none;
-  border-radius: 14px;
+  border-radius: 12px;
   background: #0284c7;
   color: #ffffff;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+  margin-top: 2px;
+  transition: all 0.2s;
+}
+
+.wizardStep1InlineConfirmBtn:hover {
+  background: #0369a1;
+  transform: translateY(-1px);
+}
+
+.wizardStep1InlineConfirmBtn:active {
+  transform: translateY(0);
+}
+
+.wizardFooter {
+  padding: 12px 18px;
+  padding-bottom: max(14px, env(safe-area-inset-bottom, 14px));
+  border-top: 1px solid #f1f5f9;
+  background: #ffffff;
+  flex-shrink: 0;
+  z-index: 10;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.wizardConfirmBtn {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  background: #0284c7;
+  color: #ffffff;
+  font-size: 15.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .wizardConfirmBtn:hover {
   background: #0369a1;
+  transform: translateY(-1px);
+}
+
+.wizardConfirmBtn:active {
+  transform: translateY(0);
 }
 
 .wizardStep2 {
@@ -1676,7 +1736,8 @@
 }
 
 .wizardBackBtn {
-  padding: 12px 18px;
+  padding: 12px 16px;
+  min-height: 48px;
   border: 1.5px solid #e2e8f0;
   border-radius: 12px;
   background: #f8fafc;
@@ -1687,7 +1748,9 @@
   transition: all 0.15s;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 .wizardBackBtn:hover {
@@ -1697,7 +1760,8 @@
 
 .wizardSaveBtn {
   flex: 1;
-  padding: 13px;
+  min-height: 48px;
+  padding: 12px 16px;
   border: none;
   border-radius: 12px;
   background: #0284c7;
@@ -1707,6 +1771,10 @@
   cursor: pointer;
   transition: all 0.15s;
   box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .wizardSaveBtn:hover {

@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import {
   CheckCircle, AlertCircle, Pill, User, Calendar, FileText,
   XCircle, ChevronDown, ChevronUp, Clock, Hash, Stethoscope, BookOpen, Info, Activity, QrCode, Building, Sparkles, X,
-  Paperclip, ChevronLeft
+  Paperclip, ChevronLeft, ArrowRight
 } from 'lucide-react';
 import { clinicService } from './Clinic/clinicService';
 import useAuthStore from '../store/authStore';
@@ -837,6 +837,15 @@ export default function ScanPrescriptionPage() {
                           </p>
                         </div>
                       </div>
+
+                      {/* Nút xác nhận chuyển tiếp ngay dưới nội dung chẩn đoán & bác sĩ */}
+                      <button 
+                        type="button" 
+                        className={styles.wizardStep1InlineConfirmBtn}
+                        onClick={() => setScanWizardStep(2)}
+                      >
+                        <CheckCircle size={18} /> Xác nhận đúng & Tiếp tục xem thuốc <ArrowRight size={18} />
+                      </button>
                     </div>
                   ) : (
                     <div className={styles.wizardStep2}>
@@ -926,7 +935,7 @@ export default function ScanPrescriptionPage() {
                       className={styles.wizardConfirmBtn}
                       onClick={() => setScanWizardStep(2)}
                     >
-                      Xác nhận đúng
+                      <CheckCircle size={18} /> Xác nhận đúng & Tiếp tục xem thuốc <ArrowRight size={18} />
                     </button>
                   ) : (
                     <div className={styles.wizardFooterRow}>

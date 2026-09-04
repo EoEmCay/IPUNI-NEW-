@@ -101,6 +101,7 @@ export default function ScanPrescriptionPage() {
   const [isAllSaved, setIsAllSaved] = useState(false);
   const [scanWizardStep, setScanWizardStep] = useState(1);
   const [selectedMedModalIndex, setSelectedMedModalIndex] = useState(null);
+  const [showFullImagePreview, setShowFullImagePreview] = useState(false);
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [showVoicePrompt, setShowVoicePrompt] = useState(false);
   const [checkedInClinic, setCheckedInClinic] = useState(null);
@@ -775,77 +776,67 @@ export default function ScanPrescriptionPage() {
                 <div className={styles.wizardBody}>
                   {scanWizardStep === 1 ? (
                     <div className={styles.wizardStep1}>
-                      {/* 1. Ảnh đơn thuốc chụp có nút Chụp lại đè lên ảnh */}
-                      <div className={styles.wizardImageContainer}>
-                        <img src={imageUrl} alt="Đơn thuốc" className={styles.wizardImage} />
-                        <button 
-                          type="button" 
-                          className={styles.wizardRetakeOverlayBtn}
-                          onClick={handleRetake}
+                      {/* 1. Thanh xem trước ảnh dạng ngang nhỏ gọn (~80px) kèm nút Phóng to & Chụp lại */}
+                      <div className={styles.compactImageBar}>
+                        <div 
+                          className={styles.compactImageThumbWrap} 
+                          onClick={() => setShowFullImagePreview(true)}
+                          title="Chạm để xem ảnh phóng to"
                         >
-                          Chụp lại
-                        </button>
-                      </div>
-
-                      {/* 2. Khối chẩn đoán (Viền xanh lá chuẩn theo ảnh 1) */}
-                      <div className={styles.wizardDiagnosisCard}>
-                        <div className={styles.wizardDiagHeader}>
-                          <CheckCircle size={20} className={styles.wizardCheckIcon} />
-                          <strong className={styles.wizardDiagTitle}>Đơn thuốc điều trị đái tháo đường</strong>
+                          <img src={imageUrl} alt="Đơn thuốc" className={styles.compactImageThumb} />
+                          <span className={styles.compactImageZoomBadge}>🔍 Phóng to</span>
                         </div>
-                        <p className={styles.wizardDiagDesc}>
-                          {result.diagnosis || 'Đái tháo đường không phụ thuộc insulin (E11) Rối loạn chuyển hóa lipoprotein và tình trạng tăng lipid máu khác (E78); Bệnh lý tăng huyết áp (I10)'}
-                        </p>
-                      </div>
-
-                      {/* 3. Khối thông tin Bác sĩ & Lời dặn (Viền vàng chuẩn theo ảnh 1) */}
-                      <div className={styles.wizardDoctorCard}>
-                        <div className={styles.wizardMetaRow}>
-                          <span className={styles.wizardMetaChip}>
-                            <User size={13} /> {t.scanResult?.doctor || 'Bác sĩ'}: {result.doctorName || 'Chưa nhận diện'}
-                          </span>
-                          <span className={styles.wizardMetaChip}>
-                            <Calendar size={13} /> {t.scanResult?.prescribed || 'Kê đơn'}: {result.prescriptionDate || new Date().toISOString().split('T')[0]}
-                          </span>
-                        </div>
-
-                        {result.nextAppointmentDate && (
-                          <div className={styles.wizardFollowupChip}>
-                            <Stethoscope size={13} /> {t.scanResult?.followup || 'Tái khám'}: {result.nextAppointmentDate}
+                        <div className={styles.compactImageMeta}>
+                          <div className={styles.compactImageMetaTop}>
+                            <span className={styles.compactImageTitle}>📷 Đơn thuốc vừa quét</span>
+                            <span className={styles.compactMedsCountBadge}>{editableMeds.length} loại thuốc</span>
                           </div>
-                        )}
-
-                        {result.metrics && result.metrics.length > 0 && (
-                          <div className={styles.wizardMetaRow} style={{ marginTop: '6px' }}>
-                            {result.metrics.map((m, i) => (
-                              <span key={i} className={styles.wizardMetaChip} style={{ background: '#F0FDF4', color: '#16A34A', borderColor: '#BBF7D0' }}>
-                                <Activity size={13} /> 
-                                {m.measurement_type === 'blood_pressure' ? `${t.scanResult?.bloodPressure}: ${m.value}/${m.value_diastolic} mmHg` : 
-                                 m.measurement_type === 'glucose_fasting' ? `${t.scanResult?.glucoseFasting}: ${m.value} mmol/L` : 
-                                 `${m.measurement_type}: ${m.value}`}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-
-                        <div className={styles.wizardDoctorNoteBox}>
-                          <h4 className={styles.wizardDoctorNoteTitle}>
-                            <Stethoscope size={15} /> {t.scanResult?.doctorNotes || 'Lời dặn của bác sĩ'}
-                          </h4>
-                          <p className={styles.wizardDoctorNoteText}>
-                            {result.doctorNotes || 'Khám bệnh lại xin mang theo đơn này. Số điện thoại liên hệ: 0707992969'}
+                          <p className={styles.compactImageDate}>
+                            Ngày kê: {result.prescriptionDate || new Date().toISOString().split('T')[0]}
                           </p>
+                          <button 
+                            type="button" 
+                            className={styles.compactRetakeBtn}
+                            onClick={handleRetake}
+                          >
+                            Chụp lại đơn khác
+                          </button>
                         </div>
                       </div>
 
-                      {/* Nút xác nhận chuyển tiếp ngay dưới nội dung chẩn đoán & bác sĩ */}
-                      <button 
-                        type="button" 
-                        className={styles.wizardStep1InlineConfirmBtn}
-                        onClick={() => setScanWizardStep(2)}
-                      >
-                        <CheckCircle size={18} /> Xác nhận đúng & Tiếp tục xem thuốc <ArrowRight size={18} />
-                      </button>
+                      {/* 2. Khối chẩn đoán bệnh to rõ ràng, màu xanh chuẩn y tế */}
+                      <div className={styles.compactDiagnosisCard}>
+                        <div className={styles.compactDiagHeader}>
+                          <CheckCircle size={18} className={styles.wizardCheckIcon} />
+                          <span className={styles.compactDiagLabel}>CHẨN ĐOÁN CỦA BÁC SĨ</span>
+                        </div>
+                        <h4 className={styles.compactDiagTitle}>
+                          {result.diagnosis || 'Đơn thuốc điều trị đái tháo đường ngoại trú'}
+                        </h4>
+                      </div>
+
+                      {/* 3. Khối thông tin Bác sĩ & Lời dặn dồn gọn gàng */}
+                      <div className={styles.compactDoctorCard}>
+                        <div className={styles.compactDoctorRow}>
+                          <span className={styles.compactDoctorChip}>
+                            <User size={13} color="#0284c7" /> <strong>Bác sĩ:</strong> {result.doctorName || 'Bác sĩ điều trị'}
+                          </span>
+                          {result.nextAppointmentDate && (
+                            <span className={styles.compactFollowupChip}>
+                              <Calendar size={13} color="#b45309" /> <strong>Tái khám:</strong> {result.nextAppointmentDate}
+                            </span>
+                          )}
+                        </div>
+
+                        {result.doctorNotes && (
+                          <div className={styles.compactDoctorNoteBox}>
+                            <Stethoscope size={13} color="#1d4ed8" className={styles.compactNoteIcon} />
+                            <p className={styles.compactDoctorNoteText}>
+                              <strong>Lời dặn:</strong> {result.doctorNotes}
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ) : (
                     <div className={styles.wizardStep2}>
@@ -935,7 +926,7 @@ export default function ScanPrescriptionPage() {
                       className={styles.wizardConfirmBtn}
                       onClick={() => setScanWizardStep(2)}
                     >
-                      <CheckCircle size={18} /> Xác nhận đúng & Tiếp tục xem thuốc <ArrowRight size={18} />
+                      <CheckCircle size={20} /> Xác nhận đúng & Xem {editableMeds.length} loại thuốc <ArrowRight size={20} />
                     </button>
                   ) : (
                     <div className={styles.wizardFooterRow}>
@@ -956,6 +947,27 @@ export default function ScanPrescriptionPage() {
                       </button>
                     </div>
                   )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Modal xem ảnh đơn thuốc phóng to khi chạm vào ảnh thu nhỏ */}
+          {showFullImagePreview && imageUrl && (
+            <div className={styles.fullImageOverlay} onClick={() => setShowFullImagePreview(false)}>
+              <div className={styles.fullImageModal} onClick={(e) => e.stopPropagation()}>
+                <div className={styles.fullImageHeader}>
+                  <span>Ảnh đơn thuốc gốc</span>
+                  <button 
+                    type="button" 
+                    className={styles.wizardCloseBtn} 
+                    onClick={() => setShowFullImagePreview(false)}
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+                <div className={styles.fullImageBody}>
+                  <img src={imageUrl} alt="Đơn thuốc gốc" className={styles.fullImageImg} />
                 </div>
               </div>
             </div>

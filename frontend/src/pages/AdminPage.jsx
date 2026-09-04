@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import api from '../services/api';
-import { Users, AlertTriangle, ShieldCheck, Database, Calendar, Trash2 } from 'lucide-react';
+import { Users, AlertTriangle, ShieldCheck, Database, Calendar } from 'lucide-react';
 import styles from './AdminPage.module.css';
 
 export default function AdminPage() {
@@ -26,24 +26,6 @@ export default function AdminPage() {
       localStorage.setItem('ipuni_admin_key', adminKey);
     } catch {
       setError('Sai mã khóa quản trị hoặc lỗi kết nối đến máy chủ.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleWipeData = async () => {
-    const confirmed = window.confirm('⚠️ CẢNH BÁO: Bạn có chắc chắn muốn XÓA TRẮNG toàn bộ tài khoản, đơn thuốc, lịch khám và chỉ số trên hệ thống? Thao tác này KHÔNG THỂ HOÀN TÁC!');
-    if (!confirmed) return;
-
-    setLoading(true);
-    try {
-      await api.post(`/analytics/wipe-data`, {}, {
-        headers: { 'x-admin-key': adminKey }
-      });
-      setUsers([]);
-      alert('✅ Đã xóa trắng toàn bộ dữ liệu thành công!');
-    } catch (err) {
-      alert('❌ Lỗi khi xóa dữ liệu: ' + (err.response?.data?.message || err.message));
     } finally {
       setLoading(false);
     }
@@ -84,39 +66,18 @@ export default function AdminPage() {
           <Database size={32} color="var(--color-primary)" />
           <div>
             <h1>Dashboard Quản trị viên</h1>
-            <p>Hệ thống DIA+ Data Center</p>
+            <p>Supabase PostgreSQL - Tình trạng: Trực tuyến</p>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <button 
-            onClick={handleWipeData} 
-            disabled={loading}
-            style={{
-              background: '#EF4444',
-              color: '#ffffff',
-              border: 'none',
-              padding: '8px 16px',
-              borderRadius: '8px',
-              fontWeight: '700',
-              fontSize: '13px',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-          >
-            <Trash2 size={16} /> Xóa trắng tất cả dữ liệu
-          </button>
-          <button 
-            onClick={() => {
-              setIsAuthenticated(false);
-              localStorage.removeItem('ipuni_admin_key');
-            }} 
-            className={styles.logoutBtn}
-          >
-            Đăng xuất
-          </button>
-        </div>
+        <button 
+          onClick={() => {
+            setIsAuthenticated(false);
+            localStorage.removeItem('ipuni_admin_key');
+          }} 
+          className={styles.logoutBtn}
+        >
+          Đăng xuất
+        </button>
       </div>
 
       <div className={styles.statsGrid}>

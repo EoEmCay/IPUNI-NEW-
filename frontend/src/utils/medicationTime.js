@@ -65,7 +65,7 @@ export function isDoseScheduledForDate(medication, dateObj = new Date()) {
     return {
       isScheduled: isTakeDay,
       isRestDay: !isTakeDay,
-      label: isTakeDay ? '📅 Cách ngày • Hôm nay có lịch uống' : '📅 Cách ngày • Hôm nay nghỉ cữ'
+      label: isTakeDay ? 'Cách ngày • Hôm nay có lịch uống' : 'Cách ngày • Hôm nay nghỉ cữ'
     };
   }
 

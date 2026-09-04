@@ -224,7 +224,7 @@ export default function MedicationDetailModal({ medication, onClose }) {
                 cursor: 'pointer'
               }}
             >
-              {isSaving ? 'Đang lưu...' : '✓ Lưu thay đổi giờ uống'}
+              {isSaving ? 'Đang lưu...' : 'Lưu thay đổi giờ uống'}
             </button>
           </div>
         )}

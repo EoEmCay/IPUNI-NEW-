@@ -106,9 +106,9 @@ export default function MedicationFormModal({ onClose, onSuccess }) {
               <option value="1 lần/ngày">1 lần/ngày (Hàng ngày)</option>
               <option value="2 lần/ngày">2 lần/ngày (Sáng &amp; Tối)</option>
               <option value="3 lần/ngày">3 lần/ngày (Sáng, Trưa &amp; Tối)</option>
-              <option value="Cách ngày (2 ngày 1 lần)">📅 Cách ngày (2 ngày 1 lần)</option>
-              <option value="Thứ 2, 4, 6">📅 Lịch Thứ 2, 4, 6</option>
-              <option value="Thứ 3, 5, 7">📅 Lịch Thứ 3, 5, 7</option>
+              <option value="Cách ngày (2 ngày 1 lần)">Cách ngày (2 ngày 1 lần)</option>
+              <option value="Thứ 2, 4, 6">Lịch Thứ 2, 4, 6</option>
+              <option value="Thứ 3, 5, 7">Lịch Thứ 3, 5, 7</option>
               <option value="Khi cần">Khi cần thiết</option>
             </select>
           </div>

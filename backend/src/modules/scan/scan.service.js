@@ -147,14 +147,17 @@ function shapeResult(parsed) {
   // Đối chiếu từng thuốc AI đọc được với DB nội bộ đã kiểm định (medications-db.json):
   const medications = rawMedications.map(m => {
     const dbMatch = findMedicationInDatabase(m.name);
-    const instr = m.instructions || m.frequency || '';
-    const hasDoctorTime = m.hasDoctorTime !== undefined 
-      ? Boolean(m.hasDoctorTime) 
-      : Boolean((m.times && m.times.length > 0) && instr.match(/sáng|trưa|chiều|tối|trước ăn|sau ăn|ngủ|buổi|\b\d{1,2}h\b|\b\d{1,2}:\d{2}\b/i));
+    const combinedText = `${m.instructions || ''} ${m.frequency || ''} ${m.dosage || ''}`;
+    
+    // Nếu AI chưa trả hasDoctorTime, tự động kiểm tra regex các từ khóa
+    const hasDoctorTime = (m.hasDoctorTime !== undefined && m.hasDoctorTime !== null)
+      ? Boolean(m.hasDoctorTime)
+      : Boolean(combinedText.match(/sáng|trưa|chiều|tối|trước ăn|sau ăn|ngủ|buổi|\b\d{1,2}h\b|\b\d{1,2}:\d{2}\b/i));
 
-    let durationDays = m.durationDays || null;
+    // Tự động bóc tách số ngày uống từ instructions hoặc frequency bằng regex
+    let durationDays = (typeof m.durationDays === 'number' && !isNaN(m.durationDays)) ? m.durationDays : null;
     if (!durationDays) {
-      const dMatch = instr.match(/(?:uống|dùng|trong)?\s*:?\s*(\d+)\s*(?:ngày|day)/i);
+      const dMatch = combinedText.match(/(?:uống|dùng|trong)?\s*:?\s*(\d+)\s*(?:ngày|day)/i);
       if (dMatch && dMatch[1]) durationDays = parseInt(dMatch[1], 10);
     }
 

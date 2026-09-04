@@ -1061,12 +1061,10 @@ export default function ScanPrescriptionPage() {
                 {(() => {
                   const currentMed = editableMeds[selectedMedModalIndex];
                   const schedule = getMedScheduleDetails(currentMed, result?.prescriptionDate);
-                  const hasDoctorTime = currentMed.hasDoctorTime !== undefined
+                  const hasDoctorTime = (currentMed.hasDoctorTime !== undefined && currentMed.hasDoctorTime !== null)
                     ? Boolean(currentMed.hasDoctorTime)
                     : Boolean(
-                        currentMed.times &&
-                        currentMed.times.length > 0 &&
-                        (currentMed.instructions || currentMed.frequency || '').match(/sáng|trưa|chiều|tối|trước ăn|sau ăn|ngủ|buổi|\b\d{1,2}h\b|\b\d{1,2}:\d{2}\b/i)
+                        `${currentMed.instructions || ''} ${currentMed.frequency || ''} ${currentMed.dosage || ''}`.match(/sáng|trưa|chiều|tối|trước ăn|sau ăn|ngủ|buổi|\b\d{1,2}h\b|\b\d{1,2}:\d{2}\b/i)
                       );
 
                   return (
@@ -1091,7 +1089,7 @@ export default function ScanPrescriptionPage() {
                           <div className={styles.elderlyRow}>
                             <span className={styles.elderlyLabel}>Thời gian dùng:</span>
                             <span className={styles.elderlyValueHighlight}>
-                              {schedule.duration} ngày {schedule.formattedStartDate && schedule.formattedEndDate ? `(${schedule.formattedStartDate} - ${schedule.formattedEndDate})` : ''}
+                              {schedule.duration} ngày {schedule.formattedStartDate && schedule.formattedEndDate ? `(Từ ${schedule.formattedStartDate} đến ${schedule.formattedEndDate})` : ''}
                             </span>
                           </div>
                         ) : null}

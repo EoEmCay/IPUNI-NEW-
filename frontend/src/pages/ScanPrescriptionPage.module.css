@@ -1344,3 +1344,310 @@
   flex-shrink: 0;
   cursor: pointer;
 }
+
+/* ── Wizard Modal 2 Bước (Option A) ── */
+.wizardOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+  backdrop-filter: blur(5px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.wizardModal {
+  background: #ffffff;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 540px;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wizardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #ffffff;
+}
+
+.wizardTitle {
+  font-size: 17px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wizardTitleIcon {
+  color: #0284c7;
+}
+
+.wizardCloseBtn {
+  background: #f1f5f9;
+  border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.wizardCloseBtn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.wizardBody {
+  padding: 16px 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+}
+
+.wizardStep1 {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.wizardImageContainer {
+  position: relative;
+  width: 100%;
+  height: 260px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #0f172a;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.wizardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.wizardRetakeOverlayBtn {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(30, 41, 59, 0.85);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 8px 24px;
+  border-radius: 20px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.wizardRetakeOverlayBtn:hover {
+  background: rgba(15, 23, 42, 0.95);
+  transform: translateX(-50%) scale(1.03);
+}
+
+.wizardDiagnosisCard {
+  background: #f0fdf4;
+  border: 1.5px solid #22c55e;
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wizardDiagHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wizardCheckIcon {
+  color: #16a34a;
+  flex-shrink: 0;
+}
+
+.wizardDiagTitle {
+  font-size: 15px;
+  font-weight: 800;
+  color: #15803d;
+  line-height: 1.3;
+}
+
+.wizardDiagDesc {
+  margin: 0;
+  font-size: 13px;
+  color: #166534;
+  line-height: 1.5;
+}
+
+.wizardDoctorCard {
+  background: #ffffff;
+  border: 1.5px solid #fde68a;
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.05);
+}
+
+.wizardMetaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.wizardMetaChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.wizardFollowupChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #b45309;
+}
+
+.wizardDoctorNoteBox {
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-top: 2px;
+}
+
+.wizardDoctorNoteTitle {
+  margin: 0 0 4px 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1d4ed8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wizardDoctorNoteText {
+  margin: 0;
+  font-size: 13px;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.wizardFooter {
+  padding: 14px 20px;
+  border-top: 1px solid #f1f5f9;
+  background: #ffffff;
+}
+
+.wizardConfirmBtn {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 14px;
+  background: #0284c7;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+}
+
+.wizardConfirmBtn:hover {
+  background: #0369a1;
+}
+
+.wizardStep2 {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wizardFooterRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.wizardBackBtn {
+  padding: 12px 18px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wizardBackBtn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.wizardSaveBtn {
+  flex: 1;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  background: #0284c7;
+  color: #ffffff;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+}
+
+.wizardSaveBtn:hover {
+  background: #0369a1;
+}
+
+.wizardSaveBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

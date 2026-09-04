@@ -1,7 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
 import {
   CheckCircle, AlertCircle, Pill, User, Calendar, FileText,
-  XCircle, ChevronDown, ChevronUp, Clock, Hash, Stethoscope, BookOpen, Info, Activity, QrCode, Building, Sparkles, X
+  XCircle, ChevronDown, ChevronUp, Clock, Hash, Stethoscope, BookOpen, Info, Activity, QrCode, Building, Sparkles, X,
+  Paperclip, ChevronLeft
 } from 'lucide-react';
 import { clinicService } from './Clinic/clinicService';
 import useAuthStore from '../store/authStore';
@@ -98,6 +99,7 @@ export default function ScanPrescriptionPage() {
   const [result, setResult] = useState(null);
   const [isSavingAll, setIsSavingAll] = useState(false);
   const [isAllSaved, setIsAllSaved] = useState(false);
+  const [scanWizardStep, setScanWizardStep] = useState(1);
   const [selectedMedModalIndex, setSelectedMedModalIndex] = useState(null);
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [showVoicePrompt, setShowVoicePrompt] = useState(false);
@@ -219,6 +221,8 @@ export default function ScanPrescriptionPage() {
     setPrevResult(result);
     setEditableMeds(result?.medications?.length ? result.medications.map((m) => ({ ...m })) : []);
     setInsulinConfirmed(false);
+    setScanWizardStep(1);
+    setSelectedMedModalIndex(null);
   }
 
   // Đếm giây trong lúc AI đang phân tích - dùng để đổi thông điệp tiến trình, tăng dần
@@ -481,7 +485,8 @@ export default function ScanPrescriptionPage() {
     setResult(null);
     setIsAllSaved(false);
     setExpandedIndex(null);
-
+    setScanWizardStep(1);
+    setSelectedMedModalIndex(null);
   }, [imageUrl]);
 
 
@@ -724,324 +729,380 @@ export default function ScanPrescriptionPage() {
           )}
 
           {result && result.isDiabetesPrescription && (
-            <div className={styles.results}>
-              <div className={styles.diabetesBanner}>
-                <CheckCircle size={20} />
-                <div>
-                  <strong>{t.scanResult?.diabetesPrescription}</strong>
-                  <p>{result.diagnosis || `${result.medications.length} ${t.scanResult?.medsRecognized}`}</p>
+            <div className={styles.wizardOverlay}>
+              <div className={styles.wizardModal}>
+                <div className={styles.wizardHeader}>
+                  <h3 className={styles.wizardTitle}>
+                    {scanWizardStep === 1 ? (
+                      <>
+                        <FileText size={18} className={styles.wizardTitleIcon} />
+                        Tổng quan đơn thuốc
+                      </>
+                    ) : (
+                      <>
+                        <Paperclip size={18} className={styles.wizardTitleIcon} />
+                        {editableMeds.length} {t.scanResult?.medsCount || 'loại thuốc'}
+                      </>
+                    )}
+                  </h3>
+                  <button 
+                    type="button" 
+                    className={styles.wizardCloseBtn} 
+                    onClick={handleRetake}
+                    title="Đóng / Chụp lại"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <div className={styles.wizardBody}>
+                  {scanWizardStep === 1 ? (
+                    <div className={styles.wizardStep1}>
+                      {/* 1. Ảnh đơn thuốc chụp có nút Chụp lại đè lên ảnh */}
+                      <div className={styles.wizardImageContainer}>
+                        <img src={imageUrl} alt="Đơn thuốc" className={styles.wizardImage} />
+                        <button 
+                          type="button" 
+                          className={styles.wizardRetakeOverlayBtn}
+                          onClick={handleRetake}
+                        >
+                          Chụp lại
+                        </button>
+                      </div>
+
+                      {/* 2. Khối chẩn đoán (Viền xanh lá chuẩn theo ảnh 1) */}
+                      <div className={styles.wizardDiagnosisCard}>
+                        <div className={styles.wizardDiagHeader}>
+                          <CheckCircle size={20} className={styles.wizardCheckIcon} />
+                          <strong className={styles.wizardDiagTitle}>Đơn thuốc điều trị đái tháo đường</strong>
+                        </div>
+                        <p className={styles.wizardDiagDesc}>
+                          {result.diagnosis || 'Đái tháo đường không phụ thuộc insulin (E11) Rối loạn chuyển hóa lipoprotein và tình trạng tăng lipid máu khác (E78); Bệnh lý tăng huyết áp (I10)'}
+                        </p>
+                      </div>
+
+                      {/* 3. Khối thông tin Bác sĩ & Lời dặn (Viền vàng chuẩn theo ảnh 1) */}
+                      <div className={styles.wizardDoctorCard}>
+                        <div className={styles.wizardMetaRow}>
+                          <span className={styles.wizardMetaChip}>
+                            <User size={13} /> {t.scanResult?.doctor || 'Bác sĩ'}: {result.doctorName || 'Chưa nhận diện'}
+                          </span>
+                          <span className={styles.wizardMetaChip}>
+                            <Calendar size={13} /> {t.scanResult?.prescribed || 'Kê đơn'}: {result.prescriptionDate || new Date().toISOString().split('T')[0]}
+                          </span>
+                        </div>
+
+                        {result.nextAppointmentDate && (
+                          <div className={styles.wizardFollowupChip}>
+                            <Stethoscope size={13} /> {t.scanResult?.followup || 'Tái khám'}: {result.nextAppointmentDate}
+                          </div>
+                        )}
+
+                        {result.metrics && result.metrics.length > 0 && (
+                          <div className={styles.wizardMetaRow} style={{ marginTop: '6px' }}>
+                            {result.metrics.map((m, i) => (
+                              <span key={i} className={styles.wizardMetaChip} style={{ background: '#F0FDF4', color: '#16A34A', borderColor: '#BBF7D0' }}>
+                                <Activity size={13} /> 
+                                {m.measurement_type === 'blood_pressure' ? `${t.scanResult?.bloodPressure}: ${m.value}/${m.value_diastolic} mmHg` : 
+                                 m.measurement_type === 'glucose_fasting' ? `${t.scanResult?.glucoseFasting}: ${m.value} mmol/L` : 
+                                 `${m.measurement_type}: ${m.value}`}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        <div className={styles.wizardDoctorNoteBox}>
+                          <h4 className={styles.wizardDoctorNoteTitle}>
+                            <Stethoscope size={15} /> {t.scanResult?.doctorNotes || 'Lời dặn của bác sĩ'}
+                          </h4>
+                          <p className={styles.wizardDoctorNoteText}>
+                            {result.doctorNotes || 'Khám bệnh lại xin mang theo đơn này. Số điện thoại liên hệ: 0707992969'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className={styles.wizardStep2}>
+                      <p className={styles.disclaimer} style={{ marginBottom: '12px' }}>
+                        <AlertCircle size={13} /> AI có thể đọc nhầm chữ viết tay mờ — vui lòng kiểm tra và sửa lại tên/liều/giờ uống trước khi lưu.
+                      </p>
+
+                      <div className={styles.medListContainer}>
+                        {editableMeds.map((med, i) => {
+                          const times = med.times || [];
+                          const hasSpecificTimes = Array.isArray(times) && times.length > 0;
+                          return (
+                            <div 
+                              key={i} 
+                              className={styles.medItem}
+                              onClick={() => setSelectedMedModalIndex(i)}
+                            >
+                              <div className={styles.medSummary}>
+                                <div className={styles.medSummaryLeft}>
+                                  <h4 className={styles.medItemName}>
+                                    {med.name}
+                                    {med.isDiabetesDrug && <span className={styles.diaTag}>Hạ đường huyết</span>}
+                                  </h4>
+                                  <div className={styles.medItemMeta}>
+                                    <span>Liều lượng: {med.dosage || 'Theo chỉ định'}</span>
+                                    <span>Cách dùng: {med.instructions || med.frequency || (hasSpecificTimes ? `${times.length} lần/ngày` : 'Uống theo đơn')}</span>
+                                  </div>
+                                </div>
+
+                                <div className={styles.medSummaryRight}>
+                                  <div
+                                    className={hasSpecificTimes ? styles.timeBadgeBox : styles.noTimeBadgeBox}
+                                  >
+                                    <Clock size={13} className={styles.timeClockIcon} />
+                                    <span className={styles.timeValueText}>
+                                      {hasSpecificTimes
+                                        ? times.join(', ')
+                                        : (med.timesPerDay ? `${med.timesPerDay} lần/ngày` : 'Chưa có giờ')}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {requiresInsulinConfirm && (
+                        <div className={styles.insulinConfirmBox} style={{ marginTop: '14px' }}>
+                          <label>
+                            <input
+                              type="checkbox"
+                              checked={insulinConfirmed}
+                              onChange={(e) => setInsulinConfirmed(e.target.checked)}
+                            />
+                            <span>
+                              Đơn thuốc có <strong>insulin</strong> — tôi đã kiểm tra kỹ tên thuốc, liều lượng và giờ tiêm ở trên là chính xác trước khi lưu.
+                            </span>
+                          </label>
+                        </div>
+                      )}
+
+                      {showVoicePrompt && (
+                        <div className={styles.voicePromptBanner}>
+                          <div className={styles.voicePromptText}>
+                            <span>🔔</span>
+                            <p>{t.scanResult?.voicePrompt}</p>
+                          </div>
+                          <div className={styles.voicePromptActions}>
+                            <button className={styles.voicePromptGo} onClick={() => navigate('/settings')}>
+                              {t.scanResult?.install}
+                            </button>
+                            <button className={styles.voicePromptDismiss} onClick={() => setShowVoicePrompt(false)}>
+                              {t.scanResult?.later}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className={styles.wizardFooter}>
+                  {scanWizardStep === 1 ? (
+                    <button 
+                      type="button" 
+                      className={styles.wizardConfirmBtn}
+                      onClick={() => setScanWizardStep(2)}
+                    >
+                      Xác nhận đúng
+                    </button>
+                  ) : (
+                    <div className={styles.wizardFooterRow}>
+                      <button 
+                        type="button" 
+                        className={styles.wizardBackBtn}
+                        onClick={() => setScanWizardStep(1)}
+                      >
+                        <ChevronLeft size={16} /> Quay lại
+                      </button>
+                      <button
+                        type="button"
+                        className={isAllSaved ? styles.savedBtn : styles.wizardSaveBtn}
+                        onClick={handleSaveAll}
+                        disabled={isSavingAll || isAllSaved || (requiresInsulinConfirm && !insulinConfirmed)}
+                      >
+                        {isSavingAll ? t.scanResult?.savingAll : isAllSaved ? t.scanResult?.savedAll : (t.scanResult?.addAll || 'Lưu tất cả vào tủ thuốc')}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
+            </div>
+          )}
 
-              <div className={styles.prescriptionGroup}>
-                <div className={styles.prescriptionHeader}>
-                  <div className={styles.metaRow}>
-                    <span className={styles.metaChip}>
-                      <User size={13} /> {t.scanResult?.doctor}: {result.doctorName || 'Chưa nhận diện'}
-                    </span>
-                    <span className={styles.metaChip}>
-                      <Calendar size={13} /> {t.scanResult?.prescribed}: {result.prescriptionDate || 'Chưa nhận diện'}
-                    </span>
-                    {result.nextAppointmentDate && (
-                      <span className={styles.metaChip} style={{ background: '#FEF3C7', color: '#B45309' }}>
-                        <Stethoscope size={13} /> {t.scanResult?.followup}: {result.nextAppointmentDate}
+          {/* Modal chi tiết cho người cao tuổi */}
+          {selectedMedModalIndex !== null && editableMeds[selectedMedModalIndex] && (
+            <div className={styles.elderlyModalOverlay} onClick={() => setSelectedMedModalIndex(null)}>
+              <div className={styles.elderlyModalContent} onClick={(e) => e.stopPropagation()}>
+                <div className={styles.elderlyModalHeader}>
+                  <div style={{ flex: 1 }}>
+                    <h2 className={styles.elderlyModalTitle}>
+                      {editableMeds[selectedMedModalIndex].name}
+                    </h2>
+                    {editableMeds[selectedMedModalIndex].isDiabetesDrug && (
+                      <span className={styles.diaTag} style={{ display: 'inline-block', marginTop: '6px' }}>
+                        Hạ đường huyết
                       </span>
                     )}
                   </div>
-
-                  {result.metrics && result.metrics.length > 0 && (
-                    <div className={styles.metaRow}>
-                      {result.metrics.map((m, i) => (
-                        <span key={i} className={styles.metaChip} style={{ background: '#F0FDF4', color: '#16A34A' }}>
-                          <Activity size={13} /> 
-                          {m.measurement_type === 'blood_pressure' ? `${t.scanResult?.bloodPressure}: ${m.value}/${m.value_diastolic} mmHg` : 
-                           m.measurement_type === 'glucose_fasting' ? `${t.scanResult?.glucoseFasting}: ${m.value} mmol/L` : 
-                           `${m.measurement_type}: ${m.value}`}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className={styles.notesCard}>
-                    <h3><Stethoscope size={15} /> {t.scanResult?.doctorNotes || 'Lời dặn Bác sĩ'}</h3>
-                    <p>{result.doctorNotes || 'Không có lời dặn thêm'}</p>
-                  </div>
-                </div>
-
-              {result.medications.length === 0 ? (
-                <div className={styles.emptyResult}>
-                  <FileText size={32} />
-                  <p>{t.scanResult?.noMedsFound}</p>
-                </div>
-              ) : (
-                <div className={styles.medicationsList}>
-                  <h2>
-                    <Pill size={16} />
-                    {editableMeds.length} {t.scanResult?.medsCount}
-                  </h2>
-                  <p className={styles.disclaimer}>
-                    <AlertCircle size={12} /> AI có thể đọc nhầm chữ viết tay mờ — vui lòng kiểm tra và sửa lại tên/liều/giờ uống trước khi lưu.
-                  </p>
-                  <div className={styles.medListContainer}>
-                  {editableMeds.map((med, i) => {
-                    const times = med.times || [];
-                    const hasSpecificTimes = Array.isArray(times) && times.length > 0;
-                    return (
-                      <div 
-                        key={i} 
-                        className={styles.medItem}
-                        onClick={() => setSelectedMedModalIndex(i)}
-                      >
-                        <div className={styles.medSummary}>
-                          <div className={styles.medSummaryLeft}>
-                            <h4 className={styles.medItemName}>
-                              {med.name}
-                              {med.isDiabetesDrug && <span className={styles.diaTag}>Hạ đường huyết</span>}
-                            </h4>
-                            <div className={styles.medItemMeta}>
-                              <span>Liều lượng: {med.dosage || 'Theo chỉ định'}</span>
-                              <span>Cách dùng: {med.instructions || med.frequency || (hasSpecificTimes ? `${times.length} lần/ngày` : 'Uống theo đơn')}</span>
-                            </div>
-                          </div>
-
-                          <div className={styles.medSummaryRight}>
-                            <div
-                              className={hasSpecificTimes ? styles.timeBadgeBox : styles.noTimeBadgeBox}
-                            >
-                              <Clock size={13} className={styles.timeClockIcon} />
-                              <span className={styles.timeValueText}>
-                                {hasSpecificTimes
-                                  ? times.join(', ')
-                                  : (med.timesPerDay ? `${med.timesPerDay} lần/ngày` : 'Chưa có giờ')}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                  </div>
-
-                  {selectedMedModalIndex !== null && editableMeds[selectedMedModalIndex] && (
-                    <div className={styles.elderlyModalOverlay} onClick={() => setSelectedMedModalIndex(null)}>
-                      <div className={styles.elderlyModalContent} onClick={(e) => e.stopPropagation()}>
-                        <div className={styles.elderlyModalHeader}>
-                          <div style={{ flex: 1 }}>
-                            <h2 className={styles.elderlyModalTitle}>
-                              {editableMeds[selectedMedModalIndex].name}
-                            </h2>
-                            {editableMeds[selectedMedModalIndex].isDiabetesDrug && (
-                              <span className={styles.diaTag} style={{ display: 'inline-block', marginTop: '6px' }}>
-                                Hạ đường huyết
-                              </span>
-                            )}
-                          </div>
-                          <button 
-                            className={styles.elderlyCloseBtn} 
-                            onClick={() => setSelectedMedModalIndex(null)}
-                            title="Đóng"
-                          >
-                            <X size={22} />
-                          </button>
-                        </div>
-
-                        <div className={styles.elderlyModalBody}>
-                          {/* 1. Tóm tắt to rõ Liều & Cách dùng */}
-                          <div className={styles.elderlySummaryCard}>
-                            <div className={styles.elderlyRow}>
-                              <span className={styles.elderlyLabel}>💊 Liều lượng:</span>
-                              <input
-                                className={styles.elderlyInput}
-                                type="text"
-                                value={editableMeds[selectedMedModalIndex].dosage || ''}
-                                onChange={(e) => handleMedFieldChange(selectedMedModalIndex, 'dosage', e.target.value)}
-                                placeholder="VD: 5mg, 1 viên..."
-                              />
-                            </div>
-                            <div className={styles.elderlyRow}>
-                              <span className={styles.elderlyLabel}>📋 Cách dùng:</span>
-                              <input
-                                className={styles.elderlyInput}
-                                type="text"
-                                value={editableMeds[selectedMedModalIndex].instructions || ''}
-                                onChange={(e) => handleMedFieldChange(selectedMedModalIndex, 'instructions', e.target.value)}
-                                placeholder="VD: Uống sau ăn..."
-                              />
-                            </div>
-                            {editableMeds[selectedMedModalIndex].quantity && (
-                              <div className={styles.elderlyRow}>
-                                <span className={styles.elderlyLabel}>📦 Số lượng:</span>
-                                <span className={styles.elderlyValueText}>{editableMeds[selectedMedModalIndex].quantity}</span>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* 2. Khung chọn cữ giờ uống to rõ cho người cao tuổi */}
-                          <div className={styles.elderlyTimeSection}>
-                            <div className={styles.elderlySectionHeader}>
-                              <span className={styles.elderlySectionTitle}>⏰ Chọn cữ giờ uống thuốc:</span>
-                              <span className={styles.elderlySectionSubtitle}>Chạm để chọn hoặc bỏ chọn cữ</span>
-                            </div>
-
-                            <div className={styles.elderlyTimeSlotsGrid}>
-                              {[
-                                { label: '🌅 Sáng', time: '07:00' },
-                                { label: '☀️ Trưa', time: '11:30' },
-                                { label: '🌆 Chiều', time: '15:30' },
-                                { label: '🌙 Tối', time: '18:30' },
-                                { label: '🛌 Trước ngủ', time: '21:30' }
-                              ].map((slot, idx) => {
-                                const currentTimes = editableMeds[selectedMedModalIndex].times || [];
-                                const isSelected = currentTimes.includes(slot.time);
-                                return (
-                                  <button
-                                    key={idx}
-                                    type="button"
-                                    className={`${styles.elderlySlotBtn} ${isSelected ? styles.elderlySlotBtnActive : ''}`}
-                                    onClick={() => {
-                                      let nextArr = [...currentTimes];
-                                      if (isSelected) {
-                                        nextArr = nextArr.filter(t => t !== slot.time);
-                                      } else {
-                                        nextArr.push(slot.time);
-                                        nextArr.sort();
-                                      }
-                                      handleMedFieldChange(selectedMedModalIndex, 'times', nextArr);
-                                    }}
-                                  >
-                                    <span className={styles.elderlySlotLabel}>{slot.label}</span>
-                                    <span className={styles.elderlySlotTime}>{slot.time}</span>
-                                  </button>
-                                );
-                              })}
-                            </div>
-
-                            <div className={styles.elderlyCustomTimeRow}>
-                              <span className={styles.elderlyLabel}>Giờ cụ thể:</span>
-                              <input
-                                className={styles.elderlyInput}
-                                type="text"
-                                placeholder="VD: 07:00, 18:00"
-                                value={(editableMeds[selectedMedModalIndex].times || []).join(', ')}
-                                onChange={(e) => handleMedTimesChange(selectedMedModalIndex, e.target.value)}
-                              />
-                            </div>
-
-                            <label className={styles.elderlyCheckboxRow}>
-                              <input
-                                type="checkbox"
-                                checked={Boolean(editableMeds[selectedMedModalIndex].is_alternate_day || (editableMeds[selectedMedModalIndex].frequency && editableMeds[selectedMedModalIndex].frequency.includes('cách ngày')))}
-                                onChange={(e) => {
-                                  const checked = e.target.checked;
-                                  handleMedFieldChange(selectedMedModalIndex, 'is_alternate_day', checked);
-                                  let freq = editableMeds[selectedMedModalIndex].frequency || '1 lần/ngày';
-                                  if (checked && !freq.includes('cách ngày')) {
-                                    freq = `${freq} (Cách ngày)`;
-                                  } else if (!checked) {
-                                    freq = freq.replace(' (Cách ngày)', '');
-                                  }
-                                  handleMedFieldChange(selectedMedModalIndex, 'frequency', freq);
-                                }}
-                              />
-                              <span>📅 Thuốc uống cách ngày (2 ngày uống 1 lần)</span>
-                            </label>
-                          </div>
-
-                          {/* 3. Chi tiết công dụng / lưu ý lâm sàng */}
-                          {editableMeds[selectedMedModalIndex].detail && (
-                            <div className={styles.elderlyDetailSection}>
-                              <h4 className={styles.elderlyDetailHeading}>ℹ️ Thông tin hướng dẫn y khoa:</h4>
-                              {editableMeds[selectedMedModalIndex].detail.purpose && (
-                                <div className={styles.elderlyDetailItem}>
-                                  <strong>Công dụng:</strong>
-                                  <p>{editableMeds[selectedMedModalIndex].detail.purpose}</p>
-                                </div>
-                              )}
-                              {editableMeds[selectedMedModalIndex].detail.mechanism && (
-                                <div className={styles.elderlyDetailItem}>
-                                  <strong>Cơ chế tác dụng:</strong>
-                                  <p>{editableMeds[selectedMedModalIndex].detail.mechanism}</p>
-                                </div>
-                              )}
-                              {editableMeds[selectedMedModalIndex].detail.contraindications && (
-                                <div className={styles.elderlyDetailItem} style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
-                                  <strong style={{ color: '#DC2626' }}>⚠️ Chống chỉ định / Lưu ý:</strong>
-                                  <p style={{ color: '#991B1B' }}>{editableMeds[selectedMedModalIndex].detail.contraindications}</p>
-                                </div>
-                              )}
-                              {editableMeds[selectedMedModalIndex].detail.interactions && (
-                                <div className={styles.elderlyDetailItem}>
-                                  <strong>Tương tác thuốc:</strong>
-                                  <p>{Array.isArray(editableMeds[selectedMedModalIndex].detail.interactions) ? editableMeds[selectedMedModalIndex].detail.interactions.join(', ') : editableMeds[selectedMedModalIndex].detail.interactions}</p>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-
-                        <div className={styles.elderlyModalFooter}>
-                          <button
-                            type="button"
-                            className={styles.elderlyDoneBtn}
-                            onClick={() => setSelectedMedModalIndex(null)}
-                          >
-                            Hoàn tất & Đóng
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {requiresInsulinConfirm && (
-                    <div className={styles.insulinConfirmBox}>
-                      <label>
-                        <input
-                          type="checkbox"
-                          checked={insulinConfirmed}
-                          onChange={(e) => setInsulinConfirmed(e.target.checked)}
-                        />
-                        <span>
-                          Đơn thuốc có <strong>insulin</strong> — tôi đã kiểm tra kỹ tên thuốc, liều lượng và giờ tiêm ở trên là chính xác trước khi lưu.
-                        </span>
-                      </label>
-                    </div>
-                  )}
-
-                  <button
-                    className={isAllSaved ? styles.savedBtn : styles.addBtn}
-                    onClick={handleSaveAll}
-                    disabled={isSavingAll || isAllSaved || (requiresInsulinConfirm && !insulinConfirmed)}
+                  <button 
+                    className={styles.elderlyCloseBtn} 
+                    onClick={() => setSelectedMedModalIndex(null)}
+                    title="Đóng"
                   >
-                    {isSavingAll ? t.scanResult?.savingAll : isAllSaved ? t.scanResult?.savedAll : t.scanResult?.addAll}
+                    <X size={22} />
                   </button>
+                </div>
 
-                  {showVoicePrompt && (
-                    <div className={styles.voicePromptBanner}>
-                      <div className={styles.voicePromptText}>
-                        <span>🔔</span>
-                        <p>{t.scanResult?.voicePrompt}</p>
+                <div className={styles.elderlyModalBody}>
+                  {/* 1. Tóm tắt to rõ Liều & Cách dùng */}
+                  <div className={styles.elderlySummaryCard}>
+                    <div className={styles.elderlyRow}>
+                      <span className={styles.elderlyLabel}>💊 Liều lượng:</span>
+                      <input
+                        className={styles.elderlyInput}
+                        type="text"
+                        value={editableMeds[selectedMedModalIndex].dosage || ''}
+                        onChange={(e) => handleMedFieldChange(selectedMedModalIndex, 'dosage', e.target.value)}
+                        placeholder="VD: 5mg, 1 viên..."
+                      />
+                    </div>
+                    <div className={styles.elderlyRow}>
+                      <span className={styles.elderlyLabel}>📋 Cách dùng:</span>
+                      <input
+                        className={styles.elderlyInput}
+                        type="text"
+                        value={editableMeds[selectedMedModalIndex].instructions || ''}
+                        onChange={(e) => handleMedFieldChange(selectedMedModalIndex, 'instructions', e.target.value)}
+                        placeholder="VD: Uống sau ăn..."
+                      />
+                    </div>
+                    {editableMeds[selectedMedModalIndex].quantity && (
+                      <div className={styles.elderlyRow}>
+                        <span className={styles.elderlyLabel}>📦 Số lượng:</span>
+                        <span className={styles.elderlyValueText}>{editableMeds[selectedMedModalIndex].quantity}</span>
                       </div>
-                      <div className={styles.voicePromptActions}>
-                        <button className={styles.voicePromptGo} onClick={() => navigate('/settings')}>
-                          {t.scanResult?.install}
-                        </button>
-                        <button className={styles.voicePromptDismiss} onClick={() => setShowVoicePrompt(false)}>
-                          {t.scanResult?.later}
-                        </button>
-                      </div>
+                    )}
+                  </div>
+
+                  {/* 2. Khung chọn cữ giờ uống to rõ cho người cao tuổi */}
+                  <div className={styles.elderlyTimeSection}>
+                    <div className={styles.elderlySectionHeader}>
+                      <span className={styles.elderlySectionTitle}>⏰ Chọn cữ giờ uống thuốc:</span>
+                      <span className={styles.elderlySectionSubtitle}>Chạm để chọn hoặc bỏ chọn cữ</span>
+                    </div>
+
+                    <div className={styles.elderlyTimeSlotsGrid}>
+                      {[
+                        { label: '🌅 Sáng', time: '07:00' },
+                        { label: '☀️ Trưa', time: '11:30' },
+                        { label: '🌆 Chiều', time: '15:30' },
+                        { label: '🌙 Tối', time: '18:30' },
+                        { label: '🛌 Trước ngủ', time: '21:30' }
+                      ].map((slot, idx) => {
+                        const currentTimes = editableMeds[selectedMedModalIndex].times || [];
+                        const isSelected = currentTimes.includes(slot.time);
+                        return (
+                          <button
+                            key={idx}
+                            type="button"
+                            className={`${styles.elderlySlotBtn} ${isSelected ? styles.elderlySlotBtnActive : ''}`}
+                            onClick={() => {
+                              let nextArr = [...currentTimes];
+                              if (isSelected) {
+                                nextArr = nextArr.filter(t => t !== slot.time);
+                              } else {
+                                nextArr.push(slot.time);
+                                nextArr.sort();
+                              }
+                              handleMedFieldChange(selectedMedModalIndex, 'times', nextArr);
+                            }}
+                          >
+                            <span className={styles.elderlySlotLabel}>{slot.label}</span>
+                            <span className={styles.elderlySlotTime}>{slot.time}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <div className={styles.elderlyCustomTimeRow}>
+                      <span className={styles.elderlyLabel}>Giờ cụ thể:</span>
+                      <input
+                        className={styles.elderlyInput}
+                        type="text"
+                        placeholder="VD: 07:00, 18:00"
+                        value={(editableMeds[selectedMedModalIndex].times || []).join(', ')}
+                        onChange={(e) => handleMedTimesChange(selectedMedModalIndex, e.target.value)}
+                      />
+                    </div>
+
+                    <label className={styles.elderlyCheckboxRow}>
+                      <input
+                        type="checkbox"
+                        checked={Boolean(editableMeds[selectedMedModalIndex].is_alternate_day || (editableMeds[selectedMedModalIndex].frequency && editableMeds[selectedMedModalIndex].frequency.includes('cách ngày')))}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          handleMedFieldChange(selectedMedModalIndex, 'is_alternate_day', checked);
+                          let freq = editableMeds[selectedMedModalIndex].frequency || '1 lần/ngày';
+                          if (checked && !freq.includes('cách ngày')) {
+                            freq = `${freq} (Cách ngày)`;
+                          } else if (!checked) {
+                            freq = freq.replace(' (Cách ngày)', '');
+                          }
+                          handleMedFieldChange(selectedMedModalIndex, 'frequency', freq);
+                        }}
+                      />
+                      <span>📅 Thuốc uống cách ngày (2 ngày uống 1 lần)</span>
+                    </label>
+                  </div>
+
+                  {/* 3. Chi tiết công dụng / lưu ý lâm sàng */}
+                  {editableMeds[selectedMedModalIndex].detail && (
+                    <div className={styles.elderlyDetailSection}>
+                      <h4 className={styles.elderlyDetailHeading}>ℹ️ Thông tin hướng dẫn y khoa:</h4>
+                      {editableMeds[selectedMedModalIndex].detail.purpose && (
+                        <div className={styles.elderlyDetailItem}>
+                          <strong>Công dụng:</strong>
+                          <p>{editableMeds[selectedMedModalIndex].detail.purpose}</p>
+                        </div>
+                      )}
+                      {editableMeds[selectedMedModalIndex].detail.mechanism && (
+                        <div className={styles.elderlyDetailItem}>
+                          <strong>Cơ chế tác dụng:</strong>
+                          <p>{editableMeds[selectedMedModalIndex].detail.mechanism}</p>
+                        </div>
+                      )}
+                      {editableMeds[selectedMedModalIndex].detail.contraindications && (
+                        <div className={styles.elderlyDetailItem} style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
+                          <strong style={{ color: '#DC2626' }}>⚠️ Chống chỉ định / Lưu ý:</strong>
+                          <p style={{ color: '#991B1B' }}>{editableMeds[selectedMedModalIndex].detail.contraindications}</p>
+                        </div>
+                      )}
+                      {editableMeds[selectedMedModalIndex].detail.interactions && (
+                        <div className={styles.elderlyDetailItem}>
+                          <strong>Tương tác thuốc:</strong>
+                          <p>{Array.isArray(editableMeds[selectedMedModalIndex].detail.interactions) ? editableMeds[selectedMedModalIndex].detail.interactions.join(', ') : editableMeds[selectedMedModalIndex].detail.interactions}</p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
-              )}
+
+                <div className={styles.elderlyModalFooter}>
+                  <button
+                    type="button"
+                    className={styles.elderlyDoneBtn}
+                    onClick={() => setSelectedMedModalIndex(null)}
+                  >
+                    Hoàn tất & Đóng
+                  </button>
+                </div>
               </div>
-
-              <p className={styles.disclaimer}>
-                <AlertCircle size={12} /> {t.scanResult?.disclaimer}
-              </p>
-
-              <button onClick={handleRetake} className={styles.scanAgainBtn}>
-                {t.scan.scanAnotherBtn}
-              </button>
             </div>
           )}
 

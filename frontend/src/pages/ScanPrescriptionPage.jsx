@@ -250,21 +250,14 @@ export default function ScanPrescriptionPage() {
     setEditableMeds((prev) => prev.map((m, i) => (i === index ? { ...m, times } : m)));
   }, []);
 
-  const handleImageScan = useCallback((file) => {
-    if (imageUrl) URL.revokeObjectURL(imageUrl);
-    setImageFile(file);
-    setImageUrl(URL.createObjectURL(file));
-    setPrescriptionBase64(null);
-    setResult(null);
-    setIsAllSaved(false);
-    setExpandedIndex(null);
-  }, [imageUrl]);
-
-  const handleAnalyze = useCallback(async () => {
-    if (!imageFile) return;
+  const handleAnalyze = useCallback(async (targetFile) => {
+    const fileToScan = targetFile || imageFile;
+    if (!fileToScan) return;
 
     setAnalyzeElapsed(0);
     setIsAnalyzing(true);
+    setScanWizardStep(1);
+    setSelectedMedModalIndex(null);
 
     // 1. Tự động kiểm tra nhanh xem ảnh chụp có phải là Mã QR Phòng Khám không (0.01 giây)
     try {
@@ -298,7 +291,7 @@ export default function ScanPrescriptionPage() {
           img.src = e.target.result;
         };
         reader.onerror = () => resolve(null);
-        reader.readAsDataURL(imageFile);
+        reader.readAsDataURL(fileToScan);
       });
 
       if (qrData) {
@@ -313,21 +306,20 @@ export default function ScanPrescriptionPage() {
 
     // 2. Nếu là đơn thuốc y tế bình thường thì gửi sang AI Gemini Vision
     try {
-      const res = await scanService.analyzePrescription(imageFile);
+      const res = await scanService.analyzePrescription(fileToScan);
       const data = res.data.data;
       setResult(data);
+      setScanWizardStep(1);
 
       if (data.error) {
         showToast(data.error, 'error');
-      } else if (!data.isPrescription && !data.isLabReport) {
+      } else if (!data.isPrescription && !data.isLabReport && (!data.medications || data.medications.length === 0)) {
         showToast(t.scanResult?.notPrescription || 'Ảnh không phải là một đơn thuốc. Vui lòng chụp lại đơn thuốc.', 'error');
-      } else if (data.isPrescription && !data.isDiabetesPrescription) {
-        showToast(t.scanResult?.notDiabetes || 'Đây không phải đơn thuốc điều trị đái tháo đường. DIA+ chỉ hỗ trợ đơn thuốc tiểu đường.', 'error');
       }
 
       // Tối ưu ảnh chụp thực tế của bệnh nhân sang bản base64 nét cao (~150-200KB)
       // Đảm bảo đúng 100% ảnh chụp gốc được chuyển tới Bác sĩ trên Clinic Dashboard
-      const photoBase64 = await compressPrescriptionPhoto(imageFile);
+      const photoBase64 = await compressPrescriptionPhoto(fileToScan);
       setPrescriptionBase64(photoBase64);
 
       if (photoBase64) {
@@ -362,6 +354,20 @@ export default function ScanPrescriptionPage() {
       setIsAnalyzing(false);
     }
   }, [imageFile, showToast, t, user]);
+
+  const handleImageScan = useCallback((file) => {
+    if (imageUrl) URL.revokeObjectURL(imageUrl);
+    setImageFile(file);
+    setImageUrl(URL.createObjectURL(file));
+    setPrescriptionBase64(null);
+    setResult(null);
+    setIsAllSaved(false);
+    setExpandedIndex(null);
+    setScanWizardStep(1);
+    setSelectedMedModalIndex(null);
+    // Tự động phân tích ngay lập tức
+    handleAnalyze(file);
+  }, [imageUrl, handleAnalyze]);
 
   const handleSaveAll = useCallback(async () => {
     if (!editableMeds || editableMeds.length === 0) return;
@@ -702,7 +708,7 @@ export default function ScanPrescriptionPage() {
             </div>
           </div>
 
-          {result && !result.isDiabetesPrescription && !result.isLabReport && !result.error && (
+          {result && !result.error && !result.isLabReport && (!result.isPrescription && !result.isDiabetesPrescription && (!result.medications || result.medications.length === 0)) && (
             <div className={styles.results}>
               <div className={styles.rejectBanner}>
                 <div className={styles.rejectIcon}>
@@ -739,7 +745,7 @@ export default function ScanPrescriptionPage() {
             </div>
           )}
 
-          {result && result.isDiabetesPrescription && (
+          {result && !result.error && (result.isDiabetesPrescription || result.isPrescription || (result.medications && result.medications.length > 0)) && (
             <div className={styles.wizardOverlay}>
               <div className={styles.wizardModal}>
                 <div className={styles.wizardHeader}>

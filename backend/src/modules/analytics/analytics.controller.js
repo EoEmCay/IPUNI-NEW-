@@ -95,8 +95,23 @@ async function health(req, res, next) {
   } catch (err) {
     sendError(res, `Lỗi hệ thống: ${err.message}`, 500);
   }
+// POST /analytics/wipe-data (admin) — xóa sạch toàn bộ dữ liệu tài khoản
+async function wipeData(req, res, next) {
+  try {
+    const result = await service.wipeAllData();
+    sendSuccess(res, result, 'Đã xóa trắng toàn bộ dữ liệu tài khoản thành công');
+  } catch (err) {
+    next(err);
+  }
 }
 
-module.exports = { track,  overview,
+module.exports = { 
+  track, 
+  overview,
   getUsers,
-  charts, recent, exportSheets, health };
+  charts, 
+  recent, 
+  exportSheets, 
+  health,
+  wipeData 
+};

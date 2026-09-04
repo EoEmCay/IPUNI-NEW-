@@ -178,6 +178,32 @@ async function getUsers() {
   return users;
 }
 
+async function wipeAllData() {
+  const tables = [
+    'metrics',
+    'medications',
+    'appointments',
+    'advice',
+    'scan_usages',
+    'analytics_events',
+    'clinical_care_plans',
+    'clinical_audit_logs',
+    'clinical_sessions',
+    'users'
+  ];
+
+  const results = {};
+  for (const table of tables) {
+    try {
+      const deleted = await db(table).del();
+      results[table] = deleted;
+    } catch (err) {
+      results[table] = `skipped (${err.message})`;
+    }
+  }
+  return { success: true, wiped: results, wipedAt: new Date().toISOString() };
+}
+
 module.exports = {
   recordEvent,
   getOverview,
@@ -185,4 +211,5 @@ module.exports = {
   getCharts,
   getRecent,
   buildReport,
+  wipeAllData,
 };

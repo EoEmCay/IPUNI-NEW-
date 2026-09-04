@@ -16,6 +16,7 @@ import { useMedications } from '../hooks/useMedications';
 import { useToast } from '../hooks/useToast';
 import { useT } from '../hooks/useT';
 import jsQR from 'jsqr';
+import { createPortal } from 'react-dom';
 import ScanCamera from '../components/scan/ScanCamera';
 import LiveQRScanner from '../components/scan/LiveQRScanner';
 import styles from './ScanPrescriptionPage.module.css';
@@ -565,7 +566,23 @@ export default function ScanPrescriptionPage() {
     setSelectedMedModalIndex(null);
   }, [imageUrl]);
 
+  const isAnyModalOpen = Boolean(
+    (result && !result.error && (result.isDiabetesPrescription || result.isPrescription || (result.medications && result.medications.length > 0))) ||
+    (showFullImagePreview && imageUrl) ||
+    (selectedMedModalIndex !== null)
+  );
 
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (isAnyModalOpen) {
+      document.body.classList.add('no-scroll');
+    } else {
+      document.body.classList.remove('no-scroll');
+    }
+    return () => {
+      document.body.classList.remove('no-scroll');
+    };
+  }, [isAnyModalOpen]);
 
   if (isAnalyzing) {
     // Giữ nguyên TopBar/BottomNav (không dùng SplashScreen toàn màn hình) - người dùng
@@ -803,7 +820,7 @@ export default function ScanPrescriptionPage() {
             </div>
           )}
 
-          {result && !result.error && (result.isDiabetesPrescription || result.isPrescription || (result.medications && result.medications.length > 0)) && (
+          {result && !result.error && (result.isDiabetesPrescription || result.isPrescription || (result.medications && result.medications.length > 0)) && typeof document !== 'undefined' && createPortal(
             <div className={styles.wizardOverlay}>
               <div className={styles.wizardModal}>
                 <div className={styles.wizardHeader}>
@@ -922,7 +939,9 @@ export default function ScanPrescriptionPage() {
                                     <span>Liều lượng: {med.dosage || 'Theo chỉ định'}</span>
                                     <span>Cách dùng: {med.instructions || med.frequency || (hasSpecificTimes ? `${times.length} lần/ngày` : 'Uống theo đơn')}</span>
                                     {medSchedule.duration ? (
-                                      <span style={{ color: '#0284c7', fontWeight: 600 }}>Lịch uống: {medSchedule.duration} ngày</span>
+                                      <span className={styles.medSchedulePill}>
+                                        Lịch uống: {medSchedule.duration} ngày
+                                      </span>
                                     ) : null}
                                   </div>
                                 </div>
@@ -1010,11 +1029,12 @@ export default function ScanPrescriptionPage() {
                   )}
                 </div>
               </div>
-            </div>
+            </div>,
+            document.body
           )}
 
           {/* Modal xem ảnh đơn thuốc phóng to khi chạm vào ảnh thu nhỏ */}
-          {showFullImagePreview && imageUrl && (
+          {showFullImagePreview && imageUrl && typeof document !== 'undefined' && createPortal(
             <div className={styles.fullImageOverlay} onClick={() => setShowFullImagePreview(false)}>
               <div className={styles.fullImageModal} onClick={(e) => e.stopPropagation()}>
                 <div className={styles.fullImageHeader}>
@@ -1031,11 +1051,12 @@ export default function ScanPrescriptionPage() {
                   <img src={imageUrl} alt="Đơn thuốc gốc" className={styles.fullImageImg} />
                 </div>
               </div>
-            </div>
+            </div>,
+            document.body
           )}
 
           {/* Modal chi tiết cho người cao tuổi */}
-          {selectedMedModalIndex !== null && editableMeds[selectedMedModalIndex] && (
+          {selectedMedModalIndex !== null && editableMeds[selectedMedModalIndex] && typeof document !== 'undefined' && createPortal(
             <div className={styles.elderlyModalOverlay} onClick={() => setSelectedMedModalIndex(null)}>
               <div className={styles.elderlyModalContent} onClick={(e) => e.stopPropagation()}>
                 <div className={styles.elderlyModalHeader}>
@@ -1221,7 +1242,8 @@ export default function ScanPrescriptionPage() {
                   </button>
                 </div>
               </div>
-            </div>
+            </div>,
+            document.body
           )}
 
           {result && result.error && (

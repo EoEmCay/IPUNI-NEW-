@@ -123,6 +123,8 @@ JSON Schema:
     "timesPerDay": times_per_day_number,
     "frequency": "Frequency description (e.g. 2 times/day)",
     "times": ["HH:MM"] (Map time keywords to HH:MM format. Sáng->07:00, Trưa->12:00, Chiều->15:00, Tối->19:00, Trước ngủ/Tối muộn->22:00. Adjust based on instructions),
+    "hasDoctorTime": true/false (true if prescription explicitly mentions time of day like sáng, trưa, tối, sau ăn, trước ăn, specific hours. false if not specified),
+    "durationDays": 28 (Integer number of days to take this medicine if specified like '28 ngày', '14 ngày', else null),
     "instructions": "Full usage instructions in ${targetLang}",
     "isDiabetesDrug": true/false (true if this medication is specifically for diabetes/lowering blood glucose/insulin),
     "detail": {
@@ -143,15 +145,23 @@ function shapeResult(parsed) {
   const rawMedications = parsed.medications || [];
 
   // Đối chiếu từng thuốc AI đọc được với DB nội bộ đã kiểm định (medications-db.json):
-  // - Nếu khớp: dùng nguồn thật thay cho "AI_GENERATED" mà AI tự ký, đồng thời gắn
-  //   verified: true để frontend biết đây là thuốc đã được xác nhận tồn tại thật.
-  // - Nếu không khớp: giữ nguyên nội dung AI trích xuất nhưng gắn verified: false, để
-  //   frontend có thể cảnh báo rõ ràng "tên thuốc chưa được xác nhận, vui lòng kiểm tra
-  //   kỹ trước khi lưu" - phòng trường hợp AI đọc nhầm/bịa tên thuốc từ ảnh mờ.
   const medications = rawMedications.map(m => {
     const dbMatch = findMedicationInDatabase(m.name);
+    const instr = m.instructions || m.frequency || '';
+    const hasDoctorTime = m.hasDoctorTime !== undefined 
+      ? Boolean(m.hasDoctorTime) 
+      : Boolean((m.times && m.times.length > 0) && instr.match(/sáng|trưa|chiều|tối|trước ăn|sau ăn|ngủ|buổi|\b\d{1,2}h\b|\b\d{1,2}:\d{2}\b/i));
+
+    let durationDays = m.durationDays || null;
+    if (!durationDays) {
+      const dMatch = instr.match(/(?:uống|dùng|trong)?\s*:?\s*(\d+)\s*(?:ngày|day)/i);
+      if (dMatch && dMatch[1]) durationDays = parseInt(dMatch[1], 10);
+    }
+
     return {
       ...m,
+      hasDoctorTime,
+      durationDays,
       verified: !!dbMatch,
       detail: {
         ...(m.detail || {}),

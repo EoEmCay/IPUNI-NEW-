@@ -24,10 +24,10 @@ import { useNavigate } from 'react-router-dom';
 // Thông điệp tiến trình đổi theo giây trong lúc AI phân tích - tạo cảm giác thời gian
 // trôi nhanh hơn thay vì 1 dòng chữ đứng yên suốt quá trình chờ.
 const ANALYZE_STEPS = [
-  { icon: '📸', text: 'Đang tối ưu và xử lý độ nét của ảnh...' },
-  { icon: '🧠', text: 'AI Gemini Vision đang đọc chữ viết & đơn thuốc...' },
-  { icon: '💊', text: 'Đang bóc tách tên thuốc, liều dùng & giờ uống...' },
-  { icon: '🩺', text: 'Đang đồng bộ lời dặn bác sĩ & chỉ số xét nghiệm...' },
+  { text: 'Đang tối ưu và xử lý độ nét của ảnh...' },
+  { text: 'AI Gemini Vision đang đọc chữ viết & đơn thuốc...' },
+  { text: 'Đang bóc tách tên thuốc, liều dùng & giờ uống...' },
+  { text: 'Đang đồng bộ lời dặn bác sĩ & chỉ số xét nghiệm...' },
 ];
 
 const HEALTH_TIPS = [
@@ -82,6 +82,56 @@ const compressPrescriptionPhoto = (file) => {
       resolve(null);
     }
   });
+};
+
+// Tự động tính toán lịch trình uống thuốc (số ngày, ngày bắt đầu, ngày kết thúc)
+export const getMedScheduleDetails = (med, prescriptionDate) => {
+  if (!med) return { duration: null, startDateStr: '', endDateStr: '', formattedStartDate: '', formattedEndDate: '', isAlternate: false };
+
+  const startDateStr = prescriptionDate || new Date().toISOString().split('T')[0];
+  let duration = med.durationDays || null;
+
+  if (!duration) {
+    const rawText = `${med.instructions || ''} ${med.frequency || ''}`;
+    const dMatch = rawText.match(/(?:uống|dùng|trong)?\s*:?\s*(\d+)\s*(?:ngày|day)/i);
+    if (dMatch && dMatch[1]) {
+      duration = parseInt(dMatch[1], 10);
+    }
+  }
+
+  let endDateStr = null;
+  let formattedStartDate = '';
+  let formattedEndDate = '';
+
+  if (startDateStr) {
+    const parts = startDateStr.split('-');
+    if (parts.length === 3) {
+      formattedStartDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+      if (duration && duration > 0) {
+        const sDate = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+        sDate.setDate(sDate.getDate() + duration - 1);
+        const y = sDate.getFullYear();
+        const m = String(sDate.getMonth() + 1).padStart(2, '0');
+        const d = String(sDate.getDate()).padStart(2, '0');
+        endDateStr = `${y}-${m}-${d}`;
+        formattedEndDate = `${d}/${m}/${y}`;
+      }
+    }
+  }
+
+  const isAlternate = Boolean(
+    med.is_alternate_day || 
+    /cách ngày|2 ngày 1 lần/i.test(med.frequency || med.instructions || '')
+  );
+
+  return {
+    duration,
+    startDateStr,
+    endDateStr,
+    formattedStartDate,
+    formattedEndDate,
+    isAlternate
+  };
 };
 
 export default function ScanPrescriptionPage() {
@@ -200,7 +250,7 @@ export default function ScanPrescriptionPage() {
       name: effectiveName
     });
 
-    showToast(`🏥 Check-in thành công tại ${targetClinicName}! Bác sĩ đã nhận được hồ sơ của ${effectiveName}.`, 'success');
+    showToast(`Check-in thành công tại ${targetClinicName}! Bác sĩ đã nhận được hồ sơ của ${effectiveName}.`, 'success');
   }, [user, userLatestMetrics, showToast]);
 
   const handleClinicQRCheckin = () => {
@@ -343,7 +393,7 @@ export default function ScanPrescriptionPage() {
             diagnosis: data?.diagnosis || user?.diagnosis || '',
             medications: data?.medications || []
           });
-          showToast('📸 Đã truyền ảnh đơn thuốc trực tiếp đến Bác sĩ trên Clinic Dashboard!', 'success');
+          showToast('Đã truyền ảnh đơn thuốc trực tiếp đến Bác sĩ trên Clinic Dashboard!', 'success');
         } catch (e) {
           console.error('Failed to save or sync prescription', e);
         }
@@ -381,6 +431,10 @@ export default function ScanPrescriptionPage() {
 
       for (const med of editableMeds) {
         try {
+          const schedule = getMedScheduleDetails(med, result.prescriptionDate);
+          const scheduleType = schedule.isAlternate ? 'every_n_days' : 'daily';
+          const everyNDays = schedule.isAlternate ? 2 : null;
+
           await medicationsService.create({
             name: med.name,
             dosage: med.dosage || 'Theo chỉ định',
@@ -388,9 +442,13 @@ export default function ScanPrescriptionPage() {
             times: med.times && med.times.length > 0 ? med.times : ['07:00'],
             instructions: med.instructions || '',
             doctor_name: result.doctorName || med.doctor_name || '',
-            prescribed_at: result.prescriptionDate || new Date().toISOString().split('T')[0],
+            prescribed_at: schedule.startDateStr,
             next_appointment_date: result.nextAppointmentDate || null,
             is_active: 1,
+            schedule_type: scheduleType,
+            every_n_days: everyNDays,
+            anchor_date: schedule.startDateStr,
+            end_date: schedule.endDateStr,
           });
           successCount++;
         } catch (e) {
@@ -530,7 +588,6 @@ export default function ScanPrescriptionPage() {
         <p className={styles.analyzingTitle}>AI Vision đang phân tích đơn thuốc</p>
 
         <div className={styles.analyzingStepRow} key={stepIndex}>
-          <span className={styles.analyzingStepIcon}>{step.icon}</span>
           <span className={styles.analyzingStepText}>{step.text}</span>
         </div>
 
@@ -539,7 +596,7 @@ export default function ScanPrescriptionPage() {
         </div>
 
         <div className={styles.tipBox} key={tip}>
-          <span className={styles.tipIcon}>💡</span>
+          <Sparkles size={16} color="var(--color-primary)" className={styles.tipIcon} />
           <span className={styles.tipText}>{tip}</span>
         </div>
       </div>
@@ -784,11 +841,11 @@ export default function ScanPrescriptionPage() {
                           title="Chạm để xem ảnh phóng to"
                         >
                           <img src={imageUrl} alt="Đơn thuốc" className={styles.compactImageThumb} />
-                          <span className={styles.compactImageZoomBadge}>🔍 Phóng to</span>
+                          <span className={styles.compactImageZoomBadge}>Phóng to</span>
                         </div>
                         <div className={styles.compactImageMeta}>
                           <div className={styles.compactImageMetaTop}>
-                            <span className={styles.compactImageTitle}>📷 Đơn thuốc vừa quét</span>
+                            <span className={styles.compactImageTitle}>Đơn thuốc vừa quét</span>
                             <span className={styles.compactMedsCountBadge}>{editableMeds.length} loại thuốc</span>
                           </div>
                           <p className={styles.compactImageDate}>
@@ -841,13 +898,14 @@ export default function ScanPrescriptionPage() {
                   ) : (
                     <div className={styles.wizardStep2}>
                       <p className={styles.disclaimer} style={{ marginBottom: '12px' }}>
-                        <AlertCircle size={13} /> AI có thể đọc nhầm chữ viết tay mờ — vui lòng kiểm tra và sửa lại tên/liều/giờ uống trước khi lưu.
+                        <AlertCircle size={13} /> Vui lòng kiểm tra tên thuốc, liều dùng và giờ uống trước khi lưu vào tủ thuốc.
                       </p>
 
                       <div className={styles.medListContainer}>
                         {editableMeds.map((med, i) => {
                           const times = med.times || [];
                           const hasSpecificTimes = Array.isArray(times) && times.length > 0;
+                          const medSchedule = getMedScheduleDetails(med, result?.prescriptionDate);
                           return (
                             <div 
                               key={i} 
@@ -863,6 +921,9 @@ export default function ScanPrescriptionPage() {
                                   <div className={styles.medItemMeta}>
                                     <span>Liều lượng: {med.dosage || 'Theo chỉ định'}</span>
                                     <span>Cách dùng: {med.instructions || med.frequency || (hasSpecificTimes ? `${times.length} lần/ngày` : 'Uống theo đơn')}</span>
+                                    {medSchedule.duration ? (
+                                      <span style={{ color: '#0284c7', fontWeight: 600 }}>Lịch uống: {medSchedule.duration} ngày</span>
+                                    ) : null}
                                   </div>
                                 </div>
 
@@ -902,7 +963,7 @@ export default function ScanPrescriptionPage() {
                       {showVoicePrompt && (
                         <div className={styles.voicePromptBanner}>
                           <div className={styles.voicePromptText}>
-                            <span>🔔</span>
+                            <Info size={18} />
                             <p>{t.scanResult?.voicePrompt}</p>
                           </div>
                           <div className={styles.voicePromptActions}>
@@ -997,139 +1058,160 @@ export default function ScanPrescriptionPage() {
                   </button>
                 </div>
 
-                <div className={styles.elderlyModalBody}>
-                  {/* 1. Tóm tắt to rõ Liều & Cách dùng */}
-                  <div className={styles.elderlySummaryCard}>
-                    <div className={styles.elderlyRow}>
-                      <span className={styles.elderlyLabel}>💊 Liều lượng:</span>
-                      <input
-                        className={styles.elderlyInput}
-                        type="text"
-                        value={editableMeds[selectedMedModalIndex].dosage || ''}
-                        onChange={(e) => handleMedFieldChange(selectedMedModalIndex, 'dosage', e.target.value)}
-                        placeholder="VD: 5mg, 1 viên..."
-                      />
-                    </div>
-                    <div className={styles.elderlyRow}>
-                      <span className={styles.elderlyLabel}>📋 Cách dùng:</span>
-                      <input
-                        className={styles.elderlyInput}
-                        type="text"
-                        value={editableMeds[selectedMedModalIndex].instructions || ''}
-                        onChange={(e) => handleMedFieldChange(selectedMedModalIndex, 'instructions', e.target.value)}
-                        placeholder="VD: Uống sau ăn..."
-                      />
-                    </div>
-                    {editableMeds[selectedMedModalIndex].quantity && (
-                      <div className={styles.elderlyRow}>
-                        <span className={styles.elderlyLabel}>📦 Số lượng:</span>
-                        <span className={styles.elderlyValueText}>{editableMeds[selectedMedModalIndex].quantity}</span>
+                {(() => {
+                  const currentMed = editableMeds[selectedMedModalIndex];
+                  const schedule = getMedScheduleDetails(currentMed, result?.prescriptionDate);
+                  const hasDoctorTime = currentMed.hasDoctorTime !== undefined
+                    ? Boolean(currentMed.hasDoctorTime)
+                    : Boolean(
+                        currentMed.times &&
+                        currentMed.times.length > 0 &&
+                        (currentMed.instructions || currentMed.frequency || '').match(/sáng|trưa|chiều|tối|trước ăn|sau ăn|ngủ|buổi|\b\d{1,2}h\b|\b\d{1,2}:\d{2}\b/i)
+                      );
+
+                  return (
+                    <div className={styles.elderlyModalBody}>
+                      {/* 1. Tóm tắt to rõ Liều & Cách dùng (Hiển thị dạng thông tin, không sửa theo yêu cầu) */}
+                      <div className={styles.elderlySummaryCard}>
+                        <div className={styles.elderlyRow}>
+                          <span className={styles.elderlyLabel}>Liều lượng:</span>
+                          <span className={styles.elderlyValueText}>{currentMed.dosage || 'Theo chỉ định'}</span>
+                        </div>
+                        <div className={styles.elderlyRow}>
+                          <span className={styles.elderlyLabel}>Cách dùng:</span>
+                          <span className={styles.elderlyValueText}>{currentMed.instructions || currentMed.frequency || 'Uống theo đơn'}</span>
+                        </div>
+                        {currentMed.quantity && (
+                          <div className={styles.elderlyRow}>
+                            <span className={styles.elderlyLabel}>Số lượng:</span>
+                            <span className={styles.elderlyValueText}>{currentMed.quantity}</span>
+                          </div>
+                        )}
+                        {schedule.duration ? (
+                          <div className={styles.elderlyRow}>
+                            <span className={styles.elderlyLabel}>Thời gian dùng:</span>
+                            <span className={styles.elderlyValueHighlight}>
+                              {schedule.duration} ngày {schedule.formattedStartDate && schedule.formattedEndDate ? `(${schedule.formattedStartDate} - ${schedule.formattedEndDate})` : ''}
+                            </span>
+                          </div>
+                        ) : null}
+                        {hasDoctorTime && (
+                          <div className={styles.elderlyRow}>
+                            <span className={styles.elderlyLabel}>Giờ uống:</span>
+                            <span className={styles.elderlyValueHighlight}>
+                              {(currentMed.times && currentMed.times.length > 0) ? currentMed.times.join(', ') : '07:00'} (Theo đơn bác sĩ)
+                            </span>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
 
-                  {/* 2. Khung chọn cữ giờ uống to rõ cho người cao tuổi */}
-                  <div className={styles.elderlyTimeSection}>
-                    <div className={styles.elderlySectionHeader}>
-                      <span className={styles.elderlySectionTitle}>⏰ Chọn cữ giờ uống thuốc:</span>
-                      <span className={styles.elderlySectionSubtitle}>Chạm để chọn hoặc bỏ chọn cữ</span>
-                    </div>
+                      {/* 2. Chọn cữ và giờ uống thuốc CHỈ ÁP DỤNG với những đơn thuốc không ghi giờ uống */}
+                      {!hasDoctorTime && (
+                        <div className={styles.elderlyTimeSection}>
+                          <div className={styles.elderlySectionHeader}>
+                            <span className={styles.elderlySectionTitle}>Chọn cữ giờ uống thuốc:</span>
+                            <span className={styles.elderlySectionSubtitle}>Đơn thuốc chưa ghi rõ giờ, vui lòng chọn cữ phù hợp</span>
+                          </div>
 
-                    <div className={styles.elderlyTimeSlotsGrid}>
-                      {[
-                        { label: '🌅 Sáng', time: '07:00' },
-                        { label: '☀️ Trưa', time: '11:30' },
-                        { label: '🌆 Chiều', time: '15:30' },
-                        { label: '🌙 Tối', time: '18:30' },
-                        { label: '🛌 Trước ngủ', time: '21:30' }
-                      ].map((slot, idx) => {
-                        const currentTimes = editableMeds[selectedMedModalIndex].times || [];
-                        const isSelected = currentTimes.includes(slot.time);
-                        return (
-                          <button
-                            key={idx}
-                            type="button"
-                            className={`${styles.elderlySlotBtn} ${isSelected ? styles.elderlySlotBtnActive : ''}`}
-                            onClick={() => {
-                              let nextArr = [...currentTimes];
-                              if (isSelected) {
-                                nextArr = nextArr.filter(t => t !== slot.time);
-                              } else {
-                                nextArr.push(slot.time);
-                                nextArr.sort();
-                              }
-                              handleMedFieldChange(selectedMedModalIndex, 'times', nextArr);
-                            }}
-                          >
-                            <span className={styles.elderlySlotLabel}>{slot.label}</span>
-                            <span className={styles.elderlySlotTime}>{slot.time}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                          <div className={styles.elderlyTimeSlotsGrid}>
+                            {[
+                              { label: 'Sáng', time: '07:00' },
+                              { label: 'Trưa', time: '11:30' },
+                              { label: 'Chiều', time: '15:30' },
+                              { label: 'Tối', time: '18:30' },
+                              { label: 'Trước ngủ', time: '21:30' }
+                            ].map((slot, idx) => {
+                              const currentTimes = currentMed.times || [];
+                              const isSelected = currentTimes.includes(slot.time);
+                              return (
+                                <button
+                                  key={idx}
+                                  type="button"
+                                  className={`${styles.elderlySlotBtn} ${isSelected ? styles.elderlySlotBtnActive : ''}`}
+                                  onClick={() => {
+                                    let nextArr = [...currentTimes];
+                                    if (isSelected) {
+                                      nextArr = nextArr.filter(t => t !== slot.time);
+                                    } else {
+                                      nextArr.push(slot.time);
+                                      nextArr.sort();
+                                    }
+                                    handleMedFieldChange(selectedMedModalIndex, 'times', nextArr);
+                                  }}
+                                >
+                                  <span className={styles.elderlySlotLabel}>{slot.label}</span>
+                                  <span className={styles.elderlySlotTime}>{slot.time}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
 
-                    <div className={styles.elderlyCustomTimeRow}>
-                      <span className={styles.elderlyLabel}>Giờ cụ thể:</span>
-                      <input
-                        className={styles.elderlyInput}
-                        type="text"
-                        placeholder="VD: 07:00, 18:00"
-                        value={(editableMeds[selectedMedModalIndex].times || []).join(', ')}
-                        onChange={(e) => handleMedTimesChange(selectedMedModalIndex, e.target.value)}
-                      />
-                    </div>
-
-                    <label className={styles.elderlyCheckboxRow}>
-                      <input
-                        type="checkbox"
-                        checked={Boolean(editableMeds[selectedMedModalIndex].is_alternate_day || (editableMeds[selectedMedModalIndex].frequency && editableMeds[selectedMedModalIndex].frequency.includes('cách ngày')))}
-                        onChange={(e) => {
-                          const checked = e.target.checked;
-                          handleMedFieldChange(selectedMedModalIndex, 'is_alternate_day', checked);
-                          let freq = editableMeds[selectedMedModalIndex].frequency || '1 lần/ngày';
-                          if (checked && !freq.includes('cách ngày')) {
-                            freq = `${freq} (Cách ngày)`;
-                          } else if (!checked) {
-                            freq = freq.replace(' (Cách ngày)', '');
-                          }
-                          handleMedFieldChange(selectedMedModalIndex, 'frequency', freq);
-                        }}
-                      />
-                      <span>📅 Thuốc uống cách ngày (2 ngày uống 1 lần)</span>
-                    </label>
-                  </div>
-
-                  {/* 3. Chi tiết công dụng / lưu ý lâm sàng */}
-                  {editableMeds[selectedMedModalIndex].detail && (
-                    <div className={styles.elderlyDetailSection}>
-                      <h4 className={styles.elderlyDetailHeading}>ℹ️ Thông tin hướng dẫn y khoa:</h4>
-                      {editableMeds[selectedMedModalIndex].detail.purpose && (
-                        <div className={styles.elderlyDetailItem}>
-                          <strong>Công dụng:</strong>
-                          <p>{editableMeds[selectedMedModalIndex].detail.purpose}</p>
+                          <div className={styles.elderlyCustomTimeRow}>
+                            <span className={styles.elderlyLabel}>Giờ cụ thể:</span>
+                            <input
+                              className={styles.elderlyInput}
+                              type="text"
+                              placeholder="VD: 07:00, 18:00"
+                              value={(currentMed.times || []).join(', ')}
+                              onChange={(e) => handleMedTimesChange(selectedMedModalIndex, e.target.value)}
+                            />
+                          </div>
                         </div>
                       )}
-                      {editableMeds[selectedMedModalIndex].detail.mechanism && (
-                        <div className={styles.elderlyDetailItem}>
-                          <strong>Cơ chế tác dụng:</strong>
-                          <p>{editableMeds[selectedMedModalIndex].detail.mechanism}</p>
-                        </div>
-                      )}
-                      {editableMeds[selectedMedModalIndex].detail.contraindications && (
-                        <div className={styles.elderlyDetailItem} style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
-                          <strong style={{ color: '#DC2626' }}>⚠️ Chống chỉ định / Lưu ý:</strong>
-                          <p style={{ color: '#991B1B' }}>{editableMeds[selectedMedModalIndex].detail.contraindications}</p>
-                        </div>
-                      )}
-                      {editableMeds[selectedMedModalIndex].detail.interactions && (
-                        <div className={styles.elderlyDetailItem}>
-                          <strong>Tương tác thuốc:</strong>
-                          <p>{Array.isArray(editableMeds[selectedMedModalIndex].detail.interactions) ? editableMeds[selectedMedModalIndex].detail.interactions.join(', ') : editableMeds[selectedMedModalIndex].detail.interactions}</p>
+
+                      {/* Lựa chọn uống cách ngày */}
+                      <label className={styles.elderlyCheckboxRow}>
+                        <input
+                          type="checkbox"
+                          checked={Boolean(currentMed.is_alternate_day || schedule.isAlternate)}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            handleMedFieldChange(selectedMedModalIndex, 'is_alternate_day', checked);
+                            let freq = currentMed.frequency || '1 lần/ngày';
+                            if (checked && !freq.includes('cách ngày')) {
+                              freq = `${freq} (Cách ngày)`;
+                            } else if (!checked) {
+                              freq = freq.replace(' (Cách ngày)', '');
+                            }
+                            handleMedFieldChange(selectedMedModalIndex, 'frequency', freq);
+                          }}
+                        />
+                        <span>Thuốc uống cách ngày (2 ngày uống 1 lần)</span>
+                      </label>
+
+                      {/* 3. Chi tiết công dụng / lưu ý lâm sàng */}
+                      {currentMed.detail && (
+                        <div className={styles.elderlyDetailSection}>
+                          <h4 className={styles.elderlyDetailHeading}>Thông tin hướng dẫn y khoa:</h4>
+                          {currentMed.detail.purpose && (
+                            <div className={styles.elderlyDetailItem}>
+                              <strong>Công dụng:</strong>
+                              <p>{currentMed.detail.purpose}</p>
+                            </div>
+                          )}
+                          {currentMed.detail.mechanism && (
+                            <div className={styles.elderlyDetailItem}>
+                              <strong>Cơ chế tác dụng:</strong>
+                              <p>{currentMed.detail.mechanism}</p>
+                            </div>
+                          )}
+                          {currentMed.detail.contraindications && (
+                            <div className={styles.elderlyDetailItem} style={{ background: '#FEF2F2', borderColor: '#FECACA' }}>
+                              <strong style={{ color: '#DC2626' }}>Chống chỉ định / Lưu ý:</strong>
+                              <p style={{ color: '#991B1B' }}>{currentMed.detail.contraindications}</p>
+                            </div>
+                          )}
+                          {currentMed.detail.interactions && (
+                            <div className={styles.elderlyDetailItem}>
+                              <strong>Tương tác thuốc:</strong>
+                              <p>{Array.isArray(currentMed.detail.interactions) ? currentMed.detail.interactions.join(', ') : currentMed.detail.interactions}</p>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
-                  )}
-                </div>
+                  );
+                })()}
 
                 <div className={styles.elderlyModalFooter}>
                   <button

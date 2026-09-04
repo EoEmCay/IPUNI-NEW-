@@ -470,13 +470,24 @@ export default function ScanPrescriptionPage() {
       if (!hasVoice) {
         setShowVoicePrompt(true);
       }
+
+      // Tự động tắt popup sau khi lưu xong và quay về màn hình quét sẵn sàng
+      setTimeout(() => {
+        if (imageUrl) URL.revokeObjectURL(imageUrl);
+        setImageFile(null);
+        setImageUrl(null);
+        setResult(null);
+        setIsAllSaved(false);
+        setScanWizardStep(1);
+        setSelectedMedModalIndex(null);
+      }, 700);
     } catch (err) {
       console.error(err);
       showToast('Có lỗi xảy ra khi xử lý', 'error');
     } finally {
       setIsSavingAll(false);
     }
-  }, [result, editableMeds, requiresInsulinConfirm, insulinConfirmed, fetchMedications, showToast, user, prescriptionBase64]);
+  }, [result, editableMeds, requiresInsulinConfirm, insulinConfirmed, fetchMedications, showToast, user, prescriptionBase64, imageUrl]);
 
   const handleRetake = useCallback(() => {
     if (imageUrl) URL.revokeObjectURL(imageUrl);

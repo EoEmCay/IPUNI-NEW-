@@ -111,7 +111,7 @@ export default function MedicationDetailModal({ medication, onClose }) {
               onClick={() => setIsEditingTimes(true)}
               style={{ fontSize: 12, color: '#2563EB', background: 'white', border: '1px solid #BFDBFE', padding: '4px 10px', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
             >
-              ✏️ Chỉnh sửa giờ
+              Chỉnh sửa giờ
             </button>
           ) : (
             <button 
@@ -134,24 +134,24 @@ export default function MedicationDetailModal({ medication, onClose }) {
             </div>
             {isAlternate && (
               <div style={{ marginTop: 8, fontSize: 12, color: '#4338CA', background: '#EEF2FF', padding: '4px 10px', borderRadius: 6, display: 'inline-block', fontWeight: 600 }}>
-                📅 Tần suất: Uống cách ngày (1 ngày uống, 1 ngày nghỉ)
+                Tần suất: Uống cách ngày (1 ngày uống, 1 ngày nghỉ)
               </div>
             )}
           </div>
         ) : (
           <div style={{ marginTop: 10 }}>
             <p style={{ fontSize: 12, color: '#64748B', margin: '0 0 8px' }}>
-              💡 Đơn thuốc chỉ ghi Sáng/Trưa/Chiều? Bạn hoặc người nhà hãy chọn giờ uống phù hợp nhất với giờ ăn của gia đình:
+              Chọn giờ uống phù hợp nhất với giờ sinh hoạt của gia đình:
             </p>
 
             {/* Chip chọn nhanh buổi */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
               {[
-                { label: '🌅 Sáng', time: '07:00' },
-                { label: '☀️ Trưa', time: '11:30' },
-                { label: '🌆 Chiều', time: '15:30' },
-                { label: '🌙 Tối', time: '18:30' },
-                { label: '🛌 Trước ngủ', time: '21:30' }
+                { label: 'Sáng', time: '07:00' },
+                { label: 'Trưa', time: '11:30' },
+                { label: 'Chiều', time: '15:30' },
+                { label: 'Tối', time: '18:30' },
+                { label: 'Trước ngủ', time: '21:30' }
               ].map((p, idx) => {
                 const isSelected = editTimesStr.includes(p.time);
                 return (

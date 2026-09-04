@@ -4,11 +4,11 @@ import { medicationsService } from '../../services/medications.service';
 import styles from './MedicationFormModal.module.css';
 
 const QUICK_TIMES = [
-  { label: '🌅 Sáng', time: '07:00' },
-  { label: '☀️ Trưa', time: '11:30' },
-  { label: '🌆 Chiều', time: '15:30' },
-  { label: '🌙 Tối', time: '18:30' },
-  { label: '🛌 Trước ngủ', time: '21:30' },
+  { label: 'Sáng', time: '07:00' },
+  { label: 'Trưa', time: '11:30' },
+  { label: 'Chiều', time: '15:30' },
+  { label: 'Tối', time: '18:30' },
+  { label: 'Trước ngủ', time: '21:30' },
 ];
 
 export default function MedicationFormModal({ onClose, onSuccess }) {

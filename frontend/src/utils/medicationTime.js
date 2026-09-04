@@ -1,9 +1,9 @@
 export const MEAL_TIME_PRESETS = [
-  { key: 'morning', label: 'Sáng', time: '07:00', icon: '🌅' },
-  { key: 'noon', label: 'Trưa', time: '11:30', icon: '☀️' },
-  { key: 'afternoon', label: 'Chiều', time: '15:30', icon: '🌆' },
-  { key: 'evening', label: 'Tối', time: '18:30', icon: '🌙' },
-  { key: 'bedtime', label: 'Trước ngủ', time: '21:30', icon: '🛌' },
+  { key: 'morning', label: 'Sáng', time: '07:00' },
+  { key: 'noon', label: 'Trưa', time: '11:30' },
+  { key: 'afternoon', label: 'Chiều', time: '15:30' },
+  { key: 'evening', label: 'Tối', time: '18:30' },
+  { key: 'bedtime', label: 'Trước ngủ', time: '21:30' },
 ];
 
 /**

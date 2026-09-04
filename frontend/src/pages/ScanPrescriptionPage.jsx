@@ -965,6 +965,33 @@ export default function ScanPrescriptionPage() {
                     className={styles.elderlyCloseBtn} 
                     onClick={() => setSelectedMedModalIndex(null)}
                     title="Đóng"
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                  </div>
+
+                  {requiresInsulinConfirm && (
+                    <div className={styles.insulinConfirmBox}>
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={insulinConfirmed}
+                          onChange={(e) => setInsulinConfirmed(e.target.checked)}
+                        />
+                        <span>
+                          Đơn thuốc có <strong>insulin</strong> — tôi đã kiểm tra kỹ tên thuốc, liều lượng và giờ tiêm ở trên là chính xác trước khi lưu.
+                        </span>
+                      </label>
+                    </div>
+                  )}
+
+                  <button
+                    className={isAllSaved ? styles.savedBtn : styles.addBtn}
+                    onClick={handleSaveAll}
+                    disabled={isSavingAll || isAllSaved || (requiresInsulinConfirm && !insulinConfirmed)}
+>>>>>>> render_repo/feat/native-utils
                   >
                     <X size={22} />
                   </button>

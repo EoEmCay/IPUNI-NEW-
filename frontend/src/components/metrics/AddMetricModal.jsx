@@ -59,7 +59,15 @@ export default function AddMetricModal({ onClose, onSave, onSuccess, defaultType
   };
 
   return (
-    <Modal title={t.addMetric?.title || 'Add Measurement'} onClose={onClose}>
+    <Modal
+      title={t.addMetric?.title || 'Add Measurement'}
+      onClose={onClose}
+      footer={
+        <Button full onClick={handleSave} disabled={saving}>
+          {saving ? t.addMetric?.saving || 'Saving...' : t.addMetric?.saveBtn || 'Save'}
+        </Button>
+      }
+    >
       <div className={styles.group}>
         <label className={styles.label}>{t.addMetric?.typeLabel || 'Type'}</label>
         <select
@@ -88,6 +96,7 @@ export default function AddMetricModal({ onClose, onSave, onSuccess, defaultType
           <input
             className={styles.input}
             type="number"
+            inputMode="decimal"
             step="0.1"
             min={minValue}
             max={maxValue}
@@ -128,9 +137,6 @@ export default function AddMetricModal({ onClose, onSave, onSuccess, defaultType
         />
       </div>
 
-      <Button full onClick={handleSave} disabled={saving}>
-        {saving ? t.addMetric?.saving || 'Saving...' : t.addMetric?.saveBtn || 'Save'}
-      </Button>
     </Modal>
   );
 }

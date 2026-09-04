@@ -1,5 +1,5 @@
 .mobileWrapper {
-  max-width: 430px;
+  max-width: var(--app-max-width, 480px);
   margin: 0 auto;
   min-height: 100vh;
   min-height: 100dvh;
@@ -8,4 +8,5 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  overflow-x: hidden;
 }

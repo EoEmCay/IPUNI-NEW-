@@ -1,8 +1,10 @@
 .page {
   padding: 16px;
-  padding-bottom: 80px;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
   min-height: 100vh;
+  min-height: 100dvh;
   background-color: var(--bg, #f3f4f6);
+  overflow-x: hidden;
 }
 
 .header {
@@ -24,14 +26,21 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  padding: 4px;
+  width: 44px;
+  height: 44px;
+  margin-left: -10px;
+  flex-shrink: 0;
 }
 
 .header h1 {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
   color: var(--text, #111827);
   margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .header p {
@@ -157,26 +166,33 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
+  gap: 12px;
+  padding: 16px 20px;
+  padding-top: max(16px, env(safe-area-inset-top));
   background: var(--bg, #fff);
   border-bottom: 1px solid var(--border, #e5e7eb);
 }
 
 .modalHeader h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: 17px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .modalHeaderActions {
   display: flex;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .closeBtn {
-  background: var(--surface-hover);
+  background: var(--surface-hover, #f1f5f9);
   border: none;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -188,8 +204,10 @@
 .modalBody {
   flex: 1;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   min-height: 0; /* bắt buộc để flex item cuộn được trong flex-direction: column */
   padding: 20px;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
 }
 
 .modalImage {
@@ -242,7 +260,8 @@
   background: #ffeeee;
   color: #ff4444;
   border: none;
-  padding: 8px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   cursor: pointer;
   display: flex;

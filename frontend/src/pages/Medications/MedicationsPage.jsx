@@ -60,29 +60,29 @@ export default function MedicationsPage() {
           <h1 className={`${styles.title} tour-step-6`}>{t.medications.title}</h1>
           <p className={styles.subtitle}>{t.medications.subtitle}</p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button 
+        <div className={styles.headerActions}>
+          <button
             className={styles.addBtn}
             onClick={() => setShowForm(true)}
             style={{ background: '#F1F5F9', color: '#1E293B', border: '1px solid #CBD5E1' }}
           >
-            <Plus size={18} /> Thêm thuốc
+            <Plus size={16} /> Thêm thuốc
           </button>
           {medications && medications.length > 0 && (
             <>
-              <button 
+              <button
                 className={styles.addBtn}
                 onClick={() => setShowHistoryModal(true)}
                 style={{ background: '#EFF6FF', color: '#2563EB', border: '1px solid #BFDBFE' }}
               >
-                <History size={18} /> Nhật ký & Điểm số
+                <History size={16} /> Nhật ký
               </button>
-              <button 
-                className={styles.addBtn} 
+              <button
+                className={styles.addBtn}
                 style={{ background: 'var(--color-primary)', color: 'white', border: 'none' }}
                 onClick={() => setShowBulkExport(true)}
               >
-                <CalendarIcon size={18} /> Thêm vào lịch
+                <CalendarIcon size={16} /> Thêm lịch
               </button>
             </>
           )}

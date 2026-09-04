@@ -1,80 +1,109 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0, 0, 0, 0.45);
   z-index: 9000;
   display: flex;
   align-items: flex-end;
   justify-content: center;
+  animation: fadeIn 0.2s ease;
 }
 
 .modal {
+  position: relative;
   background: var(--color-surface);
-  border-radius: 20px 20px 0 0;
+  border-radius: 22px 22px 0 0;
   width: 100%;
-  max-width: 430px;
-  padding: 0 0 32px;
-  animation: slideUp 0.25s ease;
-  max-height: 90vh;
-  overflow-y: auto;
+  max-width: var(--app-max-width, 480px);
+  max-height: 92dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.26s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
 }
 
 .header {
+  flex: 0 0 auto;
+  position: sticky;
+  top: 0;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 20px 16px;
+  gap: 12px;
+  padding: 16px 16px 14px;
   border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
 }
 
 .title {
   font-size: 17px;
   font-weight: 700;
   color: var(--color-text-primary);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .closeBtn {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: #F1F5F9;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--color-text-secondary);
+  flex-shrink: 0;
 }
 
 .body {
-  padding: 20px;
+  flex: 1 1 auto;
+  padding: 16px;
   overflow-y: auto;
-  max-height: calc(90vh - 80px);
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .bodyNoPad {
+  flex: 1 1 auto;
   overflow-y: auto;
-  max-height: calc(90vh - 68px);
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
+.footer {
+  flex: 0 0 auto;
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  gap: 10px;
+  padding: 12px 16px calc(12px + var(--safe-bottom));
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+/* noPadding: nút đóng nổi trên nội dung (vd ảnh full-bleed) */
 .headerFloat {
   position: absolute;
   top: 0;
   right: 0;
+  left: auto;
   border-bottom: none;
   background: transparent;
-  z-index: 1;
   padding: 12px 16px;
 }
-
 .headerFloat .title { display: none; }
-
 .headerFloat .closeBtn {
-  background: rgba(255,255,255,0.25);
-  color: white;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
 }
-
-.modal { position: relative; }

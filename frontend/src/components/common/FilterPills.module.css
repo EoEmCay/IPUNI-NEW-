@@ -4,14 +4,22 @@
   overflow-x: auto;
   padding: 0 16px;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.pills::-webkit-scrollbar {
+  display: none;
 }
 
 .pill {
   flex-shrink: 0;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
   border-radius: 20px;
-  padding: 7px 16px;
+  padding: 8px 16px;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.15s;

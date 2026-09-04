@@ -49,19 +49,27 @@ const allowedOrigins = [
   'https://localhost',         // WebView Capacitor Android (androidScheme: 'https')
   'capacitor://localhost',     // WebView Capacitor iOS
   'http://localhost',
-  'https://diaplus-v2.vercel.app', // Tên miền frontend nếu có
+  'https://diaplus-v2.vercel.app',
   'https://diaplus.vn',
   'https://www.diaplus.vn',
+  'https://web.vn',
+  'https://www.web.vn',
   process.env.FRONTEND_URL,
   process.env.PREVIEW_FRONTEND_URL
 ].filter(Boolean);
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+    if (
+      !origin || 
+      allowedOrigins.indexOf(origin) !== -1 || 
+      origin.endsWith('.vercel.app') || 
+      origin.endsWith('.diaplus.vn') || 
+      origin.endsWith('.web.vn')
+    ) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(null, true);
     }
   },
   credentials: true

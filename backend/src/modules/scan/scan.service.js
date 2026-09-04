@@ -175,12 +175,12 @@ function shapeResult(parsed) {
   }
 
   const keywordDiabetes = medications.some(m => isDiabetesDrug(m.name));
-  const isDiabetesPrescription =
-    isPrescription && (
-      parsed.isDiabetesPrescription === true ||
-      isDiabetesDiagnosis(parsed.diagnosis) ||
-      (parsed.isDiabetesPrescription == null && keywordDiabetes)
-    );
+  const isDiabetesPrescription = isPrescription && (
+    parsed.isDiabetesPrescription === true ||
+    isDiabetesDiagnosis(parsed.diagnosis) ||
+    keywordDiabetes ||
+    true // Trích xuất đầy đủ tất cả thuốc trong đơn khám bệnh
+  );
 
   const diabetesDrugs = medications
     .filter(m => m.isDiabetesDrug === true || isDiabetesDrug(m.name))
@@ -195,7 +195,7 @@ function shapeResult(parsed) {
     rejectionReason: (!isPrescription && !isLabReport)
       ? (parsed.rejectionReason || 'Không tìm thấy thông tin thuốc được kê trong tài liệu này (ví dụ: đây là kết quả xét nghiệm hoặc ảnh chụp quá mờ).')
       : (parsed.rejectionReason || null),
-    medications: isDiabetesPrescription ? medications : [],
+    medications: isPrescription ? medications : [],
     hasDiabetesDrugs: diabetesDrugs.length > 0,
     diabetesDrugs,
     doctorName: parsed.doctorName || parsed.doctor_name || null,
@@ -224,10 +224,6 @@ function parseAiJson(text) {
     logger.warn('First JSON parse failed. Attempting to repair via jsonrepair...');
   }
 
-  // jsonrepair dùng tokenizer thật (biết phân biệt trong/ngoài chuỗi), không có rủi ro
-  // "sửa nhầm" làm hỏng nội dung hợp lệ như regex thủ công tự viết (vd 1 dấu phẩy bên
-  // trong 1 giá trị chuỗi như "Không dùng chung với: rượu, tránh: đồ ngọt" có thể khiến
-  // regex tự chèn nhầm dấu nháy giữa chuỗi).
   try {
     return JSON.parse(jsonrepair(cleaned));
   } catch (repairError) {
@@ -250,41 +246,47 @@ async function analyzePrescription(imageBuffer, mimeType, lang = 'vi') {
   // 1. ƯU TIÊN HÀNG ĐẦU: Gửi hình ảnh trực tiếp (Multimodal Vision AI) cho Gemini
   // Giúp giảm thời gian từ >30 giây xuống chỉ còn 2-3 giây!
   if (process.env.GEMINI_API_KEY) {
-    try {
-      const modelName = process.env.GEMINI_MODEL || 'gemini-flash-lite-latest';
-      logger.info(`[Quét đơn thuốc] Phân tích ảnh trực tiếp bằng Google Gemini Vision (${modelName})...`);
-      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({
-        model: modelName,
-        generationConfig: {
-          responseMimeType: 'application/json',
-          maxOutputTokens: 8192
-        }
-      });
+    const candidateModels = [
+      'gemini-2.5-flash',
+      'gemini-3.6-flash',
+      process.env.GEMINI_MODEL
+    ].filter(Boolean);
 
-      const imagePart = {
-        inlineData: {
-          data: imageBase64,
-          mimeType: mimeType || 'image/jpeg'
-        }
-      };
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-      const result = await model.generateContent([
-        dynamicPrompt,
-        imagePart
-      ]);
-      directText = result.response.text();
+    for (const modelName of candidateModels) {
+      try {
+        logger.info(`[Quét đơn thuốc] Phân tích ảnh trực tiếp bằng Google Gemini Vision (${modelName})...`);
+        const model = genAI.getGenerativeModel({
+          model: modelName,
+          generationConfig: {
+            responseMimeType: 'application/json',
+            maxOutputTokens: 8192
+          }
+        });
 
-      if (directText) {
-        const parsed = parseAiJson(directText);
-        const shaped = shapeResult(parsed);
-        if (shaped.isPrescription || shaped.isLabReport) {
-          logger.info("[Quét đơn thuốc] Phân tích ảnh bằng Gemini Vision thành công siêu tốc!");
+        const imagePart = {
+          inlineData: {
+            data: imageBase64,
+            mimeType: mimeType || 'image/jpeg'
+          }
+        };
+
+        const result = await model.generateContent([
+          dynamicPrompt,
+          imagePart
+        ]);
+        directText = result.response.text();
+
+        if (directText) {
+          const parsed = parseAiJson(directText);
+          const shaped = shapeResult(parsed);
+          logger.info(`[Quét đơn thuốc] Phân tích ảnh bằng Gemini Vision (${modelName}) thành công siêu tốc!`);
           return shaped;
         }
+      } catch (geminiError) {
+        logger.error(`[Quét đơn thuốc] Lỗi Gemini Vision (${modelName}): ` + geminiError.message);
       }
-    } catch (geminiError) {
-      logger.error("[Quét đơn thuốc] Lỗi Gemini Vision trực tiếp: " + geminiError.message);
     }
   }
 

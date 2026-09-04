@@ -520,76 +520,382 @@
 .medListContainer {
   display: flex;
   flex-direction: column;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
+  gap: 10px;
 }
 
 .medItem {
   padding: 14px 16px;
-  border-bottom: 1px solid var(--color-border);
-  display: flex;
-  flex-direction: column;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
-.medItem:last-child {
-  border-bottom: none;
+.medItem:hover {
+  border-color: #38bdf8;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);
+}
+
+.medItem:active {
+  transform: scale(0.99);
 }
 
 .medSummary {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  cursor: pointer;
-  user-select: none;
+  gap: 12px;
 }
 
 .medSummaryLeft {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.medItemName {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.medItemMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.4;
 }
 
 .medSummaryRight {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: var(--color-text-secondary);
+  justify-content: flex-end;
+  flex-shrink: 0;
 }
 
-.medStatsCompact {
-  display: flex;
+.timeBadgeBox {
+  display: inline-flex;
   align-items: center;
-  font-size: 13px;
-  color: var(--color-text-secondary);
   gap: 6px;
+  padding: 6px 12px;
+  background: #e0f2fe;
+  color: #0284c7;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
 }
 
-.dotSeparator {
-  opacity: 0.5;
-  font-size: 10px;
+.noTimeBadgeBox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #f1f5f9;
+  color: #64748b;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
 }
 
-.unverifiedBadgeIcon {
+.timeClockIcon {
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.timeValueText {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ── Modal chi tiết to rõ cho người cao tuổi (Option 3) ── */
+.elderlyModalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.65);
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
 }
 
-.medExpandedContent {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px dashed var(--color-border);
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.elderlyModalContent {
+  background: #ffffff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  animation: expandIn 0.2s ease-out forwards;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes expandIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes modalPop {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.elderlyModalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #f8fafc;
+}
+
+.elderlyModalTitle {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.elderlyCloseBtn {
+  background: #e2e8f0;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.elderlyCloseBtn:hover {
+  background: #cbd5e1;
+  color: #0f172a;
+}
+
+.elderlyModalBody {
+  padding: 18px 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.elderlySummaryCard {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.elderlyRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.elderlyLabel {
+  font-weight: 700;
+  color: #334155;
+  min-width: 100px;
+  flex-shrink: 0;
+}
+
+.elderlyValueText {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.elderlyInput {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  background: #ffffff;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+.elderlyInput:focus {
+  border-color: #0284c7;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.elderlyTimeSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #eff6ff;
+  border: 1.5px solid #bfdbfe;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.elderlySectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.elderlySectionTitle {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1e40af;
+}
+
+.elderlySectionSubtitle {
+  font-size: 12px;
+  color: #3b82f6;
+}
+
+.elderlyTimeSlotsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+}
+
+.elderlySlotBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 8px;
+  border-radius: 10px;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+  gap: 2px;
+}
+
+.elderlySlotBtnActive {
+  border-color: #0284c7;
+  background: #0284c7;
+  color: #ffffff;
+  box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.25);
+}
+
+.elderlySlotLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: inherit;
+}
+
+.elderlySlotTime {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.9;
+  color: inherit;
+}
+
+.elderlyCustomTimeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.elderlyCheckboxRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e3a8a;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.elderlyDetailSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px dashed #e2e8f0;
+  padding-top: 12px;
+}
+
+.elderlyDetailHeading {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #475569;
+  margin: 0;
+}
+
+.elderlyDetailItem {
+  padding: 10px 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.elderlyDetailItem strong {
+  display: block;
+  font-size: 12.5px;
+  color: #334155;
+  margin-bottom: 2px;
+}
+
+.elderlyDetailItem p {
+  margin: 0;
+  color: #475569;
+}
+
+.elderlyModalFooter {
+  padding: 14px 20px;
+  border-top: 1px solid #f1f5f9;
+  background: #f8fafc;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.elderlyDoneBtn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  background: #0284c7;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.elderlyDoneBtn:hover {
+  background: #0369a1;
 }
 
 .medCard {

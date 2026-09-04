@@ -244,13 +244,18 @@ async function analyzePrescription(imageBuffer, mimeType, lang = 'vi') {
   let directText = '';
 
   // 1. ƯU TIÊN HÀNG ĐẦU: Gửi hình ảnh trực tiếp (Multimodal Vision AI) cho Gemini
-  // Giúp giảm thời gian từ >30 giây xuống chỉ còn 2-3 giây!
+  // Giúp giảm thời gian từ >30 giây xuống chỉ còn 1.5 - 2.5 giây!
   if (process.env.GEMINI_API_KEY) {
-    const candidateModels = [
+    const rawCandidates = [
+      process.env.GEMINI_MODEL,
+      'gemini-2.5-flash-lite',
+      'gemini-3.5-flash',
       'gemini-2.5-flash',
-      'gemini-3.6-flash',
-      process.env.GEMINI_MODEL
+      'gemini-flash-latest',
+      'gemini-flash-lite-latest',
+      'gemini-3.6-flash'
     ].filter(Boolean);
+    const candidateModels = [...new Set(rawCandidates)];
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 

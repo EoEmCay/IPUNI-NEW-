@@ -26,7 +26,11 @@ api.interceptors.response.use(
       } else {
         cachedToken = null;
         localStorage.removeItem('diaplus_token');
-        window.location.href = '/login';
+        if (window.location.hash.startsWith('#/')) {
+          window.location.hash = '#/login';
+        } else {
+          window.location.href = '/login';
+        }
       }
     }
     return Promise.reject(err);

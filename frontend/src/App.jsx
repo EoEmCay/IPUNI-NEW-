@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import useAuthStore from './store/authStore';
@@ -104,10 +104,17 @@ function AppRoutes() {
 
   const handleNotSafe = () => {
     logout();
-    window.location.href = '/login';
+    if (window.location.hash.startsWith('#/')) {
+      window.location.hash = '#/login';
+    } else {
+      window.location.href = '/login';
+    }
   };
 
-  const isNativeApp = Capacitor.isNativePlatform() || window.matchMedia('(display-mode: standalone)').matches;
+  const isNativeApp = Capacitor.isNativePlatform() || 
+                      window.location.protocol === 'capacitor:' || 
+                      window.location.protocol === 'ionic:' || 
+                      window.matchMedia('(display-mode: standalone)').matches;
 
   // App native: đồng bộ lịch nhắc uống thuốc (Local Notification) khi đăng nhập & khi mở lại app
   useEffect(() => {
@@ -123,6 +130,7 @@ function AppRoutes() {
   return (
     <>
       <Routes>
+        <Route path="/index.html" element={<Navigate to="/" replace />} />
         <Route path="/" element={
           isNativeApp
             ? (isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />)
@@ -285,9 +293,13 @@ function AppRoutes() {
 }
 
 export default function App() {
+  const isNative = Capacitor.isNativePlatform() || 
+                   window.location.protocol === 'capacitor:' || 
+                   window.location.protocol === 'ionic:';
+  const Router = isNative ? HashRouter : BrowserRouter;
   return (
-    <BrowserRouter>
+    <Router>
       <AppRoutes />
-    </BrowserRouter>
+    </Router>
   );
 }

@@ -1,11 +1,11 @@
 {
-  "appId": "vn.diaplus.app",
+  "appId": "vn.diaplus.app.quy",
   "appName": "DIA+",
   "webDir": "dist",
-  "backgroundColor": "#1B5FA6",
+  "backgroundColor": "#F4F6F9",
   "server": {
     "androidScheme": "https",
-    "iosScheme": "https"
+    "iosScheme": "capacitor"
   },
   "ios": {
     "contentInset": "always",

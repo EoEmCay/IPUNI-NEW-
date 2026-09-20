@@ -5,7 +5,11 @@ const { queue } = require('../modules/clinic/alert.service');
 const { publish } = require('../realtime/eventBus');
 const logger = require('../utils/logger');
 
-const GRACE_MINUTES = 60; // "quên" khi quá giờ > 60 phút
+// "Quên" khi quá giờ > 15 phút — khớp với kịch bản nhắc 2 lần đã trình bày với BGK: Lần 1 nhắc
+// đúng giờ, Lần 2 nhắc lại sau 15 phút nếu chưa xác nhận; nếu qua mốc này vẫn chưa phản hồi thì
+// coi là "bỏ quên" và bắt đầu báo người thân. Job chạy mỗi 5 phút (xem startMissedDoseJob bên
+// dưới) nên độ trễ thực tế tối đa tới lúc báo là ~15-20 phút sau giờ uống, đúng như đã cam kết.
+const GRACE_MINUTES = 15;
 const LOOKBACK_HOURS = 12; // chỉ xét liều trong 12h gần nhất
 const MAX_OVERDUE_HOURS = 24; // ngừng cảnh báo sau 24h (coi như bỏ liều)
 

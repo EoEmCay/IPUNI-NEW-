@@ -1,9 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Pill, ChevronRight } from 'lucide-react';
+import { Pill, ChevronRight, XCircle } from 'lucide-react';
 import useMedicationsStore from '../../store/medicationsStore';
 import { recordMedicationIntake } from '../../store/medicationAdherenceStore';
 import MedicationDetailModal from './MedicationDetailModal';
+import SkipDoseModal from './SkipDoseModal';
 import { checkMedicationTimeEligibility } from '../../utils/medicationTime';
+import { cancelFollowupReminder, buildTodayInstant } from '../../lib/medReminders';
 import { useT } from '../../hooks/useT';
 import styles from './MedicationCard.module.css';
 
@@ -11,6 +13,7 @@ const STATUS_STYLES = {
   pending: { bg: '#FEF3C7', color: '#B45309', border: '#FCD34D' },
   taken: { bg: '#DCFCE7', color: '#16A34A', border: '#86EFAC' },
   late: { bg: '#FEE2E2', color: '#DC2626', border: '#FCA5A5' },
+  skipped: { bg: '#F1F5F9', color: '#64748B', border: '#CBD5E1' },
 };
 
 export default function MedicationCard({ medication }) {
@@ -18,6 +21,7 @@ export default function MedicationCard({ medication }) {
   const { medicationStatus, setMedicationStatus } = useMedicationsStore();
   const status = medicationStatus[medication.id] || 'pending';
   const [showDetail, setShowDetail] = useState(false);
+  const [showSkipModal, setShowSkipModal] = useState(false);
   const [toastMsg, setToastMsg] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const t = useT();
@@ -35,8 +39,17 @@ export default function MedicationCard({ medication }) {
 
   const isRestDay = timeEligibility.isRestDay;
   const isTaken = !isRestDay && status === 'taken';
-  const isLocked = !isRestDay && !isTaken && !timeEligibility.isTimeArrived;
-  const isLate = !isRestDay && !isTaken && (status === 'late' || timeEligibility.isLate);
+  const isSkipped = !isRestDay && status === 'skipped';
+  const isLocked = !isRestDay && !isTaken && !isSkipped && !timeEligibility.isTimeArrived;
+  const isLate = !isRestDay && !isTaken && !isSkipped && (status === 'late' || timeEligibility.isLate);
+
+  // Huỷ thông báo nhắc lại (Lần 2, sau 15 phút) của cữ ĐANG được xác nhận (uống hoặc bỏ qua),
+  // để máy không đổ chuông oan 15 phút sau khi bệnh nhân đã phản hồi rồi.
+  const cancelActiveFollowup = () => {
+    if (!timeEligibility.activeSlotTime) return;
+    const instantIso = buildTodayInstant(timeEligibility.activeSlotTime, currentTime);
+    if (instantIso) cancelFollowupReminder(instantIso);
+  };
 
   const handleStatusToggle = () => {
     if (isRestDay) {
@@ -52,9 +65,17 @@ export default function MedicationCard({ medication }) {
       return;
     }
 
-    const nextStatus = isTaken ? 'pending' : 'taken';
+    const nextStatus = (isTaken || isSkipped) ? 'pending' : 'taken';
     setMedicationStatus(medication.id, nextStatus);
     recordMedicationIntake(medication, nextStatus);
+    if (nextStatus === 'taken') cancelActiveFollowup();
+  };
+
+  const handleSkipConfirm = async (reason) => {
+    setMedicationStatus(medication.id, 'skipped');
+    recordMedicationIntake(medication, 'skipped', new Date(), reason);
+    cancelActiveFollowup();
+    setShowSkipModal(false);
   };
 
   // Xác định text hiển thị trên nút
@@ -63,15 +84,20 @@ export default function MedicationCard({ medication }) {
     buttonLabel = '📅 Nghỉ cữ';
   } else if (isTaken) {
     buttonLabel = `✓ ${t.medCard?.statusTaken || 'Đã uống'}`;
+  } else if (isSkipped) {
+    buttonLabel = '⏭ Đã bỏ qua';
   } else if (isLocked) {
-    buttonLabel = timeEligibility.earliestUpcomingTime 
-      ? `⏳ ${timeEligibility.earliestUpcomingTime}` 
+    buttonLabel = timeEligibility.earliestUpcomingTime
+      ? `⏳ ${timeEligibility.earliestUpcomingTime}`
       : `⏳ Chưa tới giờ`;
   } else if (isLate) {
     buttonLabel = t.medCard?.statusLate || 'Quá giờ';
   } else {
     buttonLabel = t.medCard?.statusPending || 'Chưa uống';
   }
+
+  // Cho phép bấm "Bỏ qua cữ" khi cữ đã tới giờ, chưa được đánh dấu uống/bỏ qua rồi
+  const canSkip = !isRestDay && !isTaken && !isSkipped && !isLocked;
 
   return (
     <div className={styles.card}>
@@ -92,6 +118,11 @@ export default function MedicationCard({ medication }) {
           <button className={styles.detailBtn} onClick={() => setShowDetail(true)}>
             {t.medCard?.details || 'Chi tiết'} <ChevronRight size={13} />
           </button>
+          {canSkip && (
+            <button className={styles.skipBtn} onClick={() => setShowSkipModal(true)}>
+              <XCircle size={13} /> Bỏ qua cữ
+            </button>
+          )}
         </div>
       </div>
 
@@ -105,6 +136,8 @@ export default function MedicationCard({ medication }) {
             ? {}
             : isTaken
             ? { background: STATUS_STYLES.taken.bg, color: STATUS_STYLES.taken.color, borderColor: STATUS_STYLES.taken.border, cursor: 'pointer' }
+            : isSkipped
+            ? { background: STATUS_STYLES.skipped.bg, color: STATUS_STYLES.skipped.color, borderColor: STATUS_STYLES.skipped.border, cursor: 'pointer' }
             : isLate
             ? { background: STATUS_STYLES.late.bg, color: STATUS_STYLES.late.color, borderColor: STATUS_STYLES.late.border, cursor: 'pointer' }
             : { background: STATUS_STYLES.pending.bg, color: STATUS_STYLES.pending.color, borderColor: STATUS_STYLES.pending.border, cursor: 'pointer' }
@@ -116,6 +149,8 @@ export default function MedicationCard({ medication }) {
             ? `Chưa tới giờ uống (${timeEligibility.earliestUpcomingTime || ''}). Sẽ cho phép chọn khi tới giờ!`
             : isTaken
             ? 'Đã uống - Bấm để thay đổi'
+            : isSkipped
+            ? 'Đã bỏ qua cữ này - Bấm để thay đổi'
             : 'Bấm để đánh dấu đã uống'
         }
       >
@@ -130,6 +165,14 @@ export default function MedicationCard({ medication }) {
 
       {showDetail && (
         <MedicationDetailModal medication={medication} onClose={() => setShowDetail(false)} />
+      )}
+
+      {showSkipModal && (
+        <SkipDoseModal
+          medication={medication}
+          onConfirm={handleSkipConfirm}
+          onClose={() => setShowSkipModal(false)}
+        />
       )}
     </div>
   );

@@ -332,6 +332,11 @@ export default function PatientDetailModal({ patient, onClose, onUpdateNotes, on
                       <div>
                         <strong style={{ fontSize: '13.5px', color: '#1e293b' }}>{log.medName}</strong>
                         <div style={{ fontSize: '12px', color: '#64748b' }}>{log.note}</div>
+                        {log.reason && (
+                          <div style={{ fontSize: '11.5px', color: '#b45309', fontStyle: 'italic', marginTop: '2px' }} title={log.reason}>
+                            📋 Lý do: {log.reason}
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div>

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { Award, Flame, Calendar, Phone, Mail, User, ShieldAlert, CheckCircle2, Clock, X, HeartHandshake } from 'lucide-react';
 import Modal from '../common/Modal';
 import {
@@ -6,19 +6,58 @@ import {
   getCaregiverInfo,
   saveCaregiverInfo
 } from '../../store/medicationAdherenceStore';
+import { careLinksService } from '../../services/careLinks.service';
 
 export default function MedicationHistoryModal({ medications = [], onClose }) {
   const [activeTab, setActiveTab] = useState('stats'); // 'stats' | 'caregiver'
   const stats = useMemo(() => calculateAdherenceStats(medications, 7), [medications]);
-  
+
   const [caregiver, setCaregiver] = useState(() => getCaregiverInfo());
   const [caregiverSaved, setCaregiverSaved] = useState(false);
+  const [caregiverSyncing, setCaregiverSyncing] = useState(false);
+  const fetchedRef = useRef(false);
+
+  // Khi mở tab "Người nhà" lần đầu: nạp dữ liệu mới nhất từ backend (bảng care_links) — dữ liệu
+  // này có thể được đồng bộ từ thiết bị/phiên khác, không chỉ nằm trong localStorage của máy này.
+  useEffect(() => {
+    if (activeTab !== 'caregiver' || fetchedRef.current) return;
+    fetchedRef.current = true;
+    setCaregiverSyncing(true);
+    careLinksService.getFamily()
+      .then((res) => {
+        const link = (res.data.data || [])[0];
+        if (link) {
+          const merged = {
+            name: link.display_name || '',
+            phone: link.contact_phone || '',
+            email: link.contact_email || '',
+            // "Mối quan hệ" chỉ là gợi ý hiển thị cục bộ — bảng care_links (tầng cảnh báo lâm
+            // sàng) không lưu trường này, nên giữ nguyên lựa chọn đã lưu trên máy nếu có.
+            relationship: caregiver.relationship || 'Con/Người thân',
+          };
+          setCaregiver(merged);
+          saveCaregiverInfo(merged); // đồng bộ ngược vào localStorage để dùng offline lần sau
+        }
+      })
+      .catch(() => { /* offline hoặc lỗi mạng — cứ giữ dữ liệu localStorage hiện có */ })
+      .finally(() => setCaregiverSyncing(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   const handleSaveCaregiver = (e) => {
     e.preventDefault();
+    // Luôn lưu localStorage trước (tức thì, hoạt động cả khi offline)
     saveCaregiverInfo(caregiver);
     setCaregiverSaved(true);
     setTimeout(() => setCaregiverSaved(false), 3000);
+
+    // Đồng bộ lên backend vào bảng care_links để missedDoseChecker/caregiverNotify dùng được
+    // trên MỌI thiết bị (không chỉ máy đang lưu) — lỗi mạng thì bỏ qua, đã có localStorage dự phòng.
+    careLinksService.saveFamily({
+      display_name: caregiver.name,
+      contact_email: caregiver.email || '',
+      contact_phone: caregiver.phone || '',
+    }).catch(() => { /* offline — dữ liệu vẫn an toàn trong localStorage, sẽ thử lại lần lưu sau */ });
   };
 
   const handleCallCaregiver = () => {
@@ -218,6 +257,11 @@ export default function MedicationHistoryModal({ medications = [], onClose }) {
             <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', padding: '12px 14px', borderRadius: 12, marginBottom: 14 }}>
               <div style={{ fontWeight: 700, fontSize: 13, color: '#1E40AF', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <HeartHandshake size={16} /> Tính năng Báo động Người nhà
+                {caregiverSyncing && (
+                  <span style={{ fontSize: 11, fontWeight: 600, color: '#3B82F6', marginLeft: 'auto' }}>
+                    Đang đồng bộ…
+                  </span>
+                )}
               </div>
               <p style={{ fontSize: 12, color: '#3B82F6', margin: '4px 0 0', lineHeight: 1.4 }}>
                 Khi bác quên uống thuốc quá 60 phút, hệ thống sẽ hỗ trợ gửi thông báo hoặc gọi điện tới người thân được cài đặt dưới đây để nhắc nhở kịp thời.

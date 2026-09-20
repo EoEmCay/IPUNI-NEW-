@@ -103,7 +103,12 @@ async function getPatientDetail(providerId, patientId, days = 30) {
   const [metrics, meds, logs, adh, appts, patient, alerts] = await Promise.all([
     db('metrics').where({ user_id: patientId }).andWhere('measured_at', '>=', from).orderBy('measured_at', 'desc'),
     db('medications').where({ user_id: patientId }),
-    db('medication_logs').where({ user_id: patientId }).andWhere('scheduled_for', '>=', from).orderBy('scheduled_for', 'desc'),
+    db('medication_logs as l')
+      .leftJoin('medications as m', 'l.medication_id', 'm.id')
+      .where('l.user_id', patientId)
+      .andWhere('l.scheduled_for', '>=', from)
+      .orderBy('l.scheduled_for', 'desc')
+      .select('l.*', 'm.name as medication_name', 'm.dosage'),
     computeAdherence(patientId, days),
     db('appointments').where({ user_id: patientId }).orderBy('scheduled_at', 'desc'),
     db('users')

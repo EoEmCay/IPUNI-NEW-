@@ -30,6 +30,48 @@ function timeSlotNotifId(instantIso, isFollowup = false) {
   return isFollowup ? (base + 100000000) : base;
 }
 
+// Việt Nam dùng offset UTC+7 CỐ ĐỊNH (không DST) — PHẢI khớp chính xác với công thức
+// backend/src/modules/medications/medicationSchedule.js (vnWallToInstant), để instant tính
+// ra ở đây trùng khớp tuyệt đối với instant đã dùng lúc đặt lịch trong syncMedicationReminders().
+const VN_OFFSET_MIN = 420;
+
+/**
+ * Quy đổi 1 giờ uống dạng 'HH:mm' thành ISO instant của cữ đó trong NGÀY HÔM NAY (giờ VN),
+ * bất kể múi giờ hệ điều hành của thiết bị đang đặt là gì.
+ * @param {string} slotTime Ví dụ '07:00'
+ * @param {Date} [dateObj] Thời điểm hiện tại (mặc định: bây giờ)
+ * @returns {string|null} ISO instant, hoặc null nếu slotTime không hợp lệ
+ */
+export function buildTodayInstant(slotTime, dateObj = new Date()) {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(String(slotTime || '').trim());
+  if (!m) return null;
+  const hh = parseInt(m[1], 10);
+  const mm = parseInt(m[2], 10);
+  // Quy đổi "bây giờ" sang ngày lịch VN trước khi lấy Y-M-D, tránh lệch ngày khi thiết bị
+  // đặt múi giờ khác VN (ví dụ đang là 23h50 giờ VN nhưng máy để giờ UTC thì vẫn là "hôm nay" ở VN).
+  const shifted = new Date(dateObj.getTime() + VN_OFFSET_MIN * 60000);
+  const y = shifted.getUTCFullYear();
+  const mo = shifted.getUTCMonth();
+  const d = shifted.getUTCDate();
+  return new Date(Date.UTC(y, mo, d, hh, mm, 0) - VN_OFFSET_MIN * 60000).toISOString();
+}
+
+/**
+ * Huỷ thông báo NHẮC LẠI (Lần 2, sau 15 phút) của một cữ thuốc cụ thể — gọi ngay khi bệnh
+ * nhân xác nhận đã uống (hoặc bỏ qua có lý do) để máy không đổ chuông oan 15 phút sau.
+ * @param {string} instantIso Thời điểm cữ thuốc (giờ uống gốc, KHÔNG phải giờ nhắc lại)
+ */
+export async function cancelFollowupReminder(instantIso) {
+  if (!isNative || !instantIso) return;
+  try {
+    const { LocalNotifications } = await import('@capacitor/local-notifications');
+    const id = timeSlotNotifId(instantIso, true);
+    await LocalNotifications.cancel({ notifications: [{ id }] });
+  } catch (e) {
+    console.warn('[medReminders] Không thể huỷ thông báo nhắc lại:', e);
+  }
+}
+
 export async function ensureNotificationPermission() {
   if (!isNative) return false;
   try {

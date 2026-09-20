@@ -186,6 +186,7 @@ export function checkMedicationTimeEligibility(medication, dateObj = new Date())
       restDayLabel: scheduleCheck.label,
       earliestUpcomingTime: null,
       isLate: false,
+      activeSlotTime: null,
       times: extractMedicationTimes(medication)
     };
   }
@@ -199,6 +200,7 @@ export function checkMedicationTimeEligibility(medication, dateObj = new Date())
       isRestDay: false,
       earliestUpcomingTime: null,
       isLate: false,
+      activeSlotTime: null,
       times: []
     };
   }
@@ -216,6 +218,7 @@ export function checkMedicationTimeEligibility(medication, dateObj = new Date())
       isRestDay: false,
       earliestUpcomingTime: null,
       isLate: false,
+      activeSlotTime: null,
       times
     };
   }
@@ -228,6 +231,10 @@ export function checkMedicationTimeEligibility(medication, dateObj = new Date())
   const isTimeArrived = arrivedTimes.length > 0;
   const earliestUpcomingTime = futureTimes.length > 0 ? futureTimes[0].timeStr : null;
 
+  // Cữ ĐANG được xác nhận (gần đây nhất trong số các cữ đã tới giờ) — dùng để biết chính xác
+  // đây là cữ nào khi bệnh nhân bấm "Đã uống"/"Bỏ qua" (huỷ đúng thông báo nhắc lại của cữ đó).
+  const activeSlotTime = arrivedTimes.length > 0 ? arrivedTimes[arrivedTimes.length - 1].timeStr : null;
+
   // Nếu đã qua giờ cữ gần nhất hơn 60 phút mà chưa uống
   const isLate = arrivedTimes.some(x => currentMinutes - x.minutes >= 60);
 
@@ -236,6 +243,7 @@ export function checkMedicationTimeEligibility(medication, dateObj = new Date())
     isRestDay: false,
     earliestUpcomingTime,
     isLate,
+    activeSlotTime,
     times
   };
 }

@@ -68,7 +68,7 @@ async function computeAdherence(userId, windowDays = 30) {
  * Ghi nhận 1 liều. Idempotent theo (medication_id, scheduled_for).
  * Nếu FE không gửi scheduledFor -> suy ra liều theo lịch gần "bây giờ" nhất (±12h).
  */
-async function logDose(userId, medicationId, { status = 'taken', scheduledFor, takenAt } = {}) {
+async function logDose(userId, medicationId, { status = 'taken', scheduledFor, takenAt, reason } = {}) {
   if (!['taken', 'skipped', 'missed'].includes(status)) {
     throw { status: 400, message: 'Trạng thái không hợp lệ' };
   }
@@ -106,6 +106,7 @@ async function logDose(userId, medicationId, { status = 'taken', scheduledFor, t
     status,
     taken_at: takenInstant ? takenInstant.toISOString() : null,
     delay_minutes: delay,
+    reason: status === 'skipped' ? (reason || null) : null,
     source: 'patient',
   };
 
@@ -116,6 +117,7 @@ async function logDose(userId, medicationId, { status = 'taken', scheduledFor, t
       status: row.status,
       taken_at: row.taken_at,
       delay_minutes: row.delay_minutes,
+      reason: row.reason,
       source: 'patient',
     });
 

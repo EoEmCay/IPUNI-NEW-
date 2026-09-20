@@ -74,7 +74,7 @@ export function saveIntakeLogs(logs) {
 }
 
 // Ghi nhận một cữ uống thuốc
-export function recordMedicationIntake(medication, status = 'taken', dateObj = new Date()) {
+export function recordMedicationIntake(medication, status = 'taken', dateObj = new Date(), reason = null) {
   const dateStr = dateObj.toISOString().slice(0, 10);
   const nowTime = dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
   const logs = getIntakeLogs();
@@ -89,7 +89,8 @@ export function recordMedicationIntake(medication, status = 'taken', dateObj = n
     medicationId: medication.id,
     medicationName: medication.name,
     dosage: medication.dosage,
-    status, // 'taken' hoặc 'pending'
+    status, // 'taken' | 'pending' | 'skipped'
+    reason: status === 'skipped' ? (reason || null) : null,
     takenAt: status === 'taken' ? nowTime : null,
     timestamp: new Date().toISOString()
   };
@@ -107,7 +108,8 @@ export function recordMedicationIntake(medication, status = 'taken', dateObj = n
     if (medication && medication.id && typeof medication.id === 'number') {
       medicationsService.logDose(medication.id, {
         status: status === 'taken' ? 'taken' : 'skipped',
-        takenAt: new Date().toISOString()
+        takenAt: new Date().toISOString(),
+        ...(status === 'skipped' && reason ? { reason } : {}),
       }).catch(() => {});
     }
   } catch {}

@@ -28,6 +28,7 @@ const logDoseSchema = z.object({
   status: z.enum(['taken', 'skipped', 'missed']).optional().default('taken'),
   scheduledFor: z.string().optional(),
   takenAt: z.string().optional(),
+  reason: z.string().max(255).optional(),
 });
 
 module.exports = { createMedicationSchema, updateMedicationSchema, logDoseSchema };

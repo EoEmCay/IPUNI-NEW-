@@ -74,6 +74,24 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+.skipBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 8px;
+  min-height: 40px;
+  padding: 8px 14px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-danger);
+  background: #FEF2F2;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
 .statusSelect {
   align-self: flex-start;
   min-height: 40px;

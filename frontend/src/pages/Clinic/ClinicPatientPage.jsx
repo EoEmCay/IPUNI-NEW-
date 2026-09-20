@@ -137,6 +137,9 @@ export default function ClinicPatientPage() {
             <b className={styles[`s_${l.status}`]}>
               {{ taken: 'Đã uống', skipped: 'Bỏ qua', missed: 'Quên' }[l.status] || l.status}
             </b>
+            {l.status === 'skipped' && l.reason && (
+              <span className={styles.reasonTag} title={l.reason}>📋 {l.reason}</span>
+            )}
           </div>
         ))}
       </details>

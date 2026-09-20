@@ -143,3 +143,14 @@
 .s_taken { color: #16a34a; }
 .s_skipped { color: #64748b; }
 .s_missed { color: #dc2626; }
+
+.reasonTag {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 11px;
+  font-style: italic;
+  color: #b45309;
+  background: #fffbeb;
+  padding: 1px 8px;
+  border-radius: 8px;
+}

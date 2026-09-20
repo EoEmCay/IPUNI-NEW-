@@ -923,9 +923,10 @@ export default function ScanPrescriptionPage() {
                           const times = med.times || [];
                           const hasSpecificTimes = Array.isArray(times) && times.length > 0;
                           const medSchedule = getMedScheduleDetails(med, result?.prescriptionDate);
+                          const hasDosageWarning = Boolean(med.dosageWarning) && med.dosage === result?.medications?.[i]?.dosage;
                           return (
-                            <div 
-                              key={i} 
+                            <div
+                              key={i}
                               className={styles.medItem}
                               onClick={() => setSelectedMedModalIndex(i)}
                             >
@@ -934,6 +935,9 @@ export default function ScanPrescriptionPage() {
                                   <h4 className={styles.medItemName}>
                                     {med.name}
                                     {med.isDiabetesDrug && <span className={styles.diaTag}>Hạ đường huyết</span>}
+                                    {hasDosageWarning && (
+                                      <span className={styles.dosageWarningTag} title={med.dosageWarning}>⚠️ Kiểm tra liều</span>
+                                    )}
                                   </h4>
                                   <div className={styles.medItemMeta}>
                                     <span>Liều lượng: {med.dosage || 'Theo chỉ định'}</span>
@@ -1081,6 +1085,11 @@ export default function ScanPrescriptionPage() {
 
                 {(() => {
                   const currentMed = editableMeds[selectedMedModalIndex];
+                  // Cảnh báo lệch liều do backend tính sẵn dựa trên số AI đọc BAN ĐẦU - nếu
+                  // người dùng đã tự sửa lại ô Liều lượng, cảnh báo cũ không còn đúng ngữ cảnh
+                  // nữa nên ẩn đi (không hiển thị cảnh báo lỗi thời gây hiểu nhầm).
+                  const originalDosage = result?.medications?.[selectedMedModalIndex]?.dosage;
+                  const showDosageWarning = Boolean(currentMed.dosageWarning) && currentMed.dosage === originalDosage;
                   const schedule = getMedScheduleDetails(currentMed, result?.prescriptionDate);
                   const hasDoctorTime = (currentMed.hasDoctorTime !== undefined && currentMed.hasDoctorTime !== null)
                     ? Boolean(currentMed.hasDoctorTime)
@@ -1090,12 +1099,26 @@ export default function ScanPrescriptionPage() {
 
                   return (
                     <div className={styles.elderlyModalBody}>
-                      {/* 1. Tóm tắt to rõ Liều & Cách dùng (Hiển thị dạng thông tin, không sửa theo yêu cầu) */}
+                      {/* 1. Tóm tắt to rõ Liều & Cách dùng. Liều lượng CHO SỬA TRỰC TIẾP tại đây -
+                          AI đọc chữ viết tay có thể nhầm số (vd "0,5mg" -> "5mg", sai lệch 10 lần,
+                          đủ gây quá liều nguy hiểm). Đây chính là bước con người xác nhận cuối
+                          cùng trước khi lưu, nên KHÔNG được khoá cứng thành text tĩnh. */}
                       <div className={styles.elderlySummaryCard}>
                         <div className={styles.elderlyRow}>
                           <span className={styles.elderlyLabel}>Liều lượng:</span>
-                          <span className={styles.elderlyValueText}>{currentMed.dosage || 'Theo chỉ định'}</span>
+                          <input
+                            className={styles.elderlyInput}
+                            type="text"
+                            value={currentMed.dosage || ''}
+                            placeholder="VD: 500mg"
+                            onChange={(e) => handleMedFieldChange(selectedMedModalIndex, 'dosage', e.target.value)}
+                          />
                         </div>
+                        {showDosageWarning && (
+                          <div className={styles.dosageWarningBanner}>
+                            ⚠️ {currentMed.dosageWarning}
+                          </div>
+                        )}
                         <div className={styles.elderlyRow}>
                           <span className={styles.elderlyLabel}>Cách dùng:</span>
                           <span className={styles.elderlyValueText}>{currentMed.instructions || currentMed.frequency || 'Uống theo đơn'}</span>

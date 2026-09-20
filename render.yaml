@@ -26,3 +26,34 @@ services:
         sync: false
       - key: ADMIN_DASHBOARD_KEY
         sync: false
+      # Secret dùng chung với Render Cron Job "diaplus-missed-dose-cron" bên dưới - job cron
+      # gửi kèm header X-Cron-Secret khớp giá trị này để được phép kích hoạt
+      # POST /api/v1/jobs/missed-dose-check mà không cần JWT người dùng thật.
+      - key: CRON_SECRET
+        sync: false
+
+  # ============================================================================
+  # CRON NGOÀI PROCESS cho job kiểm tra "bỏ thuốc" (xem backend/src/modules/jobs/jobs.routes.js):
+  # Trước đây job này CHỈ chạy bằng setInterval bên trong chính process web ở trên - nếu
+  # process đó ngủ/restart (rất hay gặp ở gói free), cảnh báo cho người nhà ngừng hẳn cho tới
+  # khi có traffic đánh thức server dậy. Cron Job này là 1 tiến trình HOÀN TOÀN ĐỘC LẬP do
+  # chính Render lên lịch chạy đúng giờ, không phụ thuộc web service có đang thức hay không.
+  # ============================================================================
+  - type: cron
+    name: diaplus-missed-dose-cron
+    env: node
+    rootDir: backend
+    schedule: "*/5 * * * *" # Mỗi 5 phút, khớp tần suất setInterval in-process hiện có
+    buildCommand: npm install --omit=dev
+    startCommand: >
+      node -e "
+      const url = (process.env.BACKEND_URL || 'https://dia-5hzu.onrender.com') + '/api/v1/jobs/missed-dose-check';
+      fetch(url, { method: 'POST', headers: { 'X-Cron-Secret': process.env.CRON_SECRET || '' } })
+        .then(async (r) => { console.log('[Cron] status', r.status, await r.text()); if (!r.ok) process.exit(1); })
+        .catch((e) => { console.error('[Cron] lỗi gọi job:', e.message); process.exit(1); });
+      "
+    envVars:
+      - key: CRON_SECRET
+        sync: false # PHẢI đặt giống hệt giá trị CRON_SECRET của web service "diaplus-backend" ở trên
+      - key: BACKEND_URL
+        value: https://dia-5hzu.onrender.com # Đổi nếu domain backend thay đổi

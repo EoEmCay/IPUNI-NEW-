@@ -141,6 +141,41 @@ JSON Schema:
 }`;
 }
 
+// ============================================================================
+// CẢNH BÁO LỆCH LIỀU BẤT THƯỜNG (Dosage Sanity Check):
+// AI đọc chữ viết tay có thể nhầm lẫn con số (vd "0.5mg" -> "5mg", sai lệch 10 lần - đủ để
+// gây quá liều nguy hiểm). Đây KHÔNG phải kiểm định lâm sàng chính xác (không phân biệt được
+// "liều/1 lần uống" so với "tổng liều/ngày" của đơn nhiều cữ) - chỉ là 1 phép kiểm tra thô,
+// biên rất rộng, để bắt được các trường hợp lệch số RÕ RÀNG bất thường (vd lệch >20 lần),
+// nhắc người dùng tự đối chiếu lại với đơn gốc trước khi lưu - không tự khẳng định đúng/sai.
+// ============================================================================
+function parseDosageRange(text) {
+  const m = /(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)\s*mg/i.exec(text || '');
+  if (!m) return null;
+  return { min: parseFloat(m[1]), max: parseFloat(m[2]) };
+}
+
+function parseDosageValue(text) {
+  const m = /(\d+(?:\.\d+)?)\s*mg/i.exec(text || '');
+  return m ? parseFloat(m[1]) : null;
+}
+
+function checkDosageSanity(aiDosageText, dbMatch) {
+  if (!dbMatch || !dbMatch.dosage) return null;
+  const range = parseDosageRange(dbMatch.dosage);
+  const value = parseDosageValue(aiDosageText);
+  if (!range || value == null) return null;
+
+  // Biên rất rộng (chia 20 / nhân 2) để tránh báo nhầm do khác nhau giữa liều/1 lần uống và
+  // tổng liều/ngày (đơn thường chia 1-3 lần/ngày) - chỉ báo khi lệch xa bất thường.
+  const lowBound = range.min / 20;
+  const highBound = range.max * 2;
+  if (value < lowBound || value > highBound) {
+    return `Số liều "${aiDosageText}" có vẻ khác thường so với khoảng thường gặp của ${dbMatch.name} (${dbMatch.dosage}). Vui lòng đối chiếu lại với đơn thuốc gốc trước khi lưu.`;
+  }
+  return null;
+}
+
 function shapeResult(parsed) {
   const rawMedications = parsed.medications || [];
 
@@ -148,7 +183,7 @@ function shapeResult(parsed) {
   const medications = rawMedications.map(m => {
     const dbMatch = findMedicationInDatabase(m.name);
     const combinedText = `${m.instructions || ''} ${m.frequency || ''} ${m.dosage || ''}`;
-    
+
     // Nếu AI chưa trả hasDoctorTime, tự động kiểm tra regex các từ khóa
     const hasDoctorTime = (m.hasDoctorTime !== undefined && m.hasDoctorTime !== null)
       ? Boolean(m.hasDoctorTime)
@@ -166,6 +201,7 @@ function shapeResult(parsed) {
       hasDoctorTime,
       durationDays,
       verified: !!dbMatch,
+      dosageWarning: checkDosageSanity(m.dosage, dbMatch),
       detail: {
         ...(m.detail || {}),
         source: dbMatch ? (dbMatch.source || 'Cơ sở dữ liệu thuốc nội bộ DIA+') : 'AI_GENERATED',

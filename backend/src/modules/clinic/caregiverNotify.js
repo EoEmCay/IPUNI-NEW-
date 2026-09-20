@@ -2,6 +2,7 @@
 const db = require('../../config/database');
 const nodemailer = require('nodemailer');
 const logger = require('../../utils/logger');
+const { sendUrgentAlert } = require('../../services/urgentChannel.service');
 
 let transporter = null;
 function getTransporter() {
@@ -39,8 +40,16 @@ async function notifyCaregivers(patientId, alert, { onlyFlag } = {}) {
       const m = await db('users').where({ id: link.member_id }).first();
       email = m && m.email;
     }
+
+    // Kênh khẩn (SMS/Zalo ZNS...) - gửi SONG SONG với email, không chờ nhau, không để lỗi ở
+    // kênh này (kể cả "chưa cấu hình") ảnh hưởng tới việc gửi email chính bên dưới.
+    if (link.contact_phone) {
+      const smsText = `[DIA+] ${alert.severity === 'critical' ? 'KHAN CAP' : 'Canh bao'}: ${alert.title} - ${patientName}. ${alert.detail || ''}`.slice(0, 300);
+      sendUrgentAlert({ phone: link.contact_phone, message: smsText }).catch(() => {});
+    }
+
     if (!email || !tx) {
-      logger.warn(`[Caregiver] Bỏ qua cảnh báo link#${link.id} (thiếu email hoặc SMTP chưa cấu hình)`);
+      logger.warn(`[Caregiver] Bỏ qua email cảnh báo link#${link.id} (thiếu email hoặc SMTP chưa cấu hình)`);
       continue;
     }
     try {

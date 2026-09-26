@@ -19,7 +19,11 @@ module.exports = {
   GOOGLE_SHEETS_WEBHOOK_URL: process.env.GOOGLE_SHEETS_WEBHOOK_URL || '',
   // Cron ngoài (Render Cron Job / bất kỳ scheduler ngoài nào) gọi vào để kích hoạt các job
   // định kỳ (vd kiểm tra bỏ thuốc) mà KHÔNG phụ thuộc process Node có đang thức hay không -
-  // xem backend/src/modules/jobs/. Không đặt trong danh sách fail-fast bắt buộc vì job vẫn
-  // có setInterval in-process làm phương án dự phòng khi chưa cấu hình cron ngoài.
-  CRON_SECRET: process.env.CRON_SECRET || 'ipuni-cron-dev-key',
+  // xem backend/src/modules/jobs/. Không đặt trong danh sách fail-fast bắt buộc (không crash
+  // server) vì job vẫn có setInterval in-process làm phương án dự phòng khi chưa cấu hình cron
+  // ngoài. NHƯNG ở production, KHÔNG được rơi về chuỗi mặc định đoán được (repo public trên
+  // GitHub, ai cũng đọc được 'ipuni-cron-dev-key') - nếu biến môi trường thật sự chưa tới được
+  // process (vd nền tảng hosting không nạp đúng), CRON_SECRET sẽ là '' và cronAuth.middleware.js
+  // tự khoá hẳn endpoint (401 với mọi request) thay vì vô tình bảo vệ bằng key công khai.
+  CRON_SECRET: process.env.CRON_SECRET || (isProduction ? '' : 'ipuni-cron-dev-key'),
 };

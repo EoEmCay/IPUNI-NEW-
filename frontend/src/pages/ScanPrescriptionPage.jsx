@@ -1,11 +1,9 @@
 import { useState, useCallback, useEffect } from 'react';
 import {
-  CheckCircle, AlertCircle, Pill, User, Calendar, FileText,
-  XCircle, ChevronDown, ChevronUp, Clock, Hash, Stethoscope, BookOpen, Info, Activity, QrCode, Building, Sparkles, X,
+  CheckCircle, AlertCircle, User, Calendar, FileText,
+  XCircle, ChevronDown, ChevronUp, Clock, Hash, Stethoscope, BookOpen, Info, Activity, Sparkles, X,
   Paperclip, ChevronLeft, ArrowRight
 } from 'lucide-react';
-import { clinicService } from './Clinic/clinicService';
-import useAuthStore from '../store/authStore';
 import { scanService } from '../services/scan.service';
 import { medicationsService } from '../services/medications.service';
 import { appointmentsService } from '../services/appointments.service';
@@ -15,10 +13,8 @@ import { metricsService } from '../services/metrics.service';
 import { useMedications } from '../hooks/useMedications';
 import { useToast } from '../hooks/useToast';
 import { useT } from '../hooks/useT';
-import jsQR from 'jsqr';
 import { createPortal } from 'react-dom';
 import ScanCamera from '../components/scan/ScanCamera';
-import LiveQRScanner from '../components/scan/LiveQRScanner';
 import styles from './ScanPrescriptionPage.module.css';
 import { useNavigate } from 'react-router-dom';
 
@@ -137,11 +133,9 @@ export const getMedScheduleDetails = (med, prescriptionDate) => {
 
 export default function ScanPrescriptionPage() {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
   const { fetchMedications } = useMedications();
   const { showToast } = useToast();
   const t = useT();
-  const [scanMode, setScanMode] = useState('prescription'); // 'prescription' | 'clinic_qr'
   const [imageFile, setImageFile] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -155,108 +149,6 @@ export default function ScanPrescriptionPage() {
   const [showFullImagePreview, setShowFullImagePreview] = useState(false);
   const [expandedIndex, setExpandedIndex] = useState(null);
   const [showVoicePrompt, setShowVoicePrompt] = useState(false);
-  const [checkedInClinic, setCheckedInClinic] = useState(null);
-  const [userLatestMetrics, setUserLatestMetrics] = useState(null);
-  const [prescriptionBase64, setPrescriptionBase64] = useState(null);
-
-  useEffect(() => {
-    metricsService.getLatest().then((res) => {
-      setUserLatestMetrics(res.data?.data || null);
-    }).catch(() => {});
-  }, [user]);
-
-  // Check if patient is already checked in to a clinic, ensuring session belongs to current user account
-  useEffect(() => {
-    const session = clinicService.getActivePatientClinicSession();
-    if (session) {
-      if (user?.id && session.userId && String(session.userId) !== String(user.id)) {
-        clinicService.patientLeaveClinic();
-        setCheckedInClinic(null);
-      } else {
-        setCheckedInClinic(session);
-      }
-    } else {
-      setCheckedInClinic(null);
-    }
-  }, [user]);
-
-  const handlePerformCheckin = useCallback(async (qrData = {}) => {
-    const profile = clinicService.getClinicProfile();
-    const targetClinicName = qrData?.clinicName || profile.name;
-    const targetDoctorName = qrData?.doctorName || profile.doctorName;
-
-    // Use current logged-in user's profile to distinguish accounts
-    const effectiveUserId = user?.id || (user?.email ? user.email : `anon-${Date.now()}`);
-    const effectiveName = user?.name || (user?.email ? user.email.split('@')[0] : `Bệnh nhân DIA+`);
-    const effectivePhone = user?.phone || (user?.email ? user.email : `09${Math.floor(10000000 + Math.random() * 90000000)}`);
-    const effectiveCode = user?.user_code || `DIA-${Math.floor(1000 + Math.random() * 9000)}`;
-
-    const effectiveGlucose = userLatestMetrics?.glucose_fasting?.value || userLatestMetrics?.glucose_postmeal?.value || null;
-    const effectiveHba1c = userLatestMetrics?.hba1c?.value || null;
-
-    // Đính kèm ảnh đơn thuốc đã quét gần đây nhất nếu có
-    let latestScanImage = null;
-    let latestScanMeds = [];
-    let latestScanHospital = '';
-    let latestScanDoctor = '';
-    let latestScanDate = '';
-    let latestScanDiagnosis = '';
-
-    try {
-      const history = await scanHistoryService.getHistory();
-      if (history && history.length > 0) {
-        const latest = history[0];
-        latestScanImage = latest.image || null;
-        latestScanMeds = latest.result?.medications || [];
-        latestScanHospital = latest.result?.hospitalName || '';
-        latestScanDoctor = latest.result?.doctorName || '';
-        latestScanDate = latest.result?.prescriptionDate || latest.date;
-        latestScanDiagnosis = latest.result?.diagnosis || '';
-      }
-    } catch (e) {
-      console.warn('Could not read scan history', e);
-    }
-
-    const newPatient = clinicService.checkinFromPatientApp({
-      userId: effectiveUserId,
-      userCode: effectiveCode,
-      name: effectiveName,
-      gender: user?.gender || 'Nam',
-      age: user?.age || 50,
-      phone: effectivePhone,
-      email: user?.email || '',
-      glucose: effectiveGlucose,
-      hba1c: effectiveHba1c,
-      diabetesType: user?.diagnosis || 'Type 2',
-      prescriptionImage: latestScanImage,
-      prescriptionDate: latestScanDate,
-      prescriptionHospital: latestScanHospital,
-      prescriptionDoctor: latestScanDoctor,
-      prescriptionDiagnosis: latestScanDiagnosis,
-      medications: latestScanMeds.length > 0 ? latestScanMeds.map(m => ({
-        name: m.name,
-        dosage: m.dosage || '1 viên',
-        timing: m.instructions || m.frequency || 'Theo chỉ định',
-        status: 'pending'
-      })) : []
-    });
-
-    setCheckedInClinic({
-      clinicName: targetClinicName,
-      doctorName: targetDoctorName,
-      patientCode: newPatient.code,
-      patientId: newPatient.id,
-      userId: effectiveUserId,
-      phone: effectivePhone,
-      name: effectiveName
-    });
-
-    showToast(`Check-in thành công tại ${targetClinicName}! Bác sĩ đã nhận được hồ sơ của ${effectiveName}.`, 'success');
-  }, [user, userLatestMetrics, showToast]);
-
-  const handleClinicQRCheckin = () => {
-    handlePerformCheckin();
-  };
 
   // Thuốc do AI trích xuất KHÔNG được lưu thẳng vào danh sách thuốc đang dùng - người
   // dùng phải xem/sửa được từng trường (tên, liều, giờ uống) trước khi bấm lưu, vì AI
@@ -311,52 +203,6 @@ export default function ScanPrescriptionPage() {
     setScanWizardStep(1);
     setSelectedMedModalIndex(null);
 
-    // 1. Tự động kiểm tra nhanh xem ảnh chụp có phải là Mã QR Phòng Khám không (0.01 giây)
-    try {
-      const qrData = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const img = new Image();
-          img.onload = () => {
-            try {
-              const canvas = document.createElement('canvas');
-              canvas.width = img.width;
-              canvas.height = img.height;
-              const ctx = canvas.getContext('2d');
-              ctx.drawImage(img, 0, 0);
-              const imageData = ctx.getImageData(0, 0, img.width, img.height);
-              const code = jsQR(imageData.data, imageData.width, imageData.height);
-              if (code && code.data) {
-                let parsed = null;
-                if (code.data.startsWith('{')) {
-                  parsed = JSON.parse(code.data);
-                } else if (code.data.includes('PK-') || code.data.includes('clinicId')) {
-                  parsed = { type: 'DIAPLUS_CLINIC_CHECKIN', raw: code.data };
-                }
-                resolve(parsed);
-                return;
-              }
-            } catch {}
-            resolve(null);
-          };
-          img.onerror = () => resolve(null);
-          img.src = e.target.result;
-        };
-        reader.onerror = () => resolve(null);
-        reader.readAsDataURL(fileToScan);
-      });
-
-      if (qrData) {
-        setIsAnalyzing(false);
-        setScanMode('clinic_qr');
-        handlePerformCheckin(qrData);
-        return;
-      }
-    } catch (qrErr) {
-      console.warn('QR pre-scan skipped', qrErr);
-    }
-
-    // 2. Nếu là đơn thuốc y tế bình thường thì gửi sang AI Gemini Vision
     try {
       const res = await scanService.analyzePrescription(fileToScan);
       const data = res.data.data;
@@ -370,33 +216,13 @@ export default function ScanPrescriptionPage() {
       }
 
       // Tối ưu ảnh chụp thực tế của bệnh nhân sang bản base64 nét cao (~150-200KB)
-      // Đảm bảo đúng 100% ảnh chụp gốc được chuyển tới Bác sĩ trên Clinic Dashboard
       const photoBase64 = await compressPrescriptionPhoto(fileToScan);
-      setPrescriptionBase64(photoBase64);
 
-      if (photoBase64) {
+      if (photoBase64 && data && !data.error) {
         try {
-          if (data && !data.error) {
-            await scanHistoryService.saveScan(data, photoBase64);
-          }
-
-          const session = clinicService.getActivePatientClinicSession();
-          await clinicService.syncPrescriptionToClinic({
-            patientId: session?.patientId,
-            patientCode: session?.patientCode || user?.user_code,
-            userId: session?.userId || user?.id,
-            phone: session?.phone || user?.phone || user?.email,
-            name: session?.name || user?.name,
-            prescriptionImage: photoBase64,
-            prescriptionDate: data?.prescriptionDate || new Date().toISOString().split('T')[0],
-            hospitalName: data?.hospitalName || '',
-            doctorName: data?.doctorName || '',
-            diagnosis: data?.diagnosis || user?.diagnosis || '',
-            medications: data?.medications || []
-          });
-          showToast('Đã truyền ảnh đơn thuốc trực tiếp đến Bác sĩ trên Clinic Dashboard!', 'success');
+          await scanHistoryService.saveScan(data, photoBase64);
         } catch (e) {
-          console.error('Failed to save or sync prescription', e);
+          console.error('Failed to save scan history', e);
         }
       }
     } catch (err) {
@@ -405,13 +231,12 @@ export default function ScanPrescriptionPage() {
     } finally {
       setIsAnalyzing(false);
     }
-  }, [imageFile, showToast, t, user]);
+  }, [imageFile, showToast, t]);
 
   const handleImageScan = useCallback((file) => {
     if (imageUrl) URL.revokeObjectURL(imageUrl);
     setImageFile(file);
     setImageUrl(URL.createObjectURL(file));
-    setPrescriptionBase64(null);
     setResult(null);
     setIsAllSaved(false);
     setExpandedIndex(null);
@@ -509,26 +334,6 @@ export default function ScanPrescriptionPage() {
         showToast(`${t.scanResult?.addPartial} ${successCount}, thất bại ${failCount}.`, 'error');
       }
 
-      // Đồng bộ danh sách thuốc đã xác nhận sang hồ sơ phòng khám
-      try {
-        const session = clinicService.getActivePatientClinicSession();
-        clinicService.syncPrescriptionToClinic({
-          patientId: session?.patientId,
-          patientCode: session?.patientCode || user?.user_code,
-          userId: session?.userId || user?.id,
-          phone: session?.phone || user?.phone || user?.email,
-          name: session?.name || user?.name,
-          prescriptionImage: prescriptionBase64,
-          prescriptionDate: result?.prescriptionDate || new Date().toISOString().split('T')[0],
-          hospitalName: result?.hospitalName || '',
-          doctorName: result?.doctorName || '',
-          diagnosis: result?.diagnosis || user?.diagnosis || '',
-          medications: editableMeds
-        });
-      } catch (syncErr) {
-        console.warn('Sync confirmed meds error', syncErr);
-      }
-
       fetchMedications();
 
       // Check if user has voice alerts configured
@@ -553,7 +358,7 @@ export default function ScanPrescriptionPage() {
     } finally {
       setIsSavingAll(false);
     }
-  }, [result, editableMeds, requiresInsulinConfirm, insulinConfirmed, fetchMedications, showToast, user, prescriptionBase64, imageUrl]);
+  }, [result, editableMeds, requiresInsulinConfirm, insulinConfirmed, fetchMedications, showToast, imageUrl]);
 
   const handleRetake = useCallback(() => {
     if (imageUrl) URL.revokeObjectURL(imageUrl);
@@ -634,138 +439,9 @@ export default function ScanPrescriptionPage() {
           </button>
         </div>
         <p>{t.scan.subtitle}</p>
-
-        {/* Chuyển đổi giữa Quét Đơn Thuốc & Quét QR Phòng Khám */}
-        <div style={{ display: 'flex', gap: '8px', marginTop: '14px', background: 'rgba(0,0,0,0.04)', padding: '4px', borderRadius: '12px' }}>
-          <button
-            onClick={() => setScanMode('prescription')}
-            style={{
-              flex: 1,
-              padding: '8px 12px',
-              borderRadius: '10px',
-              border: 'none',
-              background: scanMode === 'prescription' ? '#ffffff' : 'transparent',
-              color: scanMode === 'prescription' ? 'var(--color-primary, #0284c7)' : '#64748b',
-              fontWeight: '700',
-              fontSize: '13px',
-              cursor: 'pointer',
-              boxShadow: scanMode === 'prescription' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px',
-              transition: 'all 0.2s'
-            }}
-          >
-            <Pill size={15} /> Quét Đơn Thuốc
-          </button>
-
-          <button
-            onClick={() => setScanMode('clinic_qr')}
-            style={{
-              flex: 1,
-              padding: '8px 12px',
-              borderRadius: '10px',
-              border: 'none',
-              background: scanMode === 'clinic_qr' ? '#ffffff' : 'transparent',
-              color: scanMode === 'clinic_qr' ? 'var(--color-primary, #0284c7)' : '#64748b',
-              fontWeight: '700',
-              fontSize: '13px',
-              cursor: 'pointer',
-              boxShadow: scanMode === 'clinic_qr' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px',
-              transition: 'all 0.2s'
-            }}
-          >
-            <QrCode size={15} /> QR Phòng Khám
-          </button>
-        </div>
       </div>
 
-      {scanMode === 'clinic_qr' ? (
-        <div style={{ padding: '16px 0' }}>
-          {checkedInClinic ? (
-            <div style={{
-              background: '#f0fdf4',
-              border: '1px solid #bbf7d0',
-              borderRadius: '16px',
-              padding: '20px',
-              textAlign: 'center'
-            }}>
-              <div style={{ width: '48px', height: '48px', background: '#dcfce7', color: '#16a34a', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px' }}>
-                <CheckCircle size={24} />
-              </div>
-              <h3 style={{ margin: '0 0 6px', fontSize: '17px', fontWeight: '800', color: '#15803d' }}>
-                Đang Điều Trị Tại Phòng Khám
-              </h3>
-              <p style={{ margin: '0 0 12px', fontSize: '13.5px', color: '#166534' }}>
-                {checkedInClinic.clinicName} • Bác sĩ: <strong>{checkedInClinic.doctorName}</strong>
-              </p>
-              <div style={{ fontSize: '12.5px', color: '#64748b', background: '#ffffff', padding: '10px', borderRadius: '10px', border: '1px solid #e2e8f0', marginBottom: '16px' }}>
-                Mã bệnh nhân của bạn: <strong>{checkedInClinic.patientCode}</strong>. Mọi chỉ số đo đường huyết của bạn đang được truyền trực tiếp đến Bác sĩ trên Clinic Dashboard.
-              </div>
-              <button
-                onClick={async () => {
-                  try {
-                    await clinicService.patientLeaveClinic();
-                  } catch (e) {
-                    console.warn('Leave clinic warning', e);
-                  }
-                  setCheckedInClinic(null);
-                  showToast('Đã kết thúc đợt khám tại phòng khám.', 'info');
-                }}
-                style={{
-                  background: '#dc2626',
-                  color: '#ffffff',
-                  border: 'none',
-                  padding: '10px 18px',
-                  borderRadius: '10px',
-                  fontSize: '13px',
-                  fontWeight: '700',
-                  cursor: 'pointer'
-                }}
-              >
-                Kết Thúc Khám & Rời Phòng Khám
-              </button>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <LiveQRScanner
-                onScanSuccess={(qrData) => {
-                  handlePerformCheckin(qrData);
-                }}
-              />
-
-              <div style={{ textAlign: 'center', background: '#f8fafc', padding: '14px', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
-                <p style={{ margin: '0 0 10px', fontSize: '13px', color: '#64748b' }}>
-                  Hoặc bạn có thể bấm thử nghiệm kết nối nhanh:
-                </p>
-                <button
-                  onClick={handleClinicQRCheckin}
-                  style={{
-                    background: '#0284c7',
-                    color: '#ffffff',
-                    border: 'none',
-                    padding: '10px 18px',
-                    borderRadius: '10px',
-                    fontSize: '13px',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                  }}
-                >
-                  <Building size={15} /> Thử Check-in Vào Phòng Khám Hoàn Mỹ
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      ) : !imageUrl ? (
+      {!imageUrl ? (
         <ScanCamera onImageScan={handleImageScan} />
       ) : (
         <>

@@ -1,7 +1,7 @@
 'use strict';
 const db = require('../../config/database');
 const { publish } = require('../../realtime/eventBus');
-const { CLINIC_THRESHOLDS } = require('./clinic.constants');
+const { CLINIC_THRESHOLDS } = require('./alertThresholds');
 const { notifyCaregivers } = require('./caregiverNotify');
 const logger = require('../../utils/logger');
 

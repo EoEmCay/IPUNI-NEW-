@@ -1,7 +1,7 @@
 'use strict';
 const db = require('../config/database');
 const sched = require('../modules/medications/medicationSchedule');
-const { queue } = require('../modules/clinic/alert.service');
+const { queue } = require('../modules/alerts/alert.service');
 const { publish } = require('../realtime/eventBus');
 const logger = require('../utils/logger');
 

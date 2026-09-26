@@ -81,7 +81,7 @@ async function createMetric(req, res, next) {
     // tiêu điều trị CÁ NHÂN HOÁ (ADA Standards of Care) thay vì ngưỡng chẩn đoán quần thể,
     // vốn dành cho sàng lọc người CHƯA biết mình có tiểu đường hay không. Xem
     // metrics.calculator.js#calculateStatus.
-    const status = MetricsCalculator.calculateStatus(measurement_type, value, value_diastolic, req.user.diagnosis);
+    const status = MetricsCalculator.calculateStatus(measurement_type, value, value_diastolic, req.user.diagnosis || 'type2_diabetes'); // khớp frontend getMetricStatus
 
     // Note: User feedback requested NOT to load 90 days data on every save to optimize performance.
     // HbA1c estimation will only be done in the /statistics endpoint.

@@ -186,9 +186,11 @@ const vi = {
       c_peptide: 'Thấp (thiếu insulin): <0.5 | Bình thường: 0.5–2.0 | Cao (kháng insulin): >2.0 ng/mL',
     },
     statusLow: 'Hạ đường huyết',
-    statusNormal: 'Bình thường (Kiểm soát tốt)',
+    statusNormal: 'Đạt mục tiêu',
+    statusAboveTarget: 'Hơi cao',
     statusWarning: 'Cảnh báo',
-    statusDanger: 'Đái tháo đường',
+    statusDanger: 'Cao, cần chú ý',
+    deleteConfirm: 'Bạn có chắc muốn xóa lần đo này? Không thể khôi phục.',
     statusPrediabetes: 'Tiền đái tháo đường (Có nguy cơ)',
     hypoglycemia: 'Hạ đường huyết (<3.9 mmol/L)',
     statisticsTitle: 'Thống kê',
@@ -534,8 +536,6 @@ const vi = {
   medCard: {
     details: 'Chi tiết',
     statusTaken: 'Đã uống',
-    statusLate: 'Quá giờ',
-    statusPending: 'Chưa uống',
   },
   
   common: {

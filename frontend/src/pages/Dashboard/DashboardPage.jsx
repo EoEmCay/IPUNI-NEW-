@@ -5,6 +5,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useMetrics } from '../../hooks/useMetrics';
 import { useMedications } from '../../hooks/useMedications';
 import useThemeStore from '../../store/themeStore';
+import { getMetricStatus, getStatusLabel } from '../../constants/metrics';
 import { useT } from '../../hooks/useT';
 import MedicationCard from '../../components/medications/MedicationCard';
 import AddMetricModal from '../../components/metrics/AddMetricModal';
@@ -125,7 +126,7 @@ export default function DashboardPage() {
               </div>
               <div className={styles.blueMetricFooter}>
                 {fastingGlucose != null 
-                  ? `Gần nhất • ${fastingGlucose > 7.0 ? 'Cao' : fastingGlucose < 3.9 ? 'Thấp' : 'Bình thường'}`
+                  ? `Gần nhất • ${getStatusLabel(getMetricStatus('glucose_fasting', fastingGlucose, user?.diagnosis), t)}`
                   : 'Chưa có dữ liệu • Bấm nhập'}
               </div>
             </div>
@@ -146,7 +147,7 @@ export default function DashboardPage() {
               </div>
               <div className={styles.blueMetricFooter}>
                 {hba1cVal != null 
-                  ? `Gần nhất • ${hba1cVal > 7.0 ? 'Cần kiểm soát' : 'Tốt'}`
+                  ? `Gần nhất • ${getStatusLabel(getMetricStatus('hba1c', hba1cVal, user?.diagnosis), t)}`
                   : 'Chưa xét nghiệm • Bấm nhập'}
               </div>
             </div>

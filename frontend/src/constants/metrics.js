@@ -118,12 +118,26 @@ export const STATUS_COLORS = {
   danger: '#EF4444'        // đỏ
 };
 
-// LƯU Ý QUAN TRỌNG: hàm này chỉ dùng ngưỡng CHẨN ĐOÁN QUẦN THỂ (đúng cho sàng lọc người
-// chưa biết mình có tiểu đường hay không) để phản hồi UI TỨC THÌ ngay trên client trước
-// khi có phản hồi từ server. Trạng thái LƯU VÀO DATABASE luôn do
-// metrics.calculator.js#calculateStatus (backend) tính, có dùng mục tiêu điều trị cá nhân
-// hoá theo chẩn đoán của bệnh nhân (PATIENT_TARGETS) - đó mới là nguồn sự thật cuối cùng.
-export function getMetricStatus(measurementType, value) {
+// Mục tiêu điều trị cá nhân - PHẢI khớp PATIENT_TARGETS ở backend/src/constants/metrics.js
+// (postmeal 10.0 = ADA <180 mg/dL sau ăn 1-2h).
+export const PATIENT_TARGETS = {
+  type2_diabetes: { glucose: { fasting: 7.0, postmeal: 10.0, tolerance: 7.8 }, hba1c: 7.0 },
+  type1_diabetes: { glucose: { fasting: 5.0, postmeal: 10.0, tolerance: 7.2 }, hba1c: 6.5 },
+};
+
+// Cùng logic với metrics.calculator.js#calculateStatus (backend). Người đã chẩn đoán tiểu
+// đường được so với MỤC TIÊU ĐIỀU TRỊ, không phải ngưỡng chẩn đoán - nếu không, mọi lần đo
+// của họ đều bị gắn "Đái tháo đường"/"Tiền ĐTĐ" và loa cảnh báo kêu dù đang kiểm soát tốt.
+// Chưa khai chẩn đoán -> coi là type 2 (DIA+ dành cho người bệnh tiểu đường);
+// 'prediabetes' -> không có mục tiêu, dùng ngưỡng sàng lọc.
+export function getPersonalTarget(measurementType, diagnosis) {
+  const target = PATIENT_TARGETS[diagnosis || 'type2_diabetes'];
+  if (measurementType === 'hba1c') return target?.hba1c ?? null;
+  if (METRIC_TYPES[measurementType]?.category !== 'glucose') return null;
+  return target?.glucose?.[measurementType.replace('glucose_', '')] ?? null;
+}
+
+export function getMetricStatus(measurementType, value, diagnosis) {
   const m = METRIC_TYPES[measurementType];
   if (!m || value == null || isNaN(value)) return 'normal';
 
@@ -144,6 +158,14 @@ export function getMetricStatus(measurementType, value) {
 
   // Glucose: hạ đường huyết khi <3.9
   if (m.category === 'glucose' && value < HYPOGLYCEMIA_THRESHOLD) return 'low';
+
+  const personal = getPersonalTarget(measurementType, diagnosis);
+  if (personal != null) {
+    const dangerAt = measurementType === 'hba1c' ? personal + 1.5 : personal * 1.5;
+    if (value > dangerAt) return 'danger';
+    if (value > personal) return 'above_target';
+    return 'normal';
+  }
 
   if (value >= m.dangerMin) return 'danger';
   if (value >= m.prediabetesMin) return 'prediabetes';

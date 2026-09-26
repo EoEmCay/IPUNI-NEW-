@@ -1,13 +1,15 @@
 import { Trash2, AlertTriangle } from 'lucide-react';
 import { METRIC_TYPES, getMetricStatus, STATUS_COLORS } from '../../constants/metrics';
 import { useT } from '../../hooks/useT';
+import useAuthStore from '../../store/authStore';
 
 export default function MetricHistoryItem({ metric, onDelete }) {
   const t = useT();
+  const diagnosis = useAuthStore((s) => s.user?.diagnosis);
   const type = metric.measurement_type || metric.type;
   const meta = METRIC_TYPES[type] || {};
   const typeLabel = t.metrics?.types?.[type] || meta.label || type;
-  const status = getMetricStatus(type, metric.value);
+  const status = getMetricStatus(type, metric.value, diagnosis);
   const color = STATUS_COLORS[status] || '#22C55E';
   const unit = meta.unit || metric.unit || 'mmol/L';
 

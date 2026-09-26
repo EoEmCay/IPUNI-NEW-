@@ -10,9 +10,8 @@ import { useT } from '../../hooks/useT';
 import styles from './MedicationCard.module.css';
 
 const STATUS_STYLES = {
-  pending: { bg: '#FEF3C7', color: '#B45309', border: '#FCD34D' },
   taken: { bg: '#DCFCE7', color: '#16A34A', border: '#86EFAC' },
-  late: { bg: '#FEE2E2', color: '#DC2626', border: '#FCA5A5' },
+  late: { bg: '#DC2626', color: '#fff', border: '#DC2626' },
   skipped: { bg: '#F1F5F9', color: '#64748B', border: '#CBD5E1' },
 };
 
@@ -88,12 +87,10 @@ export default function MedicationCard({ medication }) {
     buttonLabel = '⏭ Đã bỏ qua';
   } else if (isLocked) {
     buttonLabel = timeEligibility.earliestUpcomingTime
-      ? `⏳ ${timeEligibility.earliestUpcomingTime}`
-      : `⏳ Chưa tới giờ`;
-  } else if (isLate) {
-    buttonLabel = t.medCard?.statusLate || 'Quá giờ';
+      ? `Uống lúc ${timeEligibility.earliestUpcomingTime}`
+      : 'Chưa tới giờ uống';
   } else {
-    buttonLabel = t.medCard?.statusPending || 'Chưa uống';
+    buttonLabel = '✓ Tôi đã uống';
   }
 
   // Cho phép bấm "Bỏ qua cữ" khi cữ đã tới giờ, chưa được đánh dấu uống/bỏ qua rồi
@@ -106,6 +103,7 @@ export default function MedicationCard({ medication }) {
         <div className={styles.name}>{medication.name} {medication.dosage}</div>
         <div className={styles.frequency}>{medication.frequency}: {times}</div>
         {medication.instructions && <div className={styles.instructions}>{medication.instructions}</div>}
+        {isLate && <div className={styles.lateNote}>Đã quá giờ uống</div>}
         {isRestDay && (
           <div style={{ marginTop: 4 }}>
             <span style={{ fontSize: 11, background: '#F3F4F6', color: '#6B7280', padding: '2px 8px', borderRadius: 6, display: 'inline-flex', alignItems: 'center', gap: 4, fontWeight: 600 }}>
@@ -140,7 +138,7 @@ export default function MedicationCard({ medication }) {
             ? { background: STATUS_STYLES.skipped.bg, color: STATUS_STYLES.skipped.color, borderColor: STATUS_STYLES.skipped.border, cursor: 'pointer' }
             : isLate
             ? { background: STATUS_STYLES.late.bg, color: STATUS_STYLES.late.color, borderColor: STATUS_STYLES.late.border, cursor: 'pointer' }
-            : { background: STATUS_STYLES.pending.bg, color: STATUS_STYLES.pending.color, borderColor: STATUS_STYLES.pending.border, cursor: 'pointer' }
+            : { background: 'var(--color-primary)', color: '#fff', borderColor: 'var(--color-primary)', cursor: 'pointer' }
         }
         title={
           isRestDay

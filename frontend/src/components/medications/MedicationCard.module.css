@@ -5,6 +5,7 @@
   border: 1px solid var(--color-border);
   padding: 16px;
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   align-items: flex-start;
 }
@@ -92,18 +93,26 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Nút chính của thẻ: cả hàng, to, dễ bấm cho người lớn tuổi */
 .statusSelect {
-  align-self: flex-start;
-  min-height: 40px;
-  padding: 8px 12px;
-  border-radius: 16px;
-  font-size: 13px;
-  font-weight: 600;
+  flex-basis: 100%;
+  min-height: 52px;
+  padding: 10px 16px;
+  border-radius: 14px;
+  font-size: 17px;
+  font-weight: 700;
   border: 1.5px solid;
   flex-shrink: 0;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition: all 0.2s ease;
+}
+
+.lateNote {
+  margin-top: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #DC2626;
 }
 
 .statusSelectLocked {

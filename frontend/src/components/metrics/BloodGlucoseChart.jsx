@@ -2,7 +2,8 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ReferenceLine, ResponsiveContainer
 } from 'recharts';
-import { METRIC_TYPES } from '../../constants/metrics';
+import { METRIC_TYPES, getPersonalTarget } from '../../constants/metrics';
+import useAuthStore from '../../store/authStore';
 import { useT } from '../../hooks/useT';
 import styles from './BloodGlucoseChart.module.css';
 
@@ -16,6 +17,9 @@ export default function BloodGlucoseChart({ data = [], type, days, onDaysChange 
   const t = useT();
   const meta = METRIC_TYPES[type] || METRIC_TYPES.glucose_fasting;
   const unit = meta.unit || 'mmol/L';
+  // Người bệnh đã chẩn đoán: 1 vạch mục tiêu điều trị; chỉ khi không có mục tiêu mới vẽ ngưỡng sàng lọc
+  const target = getPersonalTarget(type, useAuthStore((s) => s.user?.diagnosis));
+  const screening = target == null;
 
   // Sort by exact timestamp ascending -> earliest entered shows first
   const chartData = [...data]
@@ -45,10 +49,13 @@ export default function BloodGlucoseChart({ data = [], type, days, onDaysChange 
               contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #E2E8F0' }}
               formatter={(v) => [`${v} ${unit}`, meta.label]}
             />
-            {meta.prediabetesMin != null && (
+            {target != null && (
+              <ReferenceLine y={target} stroke="#22C55E" strokeDasharray="4 2" />
+            )}
+            {screening && meta.prediabetesMin != null && (
               <ReferenceLine y={meta.prediabetesMin} stroke="#F59E0B" strokeDasharray="4 2" />
             )}
-            {meta.dangerMin != null && (
+            {screening && meta.dangerMin != null && (
               <ReferenceLine y={meta.dangerMin} stroke="#EF4444" strokeDasharray="4 2" />
             )}
             <Line type="monotone" dataKey="value" stroke="#1B5FA6" strokeWidth={2.5} dot={{ r: 4, fill: '#1B5FA6' }} activeDot={{ r: 6 }} />
@@ -57,13 +64,19 @@ export default function BloodGlucoseChart({ data = [], type, days, onDaysChange 
       )}
 
       <div className={styles.legend}>
-        {meta.prediabetesMin != null && (
+        {target != null && (
+          <div className={styles.legendItem}>
+            <div className={styles.legendDash} style={{ background: '#22C55E' }} />
+            <span>Mục tiêu: ≤ {target} {unit}</span>
+          </div>
+        )}
+        {screening && meta.prediabetesMin != null && (
           <div className={styles.legendItem}>
             <div className={styles.legendDash} style={{ background: '#F59E0B' }} />
             <span>{t.metrics?.statusPrediabetes || 'Tiền đái tháo đường'}: ≥{meta.prediabetesMin} {unit}</span>
           </div>
         )}
-        {meta.dangerMin != null && (
+        {screening && meta.dangerMin != null && (
           <div className={styles.legendItem}>
             <div className={styles.legendDash} style={{ background: '#EF4444' }} />
             <span>{t.metrics?.statusDanger || 'Đái tháo đường'}: ≥{meta.dangerMin} {unit}</span>

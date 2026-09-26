@@ -10,6 +10,7 @@ import StatisticsCard from '../../components/metrics/StatisticsCard';
 import ExportReportButton from '../../components/reports/ExportReportButton';
 import { voiceAlertService, ALERT_TYPES } from '../../services/voiceAlert.service';
 import { getMetricStatus } from '../../constants/metrics';
+import useAuthStore from '../../store/authStore';
 import Button from '../../components/common/Button';
 import styles from './MetricsPage.module.css';
 
@@ -33,7 +34,7 @@ export default function MetricsPage() {
     fetchStatistics(activeType, 90);
 
     // Kiểm tra để kích hoạt voice alert
-    const status = getMetricStatus(data.measurement_type, data.value);
+    const status = getMetricStatus(data.measurement_type, data.value, useAuthStore.getState().user?.diagnosis);
     
     if (data.measurement_type.includes('glucose')) {
       if (status === 'danger' || status === 'low') {
@@ -45,6 +46,7 @@ export default function MetricsPage() {
   };
 
   const handleDelete = async (id) => {
+    if (!window.confirm(t.metrics.deleteConfirm)) return;
     await removeMetric(id);
     fetchMetrics(activeType, days);
     fetchStatistics(activeType, 90);

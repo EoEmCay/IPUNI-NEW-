@@ -32,7 +32,7 @@ html {
   justify-content: space-between;
   padding: 14px 40px;
   padding-top: calc(14px + var(--safe-top, env(safe-area-inset-top, 0px)));
-  background: rgba(3, 7, 18, 0.75); /* Dark slate glass */
+  background: rgb(3, 7, 18);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -64,12 +64,6 @@ html {
   transform: translateY(2px);
 }
 
-.navActions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
 /* Nav Menu Links */
 .navMenu {
   display: flex;
@@ -95,58 +89,20 @@ html {
 }
 
 @media (max-width: 900px) {
-  .navMenu {
-    display: none; /* Hide on small screens for now, can implement mobile menu later if needed */
+  .nav {
+    flex-wrap: wrap;
+    padding: 10px 16px 6px;
+    padding-top: calc(10px + var(--safe-top, env(safe-area-inset-top, 0px)));
   }
-}
-
-/* Language Toggle */
-.langToggle {
-  position: relative;
-  display: flex;
-  align-items: center;
-  background: #f1f5f9;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 30px;
-  width: 150px;
-  height: 40px;
-  cursor: pointer;
-  padding: 4px;
-  user-select: none;
-}
-
-.langSlider {
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  height: 28px;
-  width: calc(33.33% - 4px);
-  background: white;
-  border-radius: 14px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.sliderEn {
-  transform: translateX(100%);
-}
-.sliderLo {
-  transform: translateX(200%);
-}
-
-.langLabel {
-  flex: 1;
-  text-align: center;
-  font-size: 11px;
-  font-weight: 700;
-  color: #94a3b8;
-  letter-spacing: 0.5px;
-  position: relative;
-  z-index: 1;
-  transition: color 0.2s;
-}
-
-.labelActive {
-  color: #fff;
+  .navLogoImg { height: 32px; width: 32px; }
+  .navLogoText { font-size: 20px; }
+  .navMenu {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0;
+    margin-top: 6px;
+  }
+  .navLink { font-size: 13px; padding: 6px 8px; }
 }
 
 /* ══════════════════════════════
@@ -713,10 +669,14 @@ html {
   position: relative;
   display: flex;
   align-items: center;
-  margin-bottom: 70px;
+  margin-bottom: -60px;
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.treeNode:last-child {
+  margin-bottom: 0;
 }
 
 .treeNode.visible {
@@ -916,6 +876,7 @@ html {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   padding: 5px 8px;
   border-radius: 6px;
   background: rgba(245,158,11,0.06);
@@ -1010,30 +971,36 @@ html {
   }
 
   .trunk {
-    left: 24px;
+    left: 14px;
     transform: none;
   }
 
   .treeNode {
+    margin-bottom: 32px;
     flex-direction: row !important;
-    padding-left: 80px !important;
+    padding-left: 40px !important;
     padding-right: 0 !important;
     justify-content: flex-start !important;
   }
 
   .branch {
-    width: 50px !important;
-    left: 24px !important;
+    width: 26px !important;
+    left: 14px !important;
     right: auto !important;
     background: linear-gradient(90deg, var(--color), rgba(255,255,255,0.1)) !important;
   }
 
   .nodeDot {
-    left: 24px !important;
+    left: 14px !important;
     transform: translate(-50%, -50%) !important;
-    width: 36px;
-    height: 36px;
+    width: 28px;
+    height: 28px;
+    box-shadow: 0 0 0 4px rgba(255,255,255,0.9);
   }
+
+  .nodeDot span { font-size: 10px; }
+
+  .featureCard { padding: 20px; }
 }
 
 /* ══════════════════════════════

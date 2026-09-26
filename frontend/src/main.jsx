@@ -17,7 +17,7 @@ initNative();
 const GOOGLE_CLIENT_ID = '1081815970127-p67o922i2g7vdc6leqkj1f1e5rq1du6d.apps.googleusercontent.com';
 
 // Đánh thức máy chủ Render ngay khi người dùng vừa mở web (Pre-warming)
-const API_URL = import.meta.env.VITE_API_URL || 'https://ipuni-new-api.onrender.com/api/v1';
+const API_URL = import.meta.env.VITE_API_BASE_URL || 'https://dia-5hzu.onrender.com/api/v1';
 const HEALTH_URL = API_URL.replace('/api/v1', '/health');
 fetch(HEALTH_URL).catch(() => {}); // Gửi request ngầm để gọi máy chủ dậy
 

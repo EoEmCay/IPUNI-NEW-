@@ -86,11 +86,6 @@ export default function LandingPage() {
           <a href="#impact" className={styles.navLink}>{text.navImpact}</a>
           <a href="#contact" className={styles.navLink}>{text.navContact}</a>
         </div>
-        <div className={styles.navActions}>
-          <div className={styles.langToggle} style={{ pointerEvents: 'none', background: 'transparent', boxShadow: 'none' }}>
-            <span style={{ fontSize: 13, color: '#9CA3AF' }}>Ngôn ngữ: Sắp ra mắt</span>
-          </div>
-        </div>
       </nav>
 
       {/* ── HERO SECTION ── */}

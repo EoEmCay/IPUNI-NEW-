@@ -13,7 +13,7 @@
 }
 
 .chartTitle {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 700;
   color: var(--color-text-primary);
 }
@@ -21,8 +21,9 @@
 .daysSelect {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  padding: 5px 10px;
-  font-size: 13px;
+  min-height: 48px;
+  padding: 8px 12px;
+  font-size: 16px;
   color: var(--color-text-primary);
   background: var(--color-surface);
   cursor: pointer;
@@ -40,7 +41,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: 15px;
   color: var(--color-text-secondary);
 }
 
@@ -56,6 +57,6 @@
   justify-content: center;
   height: 180px;
   color: var(--color-text-secondary);
-  font-size: 13px;
+  font-size: 16px;
   text-align: center;
 }

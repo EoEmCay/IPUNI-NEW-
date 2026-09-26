@@ -117,7 +117,7 @@ export default function ScanHistoryPage() {
               <h3>{selectedScan.result?.isLabReport ? 'Kết quả chẩn đoán AI' : t.scanHistory.resultTitle}</h3>
               {selectedScan.result?.isLabReport ? (
                 <div className={styles.rejectBanner} style={{ backgroundColor: 'rgba(27, 95, 166, 0.05)', borderColor: 'var(--color-primary)', padding: '16px', borderRadius: '12px', marginTop: '12px' }}>
-                  <p style={{ color: 'var(--color-text-secondary)', fontSize: 14 }}>
+                  <p style={{ color: 'var(--color-text-secondary)', fontSize: 17 }}>
                     {selectedScan.result.labReportAdvice}
                   </p>
                 </div>

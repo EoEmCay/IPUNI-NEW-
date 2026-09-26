@@ -35,7 +35,7 @@ export default function AdvicePage() {
           style={{ 
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', 
             background: '#EF4444', color: 'white', padding: '16px', borderRadius: '16px', 
-            textDecoration: 'none', fontWeight: 'bold', fontSize: '18px',
+            textDecoration: 'none', fontWeight: 'bold', fontSize: '20px',
             boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)'
           }}
         >

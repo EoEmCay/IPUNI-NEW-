@@ -94,7 +94,7 @@ export default function MedicationHistoryModal({ medications = [], onClose }) {
               padding: '8px 12px',
               border: 'none',
               borderRadius: 8,
-              fontSize: 13,
+              fontSize: 16,
               fontWeight: 700,
               cursor: 'pointer',
               background: activeTab === 'stats' ? '#FFFFFF' : 'transparent',
@@ -112,7 +112,7 @@ export default function MedicationHistoryModal({ medications = [], onClose }) {
               padding: '8px 12px',
               border: 'none',
               borderRadius: 8,
-              fontSize: 13,
+              fontSize: 16,
               fontWeight: 700,
               cursor: 'pointer',
               background: activeTab === 'caregiver' ? '#FFFFFF' : 'transparent',
@@ -139,22 +139,22 @@ export default function MedicationHistoryModal({ medications = [], onClose }) {
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
-                  <div style={{ fontSize: 12, color: '#94A3B8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                  <div style={{ fontSize: 15, color: '#94A3B8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
                     Điểm Tuân Thủ (7 Ngày Qua)
                   </div>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginTop: 4 }}>
                     <span style={{ fontSize: 36, fontWeight: 900, color: '#38BDF8' }}>{stats.score}%</span>
-                    <span style={{ fontSize: 13, padding: '3px 10px', borderRadius: 100, background: 'rgba(56, 189, 248, 0.15)', color: '#7DD3FC', fontWeight: 700 }}>
+                    <span style={{ fontSize: 16, padding: '3px 10px', borderRadius: 100, background: 'rgba(56, 189, 248, 0.15)', color: '#7DD3FC', fontWeight: 700 }}>
                       {stats.rating.badge}
                     </span>
                   </div>
                 </div>
 
                 <div style={{ textAlign: 'right', background: 'rgba(255,255,255,0.08)', padding: '8px 14px', borderRadius: 12 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#FB923C', fontWeight: 800, fontSize: 15 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#FB923C', fontWeight: 800, fontSize: 17 }}>
                     <Flame size={18} fill="#FB923C" /> {stats.streakDays} ngày
                   </div>
-                  <div style={{ fontSize: 11, color: '#CBD5E1', marginTop: 2 }}>Chuỗi đúng giờ</div>
+                  <div style={{ fontSize: 14, color: '#CBD5E1', marginTop: 2 }}>Chuỗi đúng giờ</div>
                 </div>
               </div>
 
@@ -171,7 +171,7 @@ export default function MedicationHistoryModal({ medications = [], onClose }) {
                     }}
                   />
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11.5, color: '#94A3B8', marginTop: 6 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, color: '#94A3B8', marginTop: 6 }}>
                   <span>Đã uống: <strong>{stats.totalTaken}</strong> / {stats.totalScheduled} cữ</span>
                   <span>Mục tiêu y khoa: &gt; 80%</span>
                 </div>
@@ -179,7 +179,7 @@ export default function MedicationHistoryModal({ medications = [], onClose }) {
             </div>
 
             {/* Daily History List (7 Days) */}
-            <div style={{ fontWeight: 700, fontSize: 14, color: '#1E293B', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ fontWeight: 700, fontSize: 17, color: '#1E293B', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Calendar size={16} color="#2563EB" /> Chi Tiết 7 Ngày Qua
             </div>
 
@@ -196,12 +196,12 @@ export default function MedicationHistoryModal({ medications = [], onClose }) {
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                    <span style={{ fontWeight: 700, fontSize: 13.5, color: '#1E293B' }}>
+                    <span style={{ fontWeight: 700, fontSize: 16, color: '#1E293B' }}>
                       {idx === 0 ? 'Hôm nay' : idx === 1 ? 'Hôm qua' : day.dateLabel} ({day.date})
                     </span>
                     <span
                       style={{
-                        fontSize: 12,
+                        fontSize: 15,
                         fontWeight: 700,
                         padding: '2px 8px',
                         borderRadius: 6,
@@ -221,7 +221,7 @@ export default function MedicationHistoryModal({ medications = [], onClose }) {
                           display: 'flex',
                           justifyContent: 'space-between',
                           alignItems: 'center',
-                          fontSize: 12.5,
+                          fontSize: 15,
                           padding: '4px 8px',
                           borderRadius: 6,
                           background: m.status === 'taken' ? '#F0FDF4' : m.status === 'rest_day' ? '#F8FAFC' : '#FFFBEB'
@@ -255,22 +255,22 @@ export default function MedicationHistoryModal({ medications = [], onClose }) {
           /* Caregiver Notification Settings Tab */
           <div>
             <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', padding: '12px 14px', borderRadius: 12, marginBottom: 14 }}>
-              <div style={{ fontWeight: 700, fontSize: 13, color: '#1E40AF', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ fontWeight: 700, fontSize: 16, color: '#1E40AF', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <HeartHandshake size={16} /> Tính năng Báo động Người nhà
                 {caregiverSyncing && (
-                  <span style={{ fontSize: 11, fontWeight: 600, color: '#3B82F6', marginLeft: 'auto' }}>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: '#3B82F6', marginLeft: 'auto' }}>
                     Đang đồng bộ…
                   </span>
                 )}
               </div>
-              <p style={{ fontSize: 12, color: '#3B82F6', margin: '4px 0 0', lineHeight: 1.4 }}>
+              <p style={{ fontSize: 15, color: '#3B82F6', margin: '4px 0 0', lineHeight: 1.4 }}>
                 Khi bác quên uống thuốc quá 60 phút, hệ thống sẽ hỗ trợ gửi thông báo hoặc gọi điện tới người thân được cài đặt dưới đây để nhắc nhở kịp thời.
               </p>
             </div>
 
             <form onSubmit={handleSaveCaregiver} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
-                <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: '#334155', marginBottom: 4 }}>
+                <label style={{ display: 'block', fontSize: 15, fontWeight: 600, color: '#334155', marginBottom: 4 }}>
                   Họ tên người thân
                 </label>
                 <input
@@ -278,20 +278,20 @@ export default function MedicationHistoryModal({ medications = [], onClose }) {
                   value={caregiver.name}
                   onChange={(e) => setCaregiver({ ...caregiver, name: e.target.value })}
                   placeholder="VD: Nguyễn Thị Lan Anh"
-                  style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #CBD5E1', fontSize: 14 }}
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #CBD5E1', fontSize: 17 }}
                   required
                 />
               </div>
 
               <div style={{ display: 'flex', gap: 10 }}>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: '#334155', marginBottom: 4 }}>
+                  <label style={{ display: 'block', fontSize: 15, fontWeight: 600, color: '#334155', marginBottom: 4 }}>
                     Mối quan hệ
                   </label>
                   <select
                     value={caregiver.relationship}
                     onChange={(e) => setCaregiver({ ...caregiver, relationship: e.target.value })}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #CBD5E1', fontSize: 14, background: 'white' }}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #CBD5E1', fontSize: 17, background: 'white' }}
                   >
                     <option value="Con gái">Con gái</option>
                     <option value="Con trai">Con trai</option>
@@ -302,7 +302,7 @@ export default function MedicationHistoryModal({ medications = [], onClose }) {
                 </div>
 
                 <div style={{ flex: 1.5 }}>
-                  <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: '#334155', marginBottom: 4 }}>
+                  <label style={{ display: 'block', fontSize: 15, fontWeight: 600, color: '#334155', marginBottom: 4 }}>
                     Số điện thoại nhận tin
                   </label>
                   <input
@@ -310,14 +310,14 @@ export default function MedicationHistoryModal({ medications = [], onClose }) {
                     value={caregiver.phone}
                     onChange={(e) => setCaregiver({ ...caregiver, phone: e.target.value })}
                     placeholder="VD: 0987654321"
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #CBD5E1', fontSize: 14 }}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #CBD5E1', fontSize: 17 }}
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: '#334155', marginBottom: 4 }}>
+                <label style={{ display: 'block', fontSize: 15, fontWeight: 600, color: '#334155', marginBottom: 4 }}>
                   Email người thân (Tùy chọn)
                 </label>
                 <input
@@ -325,7 +325,7 @@ export default function MedicationHistoryModal({ medications = [], onClose }) {
                   value={caregiver.email}
                   onChange={(e) => setCaregiver({ ...caregiver, email: e.target.value })}
                   placeholder="VD: lananh@gmail.com"
-                  style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #CBD5E1', fontSize: 14 }}
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #CBD5E1', fontSize: 17 }}
                 />
               </div>
 
@@ -339,7 +339,7 @@ export default function MedicationHistoryModal({ medications = [], onClose }) {
                   border: 'none',
                   borderRadius: 8,
                   fontWeight: 700,
-                  fontSize: 14,
+                  fontSize: 17,
                   cursor: 'pointer'
                 }}
               >
@@ -349,7 +349,7 @@ export default function MedicationHistoryModal({ medications = [], onClose }) {
 
             {caregiver.phone && (
               <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid #E2E8F0' }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#64748B', marginBottom: 8 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#64748B', marginBottom: 8 }}>
                   Thao tác nhanh khẩn cấp:
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
@@ -364,7 +364,7 @@ export default function MedicationHistoryModal({ medications = [], onClose }) {
                       border: 'none',
                       borderRadius: 8,
                       fontWeight: 700,
-                      fontSize: 13,
+                      fontSize: 16,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -386,7 +386,7 @@ export default function MedicationHistoryModal({ medications = [], onClose }) {
                       border: '1px solid #CBD5E1',
                       borderRadius: 8,
                       fontWeight: 700,
-                      fontSize: 13,
+                      fontSize: 16,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',

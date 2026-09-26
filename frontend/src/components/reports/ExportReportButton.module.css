@@ -11,9 +11,10 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  min-height: 48px;
   padding: 10px 16px;
   border-radius: var(--radius-md, 12px);
-  font-size: 14px;
+  font-size: 17px;
   font-weight: 600;
   font-family: var(--font-body);
   cursor: pointer;
@@ -54,6 +55,6 @@
 
 .err {
   color: var(--color-danger, #ef4444);
-  font-size: 13px;
+  font-size: 16px;
   flex-basis: 100%;
 }

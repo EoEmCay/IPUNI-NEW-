@@ -13,12 +13,12 @@
 
 .pill {
   flex-shrink: 0;
-  min-height: 40px;
+  min-height: 48px;
   display: inline-flex;
   align-items: center;
   border-radius: 20px;
   padding: 8px 16px;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;

@@ -8,7 +8,7 @@
   justify-content: space-between;
 }
 
-.greetText { font-size: 14px; color: var(--color-text-secondary); }
+.greetText { font-size: 17px; color: var(--color-text-secondary); }
 
 .userName {
   font-size: 22px;
@@ -17,7 +17,7 @@
   margin-top: 2px;
 }
 
-.date { font-size: 13px; color: var(--color-text-secondary); margin-top: 4px; }
+.date { font-size: 16px; color: var(--color-text-secondary); margin-top: 4px; }
 
 .iconBtn {
   width: 44px;
@@ -40,13 +40,17 @@
 }
 
 .sectionTitle {
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 700;
   color: var(--color-text-primary);
 }
 
 .seeAll {
-  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  white-space: nowrap;
+  font-size: 17px;
   font-weight: 600;
   color: var(--color-primary);
 }
@@ -77,13 +81,16 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--color-text-primary);
 }
 
 .medLink {
-  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--color-primary);
 }
@@ -191,7 +198,7 @@
 }
 
 .blueMetricTitle {
-  font-size: 14px;
+  font-size: 17px;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.95);
 }
@@ -203,20 +210,20 @@
 }
 
 .blueMetricUnit {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   opacity: 0.85;
 }
 
 .blueMetricFooter {
-  font-size: 12px;
+  font-size: 15px;
   color: rgba(255, 255, 255, 0.9);
   font-weight: 500;
 }
 
 .moreMedsHint {
   text-align: center;
-  font-size: 14px;
+  font-size: 17px;
   color: var(--color-text-secondary);
   margin-top: 8px;
 }
@@ -251,7 +258,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 800;
   color: #a5b4fc;
   text-transform: uppercase;
@@ -260,7 +267,7 @@
 }
 
 .videoTitle {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 800;
   color: #ffffff;
   margin: 0 0 4px;
@@ -268,7 +275,7 @@
 }
 
 .videoDesc {
-  font-size: 12.5px;
+  font-size: 15px;
   color: #94a3b8;
   margin: 0 0 10px;
   line-height: 1.4;
@@ -284,7 +291,7 @@
   gap: 6px;
   background: #4f46e5;
   color: #ffffff;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 700;
   padding: 6px 14px;
   border-radius: 8px;
@@ -374,7 +381,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
   color: #e2e8f0;
 }

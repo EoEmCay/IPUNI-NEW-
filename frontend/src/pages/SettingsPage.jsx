@@ -190,7 +190,7 @@ export default function SettingsPage() {
       </div>
 
       <div className={styles.settingsGroup} style={{ background: 'white', padding: '20px', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', marginBottom: '30px' }}>
-        <p className={styles.sectionLabel} style={{ fontWeight: 'bold', fontSize: '14px', color: '#64748B', marginBottom: '16px', textTransform: 'uppercase' }}>
+        <p className={styles.sectionLabel} style={{ fontWeight: 'bold', fontSize: '17px', color: '#64748B', marginBottom: '16px', textTransform: 'uppercase' }}>
           {s.sectionDisplay}
         </p>
         <div className={styles.row} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
@@ -199,8 +199,8 @@ export default function SettingsPage() {
               <ZoomIn size={18} color="#1B5FA6" />
             </div>
             <div>
-              <p className={styles.rowTitle} style={{ fontWeight: 600, fontSize: '16px', color: '#1E293B', margin: 0 }}>{s.fontSizeTitle}</p>
-              <p className={styles.rowDesc} style={{ fontSize: '14px', color: '#64748B', margin: 0 }}>{s.fontSizeDesc}</p>
+              <p className={styles.rowTitle} style={{ fontWeight: 600, fontSize: '18px', color: '#1E293B', margin: 0 }}>{s.fontSizeTitle}</p>
+              <p className={styles.rowDesc} style={{ fontSize: '17px', color: '#64748B', margin: 0 }}>{s.fontSizeDesc}</p>
             </div>
           </div>
         </div>
@@ -212,7 +212,7 @@ export default function SettingsPage() {
                 key={lvl}
                 onClick={() => setFontScale(actualScale)}
                 style={{
-                  flex: 1, padding: '10px 0', borderRadius: '10px', fontWeight: 600,
+                  flex: 1, minHeight: 48, padding: '10px 0', borderRadius: '10px', fontWeight: 600,
                   border: fontScale === actualScale ? '2px solid #3B82F6' : '1px solid #E2E8F0',
                   background: fontScale === actualScale ? '#EFF6FF' : 'white',
                   color: fontScale === actualScale ? '#1B5FA6' : '#64748B',
@@ -228,7 +228,7 @@ export default function SettingsPage() {
 
         <div className={styles.divider} style={{ margin: '24px 0', borderBottom: '1px solid #F1F5F9' }} />
 
-        <p className={styles.sectionLabel} style={{ fontWeight: 'bold', fontSize: '14px', color: '#64748B', marginBottom: '16px', textTransform: 'uppercase' }}>
+        <p className={styles.sectionLabel} style={{ fontWeight: 'bold', fontSize: '17px', color: '#64748B', marginBottom: '16px', textTransform: 'uppercase' }}>
           {s.sectionTheme}
         </p>
         {isGoldMode ? (
@@ -237,8 +237,8 @@ export default function SettingsPage() {
               <Crown size={18} fill="#C9921A" color="#C9921A" />
             </div>
             <div>
-              <p className={styles.rowTitle} style={{ fontWeight: 600, fontSize: '16px', color: '#1E293B', margin: 0 }}>{s.goldTheme}</p>
-              <p className={styles.rowDesc} style={{ fontSize: '14px', color: '#64748B', margin: 0 }}>{s.goldThemeDesc}</p>
+              <p className={styles.rowTitle} style={{ fontWeight: 600, fontSize: '18px', color: '#1E293B', margin: 0 }}>{s.goldTheme}</p>
+              <p className={styles.rowDesc} style={{ fontSize: '17px', color: '#64748B', margin: 0 }}>{s.goldThemeDesc}</p>
             </div>
           </div>
         ) : (
@@ -248,14 +248,14 @@ export default function SettingsPage() {
                 <Sparkles size={18} color={isCuteMode ? '#A855F7' : '#D97706'} />
               </div>
               <div>
-                <p className={styles.rowTitle} style={{ fontWeight: 600, fontSize: '16px', color: '#1E293B', margin: 0 }}>{s.cuteMode}</p>
-                <p className={styles.rowDesc} style={{ fontSize: '14px', color: '#64748B', margin: 0 }}>{s.cuteModeDesc}</p>
+                <p className={styles.rowTitle} style={{ fontWeight: 600, fontSize: '18px', color: '#1E293B', margin: 0 }}>{s.cuteMode}</p>
+                <p className={styles.rowDesc} style={{ fontSize: '17px', color: '#64748B', margin: 0 }}>{s.cuteModeDesc}</p>
               </div>
             </div>
             <button
               onClick={toggleCuteMode}
               style={{
-                width: '44px', height: '24px', borderRadius: '12px',
+                width: '56px', height: '32px', borderRadius: '16px', flexShrink: 0,
                 background: isCuteMode ? '#A855F7' : '#E2E8F0',
                 position: 'relative', border: 'none', cursor: 'pointer',
                 transition: '0.3s'
@@ -263,9 +263,9 @@ export default function SettingsPage() {
               aria-label={s.cuteMode}
             >
               <span style={{
-                display: 'block', width: '20px', height: '20px', borderRadius: '50%',
+                display: 'block', width: '28px', height: '28px', borderRadius: '50%',
                 background: 'white', position: 'absolute', top: '2px',
-                left: isCuteMode ? '22px' : '2px', transition: '0.3s',
+                left: isCuteMode ? '26px' : '2px', transition: '0.3s',
                 boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
               }} />
             </button>
@@ -274,7 +274,7 @@ export default function SettingsPage() {
 
         <div className={styles.divider} style={{ margin: '24px 0', borderBottom: '1px solid #F1F5F9' }} />
 
-        <p className={styles.sectionLabel} style={{ fontWeight: 'bold', fontSize: '14px', color: '#64748B', marginBottom: '16px', textTransform: 'uppercase' }}>
+        <p className={styles.sectionLabel} style={{ fontWeight: 'bold', fontSize: '17px', color: '#64748B', marginBottom: '16px', textTransform: 'uppercase' }}>
           {s.sectionNotify}
         </p>
         <div className={styles.row} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -283,16 +283,16 @@ export default function SettingsPage() {
               <Bell size={18} color="#1B5FA6" />
             </div>
             <div>
-              <p className={styles.rowTitle} style={{ fontWeight: 600, fontSize: '16px', color: '#1E293B', margin: 0 }}>{s.reminderTitle}</p>
-              <p className={styles.rowDesc} style={{ fontSize: '14px', color: '#64748B', margin: 0 }}>{s.reminderDesc}</p>
+              <p className={styles.rowTitle} style={{ fontWeight: 600, fontSize: '18px', color: '#1E293B', margin: 0 }}>{s.reminderTitle}</p>
+              <p className={styles.rowDesc} style={{ fontSize: '17px', color: '#64748B', margin: 0 }}>{s.reminderDesc}</p>
             </div>
           </div>
-          <div style={{ fontSize: '12px', background: '#F1F5F9', color: '#64748B', padding: '4px 8px', borderRadius: '8px' }}>{s.comingSoon}</div>
+          <div style={{ fontSize: '15px', background: '#F1F5F9', color: '#64748B', padding: '4px 8px', borderRadius: '8px' }}>{s.comingSoon}</div>
         </div>
 
         <div className={styles.divider} style={{ margin: '24px 0', borderBottom: '1px solid #F1F5F9' }} />
 
-        <p className={styles.sectionLabel} style={{ fontWeight: 'bold', fontSize: '14px', color: '#64748B', marginBottom: '16px', textTransform: 'uppercase' }}>
+        <p className={styles.sectionLabel} style={{ fontWeight: 'bold', fontSize: '17px', color: '#64748B', marginBottom: '16px', textTransform: 'uppercase' }}>
           {s.sectionOther}
         </p>
         <div className={styles.row} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
@@ -301,11 +301,11 @@ export default function SettingsPage() {
               <Shield size={18} color="#16A34A" />
             </div>
             <div>
-              <p className={styles.rowTitle} style={{ fontWeight: 600, fontSize: '16px', color: '#1E293B', margin: 0 }}>{s.privacy}</p>
-              <p className={styles.rowDesc} style={{ fontSize: '14px', color: '#64748B', margin: 0 }}>{s.privacyDesc}</p>
+              <p className={styles.rowTitle} style={{ fontWeight: 600, fontSize: '18px', color: '#1E293B', margin: 0 }}>{s.privacy}</p>
+              <p className={styles.rowDesc} style={{ fontSize: '17px', color: '#64748B', margin: 0 }}>{s.privacyDesc}</p>
             </div>
           </div>
-          <div style={{ fontSize: '12px', background: '#F1F5F9', color: '#64748B', padding: '4px 8px', borderRadius: '8px' }}>{s.comingSoon}</div>
+          <div style={{ fontSize: '15px', background: '#F1F5F9', color: '#64748B', padding: '4px 8px', borderRadius: '8px' }}>{s.comingSoon}</div>
         </div>
 
         <div className={styles.row} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -314,14 +314,14 @@ export default function SettingsPage() {
               <HelpCircle size={18} color="#6B7A8D" />
             </div>
             <div>
-              <p className={styles.rowTitle} style={{ fontWeight: 600, fontSize: '16px', color: '#1E293B', margin: 0 }}>{s.support}</p>
-              <p className={styles.rowDesc} style={{ fontSize: '14px', color: '#64748B', margin: 0 }}>{s.supportDesc}</p>
+              <p className={styles.rowTitle} style={{ fontWeight: 600, fontSize: '18px', color: '#1E293B', margin: 0 }}>{s.support}</p>
+              <p className={styles.rowDesc} style={{ fontSize: '17px', color: '#64748B', margin: 0 }}>{s.supportDesc}</p>
             </div>
           </div>
-          <div style={{ fontSize: '12px', background: '#F1F5F9', color: '#64748B', padding: '4px 8px', borderRadius: '8px' }}>{s.comingSoon}</div>
+          <div style={{ fontSize: '15px', background: '#F1F5F9', color: '#64748B', padding: '4px 8px', borderRadius: '8px' }}>{s.comingSoon}</div>
         </div>
 
-        <p style={{ textAlign: 'center', marginTop: '24px', color: '#94A3B8', fontSize: '12px' }}>{s.version}</p>
+        <p style={{ textAlign: 'center', marginTop: '24px', color: '#94A3B8', fontSize: '15px' }}>{s.version}</p>
       </div>
     </div>
   );

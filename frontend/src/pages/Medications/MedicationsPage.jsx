@@ -113,13 +113,13 @@ export default function MedicationsPage() {
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <span style={{ fontSize: 18, fontWeight: 800, color: '#38BDF8' }}>{stats.score}%</span>
-                <span style={{ fontSize: 12, color: '#94A3B8' }}>Điểm tuân thủ (7 ngày)</span>
-                <span style={{ fontSize: 11, background: 'rgba(251, 146, 60, 0.2)', color: '#FB923C', padding: '2px 8px', borderRadius: 100, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ fontSize: 20, fontWeight: 800, color: '#38BDF8' }}>{stats.score}%</span>
+                <span style={{ fontSize: 15, color: '#94A3B8' }}>Điểm tuân thủ (7 ngày)</span>
+                <span style={{ fontSize: 14, background: 'rgba(251, 146, 60, 0.2)', color: '#FB923C', padding: '2px 8px', borderRadius: 100, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                   <Flame size={12} fill="#FB923C" /> {stats.streakDays} ngày liên tiếp
                 </span>
               </div>
-              <div style={{ fontSize: 12, color: '#CBD5E1', marginTop: 2 }}>
+              <div style={{ fontSize: 15, color: '#CBD5E1', marginTop: 2 }}>
                 Đã uống {stats.totalTaken}/{stats.totalScheduled} cữ • Bấm để xem nhật ký & cài Người nhà nhắc nhở &gt;
               </div>
             </div>
@@ -130,9 +130,10 @@ export default function MedicationsPage() {
               background: '#2563EB',
               color: 'white',
               border: 'none',
+              minHeight: 48,
               padding: '8px 14px',
               borderRadius: 8,
-              fontSize: 12.5,
+              fontSize: 15,
               fontWeight: 700,
               cursor: 'pointer',
               whiteSpace: 'nowrap',
@@ -169,7 +170,7 @@ export default function MedicationsPage() {
       )}
 
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--color-text-secondary)', fontSize: 14 }}>
+        <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--color-text-secondary)', fontSize: 17 }}>
           {t.common.loading}
         </div>
       ) : (!medications || medications.length === 0) ? (

@@ -257,8 +257,8 @@ function AppRoutes() {
             background: 'white', padding: '24px', borderRadius: '16px',
             maxWidth: '320px', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
           }}>
-            <h3 style={{ margin: '0 0 12px', color: '#E53E3E', fontSize: '18px' }}>Cảnh báo bảo mật</h3>
-            <p style={{ margin: '0 0 20px', fontSize: '14px', color: '#4A5568' }}>
+            <h3 style={{ margin: '0 0 12px', color: '#E53E3E', fontSize: '20px' }}>Cảnh báo bảo mật</h3>
+            <p style={{ margin: '0 0 20px', fontSize: '17px', color: '#4A5568' }}>
               Tài khoản của bạn vừa được đăng nhập trên một thiết bị khác. Đó có phải là bạn không?
             </p>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>

@@ -106,7 +106,7 @@ export default function MedicationCard({ medication }) {
         {isLate && <div className={styles.lateNote}>Đã quá giờ uống</div>}
         {isRestDay && (
           <div style={{ marginTop: 4 }}>
-            <span style={{ fontSize: 11, background: '#F3F4F6', color: '#6B7280', padding: '2px 8px', borderRadius: 6, display: 'inline-flex', alignItems: 'center', gap: 4, fontWeight: 600 }}>
+            <span style={{ fontSize: 14, background: '#F3F4F6', color: '#6B7280', padding: '2px 8px', borderRadius: 6, display: 'inline-flex', alignItems: 'center', gap: 4, fontWeight: 600 }}>
               📅 Uống cách ngày • Hôm nay nghỉ cữ
             </span>
           </div>

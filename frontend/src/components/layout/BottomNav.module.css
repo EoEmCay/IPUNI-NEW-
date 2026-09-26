@@ -31,7 +31,7 @@
   gap: 3px;
   padding: 4px 0;
   color: var(--color-text-secondary);
-  font-size: 11px;
+  font-size: 14px;
   transition: color 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
@@ -55,7 +55,7 @@
 }
 
 .label {
-  font-size: 10px;
+  font-size: 14px;
   font-weight: 500;
   white-space: nowrap;
   font-family: var(--font-body);
@@ -99,7 +99,7 @@
 }
 
 .scanLabel {
-  font-size: 10px;
+  font-size: 14px;
   font-weight: 700;
   white-space: nowrap;
   font-family: var(--font-body);
@@ -138,7 +138,7 @@
 }
 
 :global([data-theme="cute"]) .label {
-  font-size: 9px;
+  font-size: 14px;
   font-weight: 700;
 }
 
@@ -152,7 +152,7 @@
 :global([data-theme="cute"]) .scanLabel {
   font-family: 'Quicksand', sans-serif;
   font-weight: 700;
-  font-size: 9px;
+  font-size: 14px;
 }
 
 /* ── Gold Mode ── */

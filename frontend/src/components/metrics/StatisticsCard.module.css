@@ -14,7 +14,7 @@
 }
 
 .title {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 700;
   color: var(--color-text-primary);
   margin: 0;
@@ -39,13 +39,13 @@
 }
 
 .label {
-  font-size: 12px;
+  font-size: 15px;
   color: var(--color-text-secondary);
   margin-bottom: 4px;
 }
 
 .value {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--color-text-primary);
 }
@@ -76,13 +76,13 @@
 }
 
 .hba1cLabel {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--color-text-secondary);
 }
 
 .hba1cValue {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 800;
   color: var(--color-danger);
 }

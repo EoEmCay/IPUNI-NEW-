@@ -103,20 +103,20 @@ export default function MedicationDetailModal({ medication, onClose }) {
       {/* ── Chỉnh sửa giờ uống & Lịch cách ngày dành cho người nhà / người dùng ── */}
       <div className={styles.section} style={{ background: '#F8FAFC', padding: 14, borderRadius: 14, border: '1px solid #E2E8F0', marginTop: 12 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-          <div style={{ fontWeight: 700, fontSize: 13.5, color: '#1E293B', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontWeight: 700, fontSize: 16, color: '#1E293B', display: 'flex', alignItems: 'center', gap: 6 }}>
             <Clock size={15} color="#2563EB" /> Giờ uống thuốc & Tần suất
           </div>
           {!isEditingTimes ? (
             <button 
               onClick={() => setIsEditingTimes(true)}
-              style={{ fontSize: 12, color: '#2563EB', background: 'white', border: '1px solid #BFDBFE', padding: '4px 10px', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
+              style={{ fontSize: 15, color: '#2563EB', background: 'white', border: '1px solid #BFDBFE', padding: '4px 10px', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
             >
               Chỉnh sửa giờ
             </button>
           ) : (
             <button 
               onClick={() => setIsEditingTimes(false)}
-              style={{ fontSize: 12, color: '#64748B', background: 'transparent', border: 'none', cursor: 'pointer' }}
+              style={{ fontSize: 15, color: '#64748B', background: 'transparent', border: 'none', cursor: 'pointer' }}
             >
               Đóng
             </button>
@@ -133,14 +133,14 @@ export default function MedicationDetailModal({ medication, onClose }) {
               ))}
             </div>
             {isAlternate && (
-              <div style={{ marginTop: 8, fontSize: 12, color: '#4338CA', background: '#EEF2FF', padding: '4px 10px', borderRadius: 6, display: 'inline-block', fontWeight: 600 }}>
+              <div style={{ marginTop: 8, fontSize: 15, color: '#4338CA', background: '#EEF2FF', padding: '4px 10px', borderRadius: 6, display: 'inline-block', fontWeight: 600 }}>
                 Tần suất: Uống cách ngày (1 ngày uống, 1 ngày nghỉ)
               </div>
             )}
           </div>
         ) : (
           <div style={{ marginTop: 10 }}>
-            <p style={{ fontSize: 12, color: '#64748B', margin: '0 0 8px' }}>
+            <p style={{ fontSize: 15, color: '#64748B', margin: '0 0 8px' }}>
               Chọn giờ uống phù hợp nhất với giờ sinh hoạt của gia đình:
             </p>
 
@@ -169,7 +169,7 @@ export default function MedicationDetailModal({ medication, onClose }) {
                       setEditTimesStr(arr.join(', '));
                     }}
                     style={{
-                      fontSize: 12,
+                      fontSize: 15,
                       padding: '5px 10px',
                       borderRadius: 8,
                       border: isSelected ? '1.5px solid #2563EB' : '1px solid #CBD5E1',
@@ -186,7 +186,7 @@ export default function MedicationDetailModal({ medication, onClose }) {
             </div>
 
             <div style={{ marginBottom: 10 }}>
-              <label style={{ fontSize: 12, color: '#475569', display: 'block', marginBottom: 4 }}>
+              <label style={{ fontSize: 15, color: '#475569', display: 'block', marginBottom: 4 }}>
                 Hoặc tự nhập giờ uống (cách nhau dấu phẩy):
               </label>
               <input
@@ -194,12 +194,12 @@ export default function MedicationDetailModal({ medication, onClose }) {
                 value={editTimesStr}
                 onChange={(e) => setEditTimesStr(e.target.value)}
                 placeholder="VD: 07:00, 18:00"
-                style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #CBD5E1', fontSize: 14 }}
+                style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #CBD5E1', fontSize: 17 }}
               />
             </div>
 
             {/* Checkbox cách ngày */}
-            <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#1E293B', cursor: 'pointer', marginBottom: 12 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 16, color: '#1E293B', cursor: 'pointer', marginBottom: 12 }}>
               <input
                 type="checkbox"
                 checked={isAlternate}
@@ -220,7 +220,7 @@ export default function MedicationDetailModal({ medication, onClose }) {
                 border: 'none',
                 borderRadius: 8,
                 fontWeight: 700,
-                fontSize: 13,
+                fontSize: 16,
                 cursor: 'pointer'
               }}
             >

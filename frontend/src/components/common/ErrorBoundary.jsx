@@ -35,12 +35,12 @@ class ErrorBoundary extends React.Component {
             padding: '16px',
             marginBottom: '16px'
           }}>
-            <h2 style={{ margin: '0 0 8px 0', fontSize: '18px', color: '#B91C1C' }}>⚠️ Đã xảy ra lỗi giao diện</h2>
-            <p style={{ margin: 0, fontSize: '14px', color: '#7F1D1D' }}>
+            <h2 style={{ margin: '0 0 8px 0', fontSize: '20px', color: '#B91C1C' }}>⚠️ Đã xảy ra lỗi giao diện</h2>
+            <p style={{ margin: 0, fontSize: '17px', color: '#7F1D1D' }}>
               Ứng dụng vừa gặp sự cố hiển thị. Chi tiết lỗi bên dưới:
             </p>
           </div>
-          <details style={{ whiteSpace: 'pre-wrap', fontSize: '13px', color: '#DC2626', background: '#F8FAFC', padding: '12px', borderRadius: '8px', border: '1px solid #E2E8F0', overflowX: 'auto' }}>
+          <details style={{ whiteSpace: 'pre-wrap', fontSize: '16px', color: '#DC2626', background: '#F8FAFC', padding: '12px', borderRadius: '8px', border: '1px solid #E2E8F0', overflowX: 'auto' }}>
             <summary style={{ cursor: 'pointer', fontWeight: 'bold', marginBottom: '8px' }}>Chi tiết kỹ thuật</summary>
             {this.state.error && this.state.error.toString()}
             <br />

@@ -20,13 +20,13 @@
 .img { width: 100%; height: 100%; object-fit: cover; }
 
 .name {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 800;
   color: var(--color-text-primary);
 }
 
 .dosage {
-  font-size: 14px;
+  font-size: 17px;
   color: var(--color-text-secondary);
   margin-top: 2px;
 }
@@ -38,7 +38,7 @@
 }
 
 .sectionTitle {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--color-text-primary);
   margin-bottom: 10px;
@@ -52,13 +52,13 @@
 }
 
 .rowLabel {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--color-text-secondary);
   flex-shrink: 0;
 }
 
 .rowValue {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--color-text-primary);
   text-align: right;
@@ -74,7 +74,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--color-text-primary);
   background: #EEF4FF;
@@ -94,7 +94,7 @@
   border: none;
   border-radius: 12px;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 17px;
   cursor: pointer;
   margin-top: 18px;
   transition: background-color 0.2s, transform 0.1s;

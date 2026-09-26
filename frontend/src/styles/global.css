@@ -104,7 +104,7 @@ img, video, canvas, svg { max-width: 100%; }
    font-size tính toán < 16px, và không phải lúc nào cũng tự zoom lại đúng - làm layout
    như bị vỡ. Ép tối thiểu 16px ở đây để không sót input nào, kể cả input thêm sau này. */
 input, select, textarea {
-  font-size: 16px !important;
+  font-size: 18px !important;
 }
 
 .page-content {

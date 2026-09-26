@@ -67,7 +67,7 @@
 .pillB { fill: #86efac; }
 .pillC { fill: #93c5fd; }
 .pillLine { stroke: rgba(255,255,255,0.7); stroke-width: 1.5; }
-.pillStar { font-size: 10px; fill: rgba(168,85,247,0.7); }
+.pillStar { font-size: 14px; fill: rgba(168,85,247,0.7); }
 
 /* Pill float animations */
 .pill1 { animation: floatPill 4s ease-in-out infinite; }
@@ -75,7 +75,7 @@
 .pill3 { animation: floatPill 3.5s ease-in-out infinite; animation-delay: 2s; }
 
 .floatLabel {
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--color-primary);
   margin-top: 4px;

@@ -38,19 +38,19 @@ export default function MetricHistoryItem({ metric, onDelete }) {
       <div style={{ width: 4, height: 40, borderRadius: 2, background: color, flexShrink: 0 }} />
       <div style={{ flex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 18, fontWeight: 800, color }}>{metric.value}</span>
-          <span style={{ fontSize: 12, color: '#6B7A8D' }}>{unit}</span>
-          <span style={{ fontSize: 11, fontWeight: 600, color, marginLeft: 4, background: `${color}18`, padding: '2px 7px', borderRadius: 20, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+          <span style={{ fontSize: 20, fontWeight: 800, color }}>{metric.value}</span>
+          <span style={{ fontSize: 15, color: '#6B7A8D' }}>{unit}</span>
+          <span style={{ fontSize: 14, fontWeight: 600, color, marginLeft: 4, background: `${color}18`, padding: '2px 7px', borderRadius: 20, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
             {status === 'danger' && <AlertTriangle size={11} color={color} />}
             {statusLabels[status]}
           </span>
         </div>
-        <div style={{ fontSize: 12, color: '#6B7A8D', marginTop: 2 }}>
+        <div style={{ fontSize: 15, color: '#6B7A8D', marginTop: 2 }}>
           {typeLabel} · {timeStr} {dateStr}
         </div>
-        {metric.note && <div style={{ fontSize: 12, color: '#6B7A8D', marginTop: 2, fontStyle: 'italic' }}>{metric.note}</div>}
+        {metric.note && <div style={{ fontSize: 15, color: '#6B7A8D', marginTop: 2, fontStyle: 'italic' }}>{metric.note}</div>}
       </div>
-      <button onClick={() => onDelete(metric.id)} style={{ color: '#EF4444', padding: 6, borderRadius: 8, background: '#FFF1F2' }}>
+      <button onClick={() => onDelete(metric.id)} aria-label="Xóa lần đo" style={{ color: '#EF4444', minWidth: 48, minHeight: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 10, background: '#FFF1F2' }}>
         <Trash2 size={15} />
       </button>
     </div>

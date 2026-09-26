@@ -21,13 +21,13 @@
 }
 
 .title {
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 700;
   color: var(--color-text-primary);
 }
 
 .subtitle {
-  font-size: 14px;
+  font-size: 17px;
   color: var(--color-text-secondary);
   line-height: 1.5;
   max-width: 240px;

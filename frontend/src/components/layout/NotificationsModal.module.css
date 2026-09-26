@@ -44,7 +44,7 @@
 
 .header h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   color: var(--color-text-primary);
 }
@@ -96,7 +96,7 @@
 
 .emptyState p {
   margin: 0;
-  font-size: 16px;
+  font-size: 18px;
   color: var(--color-text-secondary);
 }
 
@@ -106,7 +106,7 @@
 
 .sectionTitle {
   margin: 0 0 12px 0;
-  font-size: 14px;
+  font-size: 17px;
   font-weight: 600;
   color: var(--color-text-primary);
   text-transform: uppercase;
@@ -150,27 +150,27 @@
 
 .title {
   margin: 0 0 4px 0;
-  font-size: 14px;
+  font-size: 17px;
   font-weight: 600;
   color: var(--color-text-primary);
 }
 
 .detail {
   margin: 0 0 2px 0;
-  font-size: 12px;
+  font-size: 15px;
   color: var(--color-text-secondary);
 }
 
 .times {
   margin: 0;
-  font-size: 12px;
+  font-size: 15px;
   color: var(--color-primary);
   font-weight: 500;
 }
 
 .time {
   margin: 0;
-  font-size: 12px;
+  font-size: 15px;
   color: var(--color-primary);
   font-weight: 500;
 }

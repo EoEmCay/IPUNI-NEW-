@@ -25,7 +25,7 @@
 
 .text {
   color: white;
-  font-size: 14px;
+  font-size: 17px;
   font-weight: 600;
   letter-spacing: 0.2px;
   white-space: nowrap;
@@ -53,6 +53,6 @@
   }
 
   .text {
-    font-size: 13px;
+    font-size: 16px;
   }
 }

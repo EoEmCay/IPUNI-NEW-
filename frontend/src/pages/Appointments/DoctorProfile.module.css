@@ -29,7 +29,7 @@
 }
 
 .navTitle {
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 700;
   color: var(--color-text-primary);
 }
@@ -54,7 +54,7 @@
 }
 
 .docSub {
-  font-size: 14px;
+  font-size: 17px;
   color: var(--color-text-secondary);
 }
 
@@ -72,11 +72,11 @@
   margin-bottom: 8px;
   color: var(--color-primary);
   font-weight: 700;
-  font-size: 15px;
+  font-size: 17px;
 }
 
 .notesText {
-  font-size: 13.5px;
+  font-size: 16px;
   color: var(--color-text-primary);
   line-height: 1.5;
   margin: 0;

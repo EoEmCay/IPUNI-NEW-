@@ -20,7 +20,7 @@
 }
 
 .driver-popover-description {
-  font-size: 16px !important;
+  font-size: 18px !important;
   line-height: 1.6 !important;
   color: #334155 !important;
   font-weight: 500 !important;
@@ -34,7 +34,7 @@
 .driver-popover-btn-done {
   border-radius: 24px !important;
   font-weight: 700 !important;
-  font-size: 16px !important;
+  font-size: 18px !important;
   background-color: #1B5FA6 !important;
   color: white !important;
   padding: 10px 20px !important;
@@ -45,7 +45,7 @@
 .driver-popover-btn-prev {
   border-radius: 24px !important;
   font-weight: 600 !important;
-  font-size: 15px !important;
+  font-size: 17px !important;
   color: #64748B !important;
   background-color: #F1F5F9 !important;
   padding: 10px 16px !important;

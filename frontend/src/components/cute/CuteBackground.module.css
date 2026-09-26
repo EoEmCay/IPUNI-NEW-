@@ -127,13 +127,13 @@
 /* ── Sparkles ── */
 .sparkle1, .sparkle2, .sparkle3 {
   position: absolute;
-  font-size: 18px;
+  font-size: 20px;
   animation: sparkleAnim 2.5s ease-in-out infinite;
   color: rgba(168, 85, 247, 0.7);
 }
 .sparkle1 { top: 12%; left: 72%; animation-delay: 0s; }
-.sparkle2 { top: 32%; right: 15%; animation-delay: 0.8s; font-size: 13px; color: rgba(236,72,153,0.7); }
-.sparkle3 { top: 48%; left: 26%; animation-delay: 1.6s; font-size: 15px; }
+.sparkle2 { top: 32%; right: 15%; animation-delay: 0.8s; font-size: 16px; color: rgba(236,72,153,0.7); }
+.sparkle3 { top: 48%; left: 26%; animation-delay: 1.6s; font-size: 17px; }
 
 /* ── Keyframes ── */
 @keyframes twinkle {

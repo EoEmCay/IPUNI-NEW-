@@ -206,7 +206,7 @@ const vi = {
   addMetric: {
     title: 'Nhập chỉ số',
     typeLabel: 'Loại đường huyết',
-    valueLabel: 'Giá trị (mmol/L)',
+    valueLabel: 'Giá trị',
     valuePlaceholder: 'Ví dụ: 6.5',
     timeLabel: 'Thời gian đo',
     noteLabel: 'Ghi chú (tùy chọn)',

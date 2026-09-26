@@ -6,7 +6,7 @@
 }
 
 .label {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--color-text-primary);
   letter-spacing: 0.1px;
@@ -17,7 +17,7 @@
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-sm);
   padding: 13px 15px;
-  font-size: 15px;
+  font-size: 17px;
   color: var(--color-text-primary);
   background: #F8FAFC;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
@@ -38,7 +38,7 @@
 }
 
 .error {
-  font-size: 12px;
+  font-size: 15px;
   color: var(--color-danger);
   font-weight: 600;
 }

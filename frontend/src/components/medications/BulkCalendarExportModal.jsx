@@ -33,7 +33,7 @@ export default function BulkCalendarExportModal({ medications, onClose }) {
   if (validMeds.length === 0) {
     return (
       <Modal title="Thêm vào lịch nhắc" onClose={onClose}>
-        <div style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-secondary)', fontSize: 14 }}>
+        <div style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-secondary)', fontSize: 17 }}>
           Bạn chưa có đơn thuốc nào có lịch uống.
         </div>
       </Modal>
@@ -42,7 +42,7 @@ export default function BulkCalendarExportModal({ medications, onClose }) {
 
   return (
     <Modal title="Chọn thuốc để nhắc" onClose={onClose}>
-      <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 16 }}>
+      <p style={{ fontSize: 16, color: 'var(--color-text-secondary)', marginBottom: 16 }}>
         Vui lòng chọn những loại thuốc bạn muốn tạo lịch báo thức:
       </p>
       
@@ -63,10 +63,10 @@ export default function BulkCalendarExportModal({ medications, onClose }) {
               }}
             >
               <div>
-                <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--color-text-primary)' }}>
-                  {med.name} {med.dosage && <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--color-text-secondary)' }}>- {med.dosage}</span>}
+                <div style={{ fontSize: 17, fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                  {med.name} {med.dosage && <span style={{ fontSize: 16, fontWeight: 400, color: 'var(--color-text-secondary)' }}>- {med.dosage}</span>}
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: 2 }}>
+                <div style={{ fontSize: 15, color: 'var(--color-text-secondary)', marginTop: 2 }}>
                   {med.times.join(', ')}
                 </div>
               </div>
@@ -94,7 +94,7 @@ export default function BulkCalendarExportModal({ medications, onClose }) {
           color: 'white',
           border: 'none',
           borderRadius: '12px',
-          fontSize: 15,
+          fontSize: 17,
           fontWeight: 700,
           display: 'flex',
           alignItems: 'center',

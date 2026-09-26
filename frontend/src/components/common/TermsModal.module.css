@@ -51,7 +51,7 @@
   min-height: 0; /* bắt buộc để flex item thật sự cuộn được, không thì nó tự giãn theo
                     nội dung thay vì bị giới hạn bởi max-height của .modal - cuộn/vuốt sẽ
                     không hoạt động và nút "Tiếp tục" không bao giờ được bật */
-  font-size: 14px;
+  font-size: 17px;
   line-height: 1.6;
   color: #4B5563;
 }
@@ -81,7 +81,7 @@
 }
 
 .checkboxText {
-  font-size: 14px;
+  font-size: 17px;
   color: #111827;
   user-select: none;
 }
@@ -91,7 +91,7 @@
   padding: 14px 24px;
   border-radius: 28px;
   font-weight: 700;
-  font-size: 16px;
+  font-size: 18px;
   border: none;
   cursor: pointer;
   transition: all 0.2s;

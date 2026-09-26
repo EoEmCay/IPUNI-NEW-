@@ -21,13 +21,13 @@
 }
 
 .label {
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--color-text-secondary);
 }
 
 .hint {
-  font-size: 11px;
+  font-size: 14px;
   color: #64748b;
 }
 
@@ -44,7 +44,7 @@
   padding: 12px 14px;
   border-radius: 12px;
   border: 1.5px solid var(--color-border);
-  font-size: 16px;
+  font-size: 18px;
   color: var(--color-text-primary);
   background: var(--color-surface);
   font-family: inherit;
@@ -69,7 +69,7 @@
   border: 1.5px solid var(--color-border);
   background: var(--color-surface);
   color: #475569;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
@@ -99,7 +99,7 @@
   border: 1.5px solid var(--color-border);
   background: var(--color-surface);
   color: var(--color-text-primary);
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -111,7 +111,7 @@
   border: none;
   background: var(--color-primary);
   color: #fff;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 700;
   cursor: pointer;
 }

@@ -1,6 +1,6 @@
 .userBtn {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   border: none;
   background: transparent;
@@ -24,7 +24,7 @@
   background: rgba(255, 255, 255, 0.25);
   color: white;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 17px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -69,7 +69,7 @@
   border: none;
   background: none;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 17px;
   color: var(--color-text-primary);
   display: flex;
   align-items: center;
@@ -105,7 +105,7 @@
   margin-left: auto;
   background: linear-gradient(90deg, #1B5FA6, #7C3AED);
   color: white;
-  font-size: 10px;
+  font-size: 14px;
   font-weight: 800;
   padding: 2px 7px;
   border-radius: 20px;
@@ -132,7 +132,7 @@
 }
 
 .langRowLabel {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--color-text-secondary);
   flex: 1;
 }

@@ -12,13 +12,13 @@
   background: linear-gradient(135deg, #FFF8E7, #FFF3CD);
   border-radius: var(--radius-sm);
   border: 1px solid #EDD99A;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 700;
   color: #9A6B00;
 }
 
 .desc {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--color-text-secondary);
   margin: 0;
 }
@@ -91,14 +91,14 @@
 }
 
 .styleName {
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 700;
   color: var(--color-text-primary);
   margin: 0;
 }
 
 .styleDesc {
-  font-size: 10px;
+  font-size: 14px;
   color: var(--color-text-secondary);
   margin: 0;
   text-align: center;
@@ -117,14 +117,14 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--color-text-primary);
 }
 
 .comingSoon {
   margin-left: auto;
-  font-size: 10px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--color-text-secondary);
   background: var(--color-bg);
@@ -147,7 +147,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 20px;
   position: relative;
   cursor: pointer;
   transition: transform 0.15s;

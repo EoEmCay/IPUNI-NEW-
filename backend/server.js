@@ -16,7 +16,6 @@ const careLinksRoutes = require('./src/modules/users/careLinks.routes');
 const scanRoutes = require('./src/modules/scan/scan.routes');
 const analyticsRoutes = require('./src/modules/analytics/analytics.routes');
 const ttsRoutes = require('./src/modules/tts/tts.routes');
-const clinicRoutes = require('./src/modules/clinic/clinic.routes');
 const jobsRoutes = require('./src/modules/jobs/jobs.routes');
 
 const app = express();
@@ -137,7 +136,6 @@ app.use('/api/v1/care-links', careLinksRoutes);
 app.use('/api/v1/scan', scanRoutes);
 app.use('/api/v1/analytics', analyticsRoutes);
 app.use('/api/v1/tts', ttsRoutes);
-app.use('/api/v1/clinic', clinicRoutes);
 app.use('/api/v1/jobs', jobsRoutes);
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));

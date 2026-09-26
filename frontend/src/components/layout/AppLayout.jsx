@@ -3,7 +3,6 @@ import useThemeStore from '../../store/themeStore';
 import useAccessibilityStore from '../../store/accessibilityStore';
 import TopBar from './TopBar';
 import BottomNav from './BottomNav';
-import ClinicActiveBadge from './ClinicActiveBadge';
 import VoiceAlertEngine from '../common/VoiceAlertEngine';
 import OnboardingTour from '../common/OnboardingTour';
 import styles from './AppLayout.module.css';
@@ -18,7 +17,6 @@ export default function AppLayout({ children }) {
   return (
     <div className={styles.layout}>
       <TopBar />
-      <ClinicActiveBadge />
       <main className="page-content" style={{ zoom: fontScale }}>
         {children}
       </main>

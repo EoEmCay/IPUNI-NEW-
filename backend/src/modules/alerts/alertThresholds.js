@@ -8,9 +8,4 @@ const CLINIC_THRESHOLDS = Object.freeze({
   INACTIVE_DAYS: 14, // không đo > 14 ngày
 });
 
-/** Bệnh nhân ảo: theo quy ước demoLogin -> email demo_xxxx@ipuni.com */
-function isVirtualPatient(user) {
-  return !!(user && user.email && /^demo_.*@ipuni\.com$/i.test(user.email));
-}
-
-module.exports = { CLINIC_THRESHOLDS, isVirtualPatient };
+module.exports = { CLINIC_THRESHOLDS };

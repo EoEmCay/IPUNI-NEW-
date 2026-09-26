@@ -11,8 +11,8 @@ const PRESET_REASONS = [
 ];
 
 /**
- * Modal chọn nhanh lý do bỏ qua 1 cữ thuốc — giúp bác sĩ trên Clinic Portal nắm được
- * nguyên nhân y khoa thay vì chỉ thấy cờ "missed"/"skipped" trơ trọi.
+ * Modal chọn nhanh lý do bỏ qua 1 cữ thuốc — giúp lưu lại nguyên nhân y khoa (xem trong
+ * lịch sử uống thuốc) thay vì chỉ thấy cờ "missed"/"skipped" trơ trọi.
  */
 export default function SkipDoseModal({ medication, onConfirm, onClose }) {
   const [selected, setSelected] = useState(PRESET_REASONS[0]);

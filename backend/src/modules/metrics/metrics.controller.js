@@ -2,7 +2,7 @@ const metricsService = require('./metrics.service');
 const MetricsCalculator = require('./metrics.calculator');
 const { sendSuccess, sendError } = require('../../utils/response.helper');
 const { publish } = require('../../realtime/eventBus');
-const { evaluateAndQueueAlerts } = require('../clinic/alert.service');
+const { evaluateAndQueueAlerts } = require('../alerts/alert.service');
 
 async function getMetrics(req, res, next) {
   try {

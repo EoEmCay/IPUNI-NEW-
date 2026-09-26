@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../../config/database');
-const { JWT_SECRET, JWT_EXPIRES_IN } = require('../../config/constants');
+const { JWT_SECRET, JWT_EXPIRES_IN, GOOGLE_CLIENT_ID } = require('../../config/constants');
 const loginRequestStore = require('./loginRequest.store');
 const { getTransporter, getFromAddress } = require('../../utils/mailer');
 
@@ -241,20 +241,22 @@ const axios = require('axios');
 
 async function googleLogin(accessToken) {
   try {
-    let email, name;
+    if (typeof accessToken !== 'string' || !accessToken) throw new Error('missing token');
 
-    if (typeof accessToken === 'string' && (accessToken.includes('@') || accessToken.startsWith('mock_') || accessToken.startsWith('google_'))) {
-      email = accessToken.replace('mock_', '').replace('google_', '').trim().toLowerCase();
-      name = email.split('@')[0];
-    } else {
-      const { data } = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
-      email = data.email?.toLowerCase();
-      name = data.name || email?.split('@')[0];
+    // Chỉ tin token do Google cấp cho chính client DIA+ với email đã xác minh.
+    // (Trước đây chấp nhận thẳng một chuỗi email -> ai biết email là vào được tài khoản.)
+    const { data: info } = await axios.get('https://oauth2.googleapis.com/tokeninfo', {
+      params: { access_token: accessToken },
+    });
+    if (info.aud !== GOOGLE_CLIENT_ID || String(info.email_verified) !== 'true' || !info.email) {
+      throw new Error('token not issued for DIA+ or email unverified');
     }
 
-    if (!email) throw { status: 400, message: 'Không thể lấy email từ Google' };
+    const email = info.email.toLowerCase();
+    const { data: profile } = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    const name = profile.name || email.split('@')[0];
 
     let user = await db('users').where({ email }).first();
     if (!user) {

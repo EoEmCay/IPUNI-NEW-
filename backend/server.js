@@ -114,6 +114,30 @@ const otpLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Chống dò mật khẩu nhắm vào MỘT tài khoản: authLimiter ở trên tính theo IP nên kẻ tấn công
+// đổi IP là thử tiếp được. Tầng này tính theo tài khoản (identifier) và chỉ đếm lần SAI.
+// ponytail: bộ đếm trong RAM của 1 process - đủ cho 1 instance Render; chạy nhiều instance thì chuyển sang store Redis.
+const loginAccountLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  skipSuccessfulRequests: true,
+  keyGenerator: (req) => `login:${String(req.body?.identifier || '').trim().toLowerCase()}`,
+  message: { message: 'Bạn đã nhập sai quá nhiều lần. Vui lòng thử lại sau 15 phút hoặc bấm "Quên mật khẩu".' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Trang admin xem được danh sách toàn bộ người dùng: chỉ cho sai key 20 lần / 15 phút / IP.
+const adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  skipSuccessfulRequests: true,
+  skip: (req) => req.path === '/track', // endpoint đếm lượt xem công khai, không cần key
+  message: { message: 'Sai key quản trị quá nhiều lần. Vui lòng thử lại sau 15 phút.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Áp dụng giới hạn chung cho toàn bộ API
 app.use('/api/', apiLimiter);
 
@@ -125,6 +149,7 @@ app.use('/api/v1/auth/register-otp', otpLimiter);
 app.use('/api/v1/auth/verify-otp', otpLimiter);
 app.use('/api/v1/auth/forgot-password-otp', otpLimiter);
 app.use('/api/v1/auth/verify-reset-otp', otpLimiter);
+app.use('/api/v1/auth/login', loginAccountLimiter);
 app.use('/api/v1/auth', authLimiter, authRoutes);
 app.use('/api/v1/dashboard', dashboardRoutes);
 app.use('/api/v1/metrics', metricsRoutes);
@@ -134,7 +159,7 @@ app.use('/api/v1/advice', adviceRoutes);
 app.use('/api/v1/users', usersRoutes);
 app.use('/api/v1/care-links', careLinksRoutes);
 app.use('/api/v1/scan', scanRoutes);
-app.use('/api/v1/analytics', analyticsRoutes);
+app.use('/api/v1/analytics', adminLimiter, analyticsRoutes);
 app.use('/api/v1/tts', ttsRoutes);
 app.use('/api/v1/jobs', jobsRoutes);
 

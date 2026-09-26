@@ -3,9 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { AlertCircle } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import useThemeStore from '../../store/themeStore';
-import { GoogleIcon } from '../../components/common/AuthIcons';
 import ForgotPasswordModal from '../../components/auth/ForgotPasswordModal';
-import { isNative } from '../../lib/native';
 import styles from './LoginPage.module.css';
 
 const UserSVG = () => (
@@ -38,12 +36,10 @@ const ArrowLeftSVG = () => (
   </svg>
 );
 
-import { useGoogleLogin } from '@react-oauth/google';
-
 import SplashScreen from '../../components/common/SplashScreen';
 
 export default function LoginPage() {
-  const { login, googleLogin, demoLogin, pollLoginStatus } = useAuth();
+  const { login, demoLogin, pollLoginStatus } = useAuth();
   const navigate = useNavigate();
   const applyDefaultLook = useThemeStore((s) => s.applyDefaultLook);
 
@@ -64,55 +60,6 @@ export default function LoginPage() {
     pollAbortRef.current?.abort();
     setAwaitingApproval(false);
     setLoading(false);
-  };
-
-  const handleGoogleSuccess = async (accessToken) => {
-    try {
-      setLoading(true);
-      setError('');
-      const result = await googleLogin(accessToken);
-
-      if (result.pending) {
-        setAwaitingApproval(true);
-        const controller = new AbortController();
-        pollAbortRef.current = controller;
-        try {
-          await pollLoginStatus(result.requestId, { signal: controller.signal });
-          navigate('/dashboard');
-        } catch (pollErr) {
-          if (pollErr.status === 'cancelled') return; // người dùng đã bấm huỷ
-          setError(pollErr.message || 'Đăng nhập thất bại');
-        } finally {
-          setAwaitingApproval(false);
-        }
-        return;
-      }
-
-      navigate('/dashboard');
-    } catch (err) {
-      console.error('Google login error:', err);
-      setError(err.response?.data?.message || err.message || 'Đăng nhập Google thất bại');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const triggerWebGoogleLogin = useGoogleLogin({
-    onSuccess: (tokenResponse) => handleGoogleSuccess(tokenResponse.access_token),
-    onError: (err) => {
-      console.warn('Google login error:', err);
-      setError('Không mở được cửa sổ đăng nhập Google. Vui lòng thử lại.');
-    },
-  });
-
-  const onGoogleBtnClick = () => {
-    setError('');
-    try {
-      triggerWebGoogleLogin();
-    } catch (err) {
-      console.warn('triggerWebGoogleLogin error:', err);
-      setError('Không mở được cửa sổ đăng nhập Google. Vui lòng thử lại.');
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -278,18 +225,6 @@ export default function LoginPage() {
             <span className={styles.dividerText}>hoặc</span>
             <div className={styles.dividerLine} />
           </div>
-
-          {/* ponytail: app native chưa có Google Sign-In thật (cần plugin Capacitor) nên ẩn nút */}
-          {!isNative && (
-            <button
-              type="button"
-              className={`${styles.authBtn} ${styles.googleBtn}`}
-              onClick={onGoogleBtnClick}
-            >
-              <GoogleIcon className={styles.gIcon} />
-              <span>Tiếp tục qua Google</span>
-            </button>
-          )}
 
           <button
             className={`${styles.authBtn} ${styles.demoBtn}`}

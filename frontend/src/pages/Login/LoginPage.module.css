@@ -223,23 +223,6 @@
   animation: none;
 }
 
-.googleBtn {
-  background: #ffffff;
-  color: #1F2937;
-  border: 2px solid #E2E8F0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-.googleBtn:hover {
-  border-color: #1B5FA6;
-  box-shadow: 0 4px 16px rgba(27, 95, 166, 0.14);
-  transform: translateY(-2px);
-  background: #F8FBFF;
-}
-.gIcon {
-  width: 20px;
-  height: 20px;
-}
-
 .emailBtn {
   background: transparent;
   color: #1B5FA6;

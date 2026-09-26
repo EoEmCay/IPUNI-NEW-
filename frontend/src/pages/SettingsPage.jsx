@@ -212,7 +212,7 @@ export default function SettingsPage() {
                 key={lvl}
                 onClick={() => setFontScale(actualScale)}
                 style={{
-                  flex: 1, minHeight: 48, padding: '10px 0', borderRadius: '10px', fontWeight: 600,
+                  flex: 1, minHeight: 48, padding: '10px 0', borderRadius: '10px', fontSize: 17, fontWeight: 600,
                   border: fontScale === actualScale ? '2px solid #3B82F6' : '1px solid #E2E8F0',
                   background: fontScale === actualScale ? '#EFF6FF' : 'white',
                   color: fontScale === actualScale ? '#1B5FA6' : '#64748B',

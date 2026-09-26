@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../../config/database');
@@ -119,7 +120,6 @@ function sanitizeUser(user) {
     address: user.address, email: user.email, phone: user.phone,
     cccd: user.cccd,
     role: user.role || 'patient',
-    clinic_id: user.clinic_id || null,
     diagnosis: user.diagnosis, plan: user.plan,
     is_demo, created_at: is_demo ? user.created_at : undefined
   };
@@ -146,7 +146,6 @@ function signToken(user, expiresIn = JWT_EXPIRES_IN) {
       phone: user.phone, 
       diagnosis: user.diagnosis,
       role: user.role || 'patient',
-      clinic_id: user.clinic_id || null,
       token_version: user.token_version || 1
     },
     JWT_SECRET,
@@ -291,7 +290,7 @@ async function googleLogin(accessToken) {
 }
 
 async function demoLogin() {
-  const suffix = Date.now().toString(36) + Math.random().toString(36).substring(2, 6);
+  const suffix = crypto.randomUUID().slice(0, 12).replace(/-/g, '');
   const email = `demo_${suffix}@ipuni.com`;
   
   let user_code;

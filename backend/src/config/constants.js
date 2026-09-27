@@ -21,7 +21,7 @@ module.exports = {
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || '1081815970127-p67o922i2g7vdc6leqkj1f1e5rq1du6d.apps.googleusercontent.com',
   // Đăng nhập Facebook: App ID công khai; App Secret CHỈ đặt trong biến môi trường (Render),
   // dùng để hỏi Facebook xác nhận token đúng là cấp cho ứng dụng DIA+.
-  FACEBOOK_APP_ID: process.env.FACEBOOK_APP_ID || '',
+  FACEBOOK_APP_ID: process.env.FACEBOOK_APP_ID || '1079188341707422', // ID ứng dụng (công khai)
   FACEBOOK_APP_SECRET: process.env.FACEBOOK_APP_SECRET || '',
   GOOGLE_SHEETS_WEBHOOK_URL: process.env.GOOGLE_SHEETS_WEBHOOK_URL || '',
   // Cron ngoài (Render Cron Job / bất kỳ scheduler ngoài nào) gọi vào để kích hoạt các job

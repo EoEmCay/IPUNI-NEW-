@@ -111,49 +111,6 @@
 }
 
 /* ── Cute Mode ── */
-:global([data-theme="cute"]) .nav {
-  background: linear-gradient(180deg, rgba(253,248,255,0.96) 0%, rgba(255,240,251,0.98) 100%);
-  border-top: 2px solid #e9d5ff;
-}
-
-:global([data-theme="cute"]) .navItem {
-  font-family: 'Quicksand', sans-serif;
-  font-weight: 600;
-}
-
-:global([data-theme="cute"]) .iconWrap {
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  transition: background 0.2s, transform 0.2s;
-}
-
-:global([data-theme="cute"]) .navItem.active .iconWrap {
-  background: var(--color-primary-light);
-  transform: scale(1.15);
-}
-
-:global([data-theme="cute"]) .navItem.active {
-  color: var(--color-primary);
-}
-
-:global([data-theme="cute"]) .label {
-  font-size: 14px;
-  font-weight: 700;
-}
-
-:global([data-theme="cute"]) .scanIconWrap {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.45);
-}
-
-:global([data-theme="cute"]) .scanLabel {
-  font-family: 'Quicksand', sans-serif;
-  font-weight: 700;
-  font-size: 14px;
-}
 
 /* ── Gold Mode ── */
 :global([data-theme="gold"]) .nav {

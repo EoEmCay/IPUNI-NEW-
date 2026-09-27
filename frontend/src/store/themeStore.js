@@ -1,16 +1,24 @@
 import { create } from 'zustand';
 
 const THEME_KEY = 'diaplus-theme';
-const USER_THEME_KEY = 'diaplus-theme-user';
-const PRO_THEME_KEY = 'diaplus-pro-theme';
+const GOLD_UNLOCK_KEY = 'diaplus-gold-unlocked';
+// Mã đối tác mở khoá giao diện Gold.
+// ponytail: kiểm tra ở client - chỉ là giao diện, không mở quyền truy cập dữ liệu nào.
+const GOLD_PARTNER_CODE = 'doitacDIA+';
 
+const read = (key) => { try { return localStorage.getItem(key); } catch { return null; } };
+const write = (key, value) => { try { localStorage.setItem(key, value); } catch { /* bộ nhớ trình duyệt bị chặn */ } };
+
+export const isGoldUnlocked = () => read(GOLD_UNLOCK_KEY) === '1';
+
+// Chỉ còn 2 giao diện: xanh–trắng (mặc định) và Gold. Giá trị cũ như 'cute' -> mặc định.
 function getStoredTheme() {
-  return localStorage.getItem(THEME_KEY) || 'default';
+  return read(THEME_KEY) === 'gold' && isGoldUnlocked() ? 'gold' : 'default';
 }
 
 function applyTheme(theme) {
-  document.documentElement.setAttribute('data-theme', theme === 'default' ? '' : theme);
-  localStorage.setItem(THEME_KEY, theme);
+  document.documentElement.setAttribute('data-theme', theme === 'gold' ? 'gold' : '');
+  write(THEME_KEY, theme);
 }
 
 const useThemeStore = create((set) => {
@@ -19,54 +27,23 @@ const useThemeStore = create((set) => {
 
   return {
     theme,
-    isCuteMode: theme === 'cute',
     isGoldMode: theme === 'gold',
 
-    toggleCuteMode: () =>
-      set((state) => {
-        if (state.isGoldMode) return state; // gold overrides cute
-        const next = state.isCuteMode ? 'default' : 'cute';
-        applyTheme(next);
-        localStorage.setItem(USER_THEME_KEY, next);
-        return { theme: next, isCuteMode: next === 'cute', isGoldMode: false };
-      }),
-
-    applyPlanTheme: (plan) =>
-      set((state) => {
-        if (plan === 'pro' || plan === 'premium') {
-          // Giữ màu thương hiệu xanh–trắng làm mặc định; Gold vẫn chọn được trong Giao diện
-          const proTheme = localStorage.getItem(PRO_THEME_KEY) || 'default';
-          if (!state.isGoldMode) {
-            localStorage.setItem(USER_THEME_KEY, state.theme);
-          }
-          applyTheme(proTheme);
-          return { theme: proTheme, isCuteMode: proTheme === 'cute', isGoldMode: proTheme === 'gold' };
-        } else {
-          localStorage.removeItem(PRO_THEME_KEY);
-          const saved = localStorage.getItem(USER_THEME_KEY) || 'default';
-          applyTheme(saved);
-          return { theme: saved, isCuteMode: saved === 'cute', isGoldMode: false };
-        }
-      }),
-
-    // Pro users explicitly select a theme — persists across reloads
-    selectTheme: (theme) =>
+    selectTheme: (next) =>
       set(() => {
+        const theme = next === 'gold' && isGoldUnlocked() ? 'gold' : 'default';
         applyTheme(theme);
-        localStorage.setItem(PRO_THEME_KEY, theme);
-        return { theme, isCuteMode: theme === 'cute', isGoldMode: theme === 'gold' };
+        return { theme, isGoldMode: theme === 'gold' };
       }),
 
-    resetTheme: () =>
-      set(() => {
-        localStorage.removeItem(PRO_THEME_KEY);
-        const saved = localStorage.getItem(USER_THEME_KEY) || 'default';
-        applyTheme(saved);
-        return { theme: saved, isCuteMode: saved === 'cute', isGoldMode: false };
-      }),
+    // Trả về true nếu mã đúng (mở khoá vĩnh viễn trên máy này)
+    unlockGold: (code) => {
+      if (String(code || '').trim() !== GOLD_PARTNER_CODE) return false;
+      write(GOLD_UNLOCK_KEY, '1');
+      return true;
+    },
 
-    // Trang đăng nhập/đăng ký: luôn hiển thị giao diện mặc định (chỉ đổi giao diện,
-    // KHÔNG xoá lựa chọn đã lưu — khi đăng nhập lại sẽ khôi phục).
+    // Trang đăng nhập/đăng ký: luôn hiển thị giao diện mặc định (không xoá lựa chọn đã lưu).
     applyDefaultLook: () => {
       document.documentElement.setAttribute('data-theme', '');
     },

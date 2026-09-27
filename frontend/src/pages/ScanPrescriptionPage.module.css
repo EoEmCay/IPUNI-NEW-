@@ -74,16 +74,6 @@
 
 .lockedBtn:active { transform: scale(0.97); opacity: 0.9; }
 
-:global([data-theme="cute"]) .lockedBtn {
-  background: linear-gradient(90deg, #A855F7 0%, #EC4899 100%);
-  box-shadow: 0 4px 16px rgba(168,85,247,0.35);
-}
-
-:global([data-theme="cute"]) .lockedIcon {
-  background: linear-gradient(135deg, rgba(168,85,247,0.1), rgba(236,72,153,0.15));
-  color: var(--color-primary);
-}
-
 /* ── end locked ── */
 
 .page {

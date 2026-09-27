@@ -1,9 +1,11 @@
-import { Pill, X } from 'lucide-react';
+import { Pill, Syringe, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useT } from '../../hooks/useT';
+import { isInjection } from '../../utils/medForm';
 import styles from './MedicationReminderToast.module.css';
 
 export default function MedicationReminderToast({ medications }) {
+  const allInjections = medications.length > 0 && medications.every(isInjection);
   const [isVisible, setIsVisible] = useState(true);
   const t = useT();
 
@@ -22,10 +24,10 @@ export default function MedicationReminderToast({ medications }) {
     <div className={styles.toast}>
       <div className={styles.content}>
         <div className={styles.icon}>
-          <Pill size={24} />
+          {allInjections ? <Syringe size={24} /> : <Pill size={24} />}
         </div>
         <div className={styles.message}>
-          <p className={styles.title}>{t.common?.medReminderToastTitle || '⏰ Đến giờ uống thuốc!'}</p>
+          <p className={styles.title}>{allInjections ? '⏰ Đến giờ tiêm thuốc!' : (t.common?.medReminderToastTitle || '⏰ Đến giờ uống thuốc!')}</p>
           <p className={styles.description}>
             {medications.length === 1
               ? medications[0].name

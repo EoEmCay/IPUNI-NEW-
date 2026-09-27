@@ -20,10 +20,6 @@
   background: linear-gradient(135deg, #2B1D00 0%, #C9921A 50%, #7A5300 100%);
 }
 
-:global([data-theme="cute"]) .splashOverlay {
-  background: linear-gradient(135deg, #4C1D95 0%, #A855F7 50%, #EC4899 100%);
-}
-
 .fadeOut {
   opacity: 0;
   visibility: hidden;
@@ -124,10 +120,6 @@
 
 :global([data-theme="gold"]) .plusSymbol {
   color: #FCD34D;
-}
-
-:global([data-theme="cute"]) .plusSymbol {
-  color: #F472B6;
 }
 
 .tagline {

@@ -1,5 +1,4 @@
-import { Bell, BookOpen, Sparkles } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Bell } from 'lucide-react';
 import UserMenu from './UserMenu';
 import NotificationsModal from './NotificationsModal';
 import MedicationReminderToast from '../common/MedicationReminderToast';
@@ -8,29 +7,21 @@ import { useT } from '../../hooks/useT';
 import Logo from '../common/Logo';
 import DemoCountdown from '../common/DemoCountdown';
 import styles from './TopBar.module.css';
-import useThemeStore from '../../store/themeStore';
 
 export default function TopBar() {
-  const navigate = useNavigate();
-  const { isCuteMode } = useThemeStore();
   const { isOpen, medications, appointments, hasNotifications, isTimeToDrink, upcomingMeds, handleOpen, handleClose } = useNotifications();
   const t = useT();
 
   return (
     <>
-      <header className={`${styles.topbar} tour-step-1`}>
+      <header className={styles.topbar}>
         <div className={styles.logo}>
           <Logo size="sm" variant="onDark" />
-          {isCuteMode && <Sparkles size={14} color="#fff" strokeWidth={2.5} />}
-          {isCuteMode && <span className={styles.cuteBadge}>cute</span>}
         </div>
         
         <DemoCountdown />
 
         <div className={styles.actions}>
-          <button className={styles.iconBtn} title={t.advice?.title || "Lời khuyên"} onClick={() => navigate('/advice')}>
-            <BookOpen size={20} />
-          </button>
           <button
             className={`${styles.bellBtn} ${hasNotifications ? styles.hasBadge : ''} ${isTimeToDrink ? styles.active : ''}`}
             title={t.notifications?.title || "Thông báo"}

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { User, Settings, LogOut, Palette, Globe } from 'lucide-react';
+import { User, Settings, LogOut, Palette } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useT } from '../../hooks/useT';
 import { useNavigate } from 'react-router-dom';
@@ -87,13 +87,6 @@ export default function UserMenu() {
               <User size={18} />
               <span>{t.userMenu.profile}</span>
             </button>
-            <div className={styles.langRow}>
-              <Globe size={15} className={styles.langIcon} />
-              <span className={styles.langRowLabel}>{t.userMenu.language || 'Ngôn ngữ'}</span>
-              <div className={styles.langFlags}>
-                <span style={{ fontSize: 16, color: '#9CA3AF' }}>Sắp ra mắt</span>
-              </div>
-            </div>
             <button className={`${styles.menuItem} ${styles.giaoDienItem}`} onClick={handleGiaoDien}>
               <Palette size={18} />
               <span>{t.userMenu.theme}</span>

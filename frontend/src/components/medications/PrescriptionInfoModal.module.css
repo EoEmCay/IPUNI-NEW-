@@ -1,0 +1,42 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.icon { flex-shrink: 0; margin-top: 2px; }
+
+.label {
+  margin: 0;
+  font-size: 16px;
+  color: var(--color-text-secondary);
+}
+
+.value {
+  margin: 2px 0 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: pre-line;
+}
+
+.meds {
+  border-top: 1px solid var(--color-border);
+  padding-top: 12px;
+}
+
+.medList {
+  margin: 6px 0 0;
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 18px;
+  color: var(--color-text-primary);
+}

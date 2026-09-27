@@ -174,14 +174,3 @@ export function exportMedicationToCalendar(med) {
 
   downloadIcsFile(events, `nhac-uong-thuoc-${safeName}.ics`);
 }
-
-export function exportMultipleMedicationsToCalendar(meds) {
-  if (!meds || meds.length === 0) return;
-
-  const todayStr = getTodayStr(new Date());
-  const stamp = getStamp();
-  const events = buildVeventsForMedications(meds, todayStr, stamp);
-  if (events.length === 0) return;
-
-  downloadIcsFile(events, 'nhac-uong-tat-ca-thuoc.ics');
-}

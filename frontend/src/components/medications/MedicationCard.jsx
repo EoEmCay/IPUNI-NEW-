@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Pill, ChevronRight, XCircle } from 'lucide-react';
+import { Pill, Syringe, ChevronRight, XCircle } from 'lucide-react';
 import useMedicationsStore from '../../store/medicationsStore';
 import { recordMedicationIntake } from '../../store/medicationAdherenceStore';
 import MedicationDetailModal from './MedicationDetailModal';
@@ -7,6 +7,7 @@ import SkipDoseModal from './SkipDoseModal';
 import { checkMedicationTimeEligibility } from '../../utils/medicationTime';
 import { cancelFollowupReminder, buildTodayInstant } from '../../lib/medReminders';
 import { useT } from '../../hooks/useT';
+import { isInjection } from '../../utils/medForm';
 import styles from './MedicationCard.module.css';
 
 const STATUS_STYLES = {
@@ -24,6 +25,9 @@ export default function MedicationCard({ medication }) {
   const [toastMsg, setToastMsg] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const t = useT();
+  // Thuốc tiêm (insulin, GLP-1): nói "tiêm" thay cho "uống" để người lớn tuổi không nhầm
+  const injection = isInjection(medication);
+  const verb = injection ? 'tiêm' : 'uống';
 
   // Cập nhật giờ mỗi 30s để tự động mở khóa khi tới giờ uống
   useEffect(() => {
@@ -59,7 +63,7 @@ export default function MedicationCard({ medication }) {
 
     if (isLocked) {
       const timeHint = timeEligibility.earliestUpcomingTime || 'sau';
-      setToastMsg(`⏳ Chưa tới giờ uống ${medication.name} (Lịch: ${timeHint}). Vui lòng uống đúng giờ nhé!`);
+      setToastMsg(`⏳ Chưa tới giờ ${verb} ${medication.name} (Lịch: ${timeHint}). Vui lòng ${verb} đúng giờ nhé!`);
       setTimeout(() => setToastMsg(null), 3500);
       return;
     }
@@ -82,15 +86,15 @@ export default function MedicationCard({ medication }) {
   if (isRestDay) {
     buttonLabel = '📅 Nghỉ cữ';
   } else if (isTaken) {
-    buttonLabel = `✓ ${t.medCard?.statusTaken || 'Đã uống'}`;
+    buttonLabel = injection ? '✓ Đã tiêm' : `✓ ${t.medCard?.statusTaken || 'Đã uống'}`;
   } else if (isSkipped) {
     buttonLabel = '⏭ Đã bỏ qua';
   } else if (isLocked) {
     buttonLabel = timeEligibility.earliestUpcomingTime
-      ? `Uống lúc ${timeEligibility.earliestUpcomingTime}`
-      : 'Chưa tới giờ uống';
+      ? `${injection ? 'Tiêm' : 'Uống'} lúc ${timeEligibility.earliestUpcomingTime}`
+      : `Chưa tới giờ ${verb}`;
   } else {
-    buttonLabel = '✓ Tôi đã uống';
+    buttonLabel = `✓ Tôi đã ${verb}`;
   }
 
   // Cho phép bấm "Bỏ qua cữ" khi cữ đã tới giờ, chưa được đánh dấu uống/bỏ qua rồi
@@ -98,12 +102,12 @@ export default function MedicationCard({ medication }) {
 
   return (
     <div className={styles.card}>
-      <div className={styles.iconWrap}><Pill size={22} /></div>
+      <div className={styles.iconWrap}>{injection ? <Syringe size={22} /> : <Pill size={22} />}</div>
       <div className={styles.info}>
         <div className={styles.name}>{medication.name} {medication.dosage}</div>
         <div className={styles.frequency}>{medication.frequency}: {times}</div>
         {medication.instructions && <div className={styles.instructions}>{medication.instructions}</div>}
-        {isLate && <div className={styles.lateNote}>Đã quá giờ uống</div>}
+        {isLate && <div className={styles.lateNote}>Đã quá giờ {verb}</div>}
         {isRestDay && (
           <div style={{ marginTop: 4 }}>
             <span style={{ fontSize: 14, background: '#F3F4F6', color: '#6B7280', padding: '2px 8px', borderRadius: 6, display: 'inline-flex', alignItems: 'center', gap: 4, fontWeight: 600 }}>
@@ -144,7 +148,7 @@ export default function MedicationCard({ medication }) {
           isRestDay
             ? 'Hôm nay là ngày nghỉ cữ của thuốc này'
             : isLocked
-            ? `Chưa tới giờ uống (${timeEligibility.earliestUpcomingTime || ''}). Sẽ cho phép chọn khi tới giờ!`
+            ? `Chưa tới giờ ${verb} (${timeEligibility.earliestUpcomingTime || ''}). Sẽ cho phép chọn khi tới giờ!`
             : isTaken
             ? 'Đã uống - Bấm để thay đổi'
             : isSkipped

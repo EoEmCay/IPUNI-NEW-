@@ -30,8 +30,8 @@ export default function MetricHistoryItem({ metric, onDelete }) {
 
   const dt = new Date(metric.measured_at);
   const pad = (n) => String(n).padStart(2, '0');
-  const timeStr = `${pad(dt.getHours())}:${pad(dt.getMinutes())}:${pad(dt.getSeconds())}`;
-  const dateStr = `${pad(dt.getDate())}/${pad(dt.getMonth() + 1)}/${dt.getFullYear()}`;
+  const timeStr = `${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+  const dateStr = `${pad(dt.getDate())}/${pad(dt.getMonth() + 1)}`;
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', padding: '12px 16px', borderBottom: '1px solid #F1F5F9', gap: 12 }}>
@@ -46,7 +46,7 @@ export default function MetricHistoryItem({ metric, onDelete }) {
           </span>
         </div>
         <div style={{ fontSize: 15, color: '#6B7A8D', marginTop: 2 }}>
-          {typeLabel} · {timeStr} {dateStr}
+          {typeLabel} · {timeStr} ngày {dateStr}
         </div>
         {metric.note && <div style={{ fontSize: 15, color: '#6B7A8D', marginTop: 2, fontStyle: 'italic' }}>{metric.note}</div>}
       </div>

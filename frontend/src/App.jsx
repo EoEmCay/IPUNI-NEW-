@@ -12,14 +12,12 @@ import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/Login/LoginPage';
 import RegisterPage from './pages/Register/RegisterPage';
 import DashboardPage from './pages/Dashboard/DashboardPage';
-import MetricsPage from './pages/Metrics/MetricsPage';
 import MedicationsPage from './pages/Medications/MedicationsPage';
-import AppointmentsPage from './pages/Appointments/AppointmentsPage';
-import DoctorProfile from './pages/Appointments/DoctorProfile';
 import AdvicePage from './pages/Advice/AdvicePage';
 import ScanPrescriptionPage from './pages/ScanPrescriptionPage';
 import ScanHistoryPage from './pages/ScanHistoryPage';
 import SettingsPage from './pages/SettingsPage';
+import VoicePage from './pages/VoicePage';
 import AdminPage from './pages/AdminPage';
 
 function ProtectedRoute({ children }) {
@@ -158,15 +156,6 @@ function AppRoutes() {
             </MobileWrapper>
           </ProtectedRoute>
         } />
-        <Route path="/metrics" element={
-          <ProtectedRoute>
-            <MobileWrapper>
-              <AppLayout>
-                <MetricsPage />
-              </AppLayout>
-            </MobileWrapper>
-          </ProtectedRoute>
-        } />
         <Route path="/medications" element={
           <ProtectedRoute>
             <MobileWrapper>
@@ -176,22 +165,7 @@ function AppRoutes() {
             </MobileWrapper>
           </ProtectedRoute>
         } />
-        <Route path="/appointments" element={
-          <ProtectedRoute>
-            <MobileWrapper>
-              <AppLayout>
-                <AppointmentsPage />
-              </AppLayout>
-            </MobileWrapper>
-          </ProtectedRoute>
-        } />
-        <Route path="/doctor/:id" element={
-          <ProtectedRoute>
-            <MobileWrapper>
-              <DoctorProfile />
-            </MobileWrapper>
-          </ProtectedRoute>
-        } />
+        {/* Lời khuyên: ẩn khỏi giao diện (không có nút nào dẫn tới), giữ lại để phát triển sau */}
         <Route path="/advice" element={
           <ProtectedRoute>
             <MobileWrapper>
@@ -215,6 +189,15 @@ function AppRoutes() {
             <MobileWrapper>
               <AppLayout>
                 <ScanHistoryPage />
+              </AppLayout>
+            </MobileWrapper>
+          </ProtectedRoute>
+        } />
+        <Route path="/voice" element={
+          <ProtectedRoute>
+            <MobileWrapper>
+              <AppLayout>
+                <VoicePage />
               </AppLayout>
             </MobileWrapper>
           </ProtectedRoute>

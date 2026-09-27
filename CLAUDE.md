@@ -11,6 +11,17 @@
 - Repo: https://github.com/EoEmCay/IPUNI-NEW-
 - Stack: React 19 + Vite (frontend) / Express + SQLite + Knex (backend)
 
+### Phạm vi sản phẩm (cập nhật 09/2026 — ưu tiên hơn các mục cũ bên dưới)
+Cốt lõi: **quét đơn thuốc → lên lịch → nhắc uống bằng giọng người thân**, cho người lớn tuổi. Giao diện tối giản, chữ ≥14px (nội dung 16–18px), nút ≥48px, xanh–trắng.
+- Thanh dưới: **Hôm nay · Tủ thuốc · Quét đơn · Giọng nhắc** (`/dashboard`, `/medications`, `/scan`, `/voice`). Cài đặt (cỡ chữ) và Giao diện nằm trong menu avatar.
+- Đã gỡ: tab Chỉ số (biểu đồ/thống kê/CSV), tab Bác sĩ (thông tin bác sĩ + tái khám nằm trong chi tiết từng đơn ở Tủ thuốc), Cute Mode, đăng nhập Google.
+- **Lời khuyên (`/advice`) chỉ bị ẩn** — không có nút dẫn tới, giữ code để phát triển sau.
+- Giao diện: chỉ Xanh–trắng và Gold; Gold mở bằng mã đối tác (`themeStore.js`).
+- Đường huyết: thẻ gọn trên trang Hôm nay (`GlucoseCard`), nhập nhanh (`GlucoseQuickModal`).
+- Thuốc hiển thị dạng ô vuông 2 cột (`MedicationTile`): icon viên/ống tiêm (`utils/medForm.js`), mỗi đơn một màu.
+- Nhật ký uống thuốc vẫn phải được ghi đầy đủ — thông báo cho người nhà dựa vào đó.
+- Các mục "Cute Mode" / "5 tabs" / "Metrics page" bên dưới là mô tả cũ.
+
 ---
 
 ## 2. Cài đặt & Chạy

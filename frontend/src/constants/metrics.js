@@ -120,7 +120,7 @@ export const STATUS_COLORS = {
 
 // Mục tiêu điều trị cá nhân - PHẢI khớp PATIENT_TARGETS ở backend/src/constants/metrics.js
 // (postmeal 10.0 = ADA <180 mg/dL sau ăn 1-2h).
-export const PATIENT_TARGETS = {
+const PATIENT_TARGETS = {
   type2_diabetes: { glucose: { fasting: 7.0, postmeal: 10.0, tolerance: 7.8 }, hba1c: 7.0 },
   type1_diabetes: { glucose: { fasting: 5.0, postmeal: 10.0, tolerance: 7.2 }, hba1c: 6.5 },
 };

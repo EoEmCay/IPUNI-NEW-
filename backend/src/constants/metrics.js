@@ -2,6 +2,7 @@
 
 const MEASUREMENT_TYPES = {
   GLUCOSE_FASTING: 'glucose_fasting',
+  GLUCOSE_POSTMEAL: 'glucose_postmeal',
   GLUCOSE_TOLERANCE: 'glucose_tolerance',
   HBAIC: 'hba1c',
   C_PEPTIDE: 'c_peptide',

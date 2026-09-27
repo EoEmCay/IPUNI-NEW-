@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, Activity, Pill, Stethoscope, Camera } from 'lucide-react';
+import { Home, Pill, Mic, Camera } from 'lucide-react';
 import { useT } from '../../hooks/useT';
 import styles from './BottomNav.module.css';
 
@@ -8,12 +8,11 @@ export default function BottomNav() {
 
   const LEFT_ITEMS = [
     { to: '/dashboard', icon: Home, label: t.nav.home, exact: true },
-    { to: '/metrics', icon: Activity, label: t.nav.metrics },
+    { to: '/medications', icon: Pill, label: t.nav.medications },
   ];
 
   const RIGHT_ITEMS = [
-    { to: '/medications', icon: Pill, label: t.nav.medications },
-    { to: '/appointments', icon: Stethoscope, label: t.nav.appointments },
+    { to: '/voice', icon: Mic, label: t.nav.voice },
   ];
 
   return (

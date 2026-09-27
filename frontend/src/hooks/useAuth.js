@@ -1,23 +1,20 @@
 import { useEffect } from 'react';
 import useAuthStore from '../store/authStore';
-import useThemeStore from '../store/themeStore';
 import { authService } from '../services/auth.service';
 import { clearMedicationReminders } from '../lib/medReminders';
 
 export function useAuth() {
   const { user, token, isAuthenticated, setAuth, setUser, logout: storeLogout } = useAuthStore();
-  const { applyPlanTheme, resetTheme } = useThemeStore();
 
   useEffect(() => {
     if (token && !user) {
       authService.getMe()
         .then((res) => {
           setUser(res.data.data);
-          applyPlanTheme(res.data.data.plan);
         })
         .catch(() => storeLogout());
     }
-  }, [token, user, setUser, applyPlanTheme, storeLogout]);
+  }, [token, user, setUser, storeLogout]);
 
   const login = async (identifier, password) => {
     const res = await authService.login(identifier, password);
@@ -30,7 +27,6 @@ export function useAuth() {
 
     const { token, user } = data;
     setAuth(token, user);
-    applyPlanTheme(user.plan);
     return { pending: false, user };
   };
 
@@ -43,7 +39,6 @@ export function useAuth() {
 
       if (data.status === 'approved') {
         setAuth(data.token, data.user);
-        applyPlanTheme(data.user.plan);
         return data.user;
       }
       if (data.status === 'rejected') {
@@ -66,7 +61,6 @@ export function useAuth() {
     const res = await authService.changePassword(currentPassword, newPassword, confirmNewPassword);
     const { token, user } = res.data.data;
     setAuth(token, user);
-    applyPlanTheme(user.plan);
     return user;
   };
 
@@ -74,7 +68,6 @@ export function useAuth() {
     const res = await authService.demoLogin();
     const { token, user } = res.data.data;
     setAuth(token, user);
-    applyPlanTheme(user.plan);
     return user;
   };
 
@@ -86,12 +79,10 @@ export function useAuth() {
 
   const completeRegistration = (token, user) => {
     setAuth(token, user);
-    applyPlanTheme(user.plan);
   };
 
   const logout = () => {
     storeLogout();
-    resetTheme();
     clearMedicationReminders(); // huỷ nhắc thuốc (Local Notification) khi đăng xuất — no-op trên web
   };
 

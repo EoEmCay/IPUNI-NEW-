@@ -1,18 +1,18 @@
 import { useState } from 'react';
-import { FileText, Table, Loader2 } from 'lucide-react';
+import { FileText, Loader2 } from 'lucide-react';
 import { metricsService } from '../../services/metrics.service';
 import { medicationsService } from '../../services/medications.service';
 import useAuthStore from '../../store/authStore';
-import { buildReportModel, exportPdf, exportCsv } from '../../utils/medicalReport';
+import { buildReportModel, exportPdf } from '../../utils/medicalReport';
 import styles from './ExportReportButton.module.css';
 
 /**
- * Nút xuất "Sổ theo dõi đường huyết & tuân thủ thuốc" (PDF y khoa / Excel).
+ * Nút xuất "Sổ theo dõi đường huyết & tuân thủ thuốc" (PDF) để mang đi khám.
  * Xuất hoàn toàn phía client.
  */
 export default function ExportReportButton({ days = 30, patientOverride = null }) {
   const user = useAuthStore((s) => s.user);
-  const [busy, setBusy] = useState(null);
+  const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
 
   async function collect() {
@@ -32,29 +32,24 @@ export default function ExportReportButton({ days = 30, patientOverride = null }
     });
   }
 
-  const run = async (kind) => {
-    setBusy(kind);
+  const run = async () => {
+    setBusy(true);
     setErr('');
     try {
       const model = await collect();
-      if (kind === 'pdf') await exportPdf(model);
-      else await exportCsv(model);
+      await exportPdf(model);
     } catch (e) {
       setErr(e?.message || 'Không tạo được báo cáo');
     } finally {
-      setBusy(null);
+      setBusy(false);
     }
   };
 
   return (
     <div className={styles.wrap}>
-      <button className={styles.btn} onClick={() => run('pdf')} disabled={!!busy}>
-        {busy === 'pdf' ? <Loader2 className={styles.spin} size={16} /> : <FileText size={16} />}
-        Xuất PDF y khoa
-      </button>
-      <button className={styles.btnAlt} onClick={() => run('csv')} disabled={!!busy}>
-        {busy === 'csv' ? <Loader2 className={styles.spin} size={16} /> : <Table size={16} />}
-        Xuất Excel (.csv)
+      <button className={styles.btnAlt} onClick={run} disabled={busy}>
+        {busy ? <Loader2 className={styles.spin} size={18} /> : <FileText size={18} />}
+        Xuất báo cáo PDF cho bác sĩ
       </button>
       {err && <span className={styles.err}>{err}</span>}
     </div>

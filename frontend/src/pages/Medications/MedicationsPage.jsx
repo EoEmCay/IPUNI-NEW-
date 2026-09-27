@@ -1,223 +1,131 @@
-import { useEffect, useState, useMemo } from 'react';
-import { Pill, Calendar as CalendarIcon, User, CalendarDays, Award, Flame, Plus, History } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Pill, Plus, Camera, PenLine, ChevronRight } from 'lucide-react';
 import { useMedications } from '../../hooks/useMedications';
+import { useAppointments } from '../../hooks/useAppointments';
 import { useT } from '../../hooks/useT';
 import { withDoctorPrefix } from '../../utils/doctor';
 import { formatDateVN } from '../../utils/date';
 import MedicationTile, { MedicationGrid } from '../../components/medications/MedicationTile';
 import MedicationDetailModal from '../../components/medications/MedicationDetailModal';
 import MedicationFormModal from '../../components/medications/MedicationFormModal';
-import MedicationHistoryModal from '../../components/medications/MedicationHistoryModal';
-import BulkCalendarExportModal from '../../components/medications/BulkCalendarExportModal';
+import PrescriptionInfoModal from '../../components/medications/PrescriptionInfoModal';
+import Modal from '../../components/common/Modal';
 import EmptyState from '../../components/common/EmptyState';
-import { calculateAdherenceStats } from '../../store/medicationAdherenceStore';
 import styles from './MedicationsPage.module.css';
 
+// Mỗi đơn thuốc 1 màu để thuốc của đơn này nhìn khác thuốc của đơn kia.
+const PRESCRIPTION_COLORS = [
+  { c: '#1B5FA6', soft: '#E8F0FA' }, // xanh dương
+  { c: '#0F766E', soft: '#E0F2EF' }, // xanh ngọc
+  { c: '#7C3AED', soft: '#F1EAFE' }, // tím
+  { c: '#C2410C', soft: '#FDEDE4' }, // cam
+  { c: '#BE185D', soft: '#FCE7F1' }, // hồng
+  { c: '#15803D', soft: '#E4F5EA' }, // xanh lá
+];
+
+// Gom thuốc theo đơn (bác sĩ + ngày kê). Đánh số/màu theo thứ tự thời gian (đơn cũ nhất = Đơn 1)
+// để thêm đơn mới không làm đổi màu các đơn đã có; hiển thị đơn mới nhất lên trước.
+function groupByPrescription(medications = []) {
+  const byKey = {};
+  medications.forEach((med) => {
+    const date = med.prescribed_at || med.created_at;
+    const key = `${med.doctor_name || ''}_${date ? new Date(date).toLocaleDateString('vi-VN') : ''}`;
+    byKey[key] ||= { key, doctor_name: med.doctor_name, prescribed_at: date, next_appointment_date: null, medications: [] };
+    if (med.next_appointment_date) byKey[key].next_appointment_date = med.next_appointment_date;
+    byKey[key].medications.push(med);
+  });
+  const oldestFirst = Object.values(byKey).sort((a, b) => new Date(a.prescribed_at || 0) - new Date(b.prescribed_at || 0));
+  oldestFirst.forEach((g, i) => { g.number = i + 1; g.color = PRESCRIPTION_COLORS[i % PRESCRIPTION_COLORS.length]; });
+  return oldestFirst.reverse();
+}
+
 export default function MedicationsPage() {
-  const [showForm, setShowForm] = useState(false);
-  const [showBulkExport, setShowBulkExport] = useState(false);
-  const [showHistoryModal, setShowHistoryModal] = useState(false);
-  const [selectedMed, setSelectedMed] = useState(null);
-  const { medications, loading, fetchMedications } = useMedications();
+  const navigate = useNavigate();
   const t = useT();
+  const { medications, loading, fetchMedications } = useMedications();
+  const { appointments, fetchAppointments } = useAppointments();
+  const [showAddChoice, setShowAddChoice] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [selectedMed, setSelectedMed] = useState(null);
+  const [selectedGroup, setSelectedGroup] = useState(null);
 
-  useEffect(() => { fetchMedications(); }, []);
+  useEffect(() => {
+    fetchMedications();
+    fetchAppointments().catch(() => {}); // chỉ để hiện lời dặn / ngày tái khám, lỗi thì bỏ qua
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const stats = useMemo(() => calculateAdherenceStats(medications, 7), [medications]);
-
-  // Group medications by Prescription Section
-  const groupedMedications = medications?.reduce((acc, med) => {
-    const doctor = med.doctor_name || 'Khác';
-    const dateStr = med.prescribed_at 
-        ? new Date(med.prescribed_at).toLocaleDateString('vi-VN') 
-        : (med.created_at ? new Date(med.created_at).toLocaleDateString('vi-VN') : 'Không rõ ngày');
-    
-    const key = `${doctor}_${dateStr}`;
-    if (!acc[key]) {
-      acc[key] = {
-        doctor_name: med.doctor_name,
-        prescribed_at: med.prescribed_at || med.created_at,
-        next_appointment_date: med.next_appointment_date,
-        medications: []
-      };
-    }
-    // Update next_appointment_date if not present but exists in another medication of the same group
-    if (med.next_appointment_date) {
-      acc[key].next_appointment_date = med.next_appointment_date;
-    }
-    acc[key].medications.push(med);
-    return acc;
-  }, {});
-
-  const groups = groupedMedications ? Object.values(groupedMedications).sort((a, b) => {
-    const dateA = new Date(a.prescribed_at || 0).getTime();
-    const dateB = new Date(b.prescribed_at || 0).getTime();
-    return dateB - dateA; // Newest first
-  }) : [];
+  const groups = groupByPrescription(medications || []);
 
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <div className={styles.titleBlock}>
-          <h1 className={`${styles.title} tour-step-6`}>{t.medications.title}</h1>
-          <p className={styles.subtitle}>{t.medications.subtitle}</p>
-        </div>
-        <div className={styles.headerActions}>
-          <button
-            className={styles.addBtn}
-            onClick={() => setShowForm(true)}
-            style={{ background: '#F1F5F9', color: '#1E293B', border: '1px solid #CBD5E1' }}
-          >
-            <Plus size={16} /> Thêm thuốc
-          </button>
-          {medications && medications.length > 0 && (
-            <>
-              <button
-                className={styles.addBtn}
-                onClick={() => setShowHistoryModal(true)}
-                style={{ background: '#EFF6FF', color: '#2563EB', border: '1px solid #BFDBFE' }}
-              >
-                <History size={16} /> Nhật ký
-              </button>
-              <button
-                className={styles.addBtn}
-                style={{ background: 'var(--color-primary)', color: 'white', border: 'none' }}
-                onClick={() => setShowBulkExport(true)}
-              >
-                <CalendarIcon size={16} /> Thêm lịch
-              </button>
-            </>
-          )}
-        </div>
+        <h1 className={`${styles.title} tour-step-6`}>Tủ thuốc</h1>
+        <button type="button" className={styles.addBtn} onClick={() => setShowAddChoice(true)}>
+          <Plus size={22} aria-hidden="true" /> Thêm thuốc
+        </button>
       </div>
 
-      {/* ── Banner Điểm Tuân Thủ Uống Thuốc & Người Thân Nhắc Nhở ── */}
-      {medications && medications.length > 0 && (
-        <div 
-          onClick={() => setShowHistoryModal(true)}
-          style={{
-            background: 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)',
-            color: 'white',
-            borderRadius: 16,
-            padding: '14px 18px',
-            marginBottom: 20,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 12,
-            cursor: 'pointer',
-            boxShadow: '0 4px 15px rgba(0,0,0,0.08)'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <div style={{ background: 'rgba(56, 189, 248, 0.15)', width: 44, height: 44, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <Award size={24} color="#38BDF8" />
-            </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <span style={{ fontSize: 20, fontWeight: 800, color: '#38BDF8' }}>{stats.score}%</span>
-                <span style={{ fontSize: 15, color: '#94A3B8' }}>Điểm tuân thủ (7 ngày)</span>
-                <span style={{ fontSize: 14, background: 'rgba(251, 146, 60, 0.2)', color: '#FB923C', padding: '2px 8px', borderRadius: 100, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                  <Flame size={12} fill="#FB923C" /> {stats.streakDays} ngày liên tiếp
-                </span>
-              </div>
-              <div style={{ fontSize: 15, color: '#CBD5E1', marginTop: 2 }}>
-                Đã uống {stats.totalTaken}/{stats.totalScheduled} cữ • Bấm để xem nhật ký & cài Người nhà nhắc nhở &gt;
-              </div>
-            </div>
-          </div>
-          <button
-            type="button"
-            style={{
-              background: '#2563EB',
-              color: 'white',
-              border: 'none',
-              minHeight: 48,
-              padding: '8px 14px',
-              borderRadius: 8,
-              fontSize: 15,
-              fontWeight: 700,
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              flexShrink: 0
-            }}
-          >
-            Xem Chi Tiết
-          </button>
-        </div>
-      )}
-
-      {selectedMed && (
-        <MedicationDetailModal medication={selectedMed} onClose={() => setSelectedMed(null)} />
-      )}
-      {showHistoryModal && (
-        <MedicationHistoryModal
-          medications={medications}
-          onClose={() => setShowHistoryModal(false)}
-        />
-      )}
-
-      {showBulkExport && (
-        <BulkCalendarExportModal 
-          medications={medications}
-          onClose={() => setShowBulkExport(false)} 
-        />
-      )}
-
-      {showForm && (
-        <MedicationFormModal 
-          onClose={() => setShowForm(false)} 
-          onSuccess={() => {
-            setShowForm(false);
-            fetchMedications();
-          }} 
-        />
-      )}
-
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--color-text-secondary)', fontSize: 17 }}>
-          {t.common.loading}
-        </div>
-      ) : (!medications || medications.length === 0) ? (
-        <EmptyState
-          icon={Pill}
-          title={t.medications.noMeds}
-          subtitle={t.medications.noMedsSubtitle}
-        />
+        <p className={styles.loading}>{t.common.loading}</p>
+      ) : groups.length === 0 ? (
+        <EmptyState icon={Pill} title="Tủ thuốc đang trống" subtitle="Bấm Thêm thuốc để quét đơn hoặc nhập tay." />
       ) : (
         <div className={styles.list}>
-          {groups.map((group, index) => (
-            <div key={index} className={styles.prescriptionSection}>
-              <div className={styles.sectionHeader}>
-                <div className={styles.doctorInfo}>
-                  <User size={18} className={styles.headerIcon} />
-                  <span className={styles.doctorName}>
-                    {group.doctor_name ? withDoctorPrefix(group.doctor_name) : 'Đơn thuốc tự tạo (Không có Bác sĩ kê đơn)'}
+          {groups.map((group) => (
+            <section key={group.key} className={styles.prescription} aria-label={`Đơn thuốc ${group.number}`}>
+              <button type="button" className={styles.prescriptionHead} onClick={() => setSelectedGroup(group)}>
+                <span className={styles.badge} style={{ background: group.color.c }}>Đơn {group.number}</span>
+                <span className={styles.headText}>
+                  <span className={styles.headTitle}>
+                    {group.prescribed_at ? `Ngày ${formatDateVN(group.prescribed_at)}` : 'Thuốc tự thêm'}
                   </span>
-                </div>
-                <div className={styles.dateInfo}>
-                  {group.prescribed_at && (
-                    <span className={styles.dateBadge}>
-                      <CalendarDays size={14} /> Ngày khám: {formatDateVN(group.prescribed_at)}
-                    </span>
-                  )}
-                  {group.next_appointment_date && (
-                    <span className={`${styles.dateBadge} ${styles.highlightBadge}`}>
-                      📅 Tái khám: {formatDateVN(group.next_appointment_date)}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <div className={styles.sectionMedications}>
-                <MedicationGrid>
-                  {group.medications.map((m) => (
-                    <MedicationTile key={m.id} medication={m} onClick={() => setSelectedMed(m)} />
-                  ))}
-                </MedicationGrid>
-              </div>
-            </div>
+                  <span className={styles.headSub}>
+                    {group.doctor_name ? withDoctorPrefix(group.doctor_name) : 'Không có bác sĩ kê đơn'}
+                    {group.next_appointment_date && ` · Tái khám ${formatDateVN(group.next_appointment_date)}`}
+                  </span>
+                </span>
+                <ChevronRight size={22} className={styles.chevron} aria-hidden="true" />
+              </button>
+              <MedicationGrid>
+                {group.medications.map((m) => (
+                  <MedicationTile key={m.id} medication={m} accent={group.color} onClick={() => setSelectedMed(m)} />
+                ))}
+              </MedicationGrid>
+            </section>
           ))}
         </div>
+      )}
+
+      {showAddChoice && (
+        <Modal title="Thêm thuốc" onClose={() => setShowAddChoice(false)}>
+          <div className={styles.choices}>
+            <button type="button" className={styles.choice} onClick={() => navigate('/scan')}>
+              <Camera size={28} aria-hidden="true" />
+              <span>
+                <span className={styles.choiceTitle}>Quét đơn thuốc</span>
+                <span className={styles.choiceDesc}>Chụp ảnh đơn, app tự đọc thuốc và giờ uống</span>
+              </span>
+            </button>
+            <button type="button" className={styles.choice} onClick={() => { setShowAddChoice(false); setShowForm(true); }}>
+              <PenLine size={28} aria-hidden="true" />
+              <span>
+                <span className={styles.choiceTitle}>Nhập tay</span>
+                <span className={styles.choiceDesc}>Tự gõ tên thuốc, liều và giờ uống</span>
+              </span>
+            </button>
+          </div>
+        </Modal>
+      )}
+      {showForm && (
+        <MedicationFormModal
+          onClose={() => setShowForm(false)}
+          onSuccess={() => { setShowForm(false); fetchMedications(); }}
+        />
+      )}
+      {selectedMed && <MedicationDetailModal medication={selectedMed} onClose={() => setSelectedMed(null)} />}
+      {selectedGroup && (
+        <PrescriptionInfoModal group={selectedGroup} appointments={appointments || []} onClose={() => setSelectedGroup(null)} />
       )}
     </div>
   );

@@ -38,7 +38,6 @@
   letter-spacing: 1px;
 }
 
-.iconBtn,
 .bellBtn {
   width: 48px;
   height: 48px;
@@ -54,7 +53,6 @@
   transition: background 0.15s;
 }
 
-.iconBtn:hover,
 .bellBtn:hover { background: rgba(255,255,255,0.25); }
 
 .actions {
@@ -62,18 +60,6 @@
   align-items: center;
   gap: 8px;
   position: relative;
-}
-
-.cuteBadge {
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  background: rgba(255, 255, 255, 0.25);
-  color: white;
-  border-radius: 100px;
-  padding: 2px 7px;
-  margin-left: 2px;
 }
 
 .bellBtn {

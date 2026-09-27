@@ -14,47 +14,12 @@ export default function OnboardingTour() {
   const location = useLocation();
   const t = useT();
 
+  // 4 bước theo luồng cốt lõi: uống thuốc hôm nay -> quét đơn -> tủ thuốc -> giọng nhắc
   const steps = [
-    {
-      element: '.tour-step-1',
-      popover: { title: t.tour.step1Title, description: t.tour.step1Desc, side: 'bottom', align: 'start' },
-      route: '/dashboard'
-    },
-    {
-      element: '.tour-step-2',
-      popover: { title: t.tour.step2Title, description: t.tour.step2Desc, side: 'bottom', align: 'start' },
-      route: '/dashboard'
-    },
-    {
-      element: '.tour-step-3',
-      popover: { title: t.tour.step3Title, description: t.tour.step3Desc, side: 'bottom', align: 'start' },
-      route: '/dashboard'
-    },
-    {
-      element: '.tour-step-4',
-      popover: { title: t.tour.step4Title, description: t.tour.step4Desc, side: 'bottom', align: 'start' },
-      route: '/metrics'
-    },
-    {
-      element: '.tour-step-5',
-      popover: { title: t.tour.step5Title, description: t.tour.step5Desc, side: 'bottom', align: 'start' },
-      route: '/scan'
-    },
-    {
-      element: '.tour-step-6',
-      popover: { title: t.tour.step6Title, description: t.tour.step6Desc, side: 'bottom', align: 'start' },
-      route: '/medications'
-    },
-    {
-      element: '.tour-step-7',
-      popover: { title: t.tour.step7Title, description: t.tour.step7Desc, side: 'bottom', align: 'start' },
-      route: '/appointments'
-    },
-    {
-      element: '.tour-step-8',
-      popover: { title: t.tour.step8Title, description: t.tour.step8Desc, side: 'bottom', align: 'start' },
-      route: '/settings'
-    }
+    { element: '.tour-step-3', popover: { title: t.tour.step3Title, description: t.tour.step3Desc, side: 'bottom', align: 'start' }, route: '/dashboard' },
+    { element: '.tour-step-5', popover: { title: t.tour.step5Title, description: t.tour.step5Desc, side: 'bottom', align: 'start' }, route: '/scan' },
+    { element: '.tour-step-6', popover: { title: t.tour.step6Title, description: t.tour.step6Desc, side: 'bottom', align: 'start' }, route: '/medications' },
+    { element: '.tour-step-8', popover: { title: t.tour.step8Title, description: t.tour.step8Desc, side: 'bottom', align: 'start' }, route: '/voice' },
   ];
 
   const initDriver = (startIndex) => {

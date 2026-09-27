@@ -3,11 +3,13 @@ import { isInjection } from '../../utils/medForm';
 import styles from './MedicationTile.module.css';
 
 // Ô vuông cho 1 thuốc: icon theo dạng thuốc (viên / tiêm), tên bên dưới. Bấm để xem chi tiết.
-export default function MedicationTile({ medication, onClick, badge }) {
+// accent: màu của đơn thuốc chứa thuốc này, để phân biệt thuốc của các đơn khác nhau
+export default function MedicationTile({ medication, onClick, badge, accent }) {
   const injection = isInjection(medication);
   const Icon = injection ? Syringe : Pill;
   return (
     <button type="button" className={styles.tile} onClick={onClick}
+      style={accent ? { '--tile-accent': accent.c, '--tile-soft': accent.soft, '--tile-border': accent.c } : undefined}
       aria-label={`${medication.name}${injection ? ' (thuốc tiêm)' : ''} - xem chi tiết`}>
       <span className={`${styles.icon} ${injection ? styles.iconInjection : ''}`}>
         <Icon size={34} strokeWidth={2} aria-hidden="true" />

@@ -1,328 +1,55 @@
-import { useState, useEffect, useRef } from 'react';
-import { Settings, Mic, Square, Play, Trash2, Activity, ZoomIn, Crown, Sparkles, Bell, Shield, HelpCircle } from 'lucide-react';
-import { voiceAlertService, ALERT_TYPES } from '../services/voiceAlert.service';
-import useThemeStore from '../store/themeStore';
+import { Settings, ZoomIn } from 'lucide-react';
 import useAccessibilityStore from '../store/accessibilityStore';
 import { useT } from '../hooks/useT';
 import styles from './SettingsPage.module.css';
 
-const ALERT_CONFIG = [
-  {
-    id: ALERT_TYPES.MED_ALL,
-    titleKey: 'medAlertTitle',
-    descKey: 'medAlertDesc',
-    icon: <Settings size={18} />
-  },
-  {
-    id: ALERT_TYPES.SUGAR_HIGH,
-    titleKey: 'sugarHighTitle',
-    descKey: 'sugarHighDesc',
-    icon: <Activity size={18} />
-  },
-  {
-    id: ALERT_TYPES.SUGAR_LOW,
-    titleKey: 'sugarLowTitle',
-    descKey: 'sugarLowDesc',
-    icon: <Activity size={18} />
-  }
+const ZOOM_LEVELS = [
+  { label: '1x', scale: 1 },
+  { label: '2x', scale: 1.1 },
+  { label: '3x', scale: 1.2 },
+  { label: '4x', scale: 1.3 },
 ];
 
+// Cài đặt chung (mở từ menu avatar). Ghi âm giọng nói nằm ở trang "Giọng nhắc".
 export default function SettingsPage() {
-  const { isCuteMode, toggleCuteMode, isGoldMode } = useThemeStore();
   const { fontScale, setFontScale } = useAccessibilityStore();
   const t = useT();
   const s = t.settings;
-
-  const [settings, setSettings] = useState({});
-  const [recordingId, setRecordingId] = useState(null);
-  const [playingId, setPlayingId] = useState(null);
-  const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]);
-
-  const loadSettings = async () => {
-    const data = await voiceAlertService.getAllSettings();
-    setSettings(data);
-  };
-
-  useEffect(() => {
-    loadSettings();
-    return () => {
-      voiceAlertService.stopAlert();
-    };
-  }, []);
-
-  const startRecording = async (alertType) => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      audioChunksRef.current = [];
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-
-      mediaRecorder.onstop = async () => {
-        // Lấy định dạng thực tế của thiết bị (iOS Safari thường là audio/mp4, không phải webm)
-        const mimeType = audioChunksRef.current[0]?.type || mediaRecorderRef.current.mimeType || 'audio/mp4';
-        const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
-        await voiceAlertService.saveVoice(alertType, audioBlob);
-        loadSettings();
-        
-        // Stop all tracks
-        stream.getTracks().forEach(track => track.stop());
-      };
-
-      mediaRecorder.start();
-      setRecordingId(alertType);
-    } catch {
-      alert(s.micError);
-    }
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      mediaRecorderRef.current.stop();
-    }
-    setRecordingId(null);
-  };
-
-  const handlePlayVoice = (alertType) => {
-    if (playingId === alertType) {
-      voiceAlertService.stopAlert();
-      setPlayingId(null);
-    } else {
-      voiceAlertService.stopAlert();
-      setPlayingId(alertType);
-      voiceAlertService.playAlert(alertType, [], () => {
-        setPlayingId(null);
-      });
-    }
-  };
-
-  const deleteVoice = async (alertType) => {
-    if (window.confirm(s.deleteConfirm)) {
-      await voiceAlertService.deleteVoice(alertType);
-      loadSettings();
-    }
-  };
-
-  const toggleCustomVoice = async (alertType, isChecked) => {
-    await voiceAlertService.toggleCustomVoice(alertType, isChecked);
-    loadSettings();
-  };
 
   return (
     <div className={styles.page}>
       <div className={styles.header}>
         <div className={styles.headerTop}>
           <Settings size={24} />
-          <h1>{s.voiceTitle}</h1>
-        </div>
-        <p>{s.voiceDesc}</p>
-      </div>
-
-      <div className={styles.alertList}>
-        {ALERT_CONFIG.map((item) => {
-          const setting = settings[item.id] || {};
-          const hasVoice = !!setting.audioBase64;
-          const useCustom = hasVoice && setting.useCustomVoice !== false;
-          const isRecording = recordingId === item.id;
-
-          return (
-            <div key={item.id} className={styles.alertCard}>
-              <div className={styles.alertHeader}>
-                <h3 className={styles.alertTitle}>{s[item.titleKey]}</h3>
-                {hasVoice && (
-                  <div className={styles.toggleGroup}>
-                    <span>{s.useCustomVoice}</span>
-                    <label className={styles.switch}>
-                      <input 
-                        type="checkbox" 
-                        checked={useCustom}
-                        onChange={(e) => toggleCustomVoice(item.id, e.target.checked)}
-                      />
-                      <span className={styles.slider}></span>
-                    </label>
-                  </div>
-                )}
-              </div>
-              <p className={styles.alertDesc}>{s[item.descKey]}</p>
-              
-              <div className={styles.controls}>
-                <div className={styles.recordGroup}>
-                  {isRecording ? (
-                    <button className={`${styles.iconBtn} ${styles.recording}`} onClick={stopRecording}>
-                      <Square size={16} fill="currentColor" />
-                    </button>
-                  ) : (
-                    <button className={`${styles.iconBtn} ${styles.recordBtn}`} onClick={() => startRecording(item.id)}>
-                      <Mic size={20} />
-                    </button>
-                  )}
-                  
-                  <button className={`${styles.iconBtn} ${styles.playBtn}`} onClick={() => handlePlayVoice(item.id)}>
-                    {playingId === item.id ? <Square size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
-                  </button>
-                </div>
-                
-                {hasVoice && (
-                  <button className={`${styles.iconBtn} ${styles.deleteBtn}`} onClick={() => deleteVoice(item.id)}>
-                    <Trash2 size={16} />
-                  </button>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <div className={styles.divider} style={{ margin: '30px 0', borderBottom: '1px solid #E2E8F0' }} />
-
-      <div className={styles.header}>
-        <div className={styles.headerTop}>
-          <Settings size={24} />
           <h1>{s.title}</h1>
         </div>
-        <p>{s.subtitle}</p>
       </div>
 
-      <div className={styles.settingsGroup} style={{ background: 'white', padding: '20px', borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', marginBottom: '30px' }}>
-        <p className={styles.sectionLabel} style={{ fontWeight: 'bold', fontSize: '17px', color: '#64748B', marginBottom: '16px', textTransform: 'uppercase' }}>
-          {s.sectionDisplay}
-        </p>
-        <div className={styles.row} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-          <div className={styles.rowLeft} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div className={styles.iconWrap} style={{ background: '#EFF6FF', padding: '8px', borderRadius: '12px' }}>
-              <ZoomIn size={18} color="#1B5FA6" />
-            </div>
-            <div>
-              <p className={styles.rowTitle} style={{ fontWeight: 600, fontSize: '18px', color: '#1E293B', margin: 0 }}>{s.fontSizeTitle}</p>
-              <p className={styles.rowDesc} style={{ fontSize: '17px', color: '#64748B', margin: 0 }}>{s.fontSizeDesc}</p>
-            </div>
+      <section className={styles.settingsCard} aria-labelledby="font-size-title">
+        <div className={styles.settingRow}>
+          <span className={styles.settingIcon}><ZoomIn size={20} aria-hidden="true" /></span>
+          <div>
+            <h2 id="font-size-title" className={styles.settingTitle}>{s.fontSizeTitle}</h2>
+            <p className={styles.settingDesc}>{s.fontSizeDesc}</p>
           </div>
         </div>
-        <div className={styles.scaleRow} style={{ display: 'flex', gap: '8px' }}>
-          {[1, 2, 3, 4].map((lvl) => {
-            const actualScale = { 1: 1, 2: 1.1, 3: 1.2, 4: 1.3 }[lvl];
-            return (
-              <button
-                key={lvl}
-                onClick={() => setFontScale(actualScale)}
-                style={{
-                  flex: 1, minHeight: 48, padding: '10px 0', borderRadius: '10px', fontSize: 17, fontWeight: 600,
-                  border: fontScale === actualScale ? '2px solid #3B82F6' : '1px solid #E2E8F0',
-                  background: fontScale === actualScale ? '#EFF6FF' : 'white',
-                  color: fontScale === actualScale ? '#1B5FA6' : '#64748B',
-                  cursor: 'pointer'
-                }}
-                aria-label={`${s.zoomLevel} ${lvl}`}
-              >
-                {lvl}x
-              </button>
-            );
-          })}
-        </div>
-
-        <div className={styles.divider} style={{ margin: '24px 0', borderBottom: '1px solid #F1F5F9' }} />
-
-        <p className={styles.sectionLabel} style={{ fontWeight: 'bold', fontSize: '17px', color: '#64748B', marginBottom: '16px', textTransform: 'uppercase' }}>
-          {s.sectionTheme}
-        </p>
-        {isGoldMode ? (
-          <div className={styles.goldThemeRow} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div className={styles.goldThemeIcon} style={{ background: '#FEF3C7', padding: '8px', borderRadius: '12px' }}>
-              <Crown size={18} fill="#C9921A" color="#C9921A" />
-            </div>
-            <div>
-              <p className={styles.rowTitle} style={{ fontWeight: 600, fontSize: '18px', color: '#1E293B', margin: 0 }}>{s.goldTheme}</p>
-              <p className={styles.rowDesc} style={{ fontSize: '17px', color: '#64748B', margin: 0 }}>{s.goldThemeDesc}</p>
-            </div>
-          </div>
-        ) : (
-          <div className={styles.row} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div className={styles.rowLeft} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div className={styles.iconWrap} style={{ background: isCuteMode ? '#F5F0FF' : '#FEF3C7', padding: '8px', borderRadius: '12px' }}>
-                <Sparkles size={18} color={isCuteMode ? '#A855F7' : '#D97706'} />
-              </div>
-              <div>
-                <p className={styles.rowTitle} style={{ fontWeight: 600, fontSize: '18px', color: '#1E293B', margin: 0 }}>{s.cuteMode}</p>
-                <p className={styles.rowDesc} style={{ fontSize: '17px', color: '#64748B', margin: 0 }}>{s.cuteModeDesc}</p>
-              </div>
-            </div>
+        <div className={styles.zoomRow}>
+          {ZOOM_LEVELS.map(({ label, scale }) => (
             <button
-              onClick={toggleCuteMode}
-              style={{
-                width: '56px', height: '32px', borderRadius: '16px', flexShrink: 0,
-                background: isCuteMode ? '#A855F7' : '#E2E8F0',
-                position: 'relative', border: 'none', cursor: 'pointer',
-                transition: '0.3s'
-              }}
-              aria-label={s.cuteMode}
+              key={label}
+              type="button"
+              className={`${styles.zoomBtn} ${fontScale === scale ? styles.zoomActive : ''}`}
+              onClick={() => setFontScale(scale)}
+              aria-pressed={fontScale === scale}
+              aria-label={`${s.zoomLevel} ${label}`}
             >
-              <span style={{
-                display: 'block', width: '28px', height: '28px', borderRadius: '50%',
-                background: 'white', position: 'absolute', top: '2px',
-                left: isCuteMode ? '26px' : '2px', transition: '0.3s',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-              }} />
+              {label}
             </button>
-          </div>
-        )}
-
-        <div className={styles.divider} style={{ margin: '24px 0', borderBottom: '1px solid #F1F5F9' }} />
-
-        <p className={styles.sectionLabel} style={{ fontWeight: 'bold', fontSize: '17px', color: '#64748B', marginBottom: '16px', textTransform: 'uppercase' }}>
-          {s.sectionNotify}
-        </p>
-        <div className={styles.row} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div className={styles.rowLeft} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div className={styles.iconWrap} style={{ background: '#EFF6FF', padding: '8px', borderRadius: '12px' }}>
-              <Bell size={18} color="#1B5FA6" />
-            </div>
-            <div>
-              <p className={styles.rowTitle} style={{ fontWeight: 600, fontSize: '18px', color: '#1E293B', margin: 0 }}>{s.reminderTitle}</p>
-              <p className={styles.rowDesc} style={{ fontSize: '17px', color: '#64748B', margin: 0 }}>{s.reminderDesc}</p>
-            </div>
-          </div>
-          <div style={{ fontSize: '15px', background: '#F1F5F9', color: '#64748B', padding: '4px 8px', borderRadius: '8px' }}>{s.comingSoon}</div>
+          ))}
         </div>
+      </section>
 
-        <div className={styles.divider} style={{ margin: '24px 0', borderBottom: '1px solid #F1F5F9' }} />
-
-        <p className={styles.sectionLabel} style={{ fontWeight: 'bold', fontSize: '17px', color: '#64748B', marginBottom: '16px', textTransform: 'uppercase' }}>
-          {s.sectionOther}
-        </p>
-        <div className={styles.row} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-          <div className={styles.rowLeft} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div className={styles.iconWrap} style={{ background: '#F0FDF4', padding: '8px', borderRadius: '12px' }}>
-              <Shield size={18} color="#16A34A" />
-            </div>
-            <div>
-              <p className={styles.rowTitle} style={{ fontWeight: 600, fontSize: '18px', color: '#1E293B', margin: 0 }}>{s.privacy}</p>
-              <p className={styles.rowDesc} style={{ fontSize: '17px', color: '#64748B', margin: 0 }}>{s.privacyDesc}</p>
-            </div>
-          </div>
-          <div style={{ fontSize: '15px', background: '#F1F5F9', color: '#64748B', padding: '4px 8px', borderRadius: '8px' }}>{s.comingSoon}</div>
-        </div>
-
-        <div className={styles.row} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div className={styles.rowLeft} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div className={styles.iconWrap} style={{ background: '#F8F8F8', padding: '8px', borderRadius: '12px' }}>
-              <HelpCircle size={18} color="#6B7A8D" />
-            </div>
-            <div>
-              <p className={styles.rowTitle} style={{ fontWeight: 600, fontSize: '18px', color: '#1E293B', margin: 0 }}>{s.support}</p>
-              <p className={styles.rowDesc} style={{ fontSize: '17px', color: '#64748B', margin: 0 }}>{s.supportDesc}</p>
-            </div>
-          </div>
-          <div style={{ fontSize: '15px', background: '#F1F5F9', color: '#64748B', padding: '4px 8px', borderRadius: '8px' }}>{s.comingSoon}</div>
-        </div>
-
-        <p style={{ textAlign: 'center', marginTop: '24px', color: '#94A3B8', fontSize: '15px' }}>{s.version}</p>
-      </div>
+      <p className={styles.version}>{s.version}</p>
     </div>
   );
 }

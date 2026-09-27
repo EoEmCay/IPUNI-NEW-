@@ -118,31 +118,6 @@
   margin: 2px 0;
 }
 
-.langRow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 16px;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.langIcon {
-  color: var(--color-text-secondary);
-  flex-shrink: 0;
-}
-
-.langRowLabel {
-  font-size: 16px;
-  color: var(--color-text-secondary);
-  flex: 1;
-}
-
-.langFlags {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
 .langFlagBtn {
   width: 30px;
   height: 22px;
@@ -208,19 +183,6 @@
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-:global([data-theme="cute"]) .upgradeItem {
-  background: linear-gradient(135deg, rgba(168,85,247,0.07) 0%, rgba(236,72,153,0.08) 100%);
-  color: #7C3AED;
-}
-
-:global([data-theme="cute"]) .upgradeItem:hover {
-  background: linear-gradient(135deg, rgba(168,85,247,0.14) 0%, rgba(236,72,153,0.14) 100%) !important;
-}
-
-:global([data-theme="cute"]) .upgradeBadge {
-  background: linear-gradient(90deg, #A855F7, #EC4899);
 }
 
 @media (max-width: 430px) {

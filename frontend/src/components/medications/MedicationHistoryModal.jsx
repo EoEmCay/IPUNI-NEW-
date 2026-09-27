@@ -8,8 +8,8 @@ import {
 } from '../../store/medicationAdherenceStore';
 import { careLinksService } from '../../services/careLinks.service';
 
-export default function MedicationHistoryModal({ medications = [], onClose }) {
-  const [activeTab, setActiveTab] = useState('stats'); // 'stats' | 'caregiver'
+export default function MedicationHistoryModal({ medications = [], onClose, initialTab = 'stats' }) {
+  const [activeTab, setActiveTab] = useState(initialTab); // 'stats' | 'caregiver'
   const stats = useMemo(() => calculateAdherenceStats(medications, 7), [medications]);
 
   const [caregiver, setCaregiver] = useState(() => getCaregiverInfo());

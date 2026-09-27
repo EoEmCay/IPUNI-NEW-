@@ -2,9 +2,9 @@ import { create } from 'zustand';
 
 const THEME_KEY = 'diaplus-theme';
 const GOLD_UNLOCK_KEY = 'diaplus-gold-unlocked';
-// Mã đối tác mở khoá giao diện Gold.
+// Mã nâng gói / mã đối tác mở khoá giao diện Gold.
 // ponytail: kiểm tra ở client - chỉ là giao diện, không mở quyền truy cập dữ liệu nào.
-const GOLD_PARTNER_CODE = 'doitacDIA+';
+const GOLD_CODES = ['doitacDIA+', 'donghanhDIA+'];
 
 const read = (key) => { try { return localStorage.getItem(key); } catch { return null; } };
 const write = (key, value) => { try { localStorage.setItem(key, value); } catch { /* bộ nhớ trình duyệt bị chặn */ } };
@@ -38,7 +38,7 @@ const useThemeStore = create((set) => {
 
     // Trả về true nếu mã đúng (mở khoá vĩnh viễn trên máy này)
     unlockGold: (code) => {
-      if (String(code || '').trim() !== GOLD_PARTNER_CODE) return false;
+      if (!GOLD_CODES.includes(String(code || '').trim())) return false;
       write(GOLD_UNLOCK_KEY, '1');
       return true;
     },

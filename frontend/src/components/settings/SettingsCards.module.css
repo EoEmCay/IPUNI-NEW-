@@ -115,3 +115,12 @@
   font-size: 16px;
   font-weight: 700;
 }
+
+.note {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: #FEF3C7;
+  color: #92400E;
+  font-size: 16px;
+}

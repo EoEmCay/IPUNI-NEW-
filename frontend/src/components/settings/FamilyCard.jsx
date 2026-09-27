@@ -8,6 +8,7 @@ import styles from './SettingsCards.module.css';
 // nhận cảnh báo khi người kia bỏ cữ / quên uống thuốc.
 export default function FamilyCard() {
   const myCode = useAuthStore((s) => s.user?.user_code);
+  const isDemo = useAuthStore((s) => s.user?.is_demo);
   const [members, setMembers] = useState([]);
   const [code, setCode] = useState('');
   const [message, setMessage] = useState(null); // { ok, text }
@@ -51,6 +52,10 @@ export default function FamilyCard() {
           <p className={styles.desc}>Khi một người bỏ cữ hoặc quên uống thuốc, người kia sẽ được báo.</p>
         </div>
       </div>
+
+      {isDemo && (
+        <p className={styles.note}>Bạn đang dùng tài khoản dùng thử: chỉ kết nối được với tài khoản dùng thử khác, không kết nối với tài khoản thật.</p>
+      )}
 
       {myCode && (
         <div className={styles.codeBox}>

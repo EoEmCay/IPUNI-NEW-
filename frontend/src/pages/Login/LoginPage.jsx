@@ -124,6 +124,8 @@ export default function LoginPage() {
     try {
       const token = await loginWithFacebook();
       if (token) handleSocialLogin(facebookLogin, token, 'Facebook');
+      // Huỷ hoặc Facebook không trả về tài khoản: báo rõ thay vì im lặng
+      else setError('Chưa đăng nhập được bằng Facebook. Bạn thử lại, hoặc dùng Google / email.');
     } catch {
       setError('Không mở được cửa sổ đăng nhập Facebook. Vui lòng thử lại.');
     }

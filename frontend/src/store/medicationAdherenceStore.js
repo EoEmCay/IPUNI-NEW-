@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { hasCountableDoseOn, extractMedicationTimes } from '../utils/medicationTime';
+import { isDoseScheduledForDate, hasCountableDoseOn, extractMedicationTimes } from '../utils/medicationTime';
 import { medicationsService } from '../services/medications.service';
 
 const LOGS_STORAGE_KEY = 'diaplus_medication_intake_logs_v1';
@@ -177,8 +177,9 @@ export function calculateAdherenceStats(medications = [], days = 7) {
     const medDetails = [];
 
     medications.forEach(med => {
+      const schedule = isDoseScheduledForDate(med, d);
       // Không tính ngày/cữ trước lúc thêm thuốc
-      if (hasCountableDoseOn(med, d)) {
+      if (schedule.isScheduled && hasCountableDoseOn(med, d)) {
         dayScheduled += 1;
 
         // Tìm log của thuốc trong ngày
@@ -203,7 +204,7 @@ export function calculateAdherenceStats(medications = [], days = 7) {
           name: med.name,
           dosage: med.dosage,
           status: 'rest_day',
-          label: schedule.label
+          label: schedule.isScheduled ? 'Chưa có thuốc' : schedule.label
         });
       }
     });

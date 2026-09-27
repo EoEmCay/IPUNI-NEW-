@@ -3,9 +3,10 @@ import { useNavigate, Link } from 'react-router-dom';
 import { AlertCircle } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import useThemeStore from '../../store/themeStore';
-import { GoogleIcon } from '../../components/common/AuthIcons';
+import { GoogleIcon, FacebookIcon } from '../../components/common/AuthIcons';
 import ForgotPasswordModal from '../../components/auth/ForgotPasswordModal';
 import { isNative } from '../../lib/native';
+import { FACEBOOK_APP_ID, preloadFacebook, loginWithFacebook } from '../../lib/facebook';
 import styles from './LoginPage.module.css';
 
 const UserSVG = () => (
@@ -43,7 +44,7 @@ import { useGoogleLogin } from '@react-oauth/google';
 import SplashScreen from '../../components/common/SplashScreen';
 
 export default function LoginPage() {
-  const { login, googleLogin, demoLogin, pollLoginStatus } = useAuth();
+  const { login, googleLogin, facebookLogin, demoLogin, pollLoginStatus } = useAuth();
   const navigate = useNavigate();
   const applyDefaultLook = useThemeStore((s) => s.applyDefaultLook);
 
@@ -55,10 +56,13 @@ export default function LoginPage() {
   const [demoLoading, setDemoLoading] = useState(false);
   const [awaitingApproval, setAwaitingApproval] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  // App cài trên điện thoại chưa có nút Google/Facebook -> mở sẵn ô email/mật khẩu
+  const [showPasswordForm, setShowPasswordForm] = useState(isNative);
   const pollAbortRef = useRef(null);
 
   useEffect(() => { applyDefaultLook(); }, [applyDefaultLook]);
   useEffect(() => () => pollAbortRef.current?.abort(), []);
+  useEffect(() => { preloadFacebook(); }, []);
 
   const cancelWaiting = () => {
     pollAbortRef.current?.abort();
@@ -66,11 +70,11 @@ export default function LoginPage() {
     setLoading(false);
   };
 
-  const handleGoogleSuccess = async (accessToken) => {
+  const handleSocialLogin = async (loginFn, accessToken, provider) => {
     try {
       setLoading(true);
       setError('');
-      const result = await googleLogin(accessToken);
+      const result = await loginFn(accessToken);
 
       if (result.pending) {
         setAwaitingApproval(true);
@@ -90,15 +94,15 @@ export default function LoginPage() {
 
       navigate('/dashboard');
     } catch (err) {
-      console.error('Google login error:', err);
-      setError(err.response?.data?.message || err.message || 'Đăng nhập Google thất bại');
+      console.error(`${provider} login error:`, err);
+      setError(err.response?.data?.message || err.message || `Đăng nhập ${provider} thất bại`);
     } finally {
       setLoading(false);
     }
   };
 
   const triggerWebGoogleLogin = useGoogleLogin({
-    onSuccess: (tokenResponse) => handleGoogleSuccess(tokenResponse.access_token),
+    onSuccess: (tokenResponse) => handleSocialLogin(googleLogin, tokenResponse.access_token, 'Google'),
     onError: (err) => {
       console.warn('Google login error:', err);
       setError('Không mở được cửa sổ đăng nhập Google. Vui lòng thử lại.');
@@ -112,6 +116,16 @@ export default function LoginPage() {
     } catch (err) {
       console.warn('triggerWebGoogleLogin error:', err);
       setError('Không mở được cửa sổ đăng nhập Google. Vui lòng thử lại.');
+    }
+  };
+
+  const onFacebookBtnClick = async () => {
+    setError('');
+    try {
+      const token = await loginWithFacebook();
+      if (token) handleSocialLogin(facebookLogin, token, 'Facebook');
+    } catch {
+      setError('Không mở được cửa sổ đăng nhập Facebook. Vui lòng thử lại.');
     }
   };
 
@@ -203,7 +217,7 @@ export default function LoginPage() {
           ) : (
           <>
           <h2 className={styles.formTitle}>Đăng nhập</h2>
-          <p className={styles.formSub}>Nhập tài khoản và mật khẩu của bạn</p>
+          <p className={styles.formSub}>Chọn cách đăng nhập nhanh</p>
 
           {error && (
             <div className={styles.errorBox}>
@@ -212,6 +226,48 @@ export default function LoginPage() {
             </div>
           )}
 
+          <div className={styles.socialStack}>
+            {/* ponytail: app cài trên điện thoại chưa có Google/Facebook Sign-In thật (cần plugin Capacitor) nên ẩn */}
+            {!isNative && (
+              <button type="button" className={`${styles.authBtn} ${styles.googleBtn}`} onClick={onGoogleBtnClick}>
+                <GoogleIcon className={styles.gIcon} />
+                <span>Tiếp tục với Google</span>
+              </button>
+            )}
+            {!isNative && FACEBOOK_APP_ID && (
+              <button type="button" className={`${styles.authBtn} ${styles.fbBtn}`} onClick={onFacebookBtnClick}>
+                <FacebookIcon className={styles.gIcon} />
+                <span>Tiếp tục với Facebook</span>
+              </button>
+            )}
+
+            <button
+              className={`${styles.authBtn} ${styles.demoBtn}`}
+              onClick={handleDemoLogin}
+              disabled={demoLoading}
+            >
+              {demoLoading ? (
+                <span className={styles.demoSpinner} />
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+              )}
+              <span>{demoLoading ? 'Đang vào dùng thử...' : 'Dùng thử không cần tài khoản'}</span>
+            </button>
+          </div>
+
+          {!showPasswordForm ? (
+            <button type="button" className={styles.emailToggle} onClick={() => setShowPasswordForm(true)}>
+              Đăng nhập bằng email / mật khẩu
+            </button>
+          ) : (
+            <>
+              <div className={styles.divider}>
+                <div className={styles.dividerLine} />
+                <span className={styles.dividerText}>email / mật khẩu</span>
+                <div className={styles.dividerLine} />
+              </div>
           <form onSubmit={handleSubmit} className={styles.form} noValidate>
             <div className={styles.fieldWrap}>
               <label className={styles.fieldLabel}>Email / CCCD</label>
@@ -224,7 +280,6 @@ export default function LoginPage() {
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
                   autoComplete="email"
-                  autoFocus
                 />
               </div>
             </div>
@@ -273,44 +328,12 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className={styles.divider}>
-            <div className={styles.dividerLine} />
-            <span className={styles.dividerText}>hoặc</span>
-            <div className={styles.dividerLine} />
-          </div>
-
-          {/* ponytail: app native chưa có Google Sign-In thật (cần plugin Capacitor) nên ẩn nút */}
-          {!isNative && (
-            <button
-              type="button"
-              className={`${styles.authBtn} ${styles.googleBtn}`}
-              onClick={onGoogleBtnClick}
-            >
-              <GoogleIcon className={styles.gIcon} />
-              <span>Tiếp tục qua Google</span>
-            </button>
+              <p className={styles.registerRow}>
+                Chưa có tài khoản?{' '}
+                <Link to="/register" className={styles.registerLink}>Tạo tài khoản mới</Link>
+              </p>
+            </>
           )}
-
-          <button
-            className={`${styles.authBtn} ${styles.demoBtn}`}
-            onClick={handleDemoLogin}
-            disabled={demoLoading}
-            style={{ marginTop: '12px' }}
-          >
-            {demoLoading ? (
-              <span className={styles.demoSpinner} />
-            ) : (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-              </svg>
-            )}
-            <span>{demoLoading ? 'Đang vào demo...' : 'Sử Dụng Demo'}</span>
-          </button>
-
-          <p className={styles.registerRow}>
-            Chưa có tài khoản?{' '}
-            <Link to="/register" className={styles.registerLink}>Tạo tài khoản mới</Link>
-          </p>
           </>
           )}
         </div>

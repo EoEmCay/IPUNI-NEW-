@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../../config/database');
-const { JWT_SECRET, JWT_EXPIRES_IN, GOOGLE_CLIENT_ID } = require('../../config/constants');
+const { JWT_SECRET, JWT_EXPIRES_IN, GOOGLE_CLIENT_ID, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET } = require('../../config/constants');
 const loginRequestStore = require('./loginRequest.store');
 const { getTransporter, getFromAddress } = require('../../utils/mailer');
 
@@ -258,36 +258,75 @@ async function googleLogin(accessToken) {
     });
     const name = profile.name || email.split('@')[0];
 
-    let user = await db('users').where({ email }).first();
-    if (!user) {
-      let user_code;
-      do { user_code = genUserCode(); } while (await db('users').where({ user_code }).first());
-      
-      const [insertedRow] = await db('users').insert({
-        email,
-        name,
-        password_hash: '$2b$10$dummyHashGoogleMockUserNotUsed',
-        user_code,
-      }).returning('id');
-      const id = typeof insertedRow === 'object' ? insertedRow.id : insertedRow;
-      user = await db('users').where({ id }).first();
-    }
-
-    // Đi qua cùng cơ chế duyệt 2-thiết-bị như đăng nhập thường (login()) - trước đây
-    // googleLogin ký token thẳng, bỏ qua hoàn toàn bước này.
-    const is_demo = user.email && user.email.startsWith('demo_');
-    const hasActiveDevice = !is_demo && user.last_active_at &&
-      (Date.now() - new Date(user.last_active_at).getTime() < ACTIVE_SESSION_THRESHOLD_MS);
-
-    if (hasActiveDevice) {
-      const requestId = loginRequestStore.create(user.id, email);
-      return { status: 'pending', requestId };
-    }
-
-    return issueLoginToken(user);
+    return await loginSocialUser({ email, name });
   } catch (err) {
     console.error('Google verification error:', err);
     throw { status: 401, message: 'Xác thực Google thất bại' };
+  }
+}
+
+// Tìm (hoặc tạo) người dùng từ đăng nhập mạng xã hội đã xác thực, rồi đi qua cùng cơ chế duyệt
+// 2-thiết-bị như đăng nhập mật khẩu. facebookId ưu tiên hơn email (email có thể thiếu/đổi).
+async function loginSocialUser({ email, name, facebookId = null }) {
+  let user = facebookId ? await db('users').where({ facebook_id: facebookId }).first() : null;
+  if (!user && email) {
+    user = await db('users').where({ email }).first();
+    if (user && facebookId) {
+      await db('users').where({ id: user.id }).update({ facebook_id: facebookId });
+      user.facebook_id = facebookId;
+    }
+  }
+  if (!user) {
+    let user_code;
+    do { user_code = genUserCode(); } while (await db('users').where({ user_code }).first());
+    const [insertedRow] = await db('users').insert({
+      // Cột email bắt buộc: người dùng FB bằng SĐT không có email -> email thay thế (như đăng ký SĐT)
+      email: email || `${facebookId}@facebook.diaplus.vn`,
+      name,
+      password_hash: '$2b$10$dummyHashSocialLoginUserNotUsed',
+      user_code,
+      ...(facebookId ? { facebook_id: facebookId } : {}),
+    }).returning('id');
+    const id = typeof insertedRow === 'object' ? insertedRow.id : insertedRow;
+    user = await db('users').where({ id }).first();
+  }
+
+  const is_demo = user.email && user.email.startsWith('demo_');
+  const hasActiveDevice = !is_demo && user.last_active_at &&
+    (Date.now() - new Date(user.last_active_at).getTime() < ACTIVE_SESSION_THRESHOLD_MS);
+  if (hasActiveDevice) {
+    const requestId = loginRequestStore.create(user.id, user.email);
+    return { status: 'pending', requestId };
+  }
+  return issueLoginToken(user);
+}
+
+async function facebookLogin(accessToken) {
+  if (!FACEBOOK_APP_ID || !FACEBOOK_APP_SECRET) {
+    throw { status: 503, message: 'Đăng nhập Facebook chưa được cài đặt' };
+  }
+  try {
+    if (typeof accessToken !== 'string' || !accessToken) throw new Error('missing token');
+    // Hỏi Facebook: token có hợp lệ và có đúng là cấp cho ứng dụng DIA+ không
+    const { data: dbg } = await axios.get('https://graph.facebook.com/debug_token', {
+      params: { input_token: accessToken, access_token: `${FACEBOOK_APP_ID}|${FACEBOOK_APP_SECRET}` },
+    });
+    const info = dbg && dbg.data;
+    if (!info || !info.is_valid || String(info.app_id) !== String(FACEBOOK_APP_ID) || !info.user_id) {
+      throw new Error('token not issued for DIA+');
+    }
+    const proof = crypto.createHmac('sha256', FACEBOOK_APP_SECRET).update(accessToken).digest('hex');
+    const { data: me } = await axios.get('https://graph.facebook.com/me', {
+      params: { fields: 'id,name,email', access_token: accessToken, appsecret_proof: proof },
+    });
+    if (String(me.id) !== String(info.user_id)) throw new Error('user mismatch');
+    // Facebook chỉ trả email đã được người dùng xác nhận
+    const email = me.email ? String(me.email).toLowerCase() : null;
+    return await loginSocialUser({ email, name: me.name || 'Người dùng Facebook', facebookId: String(me.id) });
+  } catch (err) {
+    if (err && err.status) throw err;
+    console.error('Facebook verification error:', err.message || err);
+    throw { status: 401, message: 'Xác thực Facebook thất bại' };
   }
 }
 
@@ -438,6 +477,6 @@ async function logout(userId) {
 }
 
 module.exports = {
-  login, register, getMe, googleLogin, demoLogin, acknowledgeSession, logout,
+  login, register, getMe, googleLogin, facebookLogin, demoLogin, acknowledgeSession, logout,
   getLoginStatus, getPendingApprovals, approveLogin, rejectLogin, changePassword, resetPassword,
 };

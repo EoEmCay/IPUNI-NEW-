@@ -8,7 +8,7 @@
     "migrate": "knex migrate:latest",
     "migrate:rollback": "knex migrate:rollback",
     "seed": "knex seed:run",
-    "test": "node src/modules/medications/medicationSchedule.test.js && node src/modules/auth/googleLogin.test.js",
+    "test": "node src/modules/medications/medicationSchedule.test.js && node src/modules/auth/googleLogin.test.js && node src/modules/auth/facebookLogin.test.js",
     "test:schedule": "node src/modules/medications/medicationSchedule.test.js"
   },
   "dependencies": {

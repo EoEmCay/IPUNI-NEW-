@@ -70,8 +70,9 @@ export function useAuth() {
     return user;
   };
 
-  const googleLogin = async (accessToken) => {
-    const res = await authService.googleLogin(accessToken);
+  // Đăng nhập Google/Facebook: server trả token ngay, hoặc "pending" nếu cần thiết bị kia duyệt
+  const socialLogin = async (request) => {
+    const res = await request;
     const data = res.data.data;
 
     // Tài khoản đang có thiết bị khác hoạt động -> chờ phê duyệt, chưa có token ngay.
@@ -84,6 +85,8 @@ export function useAuth() {
     applyPlanTheme(user.plan);
     return { pending: false, user };
   };
+  const googleLogin = (accessToken) => socialLogin(authService.googleLogin(accessToken));
+  const facebookLogin = (accessToken) => socialLogin(authService.facebookLogin(accessToken));
 
   const demoLogin = async () => {
     const res = await authService.demoLogin();
@@ -117,7 +120,7 @@ export function useAuth() {
   };
 
   return {
-    user, token, isAuthenticated, login, googleLogin, demoLogin, logout, register, updateProfile, completeRegistration,
+    user, token, isAuthenticated, login, googleLogin, facebookLogin, demoLogin, logout, register, updateProfile, completeRegistration,
     pollLoginStatus, approveLogin, rejectLogin, getPendingApprovals, changePassword,
   };
 }

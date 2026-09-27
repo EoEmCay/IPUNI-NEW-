@@ -11,6 +11,7 @@ router.post('/register', validate(registerSchema), controller.register);
 router.get('/me', authMiddleware, controller.getMe);
 router.post('/logout', authMiddleware, controller.logout);
 router.post('/google-login', controller.googleLogin);
+router.post('/facebook-login', controller.facebookLogin);
 router.post('/demo-login', controller.demoLogin);
 router.post('/acknowledge-session', authMiddleware, controller.acknowledgeSession);
 

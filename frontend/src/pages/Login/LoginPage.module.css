@@ -551,3 +551,35 @@
   padding-top: 28px;
   font-weight: 500;
 }
+
+/* ── Đăng nhập nhanh: Google / Facebook / Dùng thử ── */
+.socialStack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.socialStack .authBtn { font-size: 17px; }
+
+.fbBtn {
+  background: #1877F2;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(24, 119, 242, 0.3);
+}
+
+.fbBtn:hover { background: #166FE5; transform: translateY(-2px); }
+
+.emailToggle {
+  margin-top: 16px;
+  min-height: 48px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #1B5FA6;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}

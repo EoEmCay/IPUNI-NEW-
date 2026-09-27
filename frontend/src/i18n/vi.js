@@ -367,6 +367,8 @@ const vi = {
     sugarHighDesc: 'Phát khi đường huyết sát ngưỡng nguy hiểm',
     sugarLowTitle: 'Cảnh báo đường huyết GIẢM',
     sugarLowDesc: 'Phát khi đường huyết quá thấp',
+    familyAlertTitle: 'Báo người nhà quên/bỏ thuốc',
+    familyAlertDesc: 'Phát khi người trong gia đình quên uống hoặc bỏ qua cữ thuốc',
     useCustomVoice: 'Dùng giọng người nhà',
     deleteConfirm: 'Bạn có chắc muốn xóa giọng nói này?',
     micError: 'Không thể truy cập Micro. Vui lòng cấp quyền trong cài đặt trình duyệt.',

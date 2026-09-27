@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
-import { voiceAlertService, ALERT_TYPES } from '../../services/voiceAlert.service';
+import { ALERT_TYPES } from '../../services/voiceAlert.service';
 import { useMedications } from '../../hooks/useMedications';
 import { useToast } from '../../hooks/useToast';
 import { useT } from '../../hooks/useT';
-import { blinkFlash } from '../../lib/native';
+import { notifyWithEffects } from '../../lib/notify';
 
 export default function VoiceAlertEngine() {
   const { medications, fetchMedications } = useMedications();
@@ -49,8 +49,7 @@ export default function VoiceAlertEngine() {
       });
 
       if (triggeredType && medsToTake.length > 0) {
-        blinkFlash(4, 0.15);
-        voiceAlertService.playAlert(triggeredType, medsToTake);
+        notifyWithEffects(triggeredType, { meds: medsToTake });
         
         const baseMsg = t.common?.medReminderMsg || 'Đã đến giờ uống thuốc:';
         const msg = `${baseMsg} ${medsToTake.join(', ')}`;

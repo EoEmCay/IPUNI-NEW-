@@ -7,9 +7,10 @@
  * 3. BẬT ÂM THANH CHUÔNG HỆ THỐNG & RUNG (Sound: default, High priority).
  * 4. TÍCH HỢP GIỌNG ĐỌC "CHỊ GOOGLE" (Google TTS tiếng Việt) khi mở/chạm thông báo.
  */
-import { isNative, blinkFlash } from './native';
+import { isNative } from './native';
+import { notifyWithEffects } from './notify';
 import { medicationsService } from '../services/medications.service';
-import { voiceAlertService, ALERT_TYPES } from '../services/voiceAlert.service';
+import { ALERT_TYPES } from '../services/voiceAlert.service';
 
 const STORE_KEY = 'diaplus_reminder_ids';
 const MAX_SCHEDULED = 60; // Giới hạn iOS (tối đa 64 local notifications chờ)
@@ -107,16 +108,12 @@ export async function setupReminderListeners() {
 
     // Khi nhận thông báo lúc app đang mở -> nháy đèn flash + phát giọng đọc
     LocalNotifications.addListener('localNotificationReceived', (notification) => {
-      blinkFlash(4, 0.15);
-      const medNames = notification.extra?.medNames || [];
-      voiceAlertService.playAlert(ALERT_TYPES.MED_ALL, medNames);
+      notifyWithEffects(ALERT_TYPES.MED_ALL, { meds: notification.extra?.medNames || [] });
     });
 
     // Khi người dùng bấm vào thông báo trên thanh thông báo -> nháy đèn flash + phát giọng đọc
     LocalNotifications.addListener('localNotificationActionPerformed', (action) => {
-      blinkFlash(3, 0.15);
-      const medNames = action.notification?.extra?.medNames || [];
-      voiceAlertService.playAlert(ALERT_TYPES.MED_ALL, medNames);
+      notifyWithEffects(ALERT_TYPES.MED_ALL, { meds: action.notification?.extra?.medNames || [] });
     });
 
     listenersRegistered = true;

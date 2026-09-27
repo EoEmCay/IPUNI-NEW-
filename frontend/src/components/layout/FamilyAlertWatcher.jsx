@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { AlertTriangle, Phone } from 'lucide-react';
 import Modal from '../common/Modal';
 import { careLinksService } from '../../services/careLinks.service';
-import { vibrateDevice } from '../../lib/native';
+import { notifyWithEffects } from '../../lib/notify';
+import { ALERT_TYPES } from '../../services/voiceAlert.service';
 import styles from './FamilyAlertWatcher.module.css';
 
 const POLL_MS = 60 * 1000;       // hỏi server mỗi phút để thấy cảnh báo mới sớm
@@ -32,7 +33,11 @@ export default function FamilyAlertWatcher() {
       const hasNew = list.some((a) => !seen.current.has(a.id));
       list.forEach((a) => seen.current.add(a.id));
       if (list.length > 0 && (hasNew || Date.now() >= snoozeUntil.current)) {
-        if (!openRef.current) vibrateDevice();
+        // Âm thanh (giọng đã ghi cho "Báo người nhà quên/bỏ thuốc") + rung + đèn, mỗi lần khung hiện lại
+        if (!openRef.current) {
+          const a = list[0];
+          notifyWithEffects(ALERT_TYPES.FAMILY, { ttsText: `${a.patient_name}: ${a.title}. Hãy gọi điện nhắc nhé.` });
+        }
         show(true);
       }
       if (list.length === 0) show(false);

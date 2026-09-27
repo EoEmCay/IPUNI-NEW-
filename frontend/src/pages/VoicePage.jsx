@@ -21,6 +21,12 @@ const ALERT_CONFIG = [
     icon: <Activity size={18} />
   },
   {
+    id: ALERT_TYPES.FAMILY,
+    titleKey: 'familyAlertTitle',
+    descKey: 'familyAlertDesc',
+    icon: <Settings size={18} />
+  },
+  {
     id: ALERT_TYPES.SUGAR_LOW,
     titleKey: 'sugarLowTitle',
     descKey: 'sugarLowDesc',

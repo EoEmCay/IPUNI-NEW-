@@ -12,12 +12,14 @@ localforage.config({
 export const ALERT_TYPES = {
   MED_ALL: 'med_all',
   SUGAR_HIGH: 'sugar_high',
-  SUGAR_LOW: 'sugar_low'
+  SUGAR_LOW: 'sugar_low',
+  FAMILY: 'family_missed'
 };
 
 export const DEFAULT_TTS_TEXTS = {
   [ALERT_TYPES.MED_ALL]: "Chào bạn, đã đến giờ uống thuốc.",
   [ALERT_TYPES.SUGAR_HIGH]: "Chào bạn, hãy uống ngay một cốc nước lọc lớn và tạm ngưng ăn đồ ngọt nhé. Hiện tại chỉ số đường huyết đang hơi cao một chút. Hãy nghỉ ngơi thư giãn và theo dõi thêm.",
+  [ALERT_TYPES.FAMILY]: "Người nhà của bạn chưa uống thuốc. Hãy gọi điện nhắc nhé.",
   [ALERT_TYPES.SUGAR_LOW]: "Chào bạn, hãy uống ngay nửa ly nước đường, nước trái cây hoặc ăn một vài viên kẹo ngọt nhé. Hiện tại chỉ số đường huyết đang hơi thấp. Bạn hãy nghỉ ngơi tại chỗ và báo cho người nhà biết."
 };
 
@@ -106,7 +108,8 @@ export const voiceAlertService = {
   /**
    * Phát một âm thanh cảnh báo (Custom Voice hoặc Google TTS)
    */
-  async playAlert(alertType, medsToTake = [], onEndedCallback = null) {
+  // ttsText: câu đọc thay cho câu mặc định khi chưa ghi âm (vd "Bác Lan đã bỏ qua cữ Metformin")
+  async playAlert(alertType, medsToTake = [], onEndedCallback = null, ttsText = null) {
     try {
       this.stopAlert();
       
@@ -121,7 +124,7 @@ export const voiceAlertService = {
         }
         await this.currentAudio.play();
       } else {
-        let text = DEFAULT_TTS_TEXTS[alertType];
+        let text = ttsText || DEFAULT_TTS_TEXTS[alertType];
         if (!text) {
           if (onEndedCallback) onEndedCallback();
           return;

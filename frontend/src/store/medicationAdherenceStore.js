@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { isDoseScheduledForDate, extractMedicationTimes } from '../utils/medicationTime';
+import { hasCountableDoseOn, extractMedicationTimes } from '../utils/medicationTime';
 import { medicationsService } from '../services/medications.service';
 
 const LOGS_STORAGE_KEY = 'diaplus_medication_intake_logs_v1';
@@ -177,8 +177,8 @@ export function calculateAdherenceStats(medications = [], days = 7) {
     const medDetails = [];
 
     medications.forEach(med => {
-      const schedule = isDoseScheduledForDate(med, d);
-      if (schedule.isScheduled) {
+      // Không tính ngày/cữ trước lúc thêm thuốc
+      if (hasCountableDoseOn(med, d)) {
         dayScheduled += 1;
 
         // Tìm log của thuốc trong ngày

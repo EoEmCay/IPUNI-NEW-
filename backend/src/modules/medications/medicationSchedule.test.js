@@ -93,3 +93,13 @@ it('end_date: sau ngày kết thúc thì không còn liều', () => {
 });
 
 console.log(`\n${pass} test passed.`);
+
+it('cữ trước lúc thêm thuốc không được liệt kê (không báo quên oan)', () => {
+  // Thêm lúc 10:00 giờ VN (03:00 UTC) ngày 2026-03-10, lịch 07:00 & 19:00
+  const med = { schedule_type: 'daily', times: '["07:00","19:00"]', created_at: '2026-03-10 03:00:00' };
+  const doses = S.enumerateDoses(med, new Date('2026-03-09T17:00:00Z'), new Date('2026-03-10T16:59:00Z'));
+  assert.deepStrictEqual(doses.map((d) => d.slot), ['19:00']);
+  // Thuốc thêm từ hôm trước -> cả 2 cữ trong ngày đều tính
+  const old = { ...med, created_at: new Date('2026-03-09T01:00:00Z') };
+  assert.strictEqual(S.enumerateDoses(old, new Date('2026-03-09T17:00:00Z'), new Date('2026-03-10T16:59:00Z')).length, 2);
+});

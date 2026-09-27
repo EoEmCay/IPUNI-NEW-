@@ -58,7 +58,8 @@ export default function MedicationCard({ medication }) {
     }
 
     if (isLocked) {
-      const timeHint = timeEligibility.earliestUpcomingTime || 'sau';
+      const timeHint = timeEligibility.earliestUpcomingTime
+        || (timeEligibility.startsTomorrowAt ? `ngày mai ${timeEligibility.startsTomorrowAt}` : 'sau');
       setToastMsg(`⏳ Chưa tới giờ uống ${medication.name} (Lịch: ${timeHint}). Vui lòng uống đúng giờ nhé!`);
       setTimeout(() => setToastMsg(null), 3500);
       return;
@@ -88,6 +89,8 @@ export default function MedicationCard({ medication }) {
   } else if (isLocked) {
     buttonLabel = timeEligibility.earliestUpcomingTime
       ? `Uống lúc ${timeEligibility.earliestUpcomingTime}`
+      : timeEligibility.startsTomorrowAt
+      ? `Uống từ mai lúc ${timeEligibility.startsTomorrowAt}`
       : 'Chưa tới giờ uống';
   } else {
     buttonLabel = '✓ Tôi đã uống';
@@ -127,6 +130,7 @@ export default function MedicationCard({ medication }) {
       <button
         className={`${styles.statusSelect} ${isLocked ? styles.statusSelectLocked : ''}`}
         onClick={handleStatusToggle}
+        aria-disabled={isLocked || undefined}
         style={
           isRestDay
             ? { background: '#F3F4F6', color: '#9CA3AF', borderColor: '#E5E7EB', cursor: 'pointer' }

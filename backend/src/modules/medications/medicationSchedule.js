@@ -159,7 +159,21 @@ function isDoseDay(med, dateVn) {
  * Tất cả liều (Instant UTC) của 1 thuốc trong khoảng [fromInstant, toInstant].
  * Dùng cho: nhắc thuốc, kiểm tra quên liều, tính "số liều kỳ vọng" của tuân thủ.
  */
+// created_at: Date (Postgres) hoặc "YYYY-MM-DD HH:MM:SS" theo giờ UTC (SQLite, không có múi giờ).
+function createdInstant(med) {
+  const v = med && med.created_at;
+  if (!v) return null;
+  if (v instanceof Date) return v;
+  const s = String(v);
+  const d = new Date(/[zZ]$|[+-]\d\d:?\d\d$/.test(s) ? s : `${s.replace(' ', 'T')}Z`);
+  return isNaN(d.getTime()) ? null : d;
+}
+
 function enumerateDoses(med, fromInstant, toInstant) {
+  // Thuốc chỉ có cữ từ lúc được thêm: cữ sớm hơn lúc thêm không được tính là "quên" (tránh báo
+  // người nhà oan) và không làm giảm tỉ lệ tuân thủ.
+  const created = createdInstant(med);
+  if (created && created > fromInstant) fromInstant = created;
   const out = [];
   const from = vnParts(fromInstant);
   const to = vnParts(toInstant);

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import LegalLayout from './LegalLayout';
 import styles from './Legal.module.css';
 
-const CONTACT_EMAIL = 'khoile3006.official@gmail.com';
+const CONTACT_EMAIL = 'diaplus.excutives@gmail.com';
 
 export default function PrivacyPage() {
   return (
@@ -82,9 +82,8 @@ export default function PrivacyPage() {
 
       <h2>10. Liên hệ</h2>
       <div className={styles.box}>
-        <p>Người đại diện dự án DIA+: <b>Lê Minh Khôi</b></p>
-        <p>Email: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></p>
-        <p>Điện thoại: (+84) 986 897 439</p>
+        <p>Mọi câu hỏi về quyền riêng tư và dữ liệu của bạn, vui lòng gửi email tới:</p>
+        <p><a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></p>
       </div>
     </LegalLayout>
   );

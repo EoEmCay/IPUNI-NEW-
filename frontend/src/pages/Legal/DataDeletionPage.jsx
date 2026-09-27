@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import LegalLayout from './LegalLayout';
 import styles from './Legal.module.css';
 
-const CONTACT_EMAIL = 'khoile3006.official@gmail.com';
+const CONTACT_EMAIL = 'diaplus.excutives@gmail.com';
 
 export default function DataDeletionPage() {
   return (

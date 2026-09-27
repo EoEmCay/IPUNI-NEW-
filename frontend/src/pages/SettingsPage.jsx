@@ -1,6 +1,8 @@
 import { Settings, ZoomIn } from 'lucide-react';
 import useAccessibilityStore from '../store/accessibilityStore';
 import { useT } from '../hooks/useT';
+import UpgradeCard from '../components/settings/UpgradeCard';
+import FamilyCard from '../components/settings/FamilyCard';
 import styles from './SettingsPage.module.css';
 
 const ZOOM_LEVELS = [
@@ -48,6 +50,9 @@ export default function SettingsPage() {
           ))}
         </div>
       </section>
+
+      <FamilyCard />
+      <UpgradeCard />
 
       <p className={styles.version}>{s.version}</p>
     </div>

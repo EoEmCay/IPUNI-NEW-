@@ -5,13 +5,14 @@ import TopBar from './TopBar';
 import BottomNav from './BottomNav';
 import VoiceAlertEngine from '../common/VoiceAlertEngine';
 import OnboardingTour from '../common/OnboardingTour';
+import FamilyAlertWatcher from './FamilyAlertWatcher';
 import styles from './AppLayout.module.css';
 
 export default function AppLayout({ children }) {
   const restoreTheme = useThemeStore((s) => s.restoreTheme);
   const fontScale = useAccessibilityStore((s) => s.fontScale);
 
-  // Vào trong app: khôi phục giao diện người dùng đã chọn (cute/gold/default)
+  // Vào trong app: khôi phục giao diện người dùng đã chọn (xanh–trắng / gold)
   useEffect(() => { restoreTheme(); }, [restoreTheme]);
 
   return (
@@ -23,6 +24,7 @@ export default function AppLayout({ children }) {
       <BottomNav />
       <VoiceAlertEngine />
       <OnboardingTour />
+      <FamilyAlertWatcher />
     </div>
   );
 }

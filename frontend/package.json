@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "test": "node src/constants/metrics.test.js && node src/utils/medicationTime.test.js && node src/utils/medForm.test.js && node src/utils/glucoseUnit.test.js",
+    "test": "node src/constants/metrics.test.js && node src/utils/chartPath.test.js && node src/utils/medicationTime.test.js && node src/utils/medForm.test.js && node src/utils/glucoseUnit.test.js",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",

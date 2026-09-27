@@ -4,7 +4,9 @@
 
 .safe { fill: #22C55E; opacity: 0.1; }
 .grid { stroke: var(--color-border); stroke-width: 1; }
-.line { fill: none; stroke: var(--color-primary); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.line { fill: none; stroke: var(--color-primary); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
+.axisLine { stroke: var(--color-text-secondary); stroke-width: 1.2; opacity: 0.5; }
+.axisTitle { font-size: 14px; font-weight: 700; fill: var(--color-text-secondary); }
 
 .axis { font-size: 14px; fill: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
 .value { font-size: 15px; font-weight: 700; fill: var(--color-text-primary); font-variant-numeric: tabular-nums; }

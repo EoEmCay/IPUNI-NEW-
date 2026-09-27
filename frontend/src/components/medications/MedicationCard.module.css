@@ -123,6 +123,7 @@
   opacity: 0.88;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
 }
 

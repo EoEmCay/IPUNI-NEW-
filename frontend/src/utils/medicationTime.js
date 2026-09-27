@@ -176,6 +176,37 @@ export function timeStringToMinutes(timeStr) {
  *   times: string[]               // Danh sách tất cả các cữ
  * }
  */
+// created_at từ API: ISO có múi giờ (Postgres) hoặc "YYYY-MM-DD HH:MM:SS" theo giờ UTC (SQLite).
+export function parseServerTime(value) {
+  if (!value) return null;
+  if (value instanceof Date) return value;
+  const s = String(value);
+  const d = new Date(/[zZ]$|[+-]\d\d:?\d\d$/.test(s) ? s : `${s.replace(' ', 'T')}Z`);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+// Thuốc chỉ bắt đầu có cữ từ LÚC ĐƯỢC THÊM: cữ có giờ sớm hơn lúc thêm thì không tính
+// (không trễ, không quên, không báo người nhà). Trả về phút-trong-ngày của mốc bắt đầu cho
+// ngày dateObj: null = cả ngày đều tính; Infinity = ngày này thuốc chưa tồn tại.
+export function firstDoseMinuteOn(medication, dateObj = new Date()) {
+  const created = parseServerTime(medication?.created_at);
+  if (!created) return null;
+  const day = new Date(dateObj); day.setHours(0, 0, 0, 0);
+  const createdDay = new Date(created); createdDay.setHours(0, 0, 0, 0);
+  if (createdDay < day) return null;
+  if (createdDay > day) return Infinity;
+  return created.getHours() * 60 + created.getMinutes();
+}
+
+// Ngày dateObj có ít nhất 1 cữ tính được (đúng lịch và không trước lúc thêm thuốc)
+export function hasCountableDoseOn(medication, dateObj = new Date()) {
+  if (!isDoseScheduledForDate(medication, dateObj).isScheduled) return false;
+  const start = firstDoseMinuteOn(medication, dateObj);
+  if (start == null) return true;
+  const mins = extractMedicationTimes(medication).map(timeStringToMinutes).filter((m) => m !== null);
+  return mins.length === 0 ? start !== Infinity : mins.some((m) => m >= start);
+}
+
 export function checkMedicationTimeEligibility(medication, dateObj = new Date()) {
   // Kiểm tra thuốc cách ngày: nếu hôm nay là ngày nghỉ cữ
   const scheduleCheck = isDoseScheduledForDate(medication, dateObj);
@@ -207,10 +238,26 @@ export function checkMedicationTimeEligibility(medication, dateObj = new Date())
 
   const currentMinutes = dateObj.getHours() * 60 + dateObj.getMinutes();
 
-  const timesInMinutes = times.map(t => ({
+  const firstDose = firstDoseMinuteOn(medication, dateObj);
+  const allSlots = times.map(t => ({
     timeStr: t,
     minutes: timeStringToMinutes(t)
   })).filter(x => x.minutes !== null).sort((a, b) => a.minutes - b.minutes);
+  // Bỏ các cữ trước lúc thêm thuốc (thuốc vừa thêm không bị coi là "quá giờ")
+  const timesInMinutes = firstDose == null ? allSlots : allSlots.filter(x => x.minutes >= firstDose);
+
+  if (allSlots.length > 0 && timesInMinutes.length === 0) {
+    // Mọi cữ hôm nay đều trước lúc thêm thuốc -> cữ đầu tiên là ngày mai
+    return {
+      isTimeArrived: false,
+      isRestDay: false,
+      earliestUpcomingTime: null,
+      startsTomorrowAt: allSlots[0].timeStr,
+      isLate: false,
+      activeSlotTime: null,
+      times
+    };
+  }
 
   if (timesInMinutes.length === 0) {
     return {

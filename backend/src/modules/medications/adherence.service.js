@@ -1,6 +1,8 @@
 'use strict';
 const db = require('../../config/database');
 const sched = require('./medicationSchedule');
+const { queue } = require('../alerts/alert.service');
+const logger = require('../../utils/logger');
 
 const POOR_ADHERENCE_THRESHOLD = 0.75; // < 75% = kém (PDC nghiêm hơn dùng 0.80)
 
@@ -120,6 +122,17 @@ async function logDose(userId, medicationId, { status = 'taken', scheduledFor, t
       reason: row.reason,
       source: 'patient',
     });
+
+  // Bỏ qua cữ -> báo cho người trong gia đình (và email/SMS người nhà như khi quên uống)
+  if (status === 'skipped') {
+    await queue(userId, {
+      type: 'skipped_dose',
+      severity: 'warning',
+      title: `Bỏ qua cữ ${med.name}`,
+      detail: `Cữ ${slot} ngày ${sched.vnDayMonth(scheduledInstant)}${row.reason ? ` — Lý do: ${row.reason}` : ''}.`,
+      dedupe_key: `skipped:${med.id}:${row.scheduled_for}`,
+    }).catch((e) => logger.warn(`[Alert] Không tạo được cảnh báo bỏ cữ: ${e.message}`));
+  }
 
   return db('medication_logs')
     .where({ medication_id: medicationId, scheduled_for: row.scheduled_for })

@@ -323,7 +323,7 @@ export default function LandingPage() {
             <div className={styles.footerLinks}>
               <h4 className={styles.footerColTitle}>{text.footerLinks}</h4>
               <ul>
-                <li><a href="#">{text.footerPrivacy}</a></li>
+                <li><a href="/chinh-sach-bao-mat">{text.footerPrivacy}</a></li>
                 <li><a href="#">{text.footerTerms}</a></li>
                 <li><a href="#">{text.footerCookies}</a></li>
               </ul>
@@ -346,7 +346,7 @@ export default function LandingPage() {
           <div className={styles.footerBottom}>
             <span>© 2026 DIA+. All rights reserved.</span>
             <div className={styles.footerBottomLinks}>
-              <a href="#">{text.footerPrivacy}</a>
+              <a href="/chinh-sach-bao-mat">{text.footerPrivacy}</a>
               <span>·</span>
               <a href="#">{text.footerTerms}</a>
               <span>·</span>

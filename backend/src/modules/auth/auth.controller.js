@@ -47,6 +47,21 @@ async function logout(req, res) {
   sendSuccess(res, null, 'Đăng xuất thành công');
 }
 
+async function googleLogin(req, res, next) {
+  try {
+    const { accessToken } = req.body;
+    if (!accessToken) throw { status: 400, message: 'Vui lòng cung cấp accessToken' };
+    const result = await authService.googleLogin(accessToken);
+    const message = result.status === 'pending'
+      ? 'Đang chờ xác nhận từ thiết bị đang đăng nhập'
+      : 'Đăng nhập Google thành công';
+    sendSuccess(res, result, message);
+  } catch (err) {
+    if (err.status) return sendError(res, err.message, err.status);
+    next(err);
+  }
+}
+
 async function demoLogin(req, res, next) {
   try {
     const result = await authService.demoLogin();
@@ -138,6 +153,6 @@ async function resetPassword(req, res, next) {
 }
 
 module.exports = {
-  login, register, getMe, logout, demoLogin, acknowledgeSession,
+  login, register, getMe, logout, googleLogin, demoLogin, acknowledgeSession,
   loginStatus, pendingApprovals, approveLogin, rejectLogin, changePassword, resetPassword,
 };

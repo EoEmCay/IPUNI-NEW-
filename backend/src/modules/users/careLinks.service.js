@@ -49,6 +49,7 @@ const FAMILY = 'family_account';
 const FAMILY_ALERT_TYPES = ['missed_dose', 'skipped_dose'];
 const ALERT_WINDOW_HOURS = 48;
 
+const isDemoUser = (u) => Boolean(u && u.email && u.email.startsWith('demo_'));
 const memberView = (u) => ({ id: u.id, name: u.name || 'Người nhà', user_code: u.user_code, phone: u.phone || null });
 
 async function joinFamilyByCode(userId, code) {
@@ -56,6 +57,12 @@ async function joinFamilyByCode(userId, code) {
   const target = await db('users').whereRaw('UPPER(user_code) = ?', [normalized]).first();
   if (!target) throw { status: 404, message: 'Không tìm thấy tài khoản với mã này. Vui lòng kiểm tra lại mã.' };
   if (target.id === userId) throw { status: 400, message: 'Đây là mã của chính bạn. Hãy nhập mã của người nhà.' };
+  // Tài khoản dùng thử (demo_...) không được kết nối với tài khoản thật (theo cả 2 chiều) -
+  // tránh người lạ dùng demo để xem/nhận cảnh báo thuốc của người bệnh thật. Demo với demo thì được.
+  const me = await db('users').where({ id: userId }).first();
+  if (isDemoUser(me) !== isDemoUser(target)) {
+    throw { status: 403, message: 'Tài khoản dùng thử chỉ kết nối được với tài khoản dùng thử khác, không kết nối với tài khoản thật.' };
+  }
 
   for (const [patient, member] of [[userId, target.id], [target.id, userId]]) {
     const existing = await db('care_links').where({ patient_id: patient, member_id: member, relation: FAMILY }).first();

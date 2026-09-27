@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Activity, Sparkles, X, Calendar, Mic, LineChart, CloudUpload, Clock, Link, Globe, Users, HeartPulse, ShieldCheck, Phone, Mail, Camera, ArrowRight, Play } from 'lucide-react';
+import { Activity, Sparkles, X, Calendar, Mic, LineChart, CloudUpload, Clock, Globe, Users, HeartPulse, ShieldCheck, Mail, Camera, ArrowRight, Play } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import useAuthStore from '../store/authStore';
 import { useT } from '../hooks/useT';
@@ -313,9 +313,8 @@ export default function LandingPage() {
               </div>
               <p className={styles.footerDesc}>{text.footerDesc}</p>
               <div className={styles.footerSocials}>
-                <a href="https://www.linkedin.com/in/khoile-tech/" target="_blank" rel="noreferrer" className={styles.footerSocialBtn}><Link size={16} /></a>
-                <a href="https://diaplus.vn" target="_blank" rel="noreferrer" className={styles.footerSocialBtn}><Globe size={16} /></a>
-                <a href="mailto:khoile3006.official@gmail.com" className={styles.footerSocialBtn}><Mail size={16} /></a>
+                <a href="https://diaplus.vn" target="_blank" rel="noreferrer" className={styles.footerSocialBtn} aria-label="Website DIA+"><Globe size={16} /></a>
+                <a href="mailto:diaplus.excutives@gmail.com" className={styles.footerSocialBtn} aria-label="Email DIA+"><Mail size={16} /></a>
               </div>
             </div>
 
@@ -324,21 +323,17 @@ export default function LandingPage() {
               <h4 className={styles.footerColTitle}>{text.footerLinks}</h4>
               <ul>
                 <li><a href="/chinh-sach-bao-mat">{text.footerPrivacy}</a></li>
+                <li><a href="/xoa-du-lieu">{lang === 'vi' ? 'Xoá dữ liệu' : 'Data deletion'}</a></li>
                 <li><a href="#">{text.footerTerms}</a></li>
                 <li><a href="#">{text.footerCookies}</a></li>
               </ul>
             </div>
 
-            {/* Project Rep */}
+            {/* Liên hệ: chỉ email chung của DIA+ (không để tên/SĐT cá nhân) */}
             <div className={styles.footerRep}>
-              <h4 className={styles.footerColTitle}>{text.footerProjectRep}</h4>
+              <h4 className={styles.footerColTitle}>{lang === 'vi' ? 'Liên hệ' : 'Contact'}</h4>
               <ul>
-                <li>
-                  <Users size={14} />
-                  <span>{lang === 'vi' ? 'Lê Minh Khôi' : 'Le Minh Khoi'} <em>({text.footerFounder})</em></span>
-                </li>
-                <li><Phone size={14} /><span>(+84) 986897439</span></li>
-                <li><Mail size={14} /><span>khoile3006.official@gmail.com</span></li>
+                <li><Mail size={14} /><a href="mailto:diaplus.excutives@gmail.com">diaplus.excutives@gmail.com</a></li>
               </ul>
             </div>
           </div>

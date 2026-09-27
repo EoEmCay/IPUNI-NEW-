@@ -16,6 +16,9 @@ module.exports = {
   ADVICE_CATEGORIES: ['should_eat', 'should_avoid', 'exercise', 'danger_sign'],
   // Admin Dashboard
   ADMIN_DASHBOARD_KEY: process.env.ADMIN_DASHBOARD_KEY || 'ipuni-admin-dev-key',
+  // OAuth client ID của web (công khai, trùng với frontend/src/main.jsx). Dùng để kiểm tra
+  // access token Google gửi lên đúng là cấp cho DIA+, không phải cho app khác.
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || '1081815970127-p67o922i2g7vdc6leqkj1f1e5rq1du6d.apps.googleusercontent.com',
   GOOGLE_SHEETS_WEBHOOK_URL: process.env.GOOGLE_SHEETS_WEBHOOK_URL || '',
   // Cron ngoài (Render Cron Job / bất kỳ scheduler ngoài nào) gọi vào để kích hoạt các job
   // định kỳ (vd kiểm tra bỏ thuốc) mà KHÔNG phụ thuộc process Node có đang thức hay không -

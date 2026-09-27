@@ -70,6 +70,21 @@ export function useAuth() {
     return user;
   };
 
+  const googleLogin = async (accessToken) => {
+    const res = await authService.googleLogin(accessToken);
+    const data = res.data.data;
+
+    // Tài khoản đang có thiết bị khác hoạt động -> chờ phê duyệt, chưa có token ngay.
+    if (data.status === 'pending') {
+      return { pending: true, requestId: data.requestId };
+    }
+
+    const { token, user } = data;
+    setAuth(token, user);
+    applyPlanTheme(user.plan);
+    return { pending: false, user };
+  };
+
   const demoLogin = async () => {
     const res = await authService.demoLogin();
     const { token, user } = res.data.data;
@@ -102,7 +117,7 @@ export function useAuth() {
   };
 
   return {
-    user, token, isAuthenticated, login, demoLogin, logout, register, updateProfile, completeRegistration,
+    user, token, isAuthenticated, login, googleLogin, demoLogin, logout, register, updateProfile, completeRegistration,
     pollLoginStatus, approveLogin, rejectLogin, getPendingApprovals, changePassword,
   };
 }

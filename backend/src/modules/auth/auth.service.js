@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../../config/database');
-const { JWT_SECRET, JWT_EXPIRES_IN } = require('../../config/constants');
+const { JWT_SECRET, JWT_EXPIRES_IN, GOOGLE_CLIENT_ID } = require('../../config/constants');
 const loginRequestStore = require('./loginRequest.store');
 const { getTransporter, getFromAddress } = require('../../utils/mailer');
 
@@ -237,6 +237,60 @@ async function getMe(userId) {
   };
 }
 
+const axios = require('axios');
+
+async function googleLogin(accessToken) {
+  try {
+    if (typeof accessToken !== 'string' || !accessToken) throw new Error('missing token');
+
+    // Chỉ tin token do Google cấp cho chính client DIA+ với email đã xác minh.
+    // (Trước đây chấp nhận thẳng một chuỗi email -> ai biết email là vào được tài khoản.)
+    const { data: info } = await axios.get('https://oauth2.googleapis.com/tokeninfo', {
+      params: { access_token: accessToken },
+    });
+    if (info.aud !== GOOGLE_CLIENT_ID || String(info.email_verified) !== 'true' || !info.email) {
+      throw new Error('token not issued for DIA+ or email unverified');
+    }
+
+    const email = info.email.toLowerCase();
+    const { data: profile } = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    const name = profile.name || email.split('@')[0];
+
+    let user = await db('users').where({ email }).first();
+    if (!user) {
+      let user_code;
+      do { user_code = genUserCode(); } while (await db('users').where({ user_code }).first());
+      
+      const [insertedRow] = await db('users').insert({
+        email,
+        name,
+        password_hash: '$2b$10$dummyHashGoogleMockUserNotUsed',
+        user_code,
+      }).returning('id');
+      const id = typeof insertedRow === 'object' ? insertedRow.id : insertedRow;
+      user = await db('users').where({ id }).first();
+    }
+
+    // Đi qua cùng cơ chế duyệt 2-thiết-bị như đăng nhập thường (login()) - trước đây
+    // googleLogin ký token thẳng, bỏ qua hoàn toàn bước này.
+    const is_demo = user.email && user.email.startsWith('demo_');
+    const hasActiveDevice = !is_demo && user.last_active_at &&
+      (Date.now() - new Date(user.last_active_at).getTime() < ACTIVE_SESSION_THRESHOLD_MS);
+
+    if (hasActiveDevice) {
+      const requestId = loginRequestStore.create(user.id, email);
+      return { status: 'pending', requestId };
+    }
+
+    return issueLoginToken(user);
+  } catch (err) {
+    console.error('Google verification error:', err);
+    throw { status: 401, message: 'Xác thực Google thất bại' };
+  }
+}
+
 async function demoLogin() {
   const suffix = crypto.randomUUID().slice(0, 12).replace(/-/g, '');
   const email = `demo_${suffix}@ipuni.com`;
@@ -384,6 +438,6 @@ async function logout(userId) {
 }
 
 module.exports = {
-  login, register, getMe, demoLogin, acknowledgeSession, logout,
+  login, register, getMe, googleLogin, demoLogin, acknowledgeSession, logout,
   getLoginStatus, getPendingApprovals, approveLogin, rejectLogin, changePassword, resetPassword,
 };

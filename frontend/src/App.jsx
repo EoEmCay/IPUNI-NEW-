@@ -18,6 +18,7 @@ import ScanPrescriptionPage from './pages/ScanPrescriptionPage';
 import ScanHistoryPage from './pages/ScanHistoryPage';
 import SettingsPage from './pages/SettingsPage';
 import VoicePage from './pages/VoicePage';
+import GlucosePage from './pages/GlucosePage';
 import AdminPage from './pages/AdminPage';
 
 function ProtectedRoute({ children }) {
@@ -198,6 +199,15 @@ function AppRoutes() {
             <MobileWrapper>
               <AppLayout>
                 <VoicePage />
+              </AppLayout>
+            </MobileWrapper>
+          </ProtectedRoute>
+        } />
+        <Route path="/glucose" element={
+          <ProtectedRoute>
+            <MobileWrapper>
+              <AppLayout>
+                <GlucosePage />
               </AppLayout>
             </MobileWrapper>
           </ProtectedRoute>

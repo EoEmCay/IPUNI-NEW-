@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Modal from '../common/Modal';
+import { getGlucoseUnit, toMmol } from '../../utils/glucoseUnit';
 import styles from './GlucoseQuickModal.module.css';
 
 const TYPES = [
@@ -13,18 +14,20 @@ export default function GlucoseQuickModal({ onClose, onSave }) {
   const [raw, setRaw] = useState('');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const unit = getGlucoseUnit(); // gõ theo đơn vị người dùng đã chọn, lưu bằng mmol/L
+  const [min, max, example] = unit === 'mg/dL' ? [2, 900, '120'] : [0.1, 50, '6.5'];
 
   const value = parseFloat(raw.replace(',', '.'));
 
   const submit = async (e) => {
     e.preventDefault();
-    if (isNaN(value) || value < 0.1 || value > 50) {
-      setError('Hãy nhập số đo từ 0.1 đến 50 mmol/L, ví dụ 6.5');
+    if (isNaN(value) || value < min || value > max) {
+      setError(`Hãy nhập số đo từ ${min} đến ${max} ${unit}, ví dụ ${example}`);
       return;
     }
     setSaving(true);
     try {
-      await onSave({ measurement_type: type, value, measured_at: new Date().toISOString() });
+      await onSave({ measurement_type: type, value: toMmol(value, unit), measured_at: new Date().toISOString() });
       onClose();
     } catch (err) {
       setError(err?.response?.data?.message || 'Chưa lưu được. Vui lòng thử lại.');
@@ -56,12 +59,12 @@ export default function GlucoseQuickModal({ onClose, onSave }) {
             id="glucose-value"
             className={styles.value}
             inputMode="decimal"
-            placeholder="6.5"
+            placeholder={example}
             value={raw}
             onChange={(e) => { setRaw(e.target.value); setError(''); }}
             autoFocus
           />
-          <span className={styles.unit}>mmol/L</span>
+          <span className={styles.unit}>{unit}</span>
         </div>
         {error && <p className={styles.error}>{error}</p>}
 

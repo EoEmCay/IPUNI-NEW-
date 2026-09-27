@@ -1,0 +1,33 @@
+.wrap { display: flex; flex-direction: column; gap: 10px; }
+
+.svg { width: 100%; height: auto; display: block; overflow: visible; }
+
+.safe { fill: #22C55E; opacity: 0.1; }
+.grid { stroke: var(--color-border); stroke-width: 1; }
+.line { fill: none; stroke: var(--color-primary); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+
+.axis { font-size: 14px; fill: var(--color-text-secondary); font-variant-numeric: tabular-nums; }
+.value { font-size: 15px; font-weight: 700; fill: var(--color-text-primary); font-variant-numeric: tabular-nums; }
+
+.empty {
+  margin: 0;
+  padding: 32px 0;
+  text-align: center;
+  font-size: 17px;
+  color: var(--color-text-secondary);
+}
+
+.legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: 15px;
+  color: var(--color-text-secondary);
+}
+
+.legend li { display: inline-flex; align-items: center; gap: 6px; }
+.legend span { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.legendSafe span { border-radius: 3px; background: #22C55E; opacity: 0.35; }

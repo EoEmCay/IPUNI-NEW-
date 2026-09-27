@@ -36,6 +36,12 @@ function vnParts(instant) {
 }
 
 /** 'YYYY-MM-DD' (giờ VN) của một Instant. */
+// "27/09" - dễ đọc cho người lớn tuổi trong cảnh báo gửi người nhà
+function vnDayMonth(instant) {
+  const [, m, d] = vnDateStr(instant).split('-');
+  return `${d}/${m}`;
+}
+
 function vnDateStr(instant) {
   const p = vnParts(instant);
   return `${p.y}-${String(p.m + 1).padStart(2, '0')}-${String(p.d).padStart(2, '0')}`;
@@ -209,6 +215,7 @@ module.exports = {
   VN_OFFSET_MIN,
   vnParts,
   vnDateStr,
+  vnDayMonth,
   parseYmd,
   vnWallToInstant,
   dayDiff,

@@ -10,4 +10,8 @@ const upsertCareLinkSchema = z.object({
   alert_on_critical_glucose: z.boolean().optional(),
 });
 
-module.exports = { upsertCareLinkSchema };
+const joinFamilySchema = z.object({
+  code: z.string().trim().min(4, 'Vui lòng nhập mã của người nhà').max(20),
+});
+
+module.exports = { upsertCareLinkSchema, joinFamilySchema };

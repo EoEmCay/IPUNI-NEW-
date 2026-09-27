@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { isDoseScheduledForDate, hasCountableDoseOn, extractMedicationTimes } from '../utils/medicationTime';
 import { medicationsService } from '../services/medications.service';
+import { buildTodayInstant } from '../lib/medReminders';
 
 const LOGS_STORAGE_KEY = 'diaplus_medication_intake_logs_v1';
 const CAREGIVER_STORAGE_KEY = 'diaplus_caregiver_info_v1';
@@ -74,7 +75,8 @@ export function saveIntakeLogs(logs) {
 }
 
 // Ghi nhận một cữ uống thuốc
-export function recordMedicationIntake(medication, status = 'taken', dateObj = new Date(), reason = null) {
+// slotTime: cữ đang xác nhận ("07:00") - gửi kèm để server ghi đúng cữ, không phải đoán cữ gần nhất.
+export function recordMedicationIntake(medication, status = 'taken', dateObj = new Date(), reason = null, slotTime = null) {
   const dateStr = dateObj.toISOString().slice(0, 10);
   const nowTime = dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
   const logs = getIntakeLogs();
@@ -103,16 +105,20 @@ export function recordMedicationIntake(medication, status = 'taken', dateObj = n
 
   saveIntakeLogs(logs);
 
-  // Đồng bộ lên backend DB nếu có thể
+  // Đồng bộ lên backend DB nếu có thể. Chỉ gửi "đã uống"/"bỏ qua": bấm bỏ đánh dấu (pending)
+  // trước đây bị gửi thành "skipped" -> người nhà sẽ nhận cảnh báo "Bỏ qua cữ" oan.
+  // ponytail: bỏ đánh dấu chưa xoá log "taken" trên server; cần endpoint xoá log nếu muốn khớp tuyệt đối.
   try {
-    if (medication && medication.id && typeof medication.id === 'number') {
+    if ((status === 'taken' || status === 'skipped') && medication && typeof medication.id === 'number') {
+      const scheduledFor = slotTime ? buildTodayInstant(slotTime, dateObj) : null;
       medicationsService.logDose(medication.id, {
-        status: status === 'taken' ? 'taken' : 'skipped',
+        status,
         takenAt: new Date().toISOString(),
+        ...(scheduledFor ? { scheduledFor } : {}),
         ...(status === 'skipped' && reason ? { reason } : {}),
       }).catch(() => {});
     }
-  } catch {}
+  } catch { /* offline: log vẫn còn ở máy */ }
 
   return entry;
 }

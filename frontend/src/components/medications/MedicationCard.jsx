@@ -71,13 +71,13 @@ export default function MedicationCard({ medication }) {
 
     const nextStatus = (isTaken || isSkipped) ? 'pending' : 'taken';
     setMedicationStatus(medication.id, nextStatus);
-    recordMedicationIntake(medication, nextStatus);
+    recordMedicationIntake(medication, nextStatus, new Date(), null, timeEligibility.activeSlotTime);
     if (nextStatus === 'taken') cancelActiveFollowup();
   };
 
   const handleSkipConfirm = async (reason) => {
     setMedicationStatus(medication.id, 'skipped');
-    recordMedicationIntake(medication, 'skipped', new Date(), reason);
+    recordMedicationIntake(medication, 'skipped', new Date(), reason, timeEligibility.activeSlotTime);
     cancelActiveFollowup();
     setShowSkipModal(false);
   };

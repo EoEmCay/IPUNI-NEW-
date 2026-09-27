@@ -44,12 +44,11 @@ async function runMissedDoseCheck() {
         .onConflict(['medication_id', 'scheduled_for'])
         .ignore();
 
-      const ymd = sched.vnDateStr(dose.instant);
       const alert = {
         type: 'missed_dose',
         severity: 'warning',
         title: `Quên uống ${med.name}`,
-        detail: `Cữ ${dose.slot} ngày ${ymd} — đã quá ${overdueMin} phút.`,
+        detail: `Cữ ${dose.slot} ngày ${sched.vnDayMonth(dose.instant)} — đã quá ${overdueMin} phút mà chưa uống.`,
         dedupe_key: `missed:${med.id}:${dose.instant.toISOString()}`,
       };
       await queue(med.user_id, alert);

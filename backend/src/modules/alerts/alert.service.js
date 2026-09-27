@@ -24,7 +24,7 @@ async function queue(patientId, alert) {
   publish('clinical.alert', { patientId, alert: row });
 
   if (!row.notified_caregiver) {
-    const flag = alert.type === 'missed_dose' ? 'alert_on_missed_dose' : 'alert_on_critical_glucose';
+    const flag = ['missed_dose', 'skipped_dose'].includes(alert.type) ? 'alert_on_missed_dose' : 'alert_on_critical_glucose';
     await notifyCaregivers(patientId, row, { onlyFlag: flag });
     await db('clinical_alerts').where({ id: row.id }).update({ notified_caregiver: true });
   }

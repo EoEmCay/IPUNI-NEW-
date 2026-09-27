@@ -14,7 +14,8 @@
 ### Phạm vi sản phẩm (cập nhật 09/2026 — ưu tiên hơn các mục cũ bên dưới)
 Cốt lõi: **quét đơn thuốc → lên lịch → nhắc uống bằng giọng người thân**, cho người lớn tuổi. Giao diện tối giản, chữ ≥14px (nội dung 16–18px), nút ≥48px, xanh–trắng.
 - Thanh dưới: **Hôm nay · Tủ thuốc · Quét đơn · Giọng nhắc** (`/dashboard`, `/medications`, `/scan`, `/voice`). Cài đặt (cỡ chữ) và Giao diện nằm trong menu avatar.
-- Đã gỡ: tab Chỉ số (biểu đồ/thống kê/CSV), tab Bác sĩ (thông tin bác sĩ + tái khám nằm trong chi tiết từng đơn ở Tủ thuốc), Cute Mode, đăng nhập Google.
+- Đã gỡ: tab Chỉ số cũ (biểu đồ nay ở trang /glucose), tab Bác sĩ (thông tin bác sĩ + tái khám nằm trong chi tiết từng đơn ở Tủ thuốc), Cute Mode.
+- Đăng nhập Google: GIỮ (nhà sáng lập yêu cầu). Backend phải kiểm tra token qua Google tokeninfo (aud = client ID DIA+) — không bao giờ tin email gửi lên.
 - **Lời khuyên (`/advice`) chỉ bị ẩn** — không có nút dẫn tới, giữ code để phát triển sau.
 - Giao diện: chỉ Xanh–trắng và Gold; Gold mở bằng mã đối tác (`themeStore.js`).
 - Đường huyết: thẻ gọn trên trang Hôm nay (`GlucoseCard`), nhập nhanh (`GlucoseQuickModal`).

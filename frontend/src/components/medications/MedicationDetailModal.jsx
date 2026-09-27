@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Pill, Clock, Calendar, CheckSquare } from 'lucide-react';
+import { Pill, Syringe, Clock, Calendar, CheckSquare } from 'lucide-react';
 import Modal from '../common/Modal';
 import { withDoctorPrefix } from '../../utils/doctor';
 import { exportMedicationToCalendar } from '../../utils/calendar';
 import { isAlternateDayDose, extractMedicationTimes } from '../../utils/medicationTime';
 import { medicationsService } from '../../services/medications.service';
+import { isInjection } from '../../utils/medForm';
 import styles from './MedicationDetailModal.module.css';
 
 function Row({ label, value }) {
@@ -81,7 +82,7 @@ export default function MedicationDetailModal({ medication, onClose }) {
           {med.image ? (
             <img src={med.image} alt={med.name} className={styles.img} draggable={false} />
           ) : (
-            <Pill size={32} color="#1B5FA6" />
+            isInjection(med) ? <Syringe size={32} color="#1B5FA6" /> : <Pill size={32} color="#1B5FA6" />
           )}
         </div>
         <div>
@@ -93,9 +94,10 @@ export default function MedicationDetailModal({ medication, onClose }) {
       <div className={styles.section}>
         <Row label="Tên đầy đủ" value={med.full_name || med.name} />
         <Row label="Xuất xứ" value={med.origin} />
-        <Row label="Tác dụng chính" value={med.main_effect || med.instructions} />
+        <Row label="Tác dụng chính" value={med.main_effect} />
+        <Row label="Cách dùng" value={med.instructions} />
         <Row label="Tác dụng phụ" value={med.side_effects} />
-        <Row label="Liều dùng" value={med.frequency} />
+        <Row label="Liều dùng" value={[med.dosage, med.frequency].filter(Boolean).join(' · ')} />
         <Row label="Bác sĩ kê đơn" value={med.doctor_name ? withDoctorPrefix(med.doctor_name) : null} />
         <Row label="Ngày kê đơn" value={prescribedAt} />
       </div>

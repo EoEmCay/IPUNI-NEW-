@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import {
   CheckCircle, AlertCircle, User, Calendar, FileText,
-  XCircle, ChevronDown, ChevronUp, Clock, Hash, Stethoscope, BookOpen, Info, Activity, Sparkles, X,
+  XCircle, ChevronDown, ChevronUp, Hash, Stethoscope, BookOpen, Info, Activity, Sparkles, X,
   Paperclip, ChevronLeft, ArrowRight
 } from 'lucide-react';
 import { scanService } from '../services/scan.service';
@@ -15,6 +15,8 @@ import { useToast } from '../hooks/useToast';
 import { useT } from '../hooks/useT';
 import { createPortal } from 'react-dom';
 import ScanCamera from '../components/scan/ScanCamera';
+import MedicationTile, { MedicationGrid } from '../components/medications/MedicationTile';
+import { INSULIN_PATTERN } from '../utils/medForm';
 import styles from './ScanPrescriptionPage.module.css';
 import { useNavigate } from 'react-router-dom';
 
@@ -182,7 +184,6 @@ export default function ScanPrescriptionPage() {
 
   // Insulin sai liều gây hạ đường huyết nặng nhanh hơn bất kỳ nhóm thuốc tiểu đường nào
   // khác - bắt buộc xác nhận thủ công riêng, không chỉ dựa vào việc xem qua danh sách.
-  const INSULIN_PATTERN = /insulin|lantus|novomix|novorapid|humulin|humalog|levemir|mixtard|toujeo|tresiba|apidra/i;
   const requiresInsulinConfirm = editableMeds.some((m) => INSULIN_PATTERN.test(m.name || ''));
 
   const handleMedFieldChange = useCallback((index, field, value) => {
@@ -594,55 +595,19 @@ export default function ScanPrescriptionPage() {
                         <AlertCircle size={13} /> Vui lòng kiểm tra tên thuốc, liều dùng và giờ uống trước khi lưu vào tủ thuốc.
                       </p>
 
-                      <div className={styles.medListContainer}>
+                      <MedicationGrid>
                         {editableMeds.map((med, i) => {
-                          const times = med.times || [];
-                          const hasSpecificTimes = Array.isArray(times) && times.length > 0;
-                          const medSchedule = getMedScheduleDetails(med, result?.prescriptionDate);
                           const hasDosageWarning = Boolean(med.dosageWarning) && med.dosage === result?.medications?.[i]?.dosage;
                           return (
-                            <div
+                            <MedicationTile
                               key={i}
-                              className={styles.medItem}
+                              medication={med}
+                              badge={hasDosageWarning ? '⚠️ Kiểm tra liều' : null}
                               onClick={() => setSelectedMedModalIndex(i)}
-                            >
-                              <div className={styles.medSummary}>
-                                <div className={styles.medSummaryLeft}>
-                                  <h4 className={styles.medItemName}>
-                                    {med.name}
-                                    {med.isDiabetesDrug && <span className={styles.diaTag}>Hạ đường huyết</span>}
-                                    {hasDosageWarning && (
-                                      <span className={styles.dosageWarningTag} title={med.dosageWarning}>⚠️ Kiểm tra liều</span>
-                                    )}
-                                  </h4>
-                                  <div className={styles.medItemMeta}>
-                                    <span>Liều lượng: {med.dosage || 'Theo chỉ định'}</span>
-                                    <span>Cách dùng: {med.instructions || med.frequency || (hasSpecificTimes ? `${times.length} lần/ngày` : 'Uống theo đơn')}</span>
-                                    {medSchedule.duration ? (
-                                      <span className={styles.medSchedulePill}>
-                                        Lịch uống: {medSchedule.duration} ngày
-                                      </span>
-                                    ) : null}
-                                  </div>
-                                </div>
-
-                                <div className={styles.medSummaryRight}>
-                                  <div
-                                    className={hasSpecificTimes ? styles.timeBadgeBox : styles.noTimeBadgeBox}
-                                  >
-                                    <Clock size={13} className={styles.timeClockIcon} />
-                                    <span className={styles.timeValueText}>
-                                      {hasSpecificTimes
-                                        ? times.join(', ')
-                                        : (med.timesPerDay ? `${med.timesPerDay} lần/ngày` : 'Chưa có giờ')}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
+                            />
                           );
                         })}
-                      </div>
+                      </MedicationGrid>
 
                       {requiresInsulinConfirm && (
                         <div className={styles.insulinConfirmBox} style={{ marginTop: '14px' }}>

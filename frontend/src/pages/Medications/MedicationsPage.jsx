@@ -4,7 +4,8 @@ import { useMedications } from '../../hooks/useMedications';
 import { useT } from '../../hooks/useT';
 import { withDoctorPrefix } from '../../utils/doctor';
 import { formatDateVN } from '../../utils/date';
-import MedicationCard from '../../components/medications/MedicationCard';
+import MedicationTile, { MedicationGrid } from '../../components/medications/MedicationTile';
+import MedicationDetailModal from '../../components/medications/MedicationDetailModal';
 import MedicationFormModal from '../../components/medications/MedicationFormModal';
 import MedicationHistoryModal from '../../components/medications/MedicationHistoryModal';
 import BulkCalendarExportModal from '../../components/medications/BulkCalendarExportModal';
@@ -16,6 +17,7 @@ export default function MedicationsPage() {
   const [showForm, setShowForm] = useState(false);
   const [showBulkExport, setShowBulkExport] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [selectedMed, setSelectedMed] = useState(null);
   const { medications, loading, fetchMedications } = useMedications();
   const t = useT();
 
@@ -145,6 +147,9 @@ export default function MedicationsPage() {
         </div>
       )}
 
+      {selectedMed && (
+        <MedicationDetailModal medication={selectedMed} onClose={() => setSelectedMed(null)} />
+      )}
       {showHistoryModal && (
         <MedicationHistoryModal
           medications={medications}
@@ -204,9 +209,11 @@ export default function MedicationsPage() {
                 </div>
               </div>
               <div className={styles.sectionMedications}>
-                {group.medications.map((m) => (
-                  <MedicationCard key={m.id} medication={m} />
-                ))}
+                <MedicationGrid>
+                  {group.medications.map((m) => (
+                    <MedicationTile key={m.id} medication={m} onClick={() => setSelectedMed(m)} />
+                  ))}
+                </MedicationGrid>
               </div>
             </div>
           ))}

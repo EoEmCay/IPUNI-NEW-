@@ -21,6 +21,8 @@ import ScanPrescriptionPage from './pages/ScanPrescriptionPage';
 import ScanHistoryPage from './pages/ScanHistoryPage';
 import SettingsPage from './pages/SettingsPage';
 import AdminPage from './pages/AdminPage';
+import PrivacyPage from './pages/Legal/PrivacyPage';
+import DataDeletionPage from './pages/Legal/DataDeletionPage';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuthStore();
@@ -134,6 +136,9 @@ function AppRoutes() {
             : <LandingPage />
         } />
         <Route path="/landing" element={<LandingPage />} />
+        {/* Trang pháp lý công khai (Facebook/Google yêu cầu khi phát hành ứng dụng) */}
+        <Route path="/chinh-sach-bao-mat" element={<PrivacyPage />} />
+        <Route path="/xoa-du-lieu" element={<DataDeletionPage />} />
         <Route path="/admin" element={
           <ProtectedRoute>
             <AdminPage />

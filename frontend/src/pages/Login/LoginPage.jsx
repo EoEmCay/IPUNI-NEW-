@@ -62,7 +62,6 @@ export default function LoginPage() {
 
   useEffect(() => { applyDefaultLook(); }, [applyDefaultLook]);
   useEffect(() => () => pollAbortRef.current?.abort(), []);
-  useEffect(() => { preloadFacebook(); }, []);
 
   const cancelWaiting = () => {
     pollAbortRef.current?.abort();
@@ -234,12 +233,6 @@ export default function LoginPage() {
               <button type="button" className={`${styles.authBtn} ${styles.googleBtn}`} onClick={onGoogleBtnClick}>
                 <GoogleIcon className={styles.gIcon} />
                 <span>Tiếp tục với Google</span>
-              </button>
-            )}
-            {!isNative && FACEBOOK_APP_ID && (
-              <button type="button" className={`${styles.authBtn} ${styles.fbBtn}`} onClick={onFacebookBtnClick}>
-                <FacebookIcon className={styles.gIcon} />
-                <span>Tiếp tục với Facebook</span>
               </button>
             )}
 

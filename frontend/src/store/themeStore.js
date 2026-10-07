@@ -19,7 +19,7 @@ function getStoredTheme() {
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme === 'gold' ? 'gold' : '');
   // Màu thanh trình duyệt/thanh trạng thái điện thoại khớp đầu trang của giao diện đang dùng
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'gold' ? '#FFF1C9' : '#DCE9FA');
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'gold' ? '#FFF1C9' : '#E0F6FC');
   write(THEME_KEY, theme);
 }
 

@@ -1,8 +1,9 @@
 :root {
-  /* Giao diện cơ bản: xanh dương (như giao diện cũ, theo yêu cầu 08/10/2026) - tương phản nền trắng 6.6:1 */
-  --color-primary: #1B5FA6;
-  --color-primary-light: #EEF4FF;
-  --color-bg: #F4F6F9;
+  /* Giao diện cơ bản: xanh ngọc (teal) theo bản Stitch - tương phản nền trắng 5.5:1.
+     (Bản xanh dương cũ #1B5FA6 lưu ở tag backup-ban-xanh-duong) */
+  --color-primary: #0F766E;
+  --color-primary-light: #E6F6F4;
+  --color-bg: #F1F8FA;
   --color-surface: #FFFFFF;
   --color-text-primary: #1A2332;
   --color-text-secondary: #54616F;
@@ -30,12 +31,12 @@
   --font-body: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   /* Nền "phát sáng" đầu trang (Trang chủ + tab Gia đình/Tin nhắn/Hồ sơ) và banner Trang chủ.
      Mỗi giao diện tự khai báo -> trang không viết cứng màu, đổi giao diện là đổi hết. */
-  --page-glow: radial-gradient(130% 60% at 50% 0%, #DCE9FA 0%, #E8F0FC 30%, #F1F5FB 60%, #F4F6F9 100%);
-  --card-shadow: 0 4px 18px rgba(27, 95, 166, 0.07), 0 1px 3px rgba(0, 0, 0, 0.03);
-  --banner-bg: linear-gradient(135deg, #072A4F 0%, #0D4B7F 55%, #1B5FA6 100%);
-  --banner-accent: #93C5FD;
-  --banner-soft: #DBEAFE;
-  --banner-highlight: #BFDBFE;
+  --page-glow: radial-gradient(130% 60% at 50% 0%, #E0F6FC 0%, #EBF8FB 30%, #F4FBFD 60%, #EDF7F9 100%);
+  --card-shadow: 0 4px 18px rgba(0, 77, 107, 0.06), 0 1px 3px rgba(0, 0, 0, 0.03);
+  --banner-bg: linear-gradient(135deg, #072A4F 0%, #0D4B7F 55%, #13649E 100%);
+  --banner-accent: #67E8F9;
+  --banner-soft: #CFFAFE;
+  --banner-highlight: #A5F3FC;
 }
 
 [data-theme="gold"] {

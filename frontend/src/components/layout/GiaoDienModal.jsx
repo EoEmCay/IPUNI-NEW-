@@ -5,7 +5,7 @@ import useThemeStore, { isGoldUnlocked } from '../../store/themeStore';
 import styles from './GiaoDienModal.module.css';
 
 const THEMES = [
-  { key: 'default', name: 'Xanh – trắng', desc: 'Giao diện tiêu chuẩn', bg: 'linear-gradient(135deg,#1B5FA6,#3B82F6)' },
+  { key: 'default', name: 'Xanh – trắng', desc: 'Giao diện tiêu chuẩn', bg: 'linear-gradient(135deg,#0F766E,#14B8A6)' },
   { key: 'gold', name: 'Gold', desc: 'Dành cho đối tác', bg: 'linear-gradient(135deg,#9A6B00,#C9921A 50%,#F0C040)' },
 ];
 

@@ -1,7 +1,4 @@
 .page { padding: 20px 0; }
-.header { padding: 0 16px 16px; }
-.title { font-size: 22px; font-weight: 800; color: var(--color-text-primary); }
-.subtitle { font-size: 16px; color: var(--color-text-secondary); margin-top: 2px; }
 
 .bannerWrap { padding: 0 16px 16px; }
 .pillsRow { margin-bottom: 16px; }

@@ -5,21 +5,6 @@
   gap: 16px;
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.title {
-  margin: 0;
-  font-size: 26px;
-  font-weight: 800;
-  color: var(--color-text-primary);
-}
-
 .addBtn {
   min-height: 52px;
   display: inline-flex;

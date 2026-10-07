@@ -1,9 +1,10 @@
-import { Settings, ZoomIn } from 'lucide-react';
+import { ZoomIn } from 'lucide-react';
 import useAccessibilityStore from '../store/accessibilityStore';
 import { useT } from '../hooks/useT';
 import UpgradeCard from '../components/settings/UpgradeCard';
 import ZaloReminderCard from '../components/settings/ZaloReminderCard';
 import styles from './SettingsPage.module.css';
+import PageHeader from '../components/common/PageHeader';
 
 const ZOOM_LEVELS = [
   { label: '1x', scale: 1 },
@@ -20,12 +21,7 @@ export default function SettingsPage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.header}>
-        <div className={styles.headerTop}>
-          <Settings size={24} />
-          <h1>{s.title}</h1>
-        </div>
-      </div>
+      <PageHeader title={s.title} />
 
       <section className={styles.settingsCard} aria-labelledby="font-size-title">
         <div className={styles.settingRow}>

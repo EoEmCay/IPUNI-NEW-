@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Droplet, Plus, ChevronRight, LineChart, ArrowDown, ArrowUp, Minus } from 'lucide-react';
+import { Droplet, Plus, ChevronRight, LineChart, ArrowDown, ArrowUp, Minus } from 'lucide-react';
 import { useMetrics } from '../hooks/useMetrics';
 import useAuthStore from '../store/authStore';
 import { getMetricStatus, getStatusLabel, STATUS_COLORS } from '../constants/metrics';
@@ -12,6 +11,7 @@ import GlucoseQuickModal from '../components/metrics/GlucoseQuickModal';
 import MetricHistoryItem from '../components/metrics/MetricHistoryItem';
 import ExportReportButton from '../components/reports/ExportReportButton';
 import styles from './GlucosePage.module.css';
+import PageHeader from '../components/common/PageHeader';
 
 const RANGES = [7, 30, 90];
 const DAY_MS = 86400000;
@@ -35,7 +35,6 @@ function whenText(iso, now) {
 
 // "Số đo đường huyết": biểu đồ + lịch sử đo. Mở từ thẻ đường huyết ở trang Hôm nay.
 export default function GlucosePage() {
-  const navigate = useNavigate();
   const t = useT();
   const diagnosis = useAuthStore((s) => s.user?.diagnosis);
   const { metrics, fetchMetrics, addMetric, removeMetric } = useMetrics();
@@ -68,12 +67,7 @@ export default function GlucosePage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.topRow}>
-        <button type="button" className={styles.back} onClick={() => navigate(-1)} aria-label="Quay lại">
-          <ArrowLeft size={24} />
-        </button>
-        <h1 className={styles.title}>Số đo đường huyết</h1>
-      </div>
+      <PageHeader title="Số đo đường huyết" />
 
       <div className={styles.tabs} role="tablist">
         {[['chart', 'Biểu đồ'], ['history', 'Lịch sử đo']].map(([key, label]) => (

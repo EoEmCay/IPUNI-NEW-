@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Clock, Pill, Image as ImageIcon, X, Trash2, Activity } from 'lucide-react';
+import { Clock, Pill, Image as ImageIcon, X, Trash2, Activity } from 'lucide-react';
 import { scanHistoryService } from '../services/scanHistory.service';
 import { useT } from '../hooks/useT';
 import styles from './ScanHistoryPage.module.css';
+import PageHeader from '../components/common/PageHeader';
 
 export default function ScanHistoryPage() {
   const t = useT();
-  const navigate = useNavigate();
   const [history, setHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedScan, setSelectedScan] = useState(null);
@@ -45,15 +44,7 @@ export default function ScanHistoryPage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.header}>
-        <div className={styles.headerTop}>
-          <button className={styles.backBtn} onClick={() => navigate('/scan')}>
-            <ChevronLeft size={24} />
-          </button>
-          <h1>{t.scanHistory.title}</h1>
-        </div>
-        <p>{t.scanHistory.subtitle}</p>
-      </div>
+      <PageHeader title={t.scanHistory.title} subtitle={t.scanHistory.subtitle} />
 
       {isLoading ? (
         <div className={styles.emptyState}>

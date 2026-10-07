@@ -14,6 +14,7 @@ import PrescriptionInfoModal from '../../components/medications/PrescriptionInfo
 import Modal from '../../components/common/Modal';
 import EmptyState from '../../components/common/EmptyState';
 import styles from './MedicationsPage.module.css';
+import PageHeader from '../../components/common/PageHeader';
 
 export default function MedicationsPage() {
   const navigate = useNavigate();
@@ -36,12 +37,14 @@ export default function MedicationsPage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>Tủ thuốc</h1>
-        <button type="button" className={styles.addBtn} onClick={() => setShowAddChoice(true)}>
-          <Plus size={22} aria-hidden="true" /> Thêm thuốc
-        </button>
-      </div>
+      <PageHeader
+        title="Tủ thuốc"
+        action={(
+          <button type="button" className={styles.addBtn} onClick={() => setShowAddChoice(true)}>
+            <Plus size={22} aria-hidden="true" /> Thêm thuốc
+          </button>
+        )}
+      />
 
       {loading ? (
         <p className={styles.loading}>{t.common.loading}</p>

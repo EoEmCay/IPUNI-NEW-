@@ -21,6 +21,7 @@ import styles from './ScanPrescriptionPage.module.css';
 import { useNavigate } from 'react-router-dom';
 import { estimateDaysFromQuantity } from '../utils/prescription';
 import { localYmd } from '../utils/date';
+import PageHeader from '../components/common/PageHeader';
 
 // Thông điệp tiến trình theo giây, canh theo thời gian quét thật (đo 07/10: 10-35s, chữ tay khó
 // thì AI "suy nghĩ" lâu). Trước đây hết bước ở giây 6 và thanh đứng 95% suốt 20-30s -> tưởng treo.
@@ -442,19 +443,15 @@ export default function ScanPrescriptionPage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.header}>
-        <div className={styles.headerTop}>
-          <h1>{t.scan.title}</h1>
-          <button 
-            className={styles.historyBtn} 
-            onClick={() => navigate('/scan-history')}
-            title={t.scan.historyTitle}
-          >
+      <PageHeader
+        title={t.scan.title}
+        subtitle={t.scan.subtitle}
+        action={(
+          <button type="button" className={styles.historyBtn} onClick={() => navigate('/scan-history')} title={t.scan.historyTitle}>
             {t.scan.history}
           </button>
-        </div>
-        <p>{t.scan.subtitle}</p>
-      </div>
+        )}
+      />
 
       {!imageUrl ? (
         <ScanCamera onImageScan={handleImageScan} />

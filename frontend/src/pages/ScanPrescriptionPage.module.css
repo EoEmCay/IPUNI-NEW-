@@ -88,36 +88,6 @@
   overflow-x: hidden;
 }
 
-.header {
-  text-align: center;
-  color: var(--color-text-primary);
-}
-
-.header h1 {
-  margin: 0 0 8px 0;
-  font-size: 22px;
-  font-weight: 700;
-}
-
-.header p {
-  margin: 0;
-  font-size: 17px;
-  color: var(--color-text-secondary);
-}
-
-.headerTop {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  padding: 0 96px;
-  min-height: 40px;
-}
-
-.headerTop h1 {
-  margin: 0;
-}
-
 .limitBadge {
   display: flex;
   align-items: center;
@@ -1331,8 +1301,7 @@
 }
 
 .historyBtn {
-  position: absolute;
-  right: 0;
+  flex-shrink: 0;
   background: var(--color-primary-light);
   border: 1px solid var(--color-primary);
   color: var(--color-primary);

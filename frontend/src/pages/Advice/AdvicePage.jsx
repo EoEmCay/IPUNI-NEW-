@@ -5,6 +5,7 @@ import { useT } from '../../hooks/useT';
 import FilterPills from '../../components/common/FilterPills';
 import AdviceCard from '../../components/advice/AdviceCard';
 import styles from './AdvicePage.module.css';
+import PageHeader from '../../components/common/PageHeader';
 
 export default function AdvicePage() {
   const t = useT();
@@ -24,10 +25,7 @@ export default function AdvicePage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>{t.advice.title}</h1>
-        <p className={styles.subtitle}>{t.advice.subtitle}</p>
-      </div>
+      <PageHeader title={t.advice.title} subtitle={t.advice.subtitle} />
 
       <div className={styles.bannerWrap} style={{ padding: '0 20px', marginBottom: '16px' }}>
         <a 

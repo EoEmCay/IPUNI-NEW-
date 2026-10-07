@@ -6,6 +6,7 @@ import { useT } from '../hooks/useT';
 import MedicationHistoryModal from '../components/medications/MedicationHistoryModal';
 // Dùng chung style với trang Cài đặt (trước đây 2 phần này nằm chung 1 trang)
 import styles from './SettingsPage.module.css';
+import PageHeader from '../components/common/PageHeader';
 
 const ALERT_CONFIG = [
   {
@@ -127,13 +128,7 @@ export default function VoicePage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.header}>
-        <div className={styles.headerTop}>
-          <Mic size={24} />
-          <h1>Giọng nhắc</h1>
-        </div>
-        <p>{s.voiceDesc}</p>
-      </div>
+      <PageHeader title="Giọng nhắc" subtitle={s.voiceDesc} />
 
       <div className={styles.alertList}>
         {ALERT_CONFIG.map((item) => {

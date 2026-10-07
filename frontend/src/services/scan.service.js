@@ -42,12 +42,24 @@ const compressImage = (file, maxWidth = 1600, maxHeight = 1600) => {
   });
 };
 
+// SHA-256 của file GỐC (trước khi nén): server tra đơn mẫu tức thì, khỏi giải mã ảnh trên máy chủ yếu.
+const sha256Hex = async (file) => {
+  try {
+    const digest = await crypto.subtle.digest('SHA-256', await file.arrayBuffer());
+    return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  } catch {
+    return '';
+  }
+};
+
 export const scanService = {
   analyzePrescription: async (imageFile) => {
+    const fileHash = await sha256Hex(imageFile);
     try {
       const compressedImage = await compressImage(imageFile);
       const formData = new FormData();
       formData.append('image', compressedImage);
+      formData.append('fileHash', fileHash);
       return api.post('/scan/prescription', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         timeout: 300000,
@@ -57,6 +69,7 @@ export const scanService = {
       // Fallback to original image if compression fails
       const formData = new FormData();
       formData.append('image', imageFile);
+      formData.append('fileHash', fileHash);
       return api.post('/scan/prescription', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         timeout: 300000,

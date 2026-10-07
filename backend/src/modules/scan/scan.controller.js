@@ -39,7 +39,7 @@ async function analyzePrescription(req, res, next) {
     const lang = req.body.lang || 'vi';
     // Tài khoản dùng thử (buổi thi/demo): ảnh trùng đơn mẫu -> trả kết quả quét sẵn ngay, không chờ AI.
     // Tài khoản thật luôn quét bằng AI. Lỗi đối chiếu -> cũng quét AI như cũ.
-    const preset = isDemo ? await findPreset(fileBuffer).catch(() => null) : null;
+    const preset = isDemo ? await findPreset(fileBuffer, String(req.body.fileHash || '')).catch(() => null) : null;
     if (preset) console.log(`[Scan] Khớp đơn mẫu ${preset.label} (${preset.similarity.toFixed(3)})`);
     const result = preset ? preset.result : await svc.analyzePrescription(fileBuffer, req.file.mimetype, lang);
 

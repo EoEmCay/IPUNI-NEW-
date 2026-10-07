@@ -6,6 +6,7 @@
 // mẫu thứ hai -> đơn thật của người bệnh không bao giờ nhận nhầm liều của đơn mẫu.
 // ponytail: ảnh CHỤP LẠI tờ đơn (lệch góc/sáng) không khớp được bằng cách này (~0.72-0.84) -> chạy AI
 // như cũ; muốn khớp ảnh chụp cần so điểm đặc trưng (ORB + homography) hoặc so chữ OCR.
+const crypto = require('crypto');
 const { Jimp } = require('jimp');
 const PRESETS = require('./scanPresets.json');
 
@@ -37,11 +38,21 @@ function similarity(fpA, fpB) {
   return a.reduce((s, x, i) => s + x * b[i], 0) / a.length;
 }
 
-// -> { label, similarity, result } hoặc null nếu không khớp chắc chắn
-async function findPreset(buffer) {
+// Tính sẵn 1 lần lúc khởi động (máy chủ Render miễn phí CPU rất yếu)
+const NORMALIZED = PRESETS.map((p) => normalize(p.fp));
+const dot = (a, b) => a.reduce((s, x, i) => s + x * b[i], 0) / a.length;
+
+// -> { label, similarity, result } hoặc null nếu không khớp chắc chắn.
+// fileHash: SHA-256 file gốc do app gửi kèm. Khớp mã băm -> trả ngay, không giải mã ảnh (đường nhanh).
+// Tin client ở đây không sao: chỉ chọn 1 kết quả đơn mẫu công khai, và chỉ cho tài khoản dùng thử.
+async function findPreset(buffer, fileHash = '') {
   if (!PRESETS.length) return null;
-  const fp = await fingerprint(buffer);
-  const ranked = PRESETS.map((p) => ({ p, s: similarity(fp, p.fp) })).sort((x, y) => y.s - x.s);
+  const uploadedHash = crypto.createHash('sha256').update(buffer).digest('hex');
+  const exact = PRESETS.find((p) => p.sha256 && (p.sha256 === fileHash || p.sha256 === uploadedHash));
+  if (exact) return { label: exact.label, similarity: 1, result: exact.result };
+
+  const v = normalize(await fingerprint(buffer));
+  const ranked = PRESETS.map((p, i) => ({ p, s: dot(v, NORMALIZED[i]) })).sort((x, y) => y.s - x.s);
   const [best, second] = ranked;
   if (best.s < MIN_SIMILARITY) return null;
   if (second && best.s - second.s < MIN_MARGIN) return null;

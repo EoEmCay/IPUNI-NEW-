@@ -26,6 +26,11 @@ const asUploaded = async (img) => {
     assert.strictEqual(hit.label, p.label, `${p.label}: khớp nhầm sang ${hit.label}`);
     assert.strictEqual(await findPreset(await asUploaded(img.clone().flip({ horizontal: true }))), null, `${p.label} lật ngang: không được khớp`);
   }
+  // Đường nhanh: app gửi SHA-256 file gốc -> khớp ngay, kể cả khi ảnh tải lên đã bị nén khác đi
+  const t0 = Date.now();
+  const byHash = await findPreset(Buffer.from('khong-phai-anh'), PRESETS[0].sha256);
+  assert.strictEqual(byHash && byHash.label, PRESETS[0].label, 'khớp theo mã băm file gốc');
+  assert.ok(Date.now() - t0 < 50, 'khớp mã băm không được giải mã ảnh');
   const blank = new Jimp({ width: 800, height: 1000, color: 0xffffffff });
   assert.strictEqual(await findPreset(await blank.getBuffer('image/jpeg')), null, 'ảnh trắng: không được khớp');
   console.log(`scanPresets.test.js OK - ${PRESETS.length} đơn mẫu, đối chiếu chậm nhất ${slowest}ms`);

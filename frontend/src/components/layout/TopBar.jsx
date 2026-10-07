@@ -1,46 +1,24 @@
-import { Bell } from 'lucide-react';
 import UserMenu from './UserMenu';
-import NotificationsModal from './NotificationsModal';
-import MedicationReminderToast from '../common/MedicationReminderToast';
-import { useNotifications } from '../../hooks/useNotifications';
-import { useT } from '../../hooks/useT';
+import NotificationBell from './NotificationBell';
 import Logo from '../common/Logo';
 import DemoCountdown from '../common/DemoCountdown';
 import styles from './TopBar.module.css';
 
+const BELL_CSS = { btn: styles.bellBtn, hasBadge: styles.hasBadge, active: styles.active, badge: styles.badge };
+
 export default function TopBar() {
-  const { isOpen, medications, appointments, hasNotifications, isTimeToDrink, upcomingMeds, handleOpen, handleClose } = useNotifications();
-  const t = useT();
-
   return (
-    <>
-      <header className={styles.topbar}>
-        <div className={styles.logo}>
-          <Logo size="sm" variant="onDark" />
-        </div>
-        
-        <DemoCountdown />
+    <header className={styles.topbar}>
+      <div className={styles.logo}>
+        <Logo size="sm" variant="onDark" />
+      </div>
 
-        <div className={styles.actions}>
-          <button
-            className={`${styles.bellBtn} ${hasNotifications ? styles.hasBadge : ''} ${isTimeToDrink ? styles.active : ''}`}
-            title={t.notifications?.title || "Thông báo"}
-            onClick={handleOpen}
-          >
-            <Bell size={20} />
-            {hasNotifications && <span className={styles.badge} />}
-          </button>
-          <UserMenu />
-        </div>
-      </header>
-      <NotificationsModal
-        isOpen={isOpen}
-        onClose={handleClose}
-        medications={medications}
-        appointments={appointments}
-        hasNotifications={hasNotifications}
-      />
-      {isTimeToDrink && <MedicationReminderToast medications={upcomingMeds} />}
-    </>
+      <DemoCountdown />
+
+      <div className={styles.actions}>
+        <NotificationBell css={BELL_CSS} />
+        <UserMenu />
+      </div>
+    </header>
   );
 }

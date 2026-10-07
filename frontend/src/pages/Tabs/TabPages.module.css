@@ -1,0 +1,90 @@
+/* Trang tab Gia đình / Tin nhắn / Hồ sơ - cùng nền và kiểu thẻ với Trang chủ mới */
+.page {
+  min-height: 100%;
+  padding: 16px 16px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: radial-gradient(130% 60% at 50% 0%, #E0F6FC 0%, #EBF8FB 30%, #F4FBFD 60%, #EDF7F9 100%);
+}
+
+.title { margin: 0; font-size: 26px; font-weight: 800; color: #0F172A; }
+.subtitle { margin: -8px 0 0; font-size: 17px; color: var(--color-text-secondary); }
+
+.card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 18px;
+  box-shadow: 0 4px 18px rgba(0, 77, 107, 0.06), 0 1px 3px rgba(0, 0, 0, 0.03);
+  padding: 16px;
+}
+
+.profileHead { display: flex; align-items: center; gap: 14px; }
+.avatar {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: linear-gradient(45deg, #0A356E, #125BA3);
+  color: #fff;
+  font-size: 24px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+}
+.name { margin: 0; font-size: 22px; font-weight: 800; color: #0F172A; overflow-wrap: anywhere; }
+.meta { margin: 2px 0 0; font-size: 16px; color: var(--color-text-secondary); overflow-wrap: anywhere; }
+
+.menu { display: flex; flex-direction: column; padding: 4px 0; }
+.item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 60px;
+  padding: 8px 16px;
+  text-align: left;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border);
+}
+.item:last-child { border-bottom: none; }
+.itemIcon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.itemText { flex: 1; display: flex; flex-direction: column; }
+.itemDesc { font-size: 15px; font-weight: 400; color: var(--color-text-secondary); }
+.chevron { color: var(--color-text-secondary); }
+.logout { color: var(--color-danger); }
+.logout .itemIcon { background: #FEF2F2; color: var(--color-danger); }
+
+.soon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 40px 20px;
+  text-align: center;
+}
+.soonIcon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.soonTitle { margin: 0; font-size: 22px; font-weight: 800; color: #0F172A; }
+.soonText { margin: 0; font-size: 17px; color: var(--color-text-secondary); }

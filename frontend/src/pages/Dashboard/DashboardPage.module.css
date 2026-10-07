@@ -1,21 +1,338 @@
+/* Trang chủ - giao diện mới 10/2026 (theo bản Stitch). Màu/bo góc/đổ bóng giữ như thiết kế. */
 .page {
-  padding: 20px 16px;
+  min-height: 100%;
+  padding: 12px 16px 96px; /* 96px: chừa chỗ cho robot nổi, nội dung cuối không bị che */
   display: flex;
   flex-direction: column;
   gap: 16px;
+  background: radial-gradient(130% 60% at 50% 0%, #E0F6FC 0%, #EBF8FB 30%, #F4FBFD 60%, #EDF7F9 100%);
 }
 
-.greetText { font-size: 17px; color: var(--color-text-secondary); }
+/* ── Header ── */
+.header { display: flex; flex-direction: column; gap: 14px; }
 
+.topRow { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+
+.vip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 6px 14px 6px 8px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #FCE8BD 0%, #F7CF78 60%, #E5B349 100%);
+  box-shadow: 0 2px 10px rgba(229, 179, 73, 0.35);
+}
+.vip:active { transform: scale(0.96); }
+
+.vipStar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #FEF3C7;
+  color: #F59E0B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vipText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.05;
+  color: #78350F;
+  text-align: left;
+  white-space: nowrap;
+}
+.vipSub { font-size: 12px; font-weight: 700; }
+
+.dayChip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: var(--shadow-sm);
+  font-size: 14px;
+  color: #475569;
+  white-space: nowrap;
+}
+.dayIcon { color: #F59E0B; }
+.dayLabel { font-weight: 700; color: #1E293B; }
+.daySep { color: #CBD5E1; }
+
+.greetRow { display: flex; align-items: center; gap: 14px; }
+
+.avatar {
+  position: relative;
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: linear-gradient(45deg, #0A356E, #125BA3);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.avatarText { color: #fff; font-size: 24px; font-weight: 800; font-style: italic; letter-spacing: -0.04em; }
+.avatarDot {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #10B981;
+  border: 2px solid #fff;
+}
+
+.greetText { flex: 1; min-width: 0; }
+.hello { margin: 0; font-size: 15px; font-weight: 500; color: #64748B; }
 .userName {
+  margin: 0;
   font-size: 24px;
   font-weight: 800;
-  color: var(--color-text-primary);
-  margin-top: 2px;
+  line-height: 1.2;
+  color: #0F172A;
+  overflow-wrap: anywhere;
 }
 
-.date { font-size: 16px; color: var(--color-text-secondary); margin-top: 4px; }
+.bellBtn {
+  position: relative;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid #fff;
+  box-shadow: var(--shadow-sm);
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bellBtn:active { transform: scale(0.92); }
+.bellBadge {
+  position: absolute;
+  top: 9px;
+  right: 10px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #EF4444;
+  border: 2px solid #fff;
+}
+.bellHasBadge { color: #0F766E; }
+.bellActive { color: #EF4444; animation: ring 0.5s ease-in-out infinite; }
+@keyframes ring {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
+}
 
+/* ── Trợ lý ── */
+.assistant {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px 10px 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #CFFAFE;
+  box-shadow: 0 4px 18px rgba(0, 77, 107, 0.06), 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+.assistantMain { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; min-height: 48px; text-align: left; }
+.assistantIcon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #ECFEFF;
+  border: 1px solid #CFFAFE;
+  color: #155E75;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.assistantText { font-size: 16px; font-weight: 700; color: #1E293B; }
+.assistantText b { color: #155E75; }
+.micBtn {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #14B8A6, #06B6D4);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.micBtn:active { transform: scale(0.94); }
+
+/* ── Banner trượt ngang (scroll-snap) ── */
+.carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  border-radius: 24px;
+}
+.banner {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 20px;
+  border-radius: 24px;
+  overflow: hidden;
+  color: #fff;
+  background: linear-gradient(135deg, #072A4F 0%, #0D4B7F 55%, #13649E 100%);
+  box-sizing: border-box;
+}
+.banner::before,
+.banner::after {
+  content: '+';
+  position: absolute;
+  color: rgba(255, 255, 255, 0.1);
+  font-weight: 300;
+  pointer-events: none;
+}
+.banner::before { top: -14px; right: 34%; font-size: 64px; }
+.banner::after { bottom: 4px; left: 45%; font-size: 40px; }
+
+.bannerText { position: relative; z-index: 1; width: 60%; }
+.bannerBrand { font-size: 22px; font-weight: 800; letter-spacing: 0.06em; color: #67E8F9; }
+.bannerTag { margin: 2px 0 0; font-size: 13px; color: #CFFAFE; }
+.bannerTitle {
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+.bannerTitle span { display: block; color: #A5F3FC; }
+.bannerLink {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 12px;
+  min-height: 36px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(103, 232, 249, 0.4);
+  background: rgba(255, 255, 255, 0.1);
+  color: #CFFAFE;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.bannerArt { position: relative; z-index: 1; width: 40%; max-width: 150px; filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.25)); }
+.bannerIcon { position: relative; z-index: 1; width: 34%; height: auto; max-width: 120px; color: #67E8F9; opacity: 0.9; }
+
+.dots { display: flex; justify-content: center; gap: 2px; margin-top: 6px; }
+.dot {
+  width: 28px; /* vùng bấm rộng hơn chấm hiển thị */
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dot::after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #CBD5E1;
+  transition: width 0.2s, background 0.2s;
+}
+.dotActive::after { width: 24px; background: #1E293B; }
+
+/* ── Tiện ích ── */
+.sectionHead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 19px;
+  font-weight: 800;
+  color: #1E293B;
+}
+.gridIcon { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; width: 20px; height: 20px; }
+.gridIcon i { background: #155E75; border-radius: 3px; }
+.customize {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 0 4px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0F766E;
+}
+
+.grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+
+.tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 112px;
+  padding: 14px 4px 10px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 18px rgba(0, 77, 107, 0.06), 0 1px 3px rgba(0, 0, 0, 0.03);
+  text-align: center;
+}
+.tile:active { transform: scale(0.95); }
+
+.badge {
+  position: absolute;
+  top: -7px;
+  right: -2px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #2563EB;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+}
+.badgeHot { background: #EF4444; }
+
+.tileIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.indigo { background: #EEF2FF; color: #4F46E5; border: 2px solid #C7D2FE; }
+.red { background: #FEF2F2; color: #EF4444; border: 1px solid #FECACA; }
+.amber { background: #FFFBEB; color: #B45309; border: 2px solid #FCD34D; border-radius: 50%; }
+.gray { background: linear-gradient(#E5E7EB, #D1D5DB); color: #4B5563; border-radius: 50%; }
+.blue { background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; }
+.cyan { background: #06B6D4; color: #fff; }
+.green { background: #F0FDF4; color: #16A34A; }
+.sos { background: linear-gradient(45deg, #F43F5E, #F59E0B); color: #fff; border-radius: 50%; box-shadow: 0 4px 10px rgba(244, 63, 94, 0.35); }
+.sosText { font-size: 13px; font-weight: 900; letter-spacing: 0.08em; }
+
+.tileLabel { font-size: 14px; font-weight: 600; line-height: 1.2; color: #334155; }
+
+/* ── Thuốc hôm nay (giữ từ trang cũ) ── */
 .medicationCard {
   background: var(--color-surface);
   border-radius: var(--radius-lg);
@@ -25,13 +342,7 @@
   flex-direction: column;
   gap: 12px;
 }
-
-.medicationHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
+.medicationHeader { display: flex; align-items: center; justify-content: space-between; }
 .medicationTitle {
   display: flex;
   align-items: center;
@@ -41,7 +352,6 @@
   font-weight: 700;
   color: var(--color-text-primary);
 }
-
 .progress {
   margin: 0;
   display: flex;
@@ -54,14 +364,45 @@
   font-size: 18px;
   font-weight: 700;
 }
+.progressDone { background: #DCFCE7; color: #15803D; }
+.medList { display: flex; flex-direction: column; gap: 10px; }
 
-.progressDone {
-  background: #DCFCE7;
-  color: #15803D;
+/* ── Robot nổi + thông báo "sắp ra mắt" (gắn vào body) ── */
+.mascot {
+  position: fixed;
+  /* bám mép phải của khung app (max 480px, căn giữa) chứ không phải mép màn hình rộng */
+  right: max(16px, calc((100vw - var(--app-max-width)) / 2 + 16px));
+  bottom: calc(var(--color-nav-height) + var(--safe-bottom) + 16px);
+  z-index: 90;
+  width: 60px;
+  height: 60px;
+  padding: 2px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #22D3EE;
+  box-shadow: 0 0 0 6px rgba(34, 211, 238, 0.2), var(--shadow-md);
+}
+.mascot:active { transform: scale(0.92); }
+.mascot svg { width: 100%; height: 100%; }
+
+.soonToast {
+  position: fixed;
+  left: 50%;
+  top: calc(var(--safe-top) + 16px);
+  transform: translateX(-50%);
+  z-index: 9500;
+  max-width: calc(100vw - 32px);
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: #1E293B;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: var(--shadow-md);
 }
 
-.medList {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+@media (max-width: 360px) {
+  .grid { gap: 8px; }
+  .tileLabel { font-size: 13px; }
 }

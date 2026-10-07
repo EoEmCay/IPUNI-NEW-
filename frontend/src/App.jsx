@@ -19,6 +19,9 @@ import ScanHistoryPage from './pages/ScanHistoryPage';
 import SettingsPage from './pages/SettingsPage';
 import VoicePage from './pages/VoicePage';
 import GlucosePage from './pages/GlucosePage';
+import FamilyPage from './pages/Tabs/FamilyPage';
+import MessagesPage from './pages/Tabs/MessagesPage';
+import ProfilePage from './pages/Tabs/ProfilePage';
 import AdminPage from './pages/AdminPage';
 import PrivacyPage from './pages/Legal/PrivacyPage';
 import DataDeletionPage from './pages/Legal/DataDeletionPage';
@@ -156,7 +159,7 @@ function AppRoutes() {
         <Route path="/dashboard" element={
           <ProtectedRoute>
             <MobileWrapper>
-              <AppLayout>
+              <AppLayout bare>
                 <DashboardPage />
               </AppLayout>
             </MobileWrapper>
@@ -222,6 +225,33 @@ function AppRoutes() {
             <MobileWrapper>
               <AppLayout>
                 <SettingsPage />
+              </AppLayout>
+            </MobileWrapper>
+          </ProtectedRoute>
+        } />
+        <Route path="/family" element={
+          <ProtectedRoute>
+            <MobileWrapper>
+              <AppLayout>
+                <FamilyPage />
+              </AppLayout>
+            </MobileWrapper>
+          </ProtectedRoute>
+        } />
+        <Route path="/messages" element={
+          <ProtectedRoute>
+            <MobileWrapper>
+              <AppLayout>
+                <MessagesPage />
+              </AppLayout>
+            </MobileWrapper>
+          </ProtectedRoute>
+        } />
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <MobileWrapper>
+              <AppLayout>
+                <ProfilePage />
               </AppLayout>
             </MobileWrapper>
           </ProtectedRoute>

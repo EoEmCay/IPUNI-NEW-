@@ -8,7 +8,8 @@ import OnboardingTour from '../common/OnboardingTour';
 import FamilyAlertWatcher from './FamilyAlertWatcher';
 import styles from './AppLayout.module.css';
 
-export default function AppLayout({ children }) {
+// bare: trang tự dựng header riêng (Trang chủ mới) -> không hiện thanh trên.
+export default function AppLayout({ children, bare = false }) {
   const restoreTheme = useThemeStore((s) => s.restoreTheme);
   const fontScale = useAccessibilityStore((s) => s.fontScale);
 
@@ -17,8 +18,8 @@ export default function AppLayout({ children }) {
 
   return (
     <div className={styles.layout}>
-      <TopBar />
-      <main className="page-content" style={{ zoom: fontScale }}>
+      {!bare && <TopBar />}
+      <main className={`page-content ${bare ? 'page-content--bare' : ''}`} style={{ zoom: fontScale }}>
         {children}
       </main>
       <BottomNav />

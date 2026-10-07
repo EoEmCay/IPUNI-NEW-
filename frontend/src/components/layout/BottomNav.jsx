@@ -1,23 +1,20 @@
 import { NavLink } from 'react-router-dom';
-import { Home, Pill, Mic, Camera } from 'lucide-react';
-import { useT } from '../../hooks/useT';
+import { Home, Activity, Users, MessageCircle, User } from 'lucide-react';
 import styles from './BottomNav.module.css';
 
+// Giao diện mới 10/2026: 5 tab. Quét đơn nay là ô "Quét AI" đầu tiên ở Trang chủ.
+const ITEMS = [
+  { to: '/dashboard', icon: Home, label: 'Trang chủ', exact: true },
+  { to: '/glucose', icon: Activity, label: 'Chỉ số' },
+  { to: '/family', icon: Users, label: 'Gia đình' },
+  { to: '/messages', icon: MessageCircle, label: 'Tin nhắn' },
+  { to: '/profile', icon: User, label: 'Hồ sơ' },
+];
+
 export default function BottomNav() {
-  const t = useT();
-
-  const LEFT_ITEMS = [
-    { to: '/dashboard', icon: Home, label: t.nav.home, exact: true },
-    { to: '/medications', icon: Pill, label: t.nav.medications },
-  ];
-
-  const RIGHT_ITEMS = [
-    { to: '/voice', icon: Mic, label: t.nav.voice },
-  ];
-
   return (
-    <nav className={styles.nav}>
-      {LEFT_ITEMS.map(({ to, icon: Icon, label, exact }) => (
+    <nav className={styles.nav} aria-label="Điều hướng chính">
+      {ITEMS.map(({ to, icon: Icon, label, exact }) => (
         <NavLink
           key={to}
           to={to}
@@ -25,30 +22,7 @@ export default function BottomNav() {
           className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}
         >
           <div className={styles.iconWrap}>
-            <Icon size={20} strokeWidth={1.8} />
-          </div>
-          <span className={styles.label}>{label}</span>
-        </NavLink>
-      ))}
-
-      <NavLink
-        to="/scan"
-        className={({ isActive }) => `${styles.scanItem} ${isActive ? styles.scanActive : ''}`}
-      >
-        <div className={styles.scanIconWrap}>
-          <Camera size={26} strokeWidth={2} color="#fff" />
-        </div>
-        <span className={styles.scanLabel}>{t.nav.scan}</span>
-      </NavLink>
-
-      {RIGHT_ITEMS.map(({ to, icon: Icon, label }) => (
-        <NavLink
-          key={to}
-          to={to}
-          className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}
-        >
-          <div className={styles.iconWrap}>
-            <Icon size={20} strokeWidth={1.8} />
+            <Icon size={22} strokeWidth={1.9} />
           </div>
           <span className={styles.label}>{label}</span>
         </NavLink>

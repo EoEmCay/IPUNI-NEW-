@@ -19,6 +19,7 @@ import MedicationTile, { MedicationGrid } from '../components/medications/Medica
 import { INSULIN_PATTERN } from '../utils/medForm';
 import styles from './ScanPrescriptionPage.module.css';
 import { useNavigate } from 'react-router-dom';
+import { estimateDaysFromQuantity } from '../utils/prescription';
 
 // Thông điệp tiến trình đổi theo giây trong lúc AI phân tích - tạo cảm giác thời gian
 // trôi nhanh hơn thay vì 1 dòng chữ đứng yên suốt quá trình chờ.
@@ -98,6 +99,14 @@ export const getMedScheduleDetails = (med, prescriptionDate) => {
     }
   }
 
+  // Đơn không ghi số ngày -> ước từ số lượng: 60 viên, 1 viên x 2 lần/ngày = 30 ngày.
+  // Không có số ngày thì app sẽ nhắc mãi mãi và đơn không bao giờ được thu gọn.
+  let durationEstimated = false;
+  if (!duration) {
+    duration = estimateDaysFromQuantity(med);
+    durationEstimated = Boolean(duration);
+  }
+
   let endDateStr = null;
   let formattedStartDate = '';
   let formattedEndDate = '';
@@ -125,6 +134,7 @@ export const getMedScheduleDetails = (med, prescriptionDate) => {
 
   return {
     duration,
+    durationEstimated,
     startDateStr,
     endDateStr,
     formattedStartDate,
@@ -774,8 +784,11 @@ export default function ScanPrescriptionPage() {
                           <div className={styles.elderlyRow}>
                             <span className={styles.elderlyLabel}>Thời gian dùng:</span>
                             <span className={styles.elderlyValueHighlight}>
-                              {schedule.duration} ngày {schedule.formattedStartDate && schedule.formattedEndDate ? `(Từ ${schedule.formattedStartDate} đến ${schedule.formattedEndDate})` : ''}
+                              {schedule.durationEstimated ? 'Khoảng ' : ''}{schedule.duration} ngày {schedule.formattedStartDate && schedule.formattedEndDate ? `(Từ ${schedule.formattedStartDate} đến ${schedule.formattedEndDate})` : ''}
                             </span>
+                            {schedule.durationEstimated && (
+                              <span className={styles.elderlySectionSubtitle}>Tính theo số lượng thuốc trong đơn</span>
+                            )}
                           </div>
                         ) : null}
                         {hasDoctorTime && (

@@ -95,6 +95,27 @@
 
 .chevron { flex-shrink: 0; color: var(--color-text-secondary); }
 
+/* Đơn đã hết thuốc: nền xám, thuốc mờ đi để không lẫn với đơn đang uống */
+.doneHeading {
+  margin: 8px 0 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+.doneHead { background: var(--color-bg); }
+.doneTiles { opacity: 0.6; }
+.doneText,
+.lowText {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.doneText { color: var(--color-text-secondary); }
+.lowText { color: #B45309; }
+
 .choices {
   display: flex;
   flex-direction: column;

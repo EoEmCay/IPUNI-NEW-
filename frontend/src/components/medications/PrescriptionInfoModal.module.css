@@ -40,3 +40,16 @@
   font-size: 18px;
   color: var(--color-text-primary);
 }
+
+.finishBtn {
+  min-height: 52px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: 18px;
+  font-weight: 700;
+}
+.finishBtn:disabled { opacity: 0.5; }
+
+.error { margin: 0; font-size: 16px; color: var(--color-danger); }

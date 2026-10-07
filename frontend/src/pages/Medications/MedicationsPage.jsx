@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Pill, Plus, Camera, PenLine, ChevronRight } from 'lucide-react';
+import { Pill, Plus, Camera, PenLine, ChevronRight, ChevronDown, CheckCircle2 } from 'lucide-react';
 import { useMedications } from '../../hooks/useMedications';
 import { useAppointments } from '../../hooks/useAppointments';
 import { useT } from '../../hooks/useT';
 import { withDoctorPrefix } from '../../utils/doctor';
 import { formatDateVN } from '../../utils/date';
+import { groupByPrescription, LOW_SUPPLY_DAYS } from '../../utils/prescription';
 import MedicationTile, { MedicationGrid } from '../../components/medications/MedicationTile';
 import MedicationDetailModal from '../../components/medications/MedicationDetailModal';
 import MedicationFormModal from '../../components/medications/MedicationFormModal';
@@ -13,32 +14,6 @@ import PrescriptionInfoModal from '../../components/medications/PrescriptionInfo
 import Modal from '../../components/common/Modal';
 import EmptyState from '../../components/common/EmptyState';
 import styles from './MedicationsPage.module.css';
-
-// Mỗi đơn thuốc 1 màu để thuốc của đơn này nhìn khác thuốc của đơn kia.
-const PRESCRIPTION_COLORS = [
-  { c: '#1B5FA6', soft: '#E8F0FA' }, // xanh dương
-  { c: '#0F766E', soft: '#E0F2EF' }, // xanh ngọc
-  { c: '#7C3AED', soft: '#F1EAFE' }, // tím
-  { c: '#C2410C', soft: '#FDEDE4' }, // cam
-  { c: '#BE185D', soft: '#FCE7F1' }, // hồng
-  { c: '#15803D', soft: '#E4F5EA' }, // xanh lá
-];
-
-// Gom thuốc theo đơn (bác sĩ + ngày kê). Đánh số/màu theo thứ tự thời gian (đơn cũ nhất = Đơn 1)
-// để thêm đơn mới không làm đổi màu các đơn đã có; hiển thị đơn mới nhất lên trước.
-function groupByPrescription(medications = []) {
-  const byKey = {};
-  medications.forEach((med) => {
-    const date = med.prescribed_at || med.created_at;
-    const key = `${med.doctor_name || ''}_${date ? new Date(date).toLocaleDateString('vi-VN') : ''}`;
-    byKey[key] ||= { key, doctor_name: med.doctor_name, prescribed_at: date, next_appointment_date: null, medications: [] };
-    if (med.next_appointment_date) byKey[key].next_appointment_date = med.next_appointment_date;
-    byKey[key].medications.push(med);
-  });
-  const oldestFirst = Object.values(byKey).sort((a, b) => new Date(a.prescribed_at || 0) - new Date(b.prescribed_at || 0));
-  oldestFirst.forEach((g, i) => { g.number = i + 1; g.color = PRESCRIPTION_COLORS[i % PRESCRIPTION_COLORS.length]; });
-  return oldestFirst.reverse();
-}
 
 export default function MedicationsPage() {
   const navigate = useNavigate();
@@ -49,6 +24,7 @@ export default function MedicationsPage() {
   const [showForm, setShowForm] = useState(false);
   const [selectedMed, setSelectedMed] = useState(null);
   const [selectedGroup, setSelectedGroup] = useState(null);
+  const [expanded, setExpanded] = useState({}); // đơn đã thu gọn mà người dùng mở ra xem lại
 
   useEffect(() => {
     fetchMedications();
@@ -56,6 +32,7 @@ export default function MedicationsPage() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const groups = groupByPrescription(medications || []);
+  const firstCollapsed = groups.findIndex((g) => g.status === 'collapsed');
 
   return (
     <div className={styles.page}>
@@ -72,28 +49,46 @@ export default function MedicationsPage() {
         <EmptyState icon={Pill} title="Tủ thuốc đang trống" subtitle="Bấm Thêm thuốc để quét đơn hoặc nhập tay." />
       ) : (
         <div className={styles.list}>
-          {groups.map((group) => (
-            <section key={group.key} className={styles.prescription} aria-label={`Đơn thuốc ${group.number}`}>
-              <button type="button" className={styles.prescriptionHead} onClick={() => setSelectedGroup(group)}>
-                <span className={styles.badge} style={{ background: group.color.c }}>Đơn {group.number}</span>
-                <span className={styles.headText}>
-                  <span className={styles.headTitle}>
-                    {group.prescribed_at ? `Ngày ${formatDateVN(group.prescribed_at)}` : 'Thuốc tự thêm'}
+          {groups.map((group, i) => {
+            const collapsed = group.status === 'collapsed' && !expanded[group.key];
+            return (
+              <section key={group.key} className={styles.prescription} aria-label={`Đơn thuốc ${group.number}`}>
+                {i === firstCollapsed && <h2 className={styles.doneHeading}>Đơn đã uống xong</h2>}
+                <button
+                  type="button"
+                  className={`${styles.prescriptionHead} ${group.status !== 'active' ? styles.doneHead : ''}`}
+                  onClick={() => (collapsed ? setExpanded((e) => ({ ...e, [group.key]: true })) : setSelectedGroup(group))}
+                  aria-expanded={group.status === 'collapsed' ? !collapsed : undefined}
+                >
+                  <span className={styles.badge} style={{ background: group.status === 'active' ? group.color.c : 'var(--color-text-secondary)' }}>
+                    Đơn {group.number}
                   </span>
-                  <span className={styles.headSub}>
-                    {group.doctor_name ? withDoctorPrefix(group.doctor_name) : 'Không có bác sĩ kê đơn'}
-                    {group.next_appointment_date && ` · Tái khám ${formatDateVN(group.next_appointment_date)}`}
+                  <span className={styles.headText}>
+                    <span className={styles.headTitle}>
+                      {group.prescribed_at ? `Ngày ${formatDateVN(group.prescribed_at)}` : 'Thuốc tự thêm'}
+                    </span>
+                    <span className={styles.headSub}>
+                      {group.doctor_name ? withDoctorPrefix(group.doctor_name) : 'Không có bác sĩ kê đơn'}
+                      {group.status === 'active' && group.next_appointment_date && ` · Tái khám ${formatDateVN(group.next_appointment_date)}`}
+                    </span>
+                    <SupplyStatus group={group} />
                   </span>
-                </span>
-                <ChevronRight size={22} className={styles.chevron} aria-hidden="true" />
-              </button>
-              <MedicationGrid>
-                {group.medications.map((m) => (
-                  <MedicationTile key={m.id} medication={m} accent={group.color} onClick={() => setSelectedMed(m)} />
-                ))}
-              </MedicationGrid>
-            </section>
-          ))}
+                  {collapsed
+                    ? <ChevronDown size={22} className={styles.chevron} aria-hidden="true" />
+                    : <ChevronRight size={22} className={styles.chevron} aria-hidden="true" />}
+                </button>
+                {!collapsed && (
+                  <div className={group.status !== 'active' ? styles.doneTiles : undefined}>
+                    <MedicationGrid>
+                      {group.medications.map((m) => (
+                        <MedicationTile key={m.id} medication={m} accent={group.color} onClick={() => setSelectedMed(m)} />
+                      ))}
+                    </MedicationGrid>
+                  </div>
+                )}
+              </section>
+            );
+          })}
         </div>
       )}
 
@@ -125,8 +120,30 @@ export default function MedicationsPage() {
       )}
       {selectedMed && <MedicationDetailModal medication={selectedMed} onClose={() => setSelectedMed(null)} />}
       {selectedGroup && (
-        <PrescriptionInfoModal group={selectedGroup} appointments={appointments || []} onClose={() => setSelectedGroup(null)} />
+        <PrescriptionInfoModal
+          group={selectedGroup}
+          appointments={appointments || []}
+          onClose={() => setSelectedGroup(null)}
+          onChanged={() => { setSelectedGroup(null); fetchMedications(); }}
+        />
       )}
     </div>
+  );
+}
+
+// Dòng trạng thái hết thuốc dưới tiêu đề đơn.
+function SupplyStatus({ group }) {
+  if (group.status !== 'active') {
+    return (
+      <span className={styles.doneText}>
+        <CheckCircle2 size={16} aria-hidden="true" /> Đã uống xong · hết thuốc ngày {formatDateVN(group.endDate)}
+      </span>
+    );
+  }
+  if (group.daysLeft == null || group.daysLeft > LOW_SUPPLY_DAYS) return null;
+  return (
+    <span className={styles.lowText}>
+      {group.daysLeft === 0 ? 'Hôm nay là ngày thuốc cuối' : `Còn ${group.daysLeft} ngày nữa hết thuốc`} · nhớ tái khám hoặc mua thêm
+    </span>
   );
 }

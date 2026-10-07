@@ -5,7 +5,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  background: radial-gradient(130% 60% at 50% 0%, #E0F6FC 0%, #EBF8FB 30%, #F4FBFD 60%, #EDF7F9 100%);
+  background: var(--page-glow);
 }
 
 /* ── Header ── */
@@ -114,7 +114,7 @@
   background: #EF4444;
   border: 2px solid #fff;
 }
-.bellHasBadge { color: #0F766E; }
+.bellHasBadge { color: var(--color-primary); }
 .bellActive { color: #EF4444; animation: ring 0.5s ease-in-out infinite; }
 @keyframes ring {
   0%, 100% { transform: rotate(0deg); }
@@ -142,7 +142,7 @@
   border-radius: 24px;
   overflow: hidden;
   color: #fff;
-  background: linear-gradient(135deg, #072A4F 0%, #0D4B7F 55%, #13649E 100%);
+  background: var(--banner-bg);
   box-sizing: border-box;
 }
 .banner::before,
@@ -157,8 +157,8 @@
 .banner::after { bottom: 4px; left: 45%; font-size: 40px; }
 
 .bannerText { position: relative; z-index: 1; width: 60%; }
-.bannerBrand { font-size: 22px; font-weight: 800; letter-spacing: 0.06em; color: #67E8F9; }
-.bannerTag { margin: 2px 0 0; font-size: 13px; color: #CFFAFE; }
+.bannerBrand { font-size: 22px; font-weight: 800; letter-spacing: 0.06em; color: var(--banner-accent); }
+.bannerTag { margin: 2px 0 0; font-size: 14px; color: var(--banner-soft); }
 .bannerTitle {
   margin: 8px 0 0;
   font-size: 14px;
@@ -166,7 +166,7 @@
   line-height: 1.25;
   text-transform: uppercase;
 }
-.bannerTitle span { display: block; color: #A5F3FC; }
+.bannerTitle span { display: block; color: var(--banner-highlight); }
 .bannerLink {
   display: inline-flex;
   align-items: center;
@@ -174,15 +174,15 @@
   min-height: 36px;
   padding: 0 16px;
   border-radius: 999px;
-  border: 1px solid rgba(103, 232, 249, 0.4);
+  border: 1px solid color-mix(in srgb, var(--banner-accent) 45%, transparent);
   background: rgba(255, 255, 255, 0.1);
-  color: #CFFAFE;
+  color: var(--banner-soft);
   font-size: 13px;
   font-weight: 700;
   text-decoration: none;
 }
 .bannerArt { position: relative; z-index: 1; width: 40%; max-width: 150px; filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.25)); }
-.bannerIcon { position: relative; z-index: 1; width: 34%; height: auto; max-width: 120px; color: #67E8F9; opacity: 0.9; }
+.bannerIcon { position: relative; z-index: 1; width: 34%; height: auto; max-width: 120px; color: var(--banner-accent); opacity: 0.9; }
 
 .dots { display: flex; justify-content: center; gap: 2px; margin-top: 6px; }
 .dot {
@@ -214,7 +214,7 @@
   color: #1E293B;
 }
 .gridIcon { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; width: 20px; height: 20px; }
-.gridIcon i { background: #155E75; border-radius: 3px; }
+.gridIcon i { background: var(--color-primary); border-radius: 3px; }
 .customize {
   display: flex;
   align-items: center;
@@ -223,7 +223,7 @@
   padding: 0 4px;
   font-size: 15px;
   font-weight: 700;
-  color: #0F766E;
+  color: var(--color-primary);
 }
 
 .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
@@ -238,7 +238,7 @@
   padding: 14px 4px 10px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 4px 18px rgba(0, 77, 107, 0.06), 0 1px 3px rgba(0, 0, 0, 0.03);
+  box-shadow: var(--card-shadow);
   text-align: center;
 }
 .tile:active { transform: scale(0.95); }
@@ -336,20 +336,3 @@
   .grid { gap: 8px; }
   .tileLabel { font-size: 13px; }
 }
-
-/* ── Giao diện Gold (mở bằng mã đối tác): đổi các màu teal/xanh viết cứng ở trên sang tông vàng.
-   Biểu tượng tiện ích giữ nhiều màu để người lớn tuổi phân biệt từng ô. ── */
-:global([data-theme="gold"]) .page {
-  background: radial-gradient(130% 60% at 50% 0%, #FFF1C9 0%, #FFF7E0 35%, #FFFCF0 70%, #FFF8E7 100%);
-}
-:global([data-theme="gold"]) .banner { background: linear-gradient(135deg, #4A3000 0%, #7A5200 55%, #A87412 100%); }
-:global([data-theme="gold"]) .bannerBrand,
-:global([data-theme="gold"]) .bannerIcon { color: #FDE68A; }
-:global([data-theme="gold"]) .bannerTag,
-:global([data-theme="gold"]) .bannerLink { color: #FEF3C7; }
-:global([data-theme="gold"]) .bannerTitle span { color: #FCD34D; }
-:global([data-theme="gold"]) .bannerLink { border-color: rgba(253, 230, 138, 0.45); }
-:global([data-theme="gold"]) .gridIcon i { background: var(--color-primary); }
-:global([data-theme="gold"]) .customize,
-:global([data-theme="gold"]) .bellHasBadge { color: var(--color-primary); }
-:global([data-theme="gold"]) .tile { box-shadow: 0 4px 18px rgba(201, 146, 26, 0.10), 0 1px 3px rgba(0, 0, 0, 0.03); }

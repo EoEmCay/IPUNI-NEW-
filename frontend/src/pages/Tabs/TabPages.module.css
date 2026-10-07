@@ -5,7 +5,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  background: radial-gradient(130% 60% at 50% 0%, #E0F6FC 0%, #EBF8FB 30%, #F4FBFD 60%, #EDF7F9 100%);
+  background: var(--color-bg); /* phẳng, liền màu với thanh trên (chỉ Trang chủ không có thanh trên mới dùng nền phát sáng) */
 }
 
 .title { margin: 0; font-size: 26px; font-weight: 800; color: #0F172A; }
@@ -14,7 +14,7 @@
 .card {
   background: rgba(255, 255, 255, 0.95);
   border-radius: 18px;
-  box-shadow: 0 4px 18px rgba(0, 77, 107, 0.06), 0 1px 3px rgba(0, 0, 0, 0.03);
+  box-shadow: var(--card-shadow);
   padding: 16px;
 }
 
@@ -25,7 +25,7 @@
   height: 64px;
   border-radius: 50%;
   border: 2px solid #fff;
-  background: linear-gradient(45deg, #0A356E, #125BA3);
+  background: linear-gradient(45deg, color-mix(in srgb, var(--color-primary) 60%, black), var(--color-primary));
   color: #fff;
   font-size: 24px;
   font-weight: 800;

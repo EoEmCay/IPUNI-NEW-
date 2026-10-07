@@ -41,7 +41,7 @@
 
 /* Only red dot badge when there are notifications */
 /* chấm đỏ khi có thông báo */
-.bellBtn.hasBadge { color: #0F766E; }
+.bellBtn.hasBadge { color: var(--color-primary); }
 .bellBtn.hasBadge .badge {
   animation: none;
 }

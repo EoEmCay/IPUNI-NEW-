@@ -1,10 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import {
-  Pill, CheckCircle2, Star, Settings2,
-  ScanText, CalendarPlus, AlarmClock, Radio, BarChart3, NotebookPen, Salad, Droplet, ChevronRight,
-} from 'lucide-react';
+import { Pill, CheckCircle2, Star, Settings2, Droplet, ChevronRight, ScanText } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useMedications } from '../../hooks/useMedications';
 import useMedicationsStore from '../../store/medicationsStore';
@@ -27,15 +24,16 @@ import styles from './DashboardPage.module.css';
 const BELL_CSS = { btn: styles.bellBtn, hasBadge: styles.bellHasBadge, active: styles.bellActive, badge: styles.bellBadge };
 
 // Ô tiện ích: `to` = mở trang đã có; không có `to` = chưa làm, báo "sắp ra mắt".
+// Icon 3D theo bản ý tưởng ban đầu (public/icons/tienich/<key>.png, 128px)
 const UTILITIES = [
-  { key: 'scan', label: 'Quét AI', icon: ScanText, tone: 'indigo', badge: 'MỚI', to: '/scan' },
-  { key: 'booking', label: 'Đặt lịch bác sĩ', icon: CalendarPlus, tone: 'red', badge: 'HOT' },
-  { key: 'schedule', label: 'Lịch uống thuốc', icon: AlarmClock, tone: 'amber', to: '/medications' },
-  { key: 'cgm', label: 'Kết nối CGM', icon: Radio, tone: 'gray' },
-  { key: 'adherence', label: 'Biểu đồ tuân thủ', icon: BarChart3, tone: 'blue', modal: true },
-  { key: 'diary', label: 'Nhật ký sức khỏe', icon: NotebookPen, tone: 'cyan', to: '/glucose' },
-  { key: 'nutrition', label: 'Chế độ dinh dưỡng', icon: Salad, tone: 'green', to: '/advice' },
-  { key: 'sos', label: 'Cảnh báo SOS', tone: 'sos' },
+  { key: 'scan', label: 'Quét AI', badge: 'MỚI', to: '/scan' },
+  { key: 'booking', label: 'Đặt lịch bác sĩ', badge: 'HOT' },
+  { key: 'schedule', label: 'Lịch uống thuốc', to: '/medications' },
+  { key: 'cgm', label: 'Kết nối CGM' },
+  { key: 'adherence', label: 'Biểu đồ tuân thủ', modal: true },
+  { key: 'diary', label: 'Nhật ký sức khỏe', to: '/glucose' },
+  { key: 'nutrition', label: 'Chế độ dinh dưỡng', to: '/advice' },
+  { key: 'sos', label: 'Cảnh báo SOS' },
 ];
 
 // Hình bác sĩ + người bệnh ở banner (vẽ lại từ bản thiết kế).
@@ -184,20 +182,15 @@ export default function DashboardPage() {
           </button>
         </div>
         <div className={styles.grid}>
-          {UTILITIES.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button key={item.key} type="button" className={`${styles.tile} tour-${item.key}`} onClick={() => open(item)}>
-                {item.badge && (
-                  <span className={`${styles.badge} ${item.badge === 'HOT' ? styles.badgeHot : ''}`}>{item.badge}</span>
-                )}
-                <span className={`${styles.tileIcon} ${styles[item.tone]}`}>
-                  {Icon ? <Icon size={26} aria-hidden="true" /> : <span className={styles.sosText}>SOS</span>}
-                </span>
-                <span className={styles.tileLabel}>{item.label}</span>
-              </button>
-            );
-          })}
+          {UTILITIES.map((item) => (
+            <button key={item.key} type="button" className={`${styles.tile} tour-${item.key}`} onClick={() => open(item)}>
+              {item.badge && (
+                <span className={`${styles.badge} ${item.badge === 'HOT' ? styles.badgeHot : ''}`}>{item.badge}</span>
+              )}
+              <img src={`/icons/tienich/${item.key}.png`} alt="" className={styles.tileImg} width="56" height="56" />
+              <span className={styles.tileLabel}>{item.label}</span>
+            </button>
+          ))}
         </div>
       </section>
 

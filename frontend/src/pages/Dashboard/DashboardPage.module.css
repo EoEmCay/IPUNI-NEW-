@@ -256,23 +256,13 @@
 }
 .badgeHot { background: #EF4444; }
 
-.tileIcon {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.tileImg {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  mix-blend-mode: multiply; /* nền trắng của ảnh hoà vào ô (kể cả ô ánh vàng ở giao diện Gold) */
+  pointer-events: none;
 }
-.indigo { background: #EEF2FF; color: #4F46E5; border: 2px solid #C7D2FE; }
-.red { background: #FEF2F2; color: #EF4444; border: 1px solid #FECACA; }
-.amber { background: #FFFBEB; color: #B45309; border: 2px solid #FCD34D; border-radius: 50%; }
-.gray { background: linear-gradient(#E5E7EB, #D1D5DB); color: #4B5563; border-radius: 50%; }
-.blue { background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; }
-.cyan { background: #06B6D4; color: #fff; }
-.green { background: #F0FDF4; color: #16A34A; }
-.sos { background: linear-gradient(45deg, #F43F5E, #F59E0B); color: #fff; border-radius: 50%; box-shadow: 0 4px 10px rgba(244, 63, 94, 0.35); }
-.sosText { font-size: 13px; font-weight: 900; letter-spacing: 0.08em; }
 
 .tileLabel { font-size: 14px; font-weight: 600; line-height: 1.2; color: #334155; }
 

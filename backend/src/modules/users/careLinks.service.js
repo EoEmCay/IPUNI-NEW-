@@ -1,5 +1,6 @@
 'use strict';
 const db = require('../../config/database');
+const { queue } = require('../alerts/alert.service');
 
 /** Lấy danh sách người thân (relation='family') đang theo dõi bệnh nhân hiện tại. */
 async function getFamilyLinks(patientId) {
@@ -46,7 +47,7 @@ async function upsertFamilyLink(patientId, data) {
 // 1 gia đình: tạo liên kết HAI CHIỀU, mỗi người nhận cảnh báo bỏ cữ / quên uống của người kia.
 // Dùng relation riêng 'family_account' để không đụng liên hệ người nhà (tên/email/SĐT) ở trên.
 const FAMILY = 'family_account';
-const FAMILY_ALERT_TYPES = ['missed_dose', 'skipped_dose'];
+const FAMILY_ALERT_TYPES = ['missed_dose', 'skipped_dose', 'sos'];
 const ALERT_WINDOW_HOURS = 48;
 
 const isDemoUser = (u) => Boolean(u && u.email && u.email.startsWith('demo_'));
@@ -118,7 +119,28 @@ async function ackFamilyAlert(userId, alertId) {
   await db('alert_acks').insert({ alert_id: alert.id, member_id: userId }).onConflict(['alert_id', 'member_id']).ignore();
 }
 
+// Người bệnh bấm SOS -> báo ngay mọi người nhà đang liên kết (Telegram/SMS/email qua queue +
+// hiện trong app người nhà). Bấm nhiều lần trong cùng 1 phút chỉ gửi 1 lần (dedupe theo phút).
+async function sendSos(userId) {
+  // Chỉ đếm người nhà có kênh liên lạc thật (tài khoản DIA+, email hoặc SĐT) -> không báo "đã báo" sai
+  const contacts = await db('care_links')
+    .where({ patient_id: userId, status: 'active' })
+    .andWhere((q) => q.whereNotNull('member_id').orWhereNot('contact_email', '').orWhereNot('contact_phone', ''))
+    .count('* as c').first();
+  const now = new Date();
+  const hhmm = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' });
+  await queue(userId, {
+    type: 'sos',
+    severity: 'critical',
+    title: 'Cần giúp đỡ gấp (SOS)',
+    detail: `Người bệnh vừa bấm nút SOS trên DIA+ lúc ${hhmm}. Hãy gọi điện ngay; nếu không liên lạc được, gọi cấp cứu 115.`,
+    dedupe_key: `sos:${Math.floor(now.getTime() / 60000)}`,
+  });
+  return { notified: Number((contacts && contacts.c) || 0) };
+}
+
 module.exports = {
+  sendSos,
   getFamilyLinks, upsertFamilyLink,
   joinFamilyByCode, getFamilyMembers, leaveFamily, getFamilyAlerts, ackFamilyAlert,
 };

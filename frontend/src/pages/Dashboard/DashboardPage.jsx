@@ -12,6 +12,7 @@ import { calculateAdherenceStats } from '../../store/medicationAdherenceStore';
 import { useT } from '../../hooks/useT';
 import MedicationCard from '../../components/medications/MedicationCard';
 import MedicationHistoryModal from '../../components/medications/MedicationHistoryModal';
+import SosSheet from '../../components/sos/SosSheet';
 import EmptyState from '../../components/common/EmptyState';
 import GlucoseCard from '../../components/metrics/GlucoseCard';
 import NotificationBell from '../../components/layout/NotificationBell';
@@ -96,6 +97,7 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const { medications, todayMedications, fetchToday, fetchMedications } = useMedications();
   const [showAdherence, setShowAdherence] = useState(false);
+  const [showSos, setShowSos] = useState(false);
   const medicationStatus = useMedicationsStore((s) => s.medicationStatus);
   const t = useT();
   const [soon, setSoon] = useState(null);
@@ -132,6 +134,7 @@ export default function DashboardPage() {
 
   const open = (item) => {
     if (item.to) return navigate(item.to);
+    if (item.key === 'sos') return setShowSos(true);
     if (item.modal) { fetchMedications().catch(() => {}); return setShowAdherence(true); }
     return setSoon(item.label);
   };
@@ -286,6 +289,7 @@ export default function DashboardPage() {
           {showAdherence && (
             <MedicationHistoryModal medications={medications || []} onClose={() => setShowAdherence(false)} />
           )}
+          {showSos && <SosSheet onClose={() => setShowSos(false)} />}
         </>,
         document.body,
       )}

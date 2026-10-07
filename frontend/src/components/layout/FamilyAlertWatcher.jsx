@@ -35,8 +35,10 @@ export default function FamilyAlertWatcher() {
       if (list.length > 0 && (hasNew || Date.now() >= snoozeUntil.current)) {
         // Âm thanh (giọng đã ghi cho "Báo người nhà quên/bỏ thuốc") + rung + đèn, mỗi lần khung hiện lại
         if (!openRef.current) {
-          const a = list[0];
-          notifyWithEffects(ALERT_TYPES.FAMILY, { ttsText: `${a.patient_name}: ${a.title}. Hãy gọi điện nhắc nhé.` });
+          const a = list.find((x) => x.type === 'sos') || list[0];
+          notifyWithEffects(ALERT_TYPES.FAMILY, {
+            ttsText: a.type === 'sos' ? `Khẩn cấp! ${a.patient_name} vừa bấm SOS. Hãy gọi điện ngay.` : `${a.patient_name}: ${a.title}. Hãy gọi điện nhắc nhé.`,
+          });
         }
         show(true);
       }
@@ -67,7 +69,7 @@ export default function FamilyAlertWatcher() {
   const firstName = alerts[0].patient_name;
 
   return (
-    <Modal title="Nhắc người nhà uống thuốc" onClose={remindLater}>
+    <Modal title={alerts.some((a) => a.type === 'sos') ? '🚨 Người nhà cần giúp đỡ gấp' : 'Nhắc người nhà uống thuốc'} onClose={remindLater}>
       <div className={styles.body}>
         {alerts.map((a) => (
           <div key={a.id} className={styles.alert}>

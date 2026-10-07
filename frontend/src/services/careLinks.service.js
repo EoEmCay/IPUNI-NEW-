@@ -14,4 +14,5 @@ export const careLinksService = {
   leaveFamily: (memberId) => api.delete(`/care-links/family/members/${memberId}`),
   getFamilyAlerts: () => api.get('/care-links/family/alerts'),
   ackFamilyAlert: (alertId) => api.post(`/care-links/family/alerts/${alertId}/ack`),
+  sendSos: () => api.post('/care-links/sos'),
 };

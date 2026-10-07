@@ -24,7 +24,9 @@ async function queue(patientId, alert, { doseInstant } = {}) {
   publish('clinical.alert', { patientId, alert: row });
 
   if (!row.notified_caregiver) {
-    const flag = ['missed_dose', 'skipped_dose'].includes(alert.type) ? 'alert_on_missed_dose' : 'alert_on_critical_glucose';
+    // SOS: báo MỌI người nhà đang liên kết, không lọc theo cờ bật/tắt từng loại cảnh báo
+    const flag = alert.type === 'sos' ? undefined
+      : ['missed_dose', 'skipped_dose'].includes(alert.type) ? 'alert_on_missed_dose' : 'alert_on_critical_glucose';
     await notifyCaregivers(patientId, row, { onlyFlag: flag, doseInstant });
     await db('clinical_alerts').where({ id: row.id }).update({ notified_caregiver: true });
   }

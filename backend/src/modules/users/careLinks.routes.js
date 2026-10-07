@@ -39,4 +39,9 @@ router.post('/family/alerts/:alertId/ack', async (req, res, next) => {
   try { await svc.ackFamilyAlert(req.user.id, Number(req.params.alertId)); sendSuccess(res, null, 'Đã xác nhận'); } catch (err) { next(err); }
 });
 
+// POST /api/v1/care-links/sos — Người bệnh bấm SOS: báo khẩn cho mọi người nhà
+router.post('/sos', async (req, res, next) => {
+  try { sendSuccess(res, await svc.sendSos(req.user.id), 'Đã gửi cảnh báo SOS'); } catch (err) { next(err); }
+});
+
 module.exports = router;

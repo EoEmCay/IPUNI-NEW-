@@ -432,7 +432,15 @@ Use these lines only as hints to disambiguate hard-to-read strokes (drug names, 
 
 // Using LLM (Gemini/Claude) with direct image/multimodal input for best accuracy and speed.
 // Tesseract OCR is kept as a robust fallback.
+// Mỗi model chỉ được chờ ngần này: model quá tải có thể treo hơn 3 phút rồi mới báo 503
+// (đo được 07/10 với gemini-flash-latest) -> cả lượt quét vượt 300s, Render trả 502, app không nhận kết quả.
+const MODEL_TIMEOUT_MS = 25000;
+// Hết ngân sách thì thôi thử tiếp và bỏ qua Tesseract (rất chậm trên Render free), báo lỗi để người dùng thử lại.
+const SCAN_BUDGET_MS = 100000;
+
 async function analyzePrescription(imageBuffer, mimeType, lang = 'vi') {
+  const startedAt = Date.now();
+  const overBudget = () => Date.now() - startedAt > SCAN_BUDGET_MS;
   if (!imageBuffer) {
     throw new Error('Không nhận được dữ liệu hình ảnh.');
   }
@@ -448,14 +456,14 @@ async function analyzePrescription(imageBuffer, mimeType, lang = 'vi') {
   // 1. ƯU TIÊN HÀNG ĐẦU: Gửi hình ảnh trực tiếp (Multimodal Vision AI) cho Gemini
   // Giúp giảm thời gian từ >30 giây xuống chỉ còn 1.5 - 2.5 giây!
   if (process.env.GEMINI_API_KEY) {
-    // Ưu tiên model đọc chữ tay tốt và ổn định (flash) trước bản lite: lite nhanh hơn nhưng đọc chữ
-    // ngoáy kém hơn. Quota free-tier tính RIÊNG từng model, nên nhiều model trong danh sách cũng giúp
-    // còn model để lùi về khi 1 model bị 429/503. GEMINI_MODEL (nếu đặt) chen vào sau 2 model chính.
+    // Thứ tự theo đo thực tế 07/10: 2.5-flash đọc chữ tay tốt, flash-lite-latest nhanh (~5s) và hầu như
+    // luôn trả lời; flash-latest hay quá tải nên để sau. Quota free-tier tính RIÊNG từng model, nhiều model
+    // = còn chỗ lùi khi 1 model bị 429/503. Mỗi model tối đa MODEL_TIMEOUT_MS.
     const rawCandidates = [
-      'gemini-flash-latest',
       'gemini-2.5-flash',
-      process.env.GEMINI_MODEL,
       'gemini-flash-lite-latest',
+      process.env.GEMINI_MODEL,
+      'gemini-flash-latest',
       'gemini-2.5-flash-lite',
       'gemini-3.5-flash',
       'gemini-3.6-flash'
@@ -465,6 +473,7 @@ async function analyzePrescription(imageBuffer, mimeType, lang = 'vi') {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
     for (const modelName of candidateModels) {
+      if (overBudget()) break;
       try {
         logger.info(`[Quét đơn thuốc] Phân tích ảnh trực tiếp bằng Google Gemini Vision (${modelName})...`);
         const model = genAI.getGenerativeModel({
@@ -473,7 +482,7 @@ async function analyzePrescription(imageBuffer, mimeType, lang = 'vi') {
             responseMimeType: 'application/json',
             maxOutputTokens: 8192
           }
-        });
+        }, { timeout: MODEL_TIMEOUT_MS });
 
         const imagePart = {
           inlineData: {
@@ -501,7 +510,7 @@ async function analyzePrescription(imageBuffer, mimeType, lang = 'vi') {
   }
 
   // 2. FALLBACK 1: Gửi hình ảnh trực tiếp cho Anthropic Claude
-  if (!directText && process.env.ANTHROPIC_API_KEY) {
+  if (!directText && process.env.ANTHROPIC_API_KEY && !overBudget()) {
     try {
       logger.info("[Quét đơn thuốc] Phân tích ảnh trực tiếp bằng Anthropic Claude...");
       const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -546,6 +555,11 @@ async function analyzePrescription(imageBuffer, mimeType, lang = 'vi') {
     return shapeResult({ medications: trocr.medications.map(m => ({ ...m, times: [] })) });
   }
 
+  if (overBudget()) {
+    logger.error(`[Quét đơn thuốc] Hết thời gian (${Math.round((Date.now() - startedAt) / 1000)}s) - các AI đều quá tải/lỗi`);
+    throw new Error('Máy chủ AI đang quá tải, chưa đọc được đơn. Vui lòng thử lại sau ít phút.');
+  }
+
   // 3. FALLBACK 2: Trích xuất chữ bằng Tesseract OCR nếu các AI Vision đều không hoạt động
   logger.info("[Quét đơn thuốc] Kích hoạt Fallback - Trích xuất chữ bằng Tesseract OCR...");
   const tessdataDir = path.join(__dirname, '../../../database/tessdata');
@@ -555,7 +569,9 @@ async function analyzePrescription(imageBuffer, mimeType, lang = 'vi') {
 
   let ocrText = '';
   try {
-    const ocrResult = await Tesseract.recognize(
+    // Tesseract không có timeout riêng - giới hạn trong phần ngân sách còn lại.
+    const remaining = Math.max(SCAN_BUDGET_MS - (Date.now() - startedAt), 1000);
+    const ocrResult = await Promise.race([Tesseract.recognize(
       imageBuffer,
       'vie+eng',
       {
@@ -566,7 +582,7 @@ async function analyzePrescription(imageBuffer, mimeType, lang = 'vi') {
           }
         }
       }
-    );
+    ), new Promise((_, reject) => setTimeout(() => reject(new Error(`Tesseract quá ${Math.round(remaining / 1000)}s`)), remaining))]);
     ocrText = ocrResult.data.text || '';
     logger.info(`[Quét đơn thuốc] Trích xuất Tesseract hoàn tất. Độ dài: ${ocrText.length} ký tự.`);
   } catch (ocrError) {
@@ -588,7 +604,7 @@ ${ocrText}
         const model = genAI.getGenerativeModel({
           model: modelName,
           generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 8192 }
-        });
+        }, { timeout: MODEL_TIMEOUT_MS });
         const result = await model.generateContent([promptWithOcr]);
         const text = result.response.text();
         if (text) {

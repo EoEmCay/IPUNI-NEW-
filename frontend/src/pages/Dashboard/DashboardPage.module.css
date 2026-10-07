@@ -40,14 +40,16 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  font-size: 14px;
-  font-weight: 800;
-  line-height: 1.05;
+  gap: 2px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.3; /* đủ chỗ cho dấu Ộ/Ặ/Ệ, không đè nhau */
+  letter-spacing: 0.06em;
   color: #78350F;
   text-align: left;
   white-space: nowrap;
 }
-.vipSub { font-size: 12px; font-weight: 700; }
+.vipSub { font: inherit; }
 
 .greetRow { display: flex; align-items: center; gap: 14px; }
 

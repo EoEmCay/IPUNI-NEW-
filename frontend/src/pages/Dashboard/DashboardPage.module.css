@@ -336,3 +336,20 @@
   .grid { gap: 8px; }
   .tileLabel { font-size: 13px; }
 }
+
+/* ── Giao diện Gold (mở bằng mã đối tác): đổi các màu teal/xanh viết cứng ở trên sang tông vàng.
+   Biểu tượng tiện ích giữ nhiều màu để người lớn tuổi phân biệt từng ô. ── */
+:global([data-theme="gold"]) .page {
+  background: radial-gradient(130% 60% at 50% 0%, #FFF1C9 0%, #FFF7E0 35%, #FFFCF0 70%, #FFF8E7 100%);
+}
+:global([data-theme="gold"]) .banner { background: linear-gradient(135deg, #4A3000 0%, #7A5200 55%, #A87412 100%); }
+:global([data-theme="gold"]) .bannerBrand,
+:global([data-theme="gold"]) .bannerIcon { color: #FDE68A; }
+:global([data-theme="gold"]) .bannerTag,
+:global([data-theme="gold"]) .bannerLink { color: #FEF3C7; }
+:global([data-theme="gold"]) .bannerTitle span { color: #FCD34D; }
+:global([data-theme="gold"]) .bannerLink { border-color: rgba(253, 230, 138, 0.45); }
+:global([data-theme="gold"]) .gridIcon i { background: var(--color-primary); }
+:global([data-theme="gold"]) .customize,
+:global([data-theme="gold"]) .bellHasBadge { color: var(--color-primary); }
+:global([data-theme="gold"]) .tile { box-shadow: 0 4px 18px rgba(201, 146, 26, 0.10), 0 1px 3px rgba(0, 0, 0, 0.03); }

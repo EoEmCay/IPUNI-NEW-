@@ -11,6 +11,7 @@ import useMedicationsStore from '../../store/medicationsStore';
 import { calculateAdherenceStats } from '../../store/medicationAdherenceStore';
 import { useT } from '../../hooks/useT';
 import MedicationCard from '../../components/medications/MedicationCard';
+import MedicationHistoryModal from '../../components/medications/MedicationHistoryModal';
 import EmptyState from '../../components/common/EmptyState';
 import GlucoseCard from '../../components/metrics/GlucoseCard';
 import NotificationBell from '../../components/layout/NotificationBell';
@@ -25,7 +26,7 @@ const UTILITIES = [
   { key: 'booking', label: 'Đặt lịch bác sĩ', icon: CalendarPlus, tone: 'red', badge: 'HOT' },
   { key: 'schedule', label: 'Lịch uống thuốc', icon: AlarmClock, tone: 'amber', to: '/medications' },
   { key: 'cgm', label: 'Kết nối CGM', icon: Radio, tone: 'gray' },
-  { key: 'adherence', label: 'Biểu đồ tuân thủ', icon: BarChart3, tone: 'blue' },
+  { key: 'adherence', label: 'Biểu đồ tuân thủ', icon: BarChart3, tone: 'blue', modal: true },
   { key: 'diary', label: 'Nhật ký sức khỏe', icon: NotebookPen, tone: 'cyan', to: '/glucose' },
   { key: 'nutrition', label: 'Chế độ dinh dưỡng', icon: Salad, tone: 'green', to: '/advice' },
   { key: 'sos', label: 'Cảnh báo SOS', tone: 'sos' },
@@ -93,7 +94,8 @@ function MascotFace() {
 export default function DashboardPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { todayMedications, fetchToday } = useMedications();
+  const { medications, todayMedications, fetchToday, fetchMedications } = useMedications();
+  const [showAdherence, setShowAdherence] = useState(false);
   const medicationStatus = useMedicationsStore((s) => s.medicationStatus);
   const t = useT();
   const [soon, setSoon] = useState(null);
@@ -128,7 +130,11 @@ export default function DashboardPage() {
   const part = dayPart();
   const PartIcon = part.icon;
 
-  const open = (item) => (item.to ? navigate(item.to) : setSoon(item.label));
+  const open = (item) => {
+    if (item.to) return navigate(item.to);
+    if (item.modal) { fetchMedications().catch(() => {}); return setShowAdherence(true); }
+    return setSoon(item.label);
+  };
   const onCarouselScroll = (e) => {
     const el = e.currentTarget;
     setSlide(Math.round(el.scrollLeft / el.clientWidth));
@@ -277,6 +283,9 @@ export default function DashboardPage() {
             </button>
           )}
           {soon && <div className={styles.soonToast} role="status">{soon} sắp ra mắt</div>}
+          {showAdherence && (
+            <MedicationHistoryModal medications={medications || []} onClose={() => setShowAdherence(false)} />
+          )}
         </>,
         document.body,
       )}

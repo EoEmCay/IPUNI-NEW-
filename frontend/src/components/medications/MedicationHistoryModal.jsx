@@ -178,6 +178,29 @@ export default function MedicationHistoryModal({ medications = [], onClose, init
               </div>
             </div>
 
+            {/* Biểu đồ cột 7 ngày (cũ -> mới), cùng nguồn số liệu với danh sách bên dưới */}
+            <div
+              role="img"
+              aria-label={`Biểu đồ tuân thủ 7 ngày: ${[...stats.history].reverse().map((d) => `${d.dateLabel} ${d.scheduled ? `${d.score}%` : 'không có cữ'}`).join(', ')}`}
+              style={{ display: 'flex', alignItems: 'flex-end', gap: 6, height: 150, marginBottom: 18, padding: '0 2px' }}
+            >
+              {[...stats.history].reverse().map((day, i, arr) => {
+                const none = day.scheduled === 0;
+                // Hôm nay chưa hết ngày -> chưa đủ cữ là "đang diễn ra" (xanh dương), không tô đỏ gây hoảng
+                const isToday = i === arr.length - 1;
+                const color = none ? '#CBD5E1' : day.score === 100 ? '#16A34A' : isToday ? '#0EA5E9' : day.score >= 50 ? '#F59E0B' : '#DC2626';
+                return (
+                  <div key={day.date} aria-hidden="true" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', justifyContent: 'flex-end' }}>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: none ? '#94A3B8' : '#1E293B' }}>{none ? '—' : `${day.score}%`}</span>
+                    <div style={{ width: '100%', maxWidth: 34, height: `${none ? 4 : Math.max(day.score, 4)}%`, background: color, borderRadius: '6px 6px 0 0', marginTop: 4 }} />
+                    <span style={{ fontSize: 14, color: '#475569', marginTop: 6, fontWeight: isToday ? 800 : 500 }}>
+                      {isToday ? 'Nay' : new Date(day.date).toLocaleDateString('vi-VN', { weekday: 'short' })}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
             {/* Daily History List (7 Days) */}
             <div style={{ fontWeight: 700, fontSize: 17, color: '#1E293B', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Calendar size={16} color="#2563EB" /> Chi Tiết 7 Ngày Qua

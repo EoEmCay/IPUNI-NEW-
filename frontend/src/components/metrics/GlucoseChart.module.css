@@ -2,7 +2,7 @@
 
 .svg { width: 100%; height: auto; display: block; overflow: visible; }
 
-.safe { fill: #22C55E; opacity: 0.1; }
+.band { opacity: 0.12; }
 .grid { stroke: var(--color-border); stroke-width: 1; }
 .line { fill: none; stroke: var(--color-primary); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; }
 .axisLine { stroke: var(--color-text-secondary); stroke-width: 1.2; opacity: 0.5; }
@@ -31,5 +31,5 @@
 }
 
 .legend li { display: inline-flex; align-items: center; gap: 6px; }
-.legend span { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
-.legendSafe span { border-radius: 3px; background: #22C55E; opacity: 0.35; }
+.legend span { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.legend small { font-size: 14px; opacity: 0.85; }

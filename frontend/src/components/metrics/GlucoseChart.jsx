@@ -4,9 +4,17 @@ import { formatGlucose, MMOL_TO_MGDL } from '../../utils/glucoseUnit';
 import { monotonePath, niceStep } from '../../utils/chartPath';
 import styles from './GlucoseChart.module.css';
 
-// Vùng an toàn theo đồng thuận quốc tế "Time in Range": 3.9–10 mmol/L (70–180 mg/dL)
+// Vùng màu nền theo đồng thuận quốc tế "Time in Range" (mmol/L): <3.9 thấp, 3.9–10 trong mục tiêu,
+// 10–13.9 cao, >13.9 rất cao. Màu trùng màu chấm trạng thái (tím / xanh / cam / đỏ).
 const SAFE_LOW = 3.9;
 const SAFE_HIGH = 10;
+const VERY_HIGH = 13.9;
+const BANDS = [
+  { from: 0, to: SAFE_LOW, color: STATUS_COLORS.low, label: 'Thấp', mmol: '< 3.9', mg: '< 70' },
+  { from: SAFE_LOW, to: SAFE_HIGH, color: STATUS_COLORS.normal, label: 'Bình thường', mmol: '3.9–10', mg: '70–180' },
+  { from: SAFE_HIGH, to: VERY_HIGH, color: STATUS_COLORS.above_target, label: 'Hơi cao', mmol: '10–13.9', mg: '180–250' },
+  { from: VERY_HIGH, to: Infinity, color: STATUS_COLORS.danger, label: 'Cao', mmol: '> 13.9', mg: '> 250' },
+];
 const W = 340, H = 250, PAD = { l: 46, r: 20, t: 34, b: 48 };
 
 const pad2 = (n) => String(n).padStart(2, '0');
@@ -47,10 +55,14 @@ export default function GlucoseChart({ readings, unit, diagnosis }) {
           </linearGradient>
         </defs>
 
-        <rect x={PAD.l} y={y(SAFE_HIGH * k)} width={plotW} height={y(SAFE_LOW * k) - y(SAFE_HIGH * k)} className={styles.safe} />
+        {BANDS.map((b) => {
+          const top = Math.min(b.to * k, hi);
+          if (b.from * k >= hi) return null;
+          return <rect key={b.label} x={PAD.l} y={y(top)} width={plotW} height={y(b.from * k) - y(top)} fill={b.color} className={styles.band} />;
+        })}
 
         {/* Trục Y: đơn vị + mốc chia */}
-        <text x={PAD.l - 8} y={PAD.t - 16} textAnchor="end" className={styles.axisTitle}>{unit}</text>
+        <text x={2} y={PAD.t - 16} textAnchor="start" className={styles.axisTitle}>{unit}</text>
         {yTicks.map((t) => (
           <g key={t}>
             <line x1={PAD.l} x2={W - PAD.r} y1={y(t)} y2={y(t)} className={styles.grid} />
@@ -85,11 +97,9 @@ export default function GlucoseChart({ readings, unit, diagnosis }) {
         })}
       </svg>
       <ul className={styles.legend}>
-        <li><span style={{ background: STATUS_COLORS.low }} />Thấp</li>
-        <li><span style={{ background: STATUS_COLORS.normal }} />Bình thường</li>
-        <li><span style={{ background: STATUS_COLORS.above_target }} />Hơi cao</li>
-        <li><span style={{ background: STATUS_COLORS.danger }} />Cao</li>
-        <li className={styles.legendSafe}><span />Vùng an toàn {unit === 'mg/dL' ? '70–180' : '3.9–10'} {unit}</li>
+        {BANDS.map((b) => (
+          <li key={b.label}><span style={{ background: b.color }} />{b.label} <small>{unit === 'mg/dL' ? b.mg : b.mmol}</small></li>
+        ))}
       </ul>
     </div>
   );

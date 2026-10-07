@@ -58,6 +58,8 @@ export default function ProfilePage() {
         </button>
       </nav>
 
+      <p className={styles.version}>Phiên bản {import.meta.env.VITE_BUILD_TIME || 'thử nghiệm'}</p>
+
       {modal === 'profile' && <UserProfileModal onClose={() => setModal(null)} />}
       {modal === 'theme' && <GiaoDienModal onClose={() => setModal(null)} />}
     </div>

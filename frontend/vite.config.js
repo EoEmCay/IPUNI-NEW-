@@ -2,7 +2,11 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { spawn } from 'child_process';
 
+// Giờ build (giờ VN) - hiện ở cuối trang Hồ sơ để biết máy đang chạy bản nào
+const BUILD_TIME = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' });
+
 export default defineConfig({
+  define: { 'import.meta.env.VITE_BUILD_TIME': JSON.stringify(BUILD_TIME) },
   plugins: [
     react(),
     {

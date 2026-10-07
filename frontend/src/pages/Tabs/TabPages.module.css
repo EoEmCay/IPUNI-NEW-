@@ -88,3 +88,5 @@
 }
 .soonTitle { margin: 0; font-size: 22px; font-weight: 800; color: #0F172A; }
 .soonText { margin: 0; font-size: 17px; color: var(--color-text-secondary); }
+
+.version { margin: 0; text-align: center; font-size: 14px; color: var(--color-text-secondary); }

@@ -21,13 +21,15 @@ import styles from './ScanPrescriptionPage.module.css';
 import { useNavigate } from 'react-router-dom';
 import { estimateDaysFromQuantity } from '../utils/prescription';
 
-// Thông điệp tiến trình đổi theo giây trong lúc AI phân tích - tạo cảm giác thời gian
-// trôi nhanh hơn thay vì 1 dòng chữ đứng yên suốt quá trình chờ.
+// Thông điệp tiến trình theo giây, canh theo thời gian quét thật (đo 07/10: 10-35s, chữ tay khó
+// thì AI "suy nghĩ" lâu). Trước đây hết bước ở giây 6 và thanh đứng 95% suốt 20-30s -> tưởng treo.
 const ANALYZE_STEPS = [
-  { text: 'Đang tối ưu và xử lý độ nét của ảnh...' },
-  { text: 'AI Gemini Vision đang đọc chữ viết & đơn thuốc...' },
-  { text: 'Đang bóc tách tên thuốc, liều dùng & giờ uống...' },
-  { text: 'Đang đồng bộ lời dặn bác sĩ & chỉ số xét nghiệm...' },
+  { from: 0, text: 'Đang gửi ảnh đơn thuốc...' },
+  { from: 3, text: 'Đang đọc chẩn đoán và phần chữ in...' },
+  { from: 8, text: 'Đang giải mã chữ viết tay của bác sĩ...' },
+  { from: 16, text: 'Đang đối chiếu tên thuốc, liều dùng & giờ uống...' },
+  { from: 24, text: 'Đang kiểm tra lại liều và lời dặn bác sĩ...' },
+  { from: 35, text: 'Chữ viết tay khó đọc, AI đang đọc kỹ hơn. Vui lòng chờ thêm chút...' },
 ];
 
 const HEALTH_TIPS = [
@@ -403,9 +405,10 @@ export default function ScanPrescriptionPage() {
   if (isAnalyzing) {
     // Giữ nguyên TopBar/BottomNav (không dùng SplashScreen toàn màn hình) - người dùng
     // đang thao tác trong app, không phải đang mở/đăng nhập lại app.
-    const stepIndex = analyzeElapsed < 2 ? 0 : analyzeElapsed < 4 ? 1 : analyzeElapsed < 6 ? 2 : 3;
+    const stepIndex = ANALYZE_STEPS.filter((st) => analyzeElapsed >= st.from).length - 1;
     const step = ANALYZE_STEPS[stepIndex];
-    const progress = Math.min(95, 15 + analyzeElapsed * 9);
+    // Tăng nhanh lúc đầu rồi chậm dần (~65% ở giây 15, ~90% ở giây 35) - luôn còn nhích, không đứng hẳn.
+    const progress = Math.round(8 + 87 * (1 - Math.exp(-analyzeElapsed / 15)));
     const tip = HEALTH_TIPS[(tipOffset + Math.floor(analyzeElapsed / 5)) % HEALTH_TIPS.length];
 
     return (

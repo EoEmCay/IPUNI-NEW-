@@ -1,6 +1,7 @@
 import api from './api';
 
-const compressImage = (file, maxWidth = 800, maxHeight = 800) => {
+// 1600px: chữ viết tay cần đủ điểm ảnh để đọc nét (800px làm mờ nét chữ nhỏ). Ảnh JPEG 0.8 vẫn chỉ vài trăm KB.
+const compressImage = (file, maxWidth = 1600, maxHeight = 1600) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);

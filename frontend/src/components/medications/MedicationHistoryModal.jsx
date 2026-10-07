@@ -194,7 +194,7 @@ export default function MedicationHistoryModal({ medications = [], onClose, init
                     <span style={{ fontSize: 14, fontWeight: 700, color: none ? '#94A3B8' : '#1E293B' }}>{none ? '—' : `${day.score}%`}</span>
                     <div style={{ width: '100%', maxWidth: 34, height: `${none ? 4 : Math.max(day.score, 4)}%`, background: color, borderRadius: '6px 6px 0 0', marginTop: 4 }} />
                     <span style={{ fontSize: 14, color: '#475569', marginTop: 6, fontWeight: isToday ? 800 : 500 }}>
-                      {isToday ? 'Nay' : new Date(day.date).toLocaleDateString('vi-VN', { weekday: 'short' })}
+                      {isToday ? 'Nay' : new Date(`${day.date}T00:00`).toLocaleDateString('vi-VN', { weekday: 'short' })}
                     </span>
                   </div>
                 );

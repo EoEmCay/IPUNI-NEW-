@@ -20,6 +20,7 @@ import { INSULIN_PATTERN } from '../utils/medForm';
 import styles from './ScanPrescriptionPage.module.css';
 import { useNavigate } from 'react-router-dom';
 import { estimateDaysFromQuantity } from '../utils/prescription';
+import { localYmd } from '../utils/date';
 
 // Thông điệp tiến trình theo giây, canh theo thời gian quét thật (đo 07/10: 10-35s, chữ tay khó
 // thì AI "suy nghĩ" lâu). Trước đây hết bước ở giây 6 và thanh đứng 95% suốt 20-30s -> tưởng treo.
@@ -90,7 +91,7 @@ const compressPrescriptionPhoto = (file) => {
 export const getMedScheduleDetails = (med, prescriptionDate) => {
   if (!med) return { duration: null, startDateStr: '', endDateStr: '', formattedStartDate: '', formattedEndDate: '', isAlternate: false };
 
-  const startDateStr = prescriptionDate || new Date().toISOString().split('T')[0];
+  const startDateStr = prescriptionDate || localYmd();
   let duration = med.durationDays || null;
 
   if (!duration) {
@@ -301,7 +302,7 @@ export default function ScanPrescriptionPage() {
         try {
           await appointmentsService.create({
             doctor_name: result.doctorName || (t.scanResult?.doctorDefault || 'Không rõ bác sĩ'),
-            scheduled_at: result.prescriptionDate || new Date().toISOString().split('T')[0],
+            scheduled_at: result.prescriptionDate || localYmd(),
             note: result.doctorNotes || (t.scanResult?.noteDefault || 'Không có chỉ dẫn thêm'),
             status: 'completed'
           });
@@ -556,7 +557,7 @@ export default function ScanPrescriptionPage() {
                             <span className={styles.compactMedsCountBadge}>{editableMeds.length} loại thuốc</span>
                           </div>
                           <p className={styles.compactImageDate}>
-                            Ngày kê: {result.prescriptionDate || new Date().toISOString().split('T')[0]}
+                            Ngày kê: {result.prescriptionDate || localYmd()}
                           </p>
                           <button 
                             type="button" 

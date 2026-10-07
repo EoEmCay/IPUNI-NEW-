@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { isDoseScheduledForDate, hasCountableDoseOn, extractMedicationTimes } from '../utils/medicationTime';
 import { medicationsService } from '../services/medications.service';
 import { buildTodayInstant } from '../lib/medReminders';
+import { localYmd } from '../utils/date';
 
 const LOGS_STORAGE_KEY = 'diaplus_medication_intake_logs_v1';
 const CAREGIVER_STORAGE_KEY = 'diaplus_caregiver_info_v1';
@@ -20,7 +21,7 @@ export const useMedicationAdherenceStore = create((set, get) => ({
       const res = await medicationsService.getLogs(days);
       const map = {};
       for (const l of res.data.data || []) {
-        const ymd = new Date(l.scheduled_for).toISOString().slice(0, 10);
+        const ymd = localYmd(l.scheduled_for);
         map[keyFor(l.medication_id, l.slot_time, ymd)] = l.status;
       }
       set({ doseStatus: map });
@@ -28,7 +29,7 @@ export const useMedicationAdherenceStore = create((set, get) => ({
   },
 
   async logDose(medId, { slot, scheduledFor, status = 'taken' } = {}) {
-    const ymd = (scheduledFor ? new Date(scheduledFor) : new Date()).toISOString().slice(0, 10);
+    const ymd = localYmd(scheduledFor || new Date());
     const k = keyFor(medId, slot, ymd);
     const prev = get().doseStatus[k];
     set((s) => ({ doseStatus: { ...s.doseStatus, [k]: status } })); // optimistic
@@ -77,7 +78,7 @@ export function saveIntakeLogs(logs) {
 // Ghi nhận một cữ uống thuốc
 // slotTime: cữ đang xác nhận ("07:00") - gửi kèm để server ghi đúng cữ, không phải đoán cữ gần nhất.
 export function recordMedicationIntake(medication, status = 'taken', dateObj = new Date(), reason = null, slotTime = null) {
-  const dateStr = dateObj.toISOString().slice(0, 10);
+  const dateStr = localYmd(dateObj);
   const nowTime = dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
   const logs = getIntakeLogs();
 
@@ -176,7 +177,7 @@ export function calculateAdherenceStats(medications = [], days = 7) {
   for (let i = 0; i < days; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() - i);
-    const dateStr = d.toISOString().slice(0, 10);
+    const dateStr = localYmd(d);
 
     let dayScheduled = 0;
     let dayTaken = 0;

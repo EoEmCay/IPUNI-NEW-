@@ -169,6 +169,7 @@ JSON Schema:
   "prescriptionDate": "Prescription date in YYYY-MM-DD format" or null,
   "nextAppointmentDate": "Next appointment date in YYYY-MM-DD format" or null,
   "diagnosis": "Detailed diagnosis in ${targetLang}" or null,
+  "handwrittenLines": ["Verbatim transcription (in ${targetLang}, expand shorthand) of EVERY handwritten line on the paper, top to bottom, one array item per line - drug lines, dose lines, advice, anything written by hand. Never skip a line: if it is hard to read, give your best reading and add '(?)'. Empty array only if there is no handwriting at all"],
   "doctorNotes": "EVERYTHING the doctor wrote as advice/notes in ${targetLang}: the printed 'Lời dặn' text AND every handwritten line under or around it (handwritten notes are often the most important part), transcribed in reading order and joined with '; '. Example: 'Mang đơn này đi khám lần sau; Mua: Insulin 30/70 tiêm sáng 18 đơn vị, chiều 12 đơn vị; Glucophage'. Handwritten drug lines must ALSO appear in medications. Do not drop a handwritten line just because it is hard to read - transcribe your best reading" or null,
   "medications": [{
     "name": "Drug name only, as written on the prescription after decoding (e.g. Metformin, Diamicron MR, Lantus)",
@@ -183,6 +184,7 @@ JSON Schema:
     "instructions": "Full usage instructions in ${targetLang}",
     "route": "Route of administration in Vietnamese: 'uống' (tablets, capsules, sachets, syrup), 'tiêm dưới da' (insulin, GLP-1 pens like Ozempic/Trulicity/Victoza), 'tiêm bắp', 'tiêm tĩnh mạch', 'bôi', 'nhỏ', 'xịt'",
     "isDiabetesDrug": true/false (true if this medication is specifically for diabetes/lowering blood glucose/insulin),
+    "handwritten": true/false (true if this drug was written by hand rather than printed),
     "detail": {
       "purpose": "Brief drug purpose in ${targetLang}, phrased as a general educational summary. Do NOT invent or cite a specific publication/source.",
       "mechanism": "Brief mechanism of action in ${targetLang}, phrased as a general educational summary. Do NOT invent or cite a specific publication/source.",
@@ -265,6 +267,22 @@ function normalizeDrugName(name) {
   if (!hit || hit.score === 1) return name;
   const canonical = hit.term.replace(/\b\w/g, c => c.toUpperCase());
   return name.replace(new RegExp(hit.word, 'i'), canonical);
+}
+
+// Lời dặn = dòng in "Lời dặn" + MỌI dòng chữ tay + thuốc viết tay (kèm cách dùng). Ghép bằng code để
+// chắc chắn chữ tay luôn hiện ở mục Lời dặn, kể cả khi AI quên đưa vào doctorNotes.
+function composeDoctorNotes(parsed, medications) {
+  const parts = [];
+  // So khớp bỏ dấu/dấu câu, "đv" = "đơn vị": "Sáng 28 đv" và "Sáng 28 đơn vị" là cùng 1 dòng.
+  const key = (text) => String(text).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd')
+    .replace(/\bdv\b/g, 'don vi').replace(/[^a-z0-9]/g, '');
+  const has = (text) => key(parts.join(' ')).includes(key(text));
+  const add = (text) => { const t = String(text || '').trim(); if (t && !has(t)) parts.push(t); };
+  String(parsed.doctorNotes || parsed.doctor_notes || parsed.notes || '').split(/\s*;\s*/).forEach(add);
+  (Array.isArray(parsed.handwrittenLines) ? parsed.handwrittenLines : []).forEach(add);
+  medications.filter(m => m.handwritten && m.name && !has(m.name))
+    .forEach(m => add(`${m.name}${m.instructions ? `: ${m.instructions}` : ''}`));
+  return parts.length ? parts.join('; ') : null;
 }
 
 function shapeResult(parsed) {
@@ -350,7 +368,8 @@ function shapeResult(parsed) {
     prescriptionDate: parsed.prescriptionDate || parsed.prescription_date || parsed.date || null,
     nextAppointmentDate: parsed.nextAppointmentDate || parsed.next_appointment_date || parsed.follow_up_date || null,
     diagnosis: parsed.diagnosis || null,
-    doctorNotes: parsed.doctorNotes || parsed.doctor_notes || parsed.notes || null,
+    doctorNotes: composeDoctorNotes(parsed, medications),
+    handwrittenLines: Array.isArray(parsed.handwrittenLines) ? parsed.handwrittenLines : [],
     metrics: Array.isArray(parsed.metrics) ? parsed.metrics : [],
     error: parsed.error || null,
   };

@@ -228,7 +228,7 @@ export default function DashboardPage() {
           {UTILITIES.map((item) => {
             const Icon = item.icon;
             return (
-              <button key={item.key} type="button" className={styles.tile} onClick={() => open(item)}>
+              <button key={item.key} type="button" className={`${styles.tile} tour-${item.key}`} onClick={() => open(item)}>
                 {item.badge && (
                   <span className={`${styles.badge} ${item.badge === 'HOT' ? styles.badgeHot : ''}`}>{item.badge}</span>
                 )}
@@ -246,7 +246,7 @@ export default function DashboardPage() {
       <div className={styles.quickRow}>
         <button
           type="button"
-          className={`${styles.quick} tour-step-3`}
+          className={`${styles.quick} tour-meds`}
           onClick={() => (todayMedications.length ? setShowMeds(true) : navigate('/scan'))}
         >
           <span className={styles.quickHead}><Pill size={20} aria-hidden="true" /> {t.dashboard.todayMeds}</span>
@@ -261,7 +261,7 @@ export default function DashboardPage() {
           </span>
         </button>
 
-        <button type="button" className={styles.quick} onClick={() => setShowGlucose(true)}>
+        <button type="button" className={`${styles.quick} tour-glucose`} onClick={() => setShowGlucose(true)}>
           <span className={styles.quickHead}><Droplet size={20} aria-hidden="true" /> Đường huyết</span>
           {latest ? (
             <span className={styles.quickValue} style={{ color: STATUS_COLORS[latestStatus] }}>

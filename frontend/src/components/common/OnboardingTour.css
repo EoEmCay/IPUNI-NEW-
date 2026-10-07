@@ -1,10 +1,10 @@
 /* Global CSS overrides for driver.js for high visibility (elderly users) */
 .driver-popover {
-  max-width: 92vw !important;
+  max-width: min(92vw, 420px) !important;
   font-family: var(--sans, system-ui, -apple-system, sans-serif) !important;
   z-index: 100000 !important;
   border-radius: 16px !important;
-  border: 3px solid #1B5FA6 !important;
+  border: 3px solid var(--color-primary) !important;
   box-shadow: 0 12px 30px rgba(0,0,0,0.35) !important;
   background-color: #F8FAFC !important; /* Slightly distinct background */
   padding: 20px !important;
@@ -13,7 +13,7 @@
 .driver-popover-title {
   font-weight: 800 !important;
   font-size: 22px !important;
-  color: #1B5FA6 !important;
+  color: var(--color-primary) !important;
   margin-bottom: 12px !important;
   border-bottom: 2px solid #E2E8F0 !important;
   padding-bottom: 8px !important;
@@ -30,27 +30,30 @@
   margin-top: 20px !important;
 }
 
-.driver-popover-btn-next,
-.driver-popover-btn-done {
+.driver-popover-next-btn {
   border-radius: 24px !important;
   font-weight: 700 !important;
   font-size: 18px !important;
-  background-color: #1B5FA6 !important;
+  background-color: var(--color-primary) !important;
   color: white !important;
+  min-height: 48px !important;
   padding: 10px 20px !important;
   text-shadow: none !important;
   border: none !important;
 }
 
-.driver-popover-btn-prev {
+.driver-popover-prev-btn {
   border-radius: 24px !important;
   font-weight: 600 !important;
   font-size: 17px !important;
   color: #64748B !important;
   background-color: #F1F5F9 !important;
+  min-height: 48px !important;
   padding: 10px 16px !important;
   border: none !important;
 }
+
+.driver-popover-progress-text { font-size: 15px !important; }
 
 .driver-overlay {
   z-index: 99999 !important;
@@ -60,3 +63,11 @@
 .driver-active-element * {
   z-index: 100001 !important;
 }
+
+/* Hộp "Chào mừng" (chọn xem hướng dẫn) — nút to cho người lớn tuổi */
+.tour-choice { display: flex; flex-direction: column; gap: 12px; text-align: center; }
+.tour-choice-desc { margin: 0 0 4px; font-size: 18px; line-height: 1.5; color: var(--color-text-primary); }
+.tour-choice-start,
+.tour-choice-skip { min-height: 56px; border-radius: var(--radius-md); font-size: 18px; font-weight: 700; }
+.tour-choice-start { background: var(--color-primary); color: #fff; }
+.tour-choice-skip { background: var(--color-surface); color: var(--color-text-secondary); border: 1.5px solid var(--color-border); }

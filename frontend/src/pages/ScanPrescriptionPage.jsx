@@ -442,7 +442,7 @@ export default function ScanPrescriptionPage() {
 
   return (
     <div className={styles.page}>
-      <div className={`${styles.header} tour-step-5`}>
+      <div className={styles.header}>
         <div className={styles.headerTop}>
           <h1>{t.scan.title}</h1>
           <button 

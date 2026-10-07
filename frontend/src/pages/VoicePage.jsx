@@ -127,7 +127,7 @@ export default function VoicePage() {
 
   return (
     <div className={styles.page}>
-      <div className={`${styles.header} tour-step-8`}>
+      <div className={styles.header}>
         <div className={styles.headerTop}>
           <Mic size={24} />
           <h1>Giọng nhắc</h1>

@@ -37,7 +37,7 @@ export default function MedicationsPage() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <h1 className={`${styles.title} tour-step-6`}>Tủ thuốc</h1>
+        <h1 className={styles.title}>Tủ thuốc</h1>
         <button type="button" className={styles.addBtn} onClick={() => setShowAddChoice(true)}>
           <Plus size={22} aria-hidden="true" /> Thêm thuốc
         </button>

@@ -13,7 +13,7 @@ const ITEMS = [
 
 export default function BottomNav() {
   return (
-    <nav className={styles.nav} aria-label="Điều hướng chính">
+    <nav className={`${styles.nav} tour-nav`} aria-label="Điều hướng chính">
       {ITEMS.map(({ to, icon: Icon, label, exact }) => (
         <NavLink
           key={to}

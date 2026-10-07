@@ -1,0 +1,49 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "bệnh viện",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Metformin",
+      "dosage": "500mg",
+      "instructions": "10x0 2lings - c.uống sau ăn",
+      "times": [],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "verified": true,
+      "dosageWarning": null,
+      "detail": {
+        "source": "Mayo Clinic, ADA (American Diabetes Association), Vinmec"
+      }
+    },
+    {
+      "name": "Diamicron",
+      "dosage": "30mg",
+      "instructions": "1viscing with 3 0 phút. BS. Nguyen Van An",
+      "times": [],
+      "hasDoctorTime": false,
+      "durationDays": null,
+      "verified": true,
+      "dosageWarning": null,
+      "detail": {
+        "source": "Mayo Clinic, ADA, Hiệp hội Y dược Việt Nam"
+      }
+    }
+  ],
+  "hasDiabetesDrugs": true,
+  "diabetesDrugs": [
+    "Metformin",
+    "Diamicron"
+  ],
+  "doctorName": null,
+  "prescriptionDate": null,
+  "nextAppointmentDate": null,
+  "diagnosis": null,
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": null
+}

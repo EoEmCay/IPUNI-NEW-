@@ -1,0 +1,114 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "City Health Clinic",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Levothyroxine",
+      "dosage": "100 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống 1 lần/ngày",
+      "route": "uống",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Bổ sung hormone tuyến giáp",
+        "mechanism": "Thay thế hormone tuyến giáp tự nhiên khi cơ thể không sản xuất đủ",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    },
+    {
+      "name": "Lisinopril",
+      "dosage": "20 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 2,
+      "frequency": "Mỗi 12 giờ",
+      "times": [
+        "07:00",
+        "19:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống mỗi 12 giờ",
+      "route": "uống",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Điều trị huyết áp cao và suy tim",
+        "mechanism": "Ức chế men chuyển, làm giãn mạch máu",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    },
+    {
+      "name": "Prednisone",
+      "dosage": "10 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 3,
+      "frequency": "Mỗi 8 giờ",
+      "times": [
+        "06:00",
+        "14:00",
+        "22:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống mỗi 8 giờ",
+      "route": "uống",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Kháng viêm và ức chế miễn dịch",
+        "mechanism": "Giảm phản ứng viêm và sưng bằng cách ức chế hệ miễn dịch",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    },
+    {
+      "name": "Amlodipine",
+      "dosage": "5 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "Khi cần",
+      "times": [],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống khi cần",
+      "route": "uống",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Điều trị huyết áp cao và đau thắt ngực",
+        "mechanism": "Chẹn kênh canxi, làm giãn cơ trơn mạch máu",
+        "source": "Dược Thư Quốc Gia Việt Nam, Hội Tim mạch học Việt Nam"
+      },
+      "verified": true,
+      "dosageWarning": null
+    }
+  ],
+  "hasDiabetesDrugs": false,
+  "diabetesDrugs": [],
+  "doctorName": "H. Johnson",
+  "prescriptionDate": "2024-12-14",
+  "nextAppointmentDate": null,
+  "diagnosis": null,
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-flash-lite-latest",
+  "_seconds": 4.3
+}

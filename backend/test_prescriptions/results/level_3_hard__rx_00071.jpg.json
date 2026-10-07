@@ -1,0 +1,112 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "Meadowview Health",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Atorvastatin",
+      "dosage": "5 mg",
+      "quantity": null,
+      "amountPerDose": null,
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "22:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống trước khi đi ngủ",
+      "route": "uống",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Giảm cholesterol và triglyceride trong máu, giúp ngăn ngừa bệnh tim mạch.",
+        "mechanism": "Ức chế enzyme HMG-CoA reductase để giảm tổng hợp cholesterol ở gan.",
+        "source": "Dược Thư Quốc Gia Việt Nam, Hội Tim mạch học Việt Nam"
+      },
+      "verified": true,
+      "dosageWarning": null
+    },
+    {
+      "name": "Omeprazole",
+      "dosage": "20 mg",
+      "quantity": null,
+      "amountPerDose": null,
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống 1 lần/ngày",
+      "route": "uống",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Giảm tiết axit dạ dày, điều trị loét dạ dày tá tràng và trào ngược dạ dày thực quản.",
+        "mechanism": "Ức chế bơm proton (H+/K+-ATPase) tại thành tế bào dạ dày.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    },
+    {
+      "name": "Ibuprofen",
+      "dosage": "50 mg",
+      "quantity": null,
+      "amountPerDose": null,
+      "timesPerDay": 2,
+      "frequency": "Mỗi 12 giờ",
+      "times": [
+        "07:00",
+        "19:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống mỗi 12 giờ",
+      "route": "uống",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Giảm đau, hạ sốt và chống viêm.",
+        "mechanism": "Ức chế enzyme cyclooxygenase (COX-1 và COX-2) làm giảm tổng hợp prostaglandin.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    },
+    {
+      "name": "Jatentee",
+      "dosage": "10 mg",
+      "quantity": null,
+      "amountPerDose": null,
+      "timesPerDay": null,
+      "frequency": "Khi cần",
+      "times": [],
+      "hasDoctorTime": false,
+      "durationDays": null,
+      "instructions": "Uống khi cần (khi đau)",
+      "route": "uống",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Hỗ trợ giảm đau theo chỉ định.",
+        "mechanism": "Tác động lên cơ chế giảm đau.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    }
+  ],
+  "hasDiabetesDrugs": false,
+  "diabetesDrugs": [],
+  "doctorName": "Dr. A. Smith",
+  "prescriptionDate": "2024-12-25",
+  "nextAppointmentDate": null,
+  "diagnosis": null,
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-flash-lite-latest",
+  "_seconds": 5.2
+}

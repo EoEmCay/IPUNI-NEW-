@@ -1,0 +1,107 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "Meadowview Health",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Acetaminophen",
+      "dosage": "5 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "Trước khi đi ngủ",
+      "times": [
+        "22:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống trước khi đi ngủ",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Giảm đau và hạ sốt",
+        "mechanism": "Ức chế tổng hợp prostaglandin ở hệ thần kinh trung ương",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    },
+    {
+      "name": "Omeprazole",
+      "dosage": "20 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "Mỗi ngày một lần",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống mỗi ngày một lần",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Giảm tiết axit dạ dày, điều trị viêm loét và trào ngược",
+        "mechanism": "Ức chế bơm proton H+/K+ ATPase tại tế bào thành dạ dày",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    },
+    {
+      "name": "Ibuprofen",
+      "dosage": "50 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 2,
+      "frequency": "Mỗi 12 giờ",
+      "times": [
+        "07:00",
+        "19:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống mỗi 12 giờ",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Giảm đau, kháng viêm và hạ sốt",
+        "mechanism": "Ức chế enzyme cyclooxygenase (COX-1 và COX-2) làm giảm tổng hợp prostaglandin",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    },
+    {
+      "name": "Jorlatan",
+      "dosage": "10 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "Khi đau",
+      "times": [],
+      "hasDoctorTime": false,
+      "durationDays": null,
+      "instructions": "Uống khi có cơn đau",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Giảm đau theo nhu cầu",
+        "mechanism": "Giảm các triệu chứng đau nhức",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    }
+  ],
+  "hasDiabetesDrugs": false,
+  "diabetesDrugs": [],
+  "doctorName": "Dr. A. Smith",
+  "prescriptionDate": "2024-12-25",
+  "nextAppointmentDate": null,
+  "diagnosis": null,
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-flash-lite-latest"
+}

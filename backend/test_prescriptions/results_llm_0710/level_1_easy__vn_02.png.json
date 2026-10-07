@@ -1,0 +1,67 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "Phòng khám đa khoa Hòa Bình",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Lantus SoloStar",
+      "dosage": "100 IU/ml",
+      "quantity": "1 bút",
+      "amountPerDose": "12 đơn vị",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "21:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Tiêm dưới da 12 đơn vị tối lúc 21h",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Hạ đường huyết bằng insulin nền tác dụng kéo dài.",
+        "mechanism": "Bổ sung insulin ngoại sinh gắn kết với thụ thể insulin, giúp tế bào hấp thu glucose từ máu.",
+        "source": "ADA, Mayo Clinic, WHO"
+      },
+      "verified": true,
+      "dosageWarning": "\"100 IU/ml\" là nồng độ của lọ/bút insulin, không phải liều tiêm. Vui lòng nhập số đơn vị mỗi lần tiêm theo đơn gốc."
+    },
+    {
+      "name": "Januvia",
+      "dosage": "100mg",
+      "quantity": "28 viên",
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống 1 viên buổi sáng",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Hỗ trợ kiểm soát đường huyết ở bệnh nhân đái tháo đường type 2.",
+        "mechanism": "Ức chế enzyme DPP-4, làm tăng nồng độ hormone incretin giúp kích thích giải phóng insulin và giảm nồng độ glucagon.",
+        "source": "ADA, Mayo Clinic, Vinmec"
+      },
+      "verified": true,
+      "dosageWarning": null
+    }
+  ],
+  "hasDiabetesDrugs": true,
+  "diabetesDrugs": [
+    "Lantus SoloStar",
+    "Januvia"
+  ],
+  "doctorName": "BS. Trần Thị Mai",
+  "prescriptionDate": "2026-08-20",
+  "nextAppointmentDate": null,
+  "diagnosis": "Đái tháo đường type 2",
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-flash-lite-latest"
+}

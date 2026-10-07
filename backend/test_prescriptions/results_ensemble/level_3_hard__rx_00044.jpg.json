@@ -1,0 +1,113 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "Phòng khám đa khoa Thành phố",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Levothyroxine",
+      "dosage": "100 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống 1 lần/ngày",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Hormone tuyến giáp thay thế, dùng để điều trị suy giáp.",
+        "mechanism": "Bổ sung lượng hormone tuyến giáp thiếu hụt, điều hòa quá trình trao đổi chất.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null,
+      "ocrAgreement": false
+    },
+    {
+      "name": "Lisinopril",
+      "dosage": "20 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 2,
+      "frequency": "Mỗi 12 giờ",
+      "times": [
+        "07:00",
+        "19:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống mỗi 12 giờ",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Thuốc ức chế men chuyển, điều trị cao huyết áp và suy tim.",
+        "mechanism": "Ngăn chặn sự chuyển đổi angiotensin I thành angiotensin II, giúp giãn mạch và hạ huyết áp.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null,
+      "ocrAgreement": false
+    },
+    {
+      "name": "Prednisone",
+      "dosage": "10 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 3,
+      "frequency": "Mỗi 8 giờ",
+      "times": [
+        "06:00",
+        "14:00",
+        "22:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống mỗi 8 giờ",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Thuốc corticosteroid kháng viêm và ức chế miễn dịch.",
+        "mechanism": "Ức chế phản ứng viêm và giảm hoạt động của hệ miễn dịch.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null,
+      "ocrAgreement": false
+    },
+    {
+      "name": "Amlodipine",
+      "dosage": "5 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "Khi cần",
+      "times": [],
+      "hasDoctorTime": false,
+      "durationDays": null,
+      "instructions": "Dùng khi cần",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Thuốc chẹn kênh canxi, điều trị cao huyết áp và đau thắt ngực.",
+        "mechanism": "Ức chế dòng ion canxi đi qua màng tế bào cơ trơn mạch máu, gây giãn mạch.",
+        "source": "Dược Thư Quốc Gia Việt Nam, Hội Tim mạch học Việt Nam"
+      },
+      "verified": true,
+      "dosageWarning": null,
+      "ocrAgreement": false
+    }
+  ],
+  "hasDiabetesDrugs": false,
+  "diabetesDrugs": [],
+  "doctorName": "Bác sĩ H. Johnson",
+  "prescriptionDate": "2024-12-25",
+  "nextAppointmentDate": null,
+  "diagnosis": null,
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-flash-lite-latest"
+}

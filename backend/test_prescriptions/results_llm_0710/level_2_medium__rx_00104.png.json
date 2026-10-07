@@ -1,0 +1,80 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "City Health Clinic",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Simvastatin",
+      "dosage": "250mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 0,
+      "frequency": "Khi cần",
+      "times": [],
+      "hasDoctorTime": false,
+      "durationDays": null,
+      "instructions": "Uống khi cần (khi đau)",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Giúp giảm lượng cholesterol và chất béo trung tính trong máu.",
+        "mechanism": "Ức chế men HMG-CoA reductase để giảm tổng hợp cholesterol ở gan.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    },
+    {
+      "name": "Amlodipine",
+      "dosage": "25mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 0,
+      "frequency": "Khi cần",
+      "times": [],
+      "hasDoctorTime": false,
+      "durationDays": null,
+      "instructions": "Uống khi cần (khi đau)",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Hỗ trợ điều trị tăng huyết áp và đau thắt ngực.",
+        "mechanism": "Chẹn kênh canxi phụ thuộc điện thế, làm giãn mạch máu.",
+        "source": "Dược Thư Quốc Gia Việt Nam, Hội Tim mạch học Việt Nam"
+      },
+      "verified": true,
+      "dosageWarning": null
+    },
+    {
+      "name": "Lisinopril",
+      "dosage": "500mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống sau bữa ăn",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Điều trị tăng huyết áp và suy tim.",
+        "mechanism": "Ức chế men chuyển angiotensin (ACE), làm giãn mạch và giảm áp lực máu.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    }
+  ],
+  "hasDiabetesDrugs": false,
+  "diabetesDrugs": [],
+  "doctorName": "Dr. H. Johnson",
+  "prescriptionDate": "2024-12-16",
+  "nextAppointmentDate": null,
+  "diagnosis": null,
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-flash-lite-latest"
+}

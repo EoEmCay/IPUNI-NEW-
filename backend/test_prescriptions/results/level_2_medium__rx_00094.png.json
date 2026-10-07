@@ -1,0 +1,93 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "Riverside Clinic",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Omeprazole",
+      "dosage": "500 mg",
+      "quantity": null,
+      "amountPerDose": null,
+      "timesPerDay": 2,
+      "frequency": "2 lần/ngày",
+      "times": [
+        "07:00",
+        "19:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống mỗi 12 giờ",
+      "route": "uống",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Giảm tiết axit dạ dày",
+        "mechanism": "Ức chế bơm proton trong tế bào thành dạ dày",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    },
+    {
+      "name": "Amoxicillin",
+      "dosage": "5 mg",
+      "quantity": null,
+      "amountPerDose": null,
+      "timesPerDay": 3,
+      "frequency": "3 lần/ngày",
+      "times": [
+        "06:00",
+        "14:00",
+        "22:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống mỗi 8 giờ",
+      "route": "uống",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Kháng sinh điều trị nhiễm trùng",
+        "mechanism": "Ức chế tổng hợp thành tế bào vi khuẩn",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    },
+    {
+      "name": "Metformin",
+      "dosage": "10 mg",
+      "quantity": null,
+      "amountPerDose": null,
+      "timesPerDay": null,
+      "frequency": null,
+      "times": [],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống trước bữa ăn",
+      "route": "uống",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Kiểm soát đường huyết",
+        "mechanism": "Giảm sản xuất glucose tại gan và tăng độ nhạy insulin",
+        "source": "Mayo Clinic, ADA (American Diabetes Association), Vinmec"
+      },
+      "verified": true,
+      "dosageWarning": "Số liều \"10 mg\" có vẻ khác thường so với khoảng thường gặp của metformin (Thường 500-2000mg/ngày chia nhiều lần, uống kèm/sau ăn). Vui lòng đối chiếu lại với đơn thuốc gốc trước khi lưu."
+    }
+  ],
+  "hasDiabetesDrugs": true,
+  "diabetesDrugs": [
+    "Metformin"
+  ],
+  "doctorName": "Dr. P. Gomez",
+  "prescriptionDate": "2024-12-16",
+  "nextAppointmentDate": null,
+  "diagnosis": null,
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-flash-lite-latest",
+  "_seconds": 14.2
+}

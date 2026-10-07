@@ -1,0 +1,117 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "Oakview Hospital",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Amoxicillin",
+      "dosage": "500 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 3,
+      "frequency": "3 lần/ngày",
+      "times": [
+        "07:00",
+        "12:00",
+        "19:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống cùng bữa ăn",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Kháng sinh nhóm penicillin dùng để điều trị các bệnh nhiễm trùng do vi khuẩn.",
+        "mechanism": "Ức chế tổng hợp thành tế bào vi khuẩn, dẫn đến tiêu diệt vi khuẩn.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null,
+      "ocrAgreement": false
+    },
+    {
+      "name": "Acetaminophen",
+      "dosage": "500 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 3,
+      "frequency": "3 lần/ngày",
+      "times": [
+        "07:00",
+        "12:00",
+        "19:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống khi đau",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Giảm đau và hạ sốt.",
+        "mechanism": "Ức chế tổng hợp prostaglandin ở hệ thần kinh trung ương.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null,
+      "ocrAgreement": false
+    },
+    {
+      "name": "Lisinopril",
+      "dosage": "20 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống sau bữa ăn",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Điều trị cao huyết áp và suy tim.",
+        "mechanism": "Ức chế men chuyển (ACE), làm giãn mạch và giảm huyết áp.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null,
+      "ocrAgreement": false
+    },
+    {
+      "name": "Simvastatin",
+      "dosage": "20 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 2,
+      "frequency": "Mỗi 12 giờ",
+      "times": [
+        "07:00",
+        "19:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống mỗi 12 giờ",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Giảm cholesterol xấu và chất béo trung tính trong máu.",
+        "mechanism": "Ức chế enzyme HMG-CoA reductase làm giảm tổng hợp cholesterol ở gan.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null,
+      "ocrAgreement": false
+    }
+  ],
+  "hasDiabetesDrugs": false,
+  "diabetesDrugs": [],
+  "doctorName": "Dr. A. Darcy",
+  "prescriptionDate": "2024-12-12",
+  "nextAppointmentDate": null,
+  "diagnosis": "Đau nhẹ",
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-flash-lite-latest"
+}

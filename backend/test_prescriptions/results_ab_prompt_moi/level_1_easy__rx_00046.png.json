@@ -1,0 +1,67 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "Greenwood Medical Center",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Ciprofloxacin",
+      "dosage": "25 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống cùng bữa ăn",
+      "route": "uống",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Thuốc kháng sinh dùng để điều trị các bệnh nhiễm trùng do vi khuẩn.",
+        "mechanism": "Ức chế enzyme của vi khuẩn cần thiết cho việc sao chép và sửa chữa DNA.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    },
+    {
+      "name": "Hydrochlorothiazide",
+      "dosage": "20 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": false,
+      "durationDays": null,
+      "instructions": "Dùng theo chỉ dẫn của bác sĩ",
+      "route": "uống",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Thuốc lợi tiểu dùng để điều trị huyết áp cao và giữ nước.",
+        "mechanism": "Làm giảm sự tái hấp thu nước và chất điện giải ở thận, tăng lượng nước tiểu.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    }
+  ],
+  "hasDiabetesDrugs": false,
+  "diabetesDrugs": [],
+  "doctorName": "Dr. M. Lee",
+  "prescriptionDate": "2024-12-16",
+  "nextAppointmentDate": null,
+  "diagnosis": null,
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-flash-lite-latest",
+  "_seconds": 4.3
+}

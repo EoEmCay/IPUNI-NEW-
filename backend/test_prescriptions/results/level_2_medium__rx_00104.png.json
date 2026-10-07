@@ -1,0 +1,84 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "City Health Clinic",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Simvastatin",
+      "dosage": "250 mg",
+      "quantity": null,
+      "amountPerDose": null,
+      "timesPerDay": null,
+      "frequency": "Khi cần",
+      "times": [],
+      "hasDoctorTime": false,
+      "durationDays": null,
+      "instructions": "Uống khi cần (khi đau)",
+      "route": "uống",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Hỗ trợ giảm cholesterol trong máu.",
+        "mechanism": "Ức chế enzyme HMG-CoA reductase để giảm tổng hợp cholesterol ở gan.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    },
+    {
+      "name": "Amlodipine",
+      "dosage": "25 mg",
+      "quantity": null,
+      "amountPerDose": null,
+      "timesPerDay": null,
+      "frequency": "Khi cần",
+      "times": [],
+      "hasDoctorTime": false,
+      "durationDays": null,
+      "instructions": "Uống khi cần (khi đau)",
+      "route": "uống",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Hỗ trợ điều trị tăng huyết áp và đau thắt ngực.",
+        "mechanism": "Chẹn kênh canxi phụ thuộc điện áp, làm giãn mạch máu.",
+        "source": "Dược Thư Quốc Gia Việt Nam, Hội Tim mạch học Việt Nam"
+      },
+      "verified": true,
+      "dosageWarning": null
+    },
+    {
+      "name": "Lisinopril",
+      "dosage": "500 mg",
+      "quantity": null,
+      "amountPerDose": null,
+      "timesPerDay": null,
+      "frequency": "Sau bữa ăn",
+      "times": [],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống sau bữa ăn",
+      "route": "uống",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Hỗ trợ điều trị tăng huyết áp và suy tim.",
+        "mechanism": "Ức chế men chuyển (ACE), làm giảm sản xuất angiotensin II.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    }
+  ],
+  "hasDiabetesDrugs": false,
+  "diabetesDrugs": [],
+  "doctorName": "Dr. H. Johnson",
+  "prescriptionDate": "2024-12-16",
+  "nextAppointmentDate": null,
+  "diagnosis": null,
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-flash-lite-latest",
+  "_seconds": 5.1
+}

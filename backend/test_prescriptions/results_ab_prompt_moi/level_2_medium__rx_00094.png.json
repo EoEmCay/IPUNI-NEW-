@@ -1,0 +1,95 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "Riverside Clinic",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Omeprazole",
+      "dosage": "500 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 2,
+      "frequency": "Mỗi 12 giờ",
+      "times": [
+        "07:00",
+        "19:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống mỗi 12 giờ",
+      "route": "uống",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Giảm axit dạ dày, điều trị loét dạ dày tá tràng và trào ngược dạ dày thực quản.",
+        "mechanism": "Ức chế bơm proton (PPI) trong tế bào thành dạ dày, làm giảm tiết axit.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    },
+    {
+      "name": "Amoxicillin",
+      "dosage": "5 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 3,
+      "frequency": "Mỗi 8 giờ",
+      "times": [
+        "06:00",
+        "14:00",
+        "22:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống mỗi 8 giờ",
+      "route": "uống",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Kháng sinh điều trị các bệnh nhiễm trùng do vi khuẩn.",
+        "mechanism": "Ức chế tổng hợp thành tế bào vi khuẩn, gây tiêu diệt vi khuẩn.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    },
+    {
+      "name": "Metformin",
+      "dosage": "10 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "Trước bữa ăn",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống trước bữa ăn",
+      "route": "uống",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Kiểm soát lượng đường trong máu ở bệnh nhân đái tháo đường type 2.",
+        "mechanism": "Giảm sản xuất glucose ở gan và tăng độ nhạy insulin của cơ thể.",
+        "source": "Mayo Clinic, ADA (American Diabetes Association), Vinmec"
+      },
+      "verified": true,
+      "dosageWarning": "Số liều \"10 mg\" có vẻ khác thường so với khoảng thường gặp của metformin (Thường 500-2000mg/ngày chia nhiều lần, uống kèm/sau ăn). Vui lòng đối chiếu lại với đơn thuốc gốc trước khi lưu."
+    }
+  ],
+  "hasDiabetesDrugs": true,
+  "diabetesDrugs": [
+    "Metformin"
+  ],
+  "doctorName": "Dr. P. Gomez",
+  "prescriptionDate": "2024-12-16",
+  "nextAppointmentDate": null,
+  "diagnosis": "Đái tháo đường",
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-flash-lite-latest",
+  "_seconds": 5.5
+}

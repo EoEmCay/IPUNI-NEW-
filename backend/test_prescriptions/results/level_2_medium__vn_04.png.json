@@ -1,0 +1,94 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "Bệnh viện Chợ Rẫy",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "NovoMix 30 FlexPen",
+      "dosage": "30/70",
+      "quantity": "2 bút",
+      "amountPerDose": "14 đơn vị",
+      "timesPerDay": 2,
+      "frequency": "2 lần/ngày",
+      "times": [
+        "07:00",
+        "15:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Tiêm dưới da 14 đơn vị x 2 lần/ngày, sáng - chiều, trước ăn 15 phút",
+      "route": "tiêm dưới da",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Insulin hỗn hợp giúp kiểm soát đường huyết ở bệnh nhân đái tháo đường.",
+        "mechanism": "Bổ sung insulin ngoại sinh, kết hợp giữa insulin tác dụng nhanh và tác dụng kéo dài để hạ đường huyết.",
+        "source": "ADA, Mayo Clinic, WHO"
+      },
+      "verified": true,
+      "dosageWarning": null
+    },
+    {
+      "name": "Jardiance",
+      "dosage": "10mg",
+      "quantity": "30 viên",
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống 1 viên buổi sáng",
+      "route": "uống",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Hỗ trợ kiểm soát đường huyết và bảo vệ tim thận ở bệnh nhân đái tháo đường type 2.",
+        "mechanism": "Ức chế kênh đồng vận chuyển glucose-sodium 2 (SGLT2) ở thận, làm tăng đào thải glucose qua nước tiểu.",
+        "source": "ADA, Mayo Clinic, Vinmec"
+      },
+      "verified": true,
+      "dosageWarning": null
+    },
+    {
+      "name": "Losartan",
+      "dosage": "50mg",
+      "quantity": "30 viên",
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống 1 viên buổi sáng",
+      "route": "uống",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Điều trị tăng huyết áp và bảo vệ chức năng thận.",
+        "mechanism": "Chẹn thụ thể angiotensin II (ARB), làm giãn mạch và giảm huyết áp.",
+        "source": "Dược Thư Quốc Gia Việt Nam, Hội Tim mạch học Việt Nam"
+      },
+      "verified": true,
+      "dosageWarning": null
+    }
+  ],
+  "hasDiabetesDrugs": true,
+  "diabetesDrugs": [
+    "NovoMix 30 FlexPen",
+    "Jardiance"
+  ],
+  "doctorName": "BS. Phạm Minh Đức",
+  "prescriptionDate": "2026-07-11",
+  "nextAppointmentDate": null,
+  "diagnosis": "Đái tháo đường type 2",
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-flash-lite-latest",
+  "_seconds": 4.7
+}

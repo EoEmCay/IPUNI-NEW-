@@ -1,0 +1,87 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "BỆNH VIỆN BẠCH MAI",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Amaryl",
+      "dosage": "2mg",
+      "quantity": "30 viên",
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "1 viên sáng, uống trước ăn",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Thuốc điều trị tiểu đường type 2, giúp kiểm soát lượng đường trong máu.",
+        "mechanism": "Kích thích tuyến tụy sản xuất insulin, giúp cơ thể sử dụng đường hiệu quả hơn.",
+        "source": "Mayo Clinic, ADA, Vinmec"
+      },
+      "verified": true,
+      "dosageWarning": null
+    },
+    {
+      "name": "Metformin",
+      "dosage": "850mg",
+      "quantity": "60 viên",
+      "amountPerDose": "1 viên",
+      "timesPerDay": 2,
+      "frequency": "2 lần/ngày",
+      "times": [],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "1 viên x 2 lần/ngày, sau ăn",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Thuốc điều trị tiểu đường type 2, giúp giảm đường huyết.",
+        "mechanism": "Giảm sản xuất đường ở gan, tăng độ nhạy insulin và giảm hấp thu đường ở ruột.",
+        "source": "Mayo Clinic, ADA (American Diabetes Association), Vinmec"
+      },
+      "verified": true,
+      "dosageWarning": null
+    },
+    {
+      "name": "Atorvastatin",
+      "dosage": "20mg",
+      "quantity": "30 viên",
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "19:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "1 viên uống tối",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Thuốc giảm cholesterol, phòng ngừa bệnh tim mạch.",
+        "mechanism": "Ức chế enzyme HMG-CoA reductase ở gan, làm giảm tổng hợp cholesterol.",
+        "source": "Dược Thư Quốc Gia Việt Nam, Hội Tim mạch học Việt Nam"
+      },
+      "verified": true,
+      "dosageWarning": null
+    }
+  ],
+  "hasDiabetesDrugs": true,
+  "diabetesDrugs": [
+    "Amaryl",
+    "Metformin"
+  ],
+  "doctorName": "Lê Hoàng Nam",
+  "prescriptionDate": "2026-09-02",
+  "nextAppointmentDate": null,
+  "diagnosis": "Đái tháo đường type 2",
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-2.5-flash"
+}

@@ -1,0 +1,68 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "BỆNH VIỆN NỘI TIẾT TRUNG ƯƠNG",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Metformin",
+      "dosage": "500mg",
+      "quantity": 60,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 2,
+      "frequency": "2 lần/ngày",
+      "times": [
+        "07:00",
+        "19:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "1 viên x 2 lần/ngày, sau ăn",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Kiểm soát đường huyết ở bệnh nhân tiểu đường tuýp 2, thường dùng kết hợp với chế độ ăn kiêng và tập thể dục.",
+        "mechanism": "Giảm sản xuất glucose ở gan, giảm hấp thu glucose ở ruột và tăng cường độ nhạy của insulin ở cơ thể, giúp tế bào hấp thu đường tốt hơn.",
+        "source": "Mayo Clinic, ADA (American Diabetes Association), Vinmec"
+      },
+      "verified": true,
+      "dosageWarning": null
+    },
+    {
+      "name": "Diamicron MR",
+      "dosage": "30mg",
+      "quantity": 30,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "1 viên vào buổi sáng, uống trước ăn 30 phút",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Hạ đường huyết ở bệnh nhân tiểu đường tuýp 2 bằng cách kích thích tuyến tụy sản xuất insulin.",
+        "mechanism": "Là một sulfonylurea thế hệ thứ hai, hoạt chất Gliclazide kích thích tế bào beta của đảo Langerhans trong tuyến tụy giải phóng insulin, đặc biệt khi có mặt glucose.",
+        "source": "Mayo Clinic, ADA, Hiệp hội Y dược Việt Nam"
+      },
+      "verified": true,
+      "dosageWarning": null
+    }
+  ],
+  "hasDiabetesDrugs": true,
+  "diabetesDrugs": [
+    "Metformin",
+    "Diamicron MR"
+  ],
+  "doctorName": "Nguyễn Văn An",
+  "prescriptionDate": "2026-09-15",
+  "nextAppointmentDate": null,
+  "diagnosis": "Tiểu đường tuýp 2",
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-2.5-flash"
+}

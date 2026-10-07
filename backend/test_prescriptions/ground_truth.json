@@ -1,0 +1,570 @@
+{
+  "level_1_easy/rx_00025.png": {
+    "source": "hf:chinmays18/medical-prescription-dataset",
+    "doctor_name": "Dr. F. Gomez",
+    "hospital_name": "Greenwood Medical Center",
+    "date": "2024-12-16",
+    "medications": [
+      {
+        "name": "Metformin",
+        "aliases": [],
+        "dosage": "250 mg",
+        "quantity": null,
+        "instructions": "After meals",
+        "times": null
+      }
+    ]
+  },
+  "level_1_easy/rx_00027.png": {
+    "source": "hf:chinmays18/medical-prescription-dataset",
+    "doctor_name": "Dr. M. Lee",
+    "hospital_name": "City Health Clinic",
+    "date": "2024-12-16",
+    "medications": [
+      {
+        "name": "Acetaminophen",
+        "aliases": [],
+        "dosage": "250 mg",
+        "quantity": null,
+        "instructions": "Before meals",
+        "times": null
+      },
+      {
+        "name": "Losartan",
+        "aliases": [],
+        "dosage": "250 mg",
+        "quantity": null,
+        "instructions": "After meals",
+        "times": null
+      }
+    ]
+  },
+  "level_1_easy/rx_00046.png": {
+    "source": "hf:chinmays18/medical-prescription-dataset",
+    "doctor_name": "Dr. M. Lee",
+    "hospital_name": "Greenwood Medical Center",
+    "date": "2024-12-16",
+    "medications": [
+      {
+        "name": "Ciprofloxacin",
+        "aliases": [],
+        "dosage": "25 mg",
+        "quantity": null,
+        "instructions": "With food",
+        "times": null
+      },
+      {
+        "name": "Hydrochlorothiazide",
+        "aliases": [],
+        "dosage": "20 mg",
+        "quantity": null,
+        "instructions": "As directed",
+        "times": null
+      }
+    ]
+  },
+  "level_1_easy/vn_01.png": {
+    "source": "synthetic-vn-diabetes",
+    "doctor_name": "BS. Nguyễn Văn An",
+    "hospital_name": "BỆNH VIỆN NỘI TIẾT TRUNG ƯƠNG",
+    "date": "2026-09-15",
+    "medications": [
+      {
+        "name": "Metformin",
+        "aliases": [],
+        "dosage": "500 mg",
+        "quantity": "60 viên",
+        "instructions": "Uống 1 viên x 2 lần/ngày, sáng - chiều, sau ăn",
+        "times": [
+          "07:00",
+          "16:00"
+        ]
+      },
+      {
+        "name": "Gliclazide",
+        "aliases": [
+          "Diamicron MR"
+        ],
+        "dosage": "30 mg",
+        "quantity": "30 viên",
+        "instructions": "Uống 1 viên buổi sáng, trước ăn 30 phút",
+        "times": [
+          "07:00"
+        ]
+      }
+    ]
+  },
+  "level_1_easy/vn_02.png": {
+    "source": "synthetic-vn-diabetes",
+    "doctor_name": "BS. Trần Thị Mai",
+    "hospital_name": "PHÒNG KHÁM ĐA KHOA HÒA BÌNH",
+    "date": "2026-08-20",
+    "medications": [
+      {
+        "name": "Insulin glargine",
+        "aliases": [
+          "Lantus",
+          "Lantus SoloStar"
+        ],
+        "dosage": "12 IU",
+        "quantity": "1 bút tiêm",
+        "instructions": "Tiêm dưới da 12 đơn vị buổi tối lúc 21h",
+        "times": [
+          "21:00"
+        ]
+      },
+      {
+        "name": "Sitagliptin",
+        "aliases": [
+          "Januvia"
+        ],
+        "dosage": "100 mg",
+        "quantity": "28 viên",
+        "instructions": "Uống 1 viên buổi sáng",
+        "times": [
+          "07:00"
+        ]
+      }
+    ]
+  },
+  "level_2_medium/rx_00094.png": {
+    "source": "hf:chinmays18/medical-prescription-dataset",
+    "doctor_name": "Dr. F. Gomez",
+    "hospital_name": "Riverside Clinic",
+    "date": "2024-12-16",
+    "medications": [
+      {
+        "name": "Omeprazole",
+        "aliases": [],
+        "dosage": "500 mg",
+        "quantity": null,
+        "instructions": "Every 12 hours",
+        "times": null
+      },
+      {
+        "name": "Amoxicillin",
+        "aliases": [],
+        "dosage": "5 mg",
+        "quantity": null,
+        "instructions": "Every 8 hours",
+        "times": null
+      },
+      {
+        "name": "Metformin",
+        "aliases": [],
+        "dosage": "10 mg",
+        "quantity": null,
+        "instructions": "Before meals",
+        "times": null
+      }
+    ]
+  },
+  "level_2_medium/rx_00104.png": {
+    "source": "hf:chinmays18/medical-prescription-dataset",
+    "doctor_name": "Dr. H. Johnson",
+    "hospital_name": "City Health Clinic",
+    "date": "2024-12-16",
+    "medications": [
+      {
+        "name": "Simvastatin",
+        "aliases": [],
+        "dosage": "250 mg",
+        "quantity": null,
+        "instructions": "As needed for pain",
+        "times": null
+      },
+      {
+        "name": "Amlodipine",
+        "aliases": [],
+        "dosage": "25 mg",
+        "quantity": null,
+        "instructions": "As needed for pain",
+        "times": null
+      },
+      {
+        "name": "Lisinopril",
+        "aliases": [],
+        "dosage": "500 mg",
+        "quantity": null,
+        "instructions": "After meals",
+        "times": null
+      }
+    ]
+  },
+  "level_2_medium/rx_00127.png": {
+    "source": "hf:chinmays18/medical-prescription-dataset",
+    "doctor_name": "Dr. M. Lee",
+    "hospital_name": "Greenwood Medical Center",
+    "date": "2024-12-16",
+    "medications": [
+      {
+        "name": "Amlodipine",
+        "aliases": [],
+        "dosage": "20 mg",
+        "quantity": null,
+        "instructions": "As directed",
+        "times": null
+      },
+      {
+        "name": "Atorvastatin",
+        "aliases": [],
+        "dosage": "250 mg",
+        "quantity": null,
+        "instructions": "Every 12 hours",
+        "times": null
+      },
+      {
+        "name": "Prednisone",
+        "aliases": [],
+        "dosage": "250 mg",
+        "quantity": null,
+        "instructions": "Before meals",
+        "times": null
+      }
+    ]
+  },
+  "level_2_medium/vn_03.png": {
+    "source": "synthetic-vn-diabetes",
+    "doctor_name": "BS. Lê Hoàng Nam",
+    "hospital_name": "BỆNH VIỆN BẠCH MAI",
+    "date": "2026-09-02",
+    "medications": [
+      {
+        "name": "Glimepiride",
+        "aliases": [
+          "Amaryl"
+        ],
+        "dosage": "2 mg",
+        "quantity": "30 viên",
+        "instructions": "Uống 1 viên buổi sáng, trước ăn",
+        "times": [
+          "07:00"
+        ]
+      },
+      {
+        "name": "Metformin",
+        "aliases": [],
+        "dosage": "850 mg",
+        "quantity": "60 viên",
+        "instructions": "Uống 1 viên x 2 lần/ngày, sáng - chiều, sau ăn",
+        "times": [
+          "07:00",
+          "16:00"
+        ]
+      },
+      {
+        "name": "Atorvastatin",
+        "aliases": [],
+        "dosage": "20 mg",
+        "quantity": "30 viên",
+        "instructions": "Uống 1 viên trước khi đi ngủ",
+        "times": [
+          "21:30"
+        ]
+      }
+    ]
+  },
+  "level_2_medium/vn_04.png": {
+    "source": "synthetic-vn-diabetes",
+    "doctor_name": "BS. Phạm Minh Đức",
+    "hospital_name": "BỆNH VIỆN CHỢ RẪY",
+    "date": "2026-07-11",
+    "medications": [
+      {
+        "name": "Insulin aspart 30/70",
+        "aliases": [
+          "NovoMix 30",
+          "NovoMix 30 FlexPen",
+          "NovoMix"
+        ],
+        "dosage": "14 IU",
+        "quantity": "2 bút tiêm",
+        "instructions": "Tiêm dưới da 14 đơn vị x 2 lần/ngày, sáng - chiều, trước ăn 15 phút",
+        "times": [
+          "07:00",
+          "16:00"
+        ]
+      },
+      {
+        "name": "Empagliflozin",
+        "aliases": [
+          "Jardiance"
+        ],
+        "dosage": "10 mg",
+        "quantity": "30 viên",
+        "instructions": "Uống 1 viên buổi sáng",
+        "times": [
+          "07:00"
+        ]
+      },
+      {
+        "name": "Losartan",
+        "aliases": [],
+        "dosage": "50 mg",
+        "quantity": "30 viên",
+        "instructions": "Uống 1 viên buổi sáng",
+        "times": [
+          "07:00"
+        ]
+      }
+    ]
+  },
+  "level_3_hard/rx_00030.jpg": {
+    "source": "hf:chinmays18/medical-prescription-dataset",
+    "doctor_name": "Dr. F. Gomez",
+    "hospital_name": "Oakview Hospital",
+    "date": "2024-12-16",
+    "medications": [
+      {
+        "name": "Amoxicillin",
+        "aliases": [],
+        "dosage": "50 mg",
+        "quantity": null,
+        "instructions": "With food",
+        "times": null
+      },
+      {
+        "name": "Acetaminophen",
+        "aliases": [],
+        "dosage": "500 mg",
+        "quantity": null,
+        "instructions": "At bedtime",
+        "times": null
+      },
+      {
+        "name": "Gabapentin",
+        "aliases": [],
+        "dosage": "25 mg",
+        "quantity": null,
+        "instructions": "After meals",
+        "times": null
+      },
+      {
+        "name": "Simvastatin",
+        "aliases": [],
+        "dosage": "20 mg",
+        "quantity": null,
+        "instructions": "Every 12 hours",
+        "times": null
+      }
+    ]
+  },
+  "level_3_hard/rx_00044.jpg": {
+    "source": "hf:chinmays18/medical-prescription-dataset",
+    "doctor_name": "Dr. H. Johnson",
+    "hospital_name": "City Health Clinic",
+    "date": "2024-12-16",
+    "medications": [
+      {
+        "name": "Levothyroxine",
+        "aliases": [],
+        "dosage": "100 mg",
+        "quantity": null,
+        "instructions": "Take once daily",
+        "times": null
+      },
+      {
+        "name": "Lisinopril",
+        "aliases": [],
+        "dosage": "25 mg",
+        "quantity": null,
+        "instructions": "Every 12 hours",
+        "times": null
+      },
+      {
+        "name": "Prednisone",
+        "aliases": [],
+        "dosage": "10 mg",
+        "quantity": null,
+        "instructions": "Every 8 hours",
+        "times": null
+      },
+      {
+        "name": "Amoxicillin",
+        "aliases": [],
+        "dosage": "5 mg",
+        "quantity": null,
+        "instructions": "At bedtime",
+        "times": null
+      }
+    ]
+  },
+  "level_3_hard/rx_00071.jpg": {
+    "source": "hf:chinmays18/medical-prescription-dataset",
+    "doctor_name": "Dr. A. Smith",
+    "hospital_name": "Meadowview Health",
+    "date": "2024-12-16",
+    "medications": [
+      {
+        "name": "Acetaminophen",
+        "aliases": [],
+        "dosage": "5 mg",
+        "quantity": null,
+        "instructions": "At bedtime",
+        "times": null
+      },
+      {
+        "name": "Omeprazole",
+        "aliases": [],
+        "dosage": "10 mg",
+        "quantity": null,
+        "instructions": "Take twice daily",
+        "times": null
+      },
+      {
+        "name": "Ibuprofen",
+        "aliases": [],
+        "dosage": "50 mg",
+        "quantity": null,
+        "instructions": "Every 12 hours",
+        "times": null
+      },
+      {
+        "name": "Losartan",
+        "aliases": [],
+        "dosage": "10 mg",
+        "quantity": null,
+        "instructions": "As needed for pain",
+        "times": null
+      }
+    ]
+  },
+  "level_3_hard/vn_05.jpg": {
+    "source": "synthetic-vn-diabetes",
+    "doctor_name": "BS. Võ Thanh Tùng",
+    "hospital_name": "BỆNH VIỆN NỘI TIẾT TP.HCM",
+    "date": "2026-09-28",
+    "medications": [
+      {
+        "name": "Gliclazide",
+        "aliases": [
+          "Diamicron MR"
+        ],
+        "dosage": "60 mg",
+        "quantity": "30 viên",
+        "instructions": "Uống 1 viên buổi sáng, trước ăn",
+        "times": [
+          "07:00"
+        ]
+      },
+      {
+        "name": "Insulin glargine",
+        "aliases": [
+          "Lantus"
+        ],
+        "dosage": "18 IU",
+        "quantity": "1 bút tiêm",
+        "instructions": "Tiêm dưới da 18 đơn vị buổi tối lúc 21h",
+        "times": [
+          "21:00"
+        ]
+      },
+      {
+        "name": "Metformin",
+        "aliases": [],
+        "dosage": "1000 mg",
+        "quantity": "60 viên",
+        "instructions": "Uống 1 viên x 2 lần/ngày, sáng - chiều, sau ăn",
+        "times": [
+          "07:00",
+          "16:00"
+        ]
+      }
+    ]
+  },
+  "level_3_hard/vn_06.jpg": {
+    "source": "synthetic-vn-diabetes",
+    "doctor_name": "BS. Hồ Thị Lan",
+    "hospital_name": "PHÒNG KHÁM TÂM ĐỨC",
+    "date": "2026-09-30",
+    "medications": [
+      {
+        "name": "Repaglinide",
+        "aliases": [
+          "NovoNorm"
+        ],
+        "dosage": "0.5 mg",
+        "quantity": "90 viên",
+        "instructions": "Uống 1 viên x 3 lần/ngày, trước ăn 15 phút",
+        "times": [
+          "07:00",
+          "12:00",
+          "19:00"
+        ]
+      },
+      {
+        "name": "Dapagliflozin",
+        "aliases": [
+          "Forxiga"
+        ],
+        "dosage": "10 mg",
+        "quantity": "30 viên",
+        "instructions": "Uống 1 viên buổi sáng",
+        "times": [
+          "07:00"
+        ]
+      },
+      {
+        "name": "Rosuvastatin",
+        "aliases": [],
+        "dosage": "10 mg",
+        "quantity": "30 viên",
+        "instructions": "Uống 1 viên buổi tối",
+        "times": [
+          "19:00"
+        ]
+      }
+    ]
+  },
+  "level_3_hard/real_doctor_prescription.jpg": {
+    "source": "real: ảnh chụp đơn BHYT do người dùng cung cấp (đã che thông tin cá nhân); phần chữ tay do người dùng xác nhận 07/10/2026",
+    "doctor_name": null,
+    "hospital_name": null,
+    "date": "2022-05-24",
+    "medications": [
+      {
+        "name": "Ebitac",
+        "aliases": [
+          "Ebitac 25",
+          "Enalapril + hydrochlorothiazid",
+          "Enalapril"
+        ],
+        "dosage": null,
+        "quantity": "60 viên",
+        "instructions": "Uống ngày 1 viên buổi sáng",
+        "times": [
+          "07:00"
+        ]
+      },
+      {
+        "name": "Insulin 30/70",
+        "aliases": [
+          "Insulin hỗn hợp 30/70",
+          "Mixtard 30",
+          "Insulin"
+        ],
+        "dosage": null,
+        "doses": [
+          "28 IU",
+          "26 IU"
+        ],
+        "quantity": null,
+        "instructions": "Tiêm dưới da sáng 28 đơn vị, chiều 26 đơn vị",
+        "times": [
+          "07:00",
+          "16:00"
+        ]
+      },
+      {
+        "name": "Glucophage",
+        "aliases": [
+          "Metformin"
+        ],
+        "dosage": null,
+        "quantity": null,
+        "instructions": null,
+        "times": null
+      }
+    ]
+  }
+}

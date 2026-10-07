@@ -1,0 +1,90 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "Greenwood Medical Center",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Amlodipine",
+      "dosage": "20 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": false,
+      "durationDays": null,
+      "instructions": "Dùng theo chỉ dẫn của bác sĩ",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Điều trị huyết áp cao và đau thắt ngực",
+        "mechanism": "Thuốc chẹn kênh canxi giúp giãn mạch máu để máu lưu thông dễ dàng hơn",
+        "source": "Dược Thư Quốc Gia Việt Nam, Hội Tim mạch học Việt Nam"
+      },
+      "verified": true,
+      "dosageWarning": null,
+      "ocrAgreement": false
+    },
+    {
+      "name": "Atorvastatin",
+      "dosage": "250 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 2,
+      "frequency": "Mỗi 12 giờ",
+      "times": [
+        "07:00",
+        "19:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống mỗi 12 giờ",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Giảm cholesterol xấu và chất béo trung tính trong máu",
+        "mechanism": "Ức chế enzyme HMG-CoA reductase để giảm tổng hợp cholesterol ở gan",
+        "source": "Dược Thư Quốc Gia Việt Nam, Hội Tim mạch học Việt Nam"
+      },
+      "verified": true,
+      "dosageWarning": "Số liều \"250 mg\" có vẻ khác thường so với khoảng thường gặp của atorvastatin (Thường 10-40mg/ngày, uống buổi tối). Vui lòng đối chiếu lại với đơn thuốc gốc trước khi lưu.",
+      "ocrAgreement": false
+    },
+    {
+      "name": "Prednisone",
+      "dosage": "250 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "Trước bữa ăn",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống trước bữa ăn",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Giảm viêm và ức chế hệ miễn dịch",
+        "mechanism": "Corticosteroid kháng viêm và ức chế miễn dịch",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null,
+      "ocrAgreement": true
+    }
+  ],
+  "hasDiabetesDrugs": false,
+  "diabetesDrugs": [],
+  "doctorName": "Dr. M. Lee",
+  "prescriptionDate": "2024-12-16",
+  "nextAppointmentDate": null,
+  "diagnosis": null,
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-flash-lite-latest"
+}

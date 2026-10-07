@@ -1,0 +1,71 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "Bệnh viện Nội tiết Trung ương",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Metformin",
+      "dosage": "500mg",
+      "quantity": "60 viên",
+      "amountPerDose": "1 viên",
+      "timesPerDay": 2,
+      "frequency": "2 lần/ngày",
+      "times": [
+        "07:00",
+        "15:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống 1 viên x 2 lần/ngày, sáng - chiều, sau ăn",
+      "route": "uống",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Giúp kiểm soát lượng đường huyết ở bệnh nhân đái tháo đường tuýp 2.",
+        "mechanism": "Giảm sản xuất glucose ở gan và làm tăng độ nhạy cảm với insulin của cơ thể.",
+        "source": "Mayo Clinic, ADA (American Diabetes Association), Vinmec"
+      },
+      "verified": true,
+      "dosageWarning": null
+    },
+    {
+      "name": "Diamicron MR",
+      "dosage": "30mg",
+      "quantity": "30 viên",
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống 1 viên buổi sáng, trước ăn 30 phút",
+      "route": "uống",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Hỗ trợ hạ đường huyết cho người bệnh đái tháo đường tuýp 2.",
+        "mechanism": "Kích thích tuyến tụy tiết ra insulin để làm giảm lượng đường trong máu.",
+        "source": "Mayo Clinic, ADA, Hiệp hội Y dược Việt Nam"
+      },
+      "verified": true,
+      "dosageWarning": null
+    }
+  ],
+  "hasDiabetesDrugs": true,
+  "diabetesDrugs": [
+    "Metformin",
+    "Diamicron MR"
+  ],
+  "doctorName": "Nguyễn Văn An",
+  "prescriptionDate": "2026-09-15",
+  "nextAppointmentDate": null,
+  "diagnosis": "Đái tháo đường tuýp 2",
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-flash-lite-latest",
+  "_seconds": 4.7
+}

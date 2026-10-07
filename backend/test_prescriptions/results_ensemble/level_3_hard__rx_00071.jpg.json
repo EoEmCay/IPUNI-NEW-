@@ -1,0 +1,111 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "Meadowview Health",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Amlodipine",
+      "dosage": "5 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "22:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống trước khi đi ngủ",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Điều trị cao huyết áp và đau thắt ngực",
+        "mechanism": "Giúp giãn mạch máu, làm giảm huyết áp và cải thiện lưu lượng máu",
+        "source": "Dược Thư Quốc Gia Việt Nam, Hội Tim mạch học Việt Nam"
+      },
+      "verified": true,
+      "dosageWarning": null,
+      "ocrAgreement": false
+    },
+    {
+      "name": "Omeprazole",
+      "dosage": "20 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống 1 lần/ngày",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Giảm lượng axit tiết ra trong dạ dày",
+        "mechanism": "Ức chế bơm proton trong các tế bào thành dạ dày, làm giảm axit",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null,
+      "ocrAgreement": false
+    },
+    {
+      "name": "Lisinopril",
+      "dosage": "50 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 2,
+      "frequency": "Mỗi 12 giờ",
+      "times": [
+        "07:00",
+        "19:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống mỗi 12 giờ",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Điều trị cao huyết áp và suy tim",
+        "mechanism": "Ức chế men chuyển angiotensin, làm thư giãn mạch máu",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null,
+      "ocrAgreement": false
+    },
+    {
+      "name": "Ibuprofen",
+      "dosage": "10 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "Khi cần",
+      "times": [],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống khi cần khi đau",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Giảm đau và kháng viêm",
+        "mechanism": "Ức chế tổng hợp prostaglandin, làm giảm tín hiệu đau và viêm",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null,
+      "ocrAgreement": false
+    }
+  ],
+  "hasDiabetesDrugs": false,
+  "diabetesDrugs": [],
+  "doctorName": "Dr. A. Smith",
+  "prescriptionDate": "2024-12-26",
+  "nextAppointmentDate": null,
+  "diagnosis": null,
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-flash-lite-latest"
+}

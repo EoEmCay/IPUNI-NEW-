@@ -1,0 +1,42 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "Greenwood Medical Center",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Metformin",
+      "dosage": "250 mg",
+      "quantity": null,
+      "amountPerDose": "250 mg",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống sau bữa ăn",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Thuốc điều trị đái tháo đường type 2.",
+        "mechanism": "Giảm sản xuất glucose ở gan, giảm hấp thu glucose ở ruột và tăng nhạy cảm của cơ thể với insulin.",
+        "source": "Mayo Clinic, ADA (American Diabetes Association), Vinmec"
+      },
+      "verified": true,
+      "dosageWarning": null
+    }
+  ],
+  "hasDiabetesDrugs": true,
+  "diabetesDrugs": [
+    "Metformin"
+  ],
+  "doctorName": "Dr. P. Gomez",
+  "prescriptionDate": "2024-12-16",
+  "nextAppointmentDate": null,
+  "diagnosis": null,
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-2.5-flash-lite"
+}

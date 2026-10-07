@@ -1,0 +1,80 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "Trung tâm Y tế Greenwood",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Amlodipine",
+      "dosage": "20 mg",
+      "quantity": null,
+      "amountPerDose": null,
+      "timesPerDay": null,
+      "frequency": "Theo chỉ định",
+      "times": [],
+      "hasDoctorTime": false,
+      "durationDays": null,
+      "instructions": "20 mg - Theo chỉ định",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Điều trị cao huyết áp và đau thắt ngực.",
+        "mechanism": "Làm giãn mạch máu và giảm áp lực lên tim.",
+        "source": "Dược Thư Quốc Gia Việt Nam, Hội Tim mạch học Việt Nam"
+      },
+      "verified": true,
+      "dosageWarning": null
+    },
+    {
+      "name": "Atorvastatin",
+      "dosage": "250 mg",
+      "quantity": null,
+      "amountPerDose": null,
+      "timesPerDay": null,
+      "frequency": "Mỗi 72 giờ",
+      "times": [],
+      "hasDoctorTime": false,
+      "durationDays": null,
+      "instructions": "250 mg - Mỗi 72 giờ",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Giảm cholesterol và triglyceride trong máu.",
+        "mechanism": "Ức chế enzyme HMG-CoA reductase, giảm sản xuất cholesterol ở gan.",
+        "source": "Dược Thư Quốc Gia Việt Nam, Hội Tim mạch học Việt Nam"
+      },
+      "verified": true,
+      "dosageWarning": "Số liều \"250 mg\" có vẻ khác thường so với khoảng thường gặp của atorvastatin (Thường 10-40mg/ngày, uống buổi tối). Vui lòng đối chiếu lại với đơn thuốc gốc trước khi lưu."
+    },
+    {
+      "name": "Prednisone",
+      "dosage": "250 mg",
+      "quantity": null,
+      "amountPerDose": null,
+      "timesPerDay": null,
+      "frequency": "Trước bữa ăn",
+      "times": [],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "250 mg - Trước bữa ăn",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Điều trị viêm nhiễm, dị ứng và các bệnh tự miễn.",
+        "mechanism": "Là một corticosteroid, giúp giảm viêm và ức chế hệ miễn dịch.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    }
+  ],
+  "hasDiabetesDrugs": false,
+  "diabetesDrugs": [],
+  "doctorName": "Bác sĩ M Lee",
+  "prescriptionDate": "2024-12-26",
+  "nextAppointmentDate": null,
+  "diagnosis": null,
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-2.5-flash"
+}

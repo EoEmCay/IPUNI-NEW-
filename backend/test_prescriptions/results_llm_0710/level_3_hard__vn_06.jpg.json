@@ -1,0 +1,91 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "Phòng khám Tâm Đức",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "NovoNorm",
+      "dosage": "0.5mg",
+      "quantity": "90 viên",
+      "amountPerDose": "1 viên",
+      "timesPerDay": 3,
+      "frequency": "3 lần/ngày",
+      "times": [
+        "07:00",
+        "12:00",
+        "19:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống 1 viên x 3 lần/ngày, trước ăn 15 phút",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Hỗ trợ kiểm soát lượng đường huyết ở bệnh nhân đái tháo đường tuýp 2.",
+        "mechanism": "Kích thích tuyến tụy tiết insulin nhanh chóng sau khi ăn, giúp giảm đường huyết sau bữa ăn.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    },
+    {
+      "name": "Forxiga",
+      "dosage": "10mg",
+      "quantity": "30 viên",
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống 1 viên buổi sáng",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Giúp hạ đường huyết ở người bệnh đái tháo đường tuýp 2 và hỗ trợ bảo vệ tim mạch, thận.",
+        "mechanism": "Ức chế kênh đồng vận chuyển natri-glucose 2 (SGLT2) ở thận, làm tăng đào thải glucose qua nước tiểu.",
+        "source": "ADA, Mayo Clinic, Vinmec"
+      },
+      "verified": true,
+      "dosageWarning": null
+    },
+    {
+      "name": "Rosuvastatin",
+      "dosage": "10mg",
+      "quantity": "30 viên",
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "19:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống 1 viên buổi tối",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Giảm lượng cholesterol xấu và triglyceride trong máu, giúp ngăn ngừa các bệnh lý tim mạch.",
+        "mechanism": "Ức chế cạnh tranh men HMG-CoA reductase, làm giảm tổng hợp cholesterol ở gan.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    }
+  ],
+  "hasDiabetesDrugs": true,
+  "diabetesDrugs": [
+    "NovoNorm",
+    "Forxiga"
+  ],
+  "doctorName": "BS. Hồ Thị Lan",
+  "prescriptionDate": "2026-09-30",
+  "nextAppointmentDate": null,
+  "diagnosis": "Đái tháo đường tuýp 2",
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-flash-lite-latest"
+}

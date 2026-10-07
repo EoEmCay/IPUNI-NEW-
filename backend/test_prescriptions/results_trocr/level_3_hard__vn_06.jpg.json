@@ -1,0 +1,19 @@
+{
+  "isPrescription": false,
+  "isDiabetesPrescription": false,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "bệnh viện",
+  "rejectionReason": "Không tìm thấy thông tin thuốc được kê trong tài liệu này (ví dụ: đây là kết quả xét nghiệm hoặc ảnh chụp quá mờ).",
+  "medications": [],
+  "hasDiabetesDrugs": false,
+  "diabetesDrugs": [],
+  "doctorName": null,
+  "prescriptionDate": null,
+  "nextAppointmentDate": null,
+  "diagnosis": null,
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": null
+}

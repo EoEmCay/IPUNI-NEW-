@@ -3,3 +3,11 @@ node_modules
 database/*.db
 database/*.sqlite
 database/*.sqlite3
+
+# TrOCR (Python) - venv + cache cục bộ
+src/ai_ocr/.venv
+__pycache__
+
+# Ảnh đơn thuốc thật (dữ liệu bệnh nhân) + kết quả quét của chúng - chỉ giữ trên máy
+test_prescriptions/**/real_*
+test_prescriptions/**/*real_*

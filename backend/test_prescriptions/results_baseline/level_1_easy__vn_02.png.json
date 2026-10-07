@@ -1,0 +1,67 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "PHÒNG KHÁM ĐA KHOA HÒA BÌNH",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Lantus SoloStar",
+      "dosage": "12 đơn vị",
+      "quantity": "1 bút",
+      "amountPerDose": "12 đơn vị",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "21:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "12 đơn vị vào 21:00 tối",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Kiểm soát đường huyết ở người mắc bệnh đái tháo đường bằng cách cung cấp insulin tác dụng kéo dài.",
+        "mechanism": "Insulin glargine là một loại insulin analog tác dụng kéo dài, được thiết kế để giải phóng insulin ổn định và liên tục trong 24 giờ, giúp duy trì mức đường huyết cơ bản.",
+        "source": "ADA, Mayo Clinic, WHO"
+      },
+      "verified": true,
+      "dosageWarning": null
+    },
+    {
+      "name": "Januvia",
+      "dosage": "100mg",
+      "quantity": "28 viên",
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": 28,
+      "instructions": "1 viên uống vào buổi sáng",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Giúp hạ đường huyết ở bệnh nhân đái tháo đường loại 2.",
+        "mechanism": "Sitagliptin ức chế enzyme dipeptidyl peptidase-4 (DPP-4), làm tăng nồng độ các hormone incretin tự nhiên (GLP-1 và GIP). Các hormone này tăng cường giải phóng insulin từ tuyến tụy và giảm sản xuất glucose ở gan khi đường huyết cao.",
+        "source": "ADA, Mayo Clinic, Vinmec"
+      },
+      "verified": true,
+      "dosageWarning": null
+    }
+  ],
+  "hasDiabetesDrugs": true,
+  "diabetesDrugs": [
+    "Lantus SoloStar",
+    "Januvia"
+  ],
+  "doctorName": "Trần Thị Mai",
+  "prescriptionDate": "2026-08-20",
+  "nextAppointmentDate": null,
+  "diagnosis": "Đái tháo đường loại 2",
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-2.5-flash"
+}

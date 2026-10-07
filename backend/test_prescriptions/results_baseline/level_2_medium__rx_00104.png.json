@@ -1,0 +1,80 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "Phòng khám Sức khỏe Thành phố",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Simvastatin",
+      "dosage": "250 mg",
+      "quantity": null,
+      "amountPerDose": null,
+      "timesPerDay": null,
+      "frequency": "Theo nhu cầu",
+      "times": [],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Theo nhu cầu cho cơn đau",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Giảm cholesterol và chất béo trung tính (triglyceride) trong máu.",
+        "mechanism": "Hoạt động bằng cách ức chế một loại enzyme cần thiết cho quá trình sản xuất cholesterol trong gan.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    },
+    {
+      "name": "Amlodipine",
+      "dosage": "25 mg",
+      "quantity": null,
+      "amountPerDose": null,
+      "timesPerDay": null,
+      "frequency": "Theo nhu cầu",
+      "times": [],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Theo nhu cầu cho cơn đau",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Điều trị huyết áp cao và đau thắt ngực.",
+        "mechanism": "Làm giãn các mạch máu để máu có thể lưu thông dễ dàng hơn, giúp giảm huyết áp và tăng lưu lượng máu đến tim.",
+        "source": "Dược Thư Quốc Gia Việt Nam, Hội Tim mạch học Việt Nam"
+      },
+      "verified": true,
+      "dosageWarning": null
+    },
+    {
+      "name": "Lisinopril",
+      "dosage": "500 mg",
+      "quantity": null,
+      "amountPerDose": null,
+      "timesPerDay": null,
+      "frequency": null,
+      "times": [],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Sau bữa ăn",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Điều trị huyết áp cao và suy tim.",
+        "mechanism": "Thuộc nhóm thuốc ức chế men chuyển (ACE inhibitor), giúp thư giãn các mạch máu và giảm áp lực lên tim.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    }
+  ],
+  "hasDiabetesDrugs": false,
+  "diabetesDrugs": [],
+  "doctorName": "Bác sĩ H Johnson",
+  "prescriptionDate": "2024-12-16",
+  "nextAppointmentDate": null,
+  "diagnosis": null,
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-2.5-flash"
+}

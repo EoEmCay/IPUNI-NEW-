@@ -1,0 +1,46 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "bệnh viện",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Ciprofloxacin",
+      "dosage": "25mg",
+      "instructions": "With food",
+      "times": [],
+      "hasDoctorTime": false,
+      "durationDays": null,
+      "verified": false,
+      "dosageWarning": null,
+      "detail": {
+        "source": "AI_GENERATED"
+      }
+    },
+    {
+      "name": "Hydrochlorothiazide",
+      "dosage": "20mg",
+      "instructions": "As directed Signature .",
+      "times": [],
+      "hasDoctorTime": false,
+      "durationDays": null,
+      "verified": false,
+      "dosageWarning": null,
+      "detail": {
+        "source": "AI_GENERATED"
+      }
+    }
+  ],
+  "hasDiabetesDrugs": false,
+  "diabetesDrugs": [],
+  "doctorName": null,
+  "prescriptionDate": null,
+  "nextAppointmentDate": null,
+  "diagnosis": null,
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": null
+}

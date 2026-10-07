@@ -1,0 +1,95 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "BỆNH VIỆN NỘI TIẾT TP.HCM",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Diamicron MR",
+      "dosage": "60mg",
+      "quantity": "30 viên",
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống 1 viên buổi sáng, trước ăn",
+      "route": "uống",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Kiểm soát lượng đường huyết ở bệnh nhân đái tháo đường type 2.",
+        "mechanism": "Kích thích tế bào beta tuyến tụy tiết insulin, giúp hạ đường huyết.",
+        "source": "Mayo Clinic, ADA, Hiệp hội Y dược Việt Nam"
+      },
+      "verified": true,
+      "dosageWarning": null
+    },
+    {
+      "name": "Lantus",
+      "dosage": "18 IU",
+      "quantity": "1 bút",
+      "amountPerDose": "18 đơn vị",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "22:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Tiêm dưới da 18 đơn vị vào buổi tối lúc 22 giờ",
+      "route": "tiêm dưới da",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Cung cấp insulin nền kéo dài giúp kiểm soát đường huyết suốt cả ngày.",
+        "mechanism": "Thay thế insulin nội sinh, gắn kết với các thụ thể insulin thúc đẩy hấp thu glucose vào tế bào.",
+        "source": "ADA, Mayo Clinic, WHO"
+      },
+      "verified": true,
+      "dosageWarning": null
+    },
+    {
+      "name": "Metformin",
+      "dosage": "1000mg",
+      "quantity": "60 viên",
+      "amountPerDose": "1 viên",
+      "timesPerDay": 2,
+      "frequency": "2 lần/ngày",
+      "times": [
+        "07:00",
+        "15:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống 1 viên x 2 lần/ngày, sáng - chiều, sau ăn",
+      "route": "uống",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Giảm sản xuất glucose ở gan và tăng độ nhạy insulin.",
+        "mechanism": "Ức chế quá trình tân tạo glucose tại gan và làm giảm hấp thu glucose tại ruột.",
+        "source": "Mayo Clinic, ADA (American Diabetes Association), Vinmec"
+      },
+      "verified": true,
+      "dosageWarning": null
+    }
+  ],
+  "hasDiabetesDrugs": true,
+  "diabetesDrugs": [
+    "Diamicron MR",
+    "Lantus",
+    "Metformin"
+  ],
+  "doctorName": "BS. Võ Thanh Tùng",
+  "prescriptionDate": "2026-09-28",
+  "nextAppointmentDate": null,
+  "diagnosis": "Đái tháo đường type 2",
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-flash-lite-latest",
+  "_seconds": 32.8
+}

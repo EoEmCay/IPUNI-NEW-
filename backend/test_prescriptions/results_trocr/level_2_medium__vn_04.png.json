@@ -1,0 +1,48 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "bệnh viện",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Jardiance",
+      "dosage": "10mg",
+      "instructions": "ives",
+      "times": [],
+      "hasDoctorTime": false,
+      "durationDays": null,
+      "verified": true,
+      "dosageWarning": null,
+      "detail": {
+        "source": "ADA, Mayo Clinic, Vinmec"
+      }
+    },
+    {
+      "name": "Losartan",
+      "dosage": "50mg",
+      "instructions": "ives BS. Pham Minh Dioc",
+      "times": [],
+      "hasDoctorTime": false,
+      "durationDays": null,
+      "verified": true,
+      "dosageWarning": null,
+      "detail": {
+        "source": "Dược Thư Quốc Gia Việt Nam, Hội Tim mạch học Việt Nam"
+      }
+    }
+  ],
+  "hasDiabetesDrugs": true,
+  "diabetesDrugs": [
+    "Jardiance"
+  ],
+  "doctorName": null,
+  "prescriptionDate": null,
+  "nextAppointmentDate": null,
+  "diagnosis": null,
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": null
+}

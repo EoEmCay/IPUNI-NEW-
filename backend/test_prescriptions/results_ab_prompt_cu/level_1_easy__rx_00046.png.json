@@ -1,0 +1,67 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "Greenwood Medical Center",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Ciprofloxacin",
+      "dosage": "25 mg",
+      "quantity": null,
+      "amountPerDose": null,
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống cùng bữa ăn",
+      "route": "uống",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Kháng sinh nhóm fluoroquinolon, dùng để điều trị các bệnh nhiễm trùng do vi khuẩn.",
+        "mechanism": "Ức chế enzyme DNA gyrase và topoisomerase IV của vi khuẩn, ngăn cản sự nhân đôi DNA và tiêu diệt vi khuẩn.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    },
+    {
+      "name": "Hydrochlorothiazide",
+      "dosage": "20 mg",
+      "quantity": null,
+      "amountPerDose": null,
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Dùng theo chỉ dẫn của bác sĩ",
+      "route": "uống",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Thuốc lợi tiểu thiazide, dùng để điều trị tăng huyết áp và phù nề.",
+        "mechanism": "Ức chế tái hấp thu natri và clorua ở ống lượn xa của thận, làm tăng đào thải nước và muối qua nước tiểu.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    }
+  ],
+  "hasDiabetesDrugs": false,
+  "diabetesDrugs": [],
+  "doctorName": "Dr. M. Lee",
+  "prescriptionDate": "2024-12-16",
+  "nextAppointmentDate": null,
+  "diagnosis": null,
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-flash-lite-latest",
+  "_seconds": 4.8
+}

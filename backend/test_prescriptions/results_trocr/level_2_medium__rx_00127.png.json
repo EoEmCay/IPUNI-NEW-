@@ -1,0 +1,33 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "bệnh viện",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Prednisone",
+      "dosage": "250mg",
+      "instructions": "Signature .000 Dr. M. Lee",
+      "times": [],
+      "hasDoctorTime": false,
+      "durationDays": null,
+      "verified": false,
+      "dosageWarning": null,
+      "detail": {
+        "source": "AI_GENERATED"
+      }
+    }
+  ],
+  "hasDiabetesDrugs": false,
+  "diabetesDrugs": [],
+  "doctorName": null,
+  "prescriptionDate": null,
+  "nextAppointmentDate": null,
+  "diagnosis": null,
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": null
+}

@@ -1,0 +1,70 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "PHÒNG KHÁM ĐA KHOA HÒA BÌNH",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Lantus SoloStar",
+      "dosage": "12 IU",
+      "quantity": "1 bút",
+      "amountPerDose": "12 đơn vị",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "21:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Tiêm dưới da 12 đơn vị tối lúc 21h",
+      "route": "tiêm dưới da",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Hạ đường huyết",
+        "mechanism": "Insulin glargine tác dụng kéo dài",
+        "source": "ADA, Mayo Clinic, WHO"
+      },
+      "verified": true,
+      "dosageWarning": null
+    },
+    {
+      "name": "Januvia",
+      "dosage": "100mg",
+      "quantity": "28 viên",
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống 1 viên buổi sáng",
+      "route": "uống",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Hạ đường huyết",
+        "mechanism": "Ức chế men DPP-4",
+        "source": "ADA, Mayo Clinic, Vinmec"
+      },
+      "verified": true,
+      "dosageWarning": null
+    }
+  ],
+  "hasDiabetesDrugs": true,
+  "diabetesDrugs": [
+    "Lantus SoloStar",
+    "Januvia"
+  ],
+  "doctorName": "Trần Thị Mai",
+  "prescriptionDate": "2026-08-20",
+  "nextAppointmentDate": null,
+  "diagnosis": "Đái tháo đường tuýp 2",
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-flash-lite-latest",
+  "_seconds": 4
+}

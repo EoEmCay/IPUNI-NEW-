@@ -1,0 +1,49 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "bệnh viện",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Amaryl",
+      "dosage": "2mg",
+      "instructions": "reverence .",
+      "times": [],
+      "hasDoctorTime": false,
+      "durationDays": null,
+      "verified": true,
+      "dosageWarning": null,
+      "detail": {
+        "source": "Mayo Clinic, ADA, Vinmec"
+      }
+    },
+    {
+      "name": "Metformin",
+      "dosage": "850mg",
+      "instructions": "two 2ling s.c uống sau ăn 3 . Morvastatin 20mg. S.C.30 viên. for uslin . BS. featuring Nam",
+      "times": [],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "verified": true,
+      "dosageWarning": null,
+      "detail": {
+        "source": "Mayo Clinic, ADA (American Diabetes Association), Vinmec"
+      }
+    }
+  ],
+  "hasDiabetesDrugs": true,
+  "diabetesDrugs": [
+    "Amaryl",
+    "Metformin"
+  ],
+  "doctorName": null,
+  "prescriptionDate": null,
+  "nextAppointmentDate": null,
+  "diagnosis": null,
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": null
+}

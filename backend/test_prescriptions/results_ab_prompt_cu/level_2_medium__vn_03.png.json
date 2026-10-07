@@ -1,0 +1,94 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "Bệnh viện Bạch Mai",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Amaryl",
+      "dosage": "2mg",
+      "quantity": "30 viên",
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": 30,
+      "instructions": "Uống 1 viên buổi sáng, trước khi ăn",
+      "route": "uống",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Hạ đường huyết cho người bệnh đái tháo đường tuýp 2",
+        "mechanism": "Kích thích tế bào tuyến tụy tăng tiết insulin",
+        "source": "Mayo Clinic, ADA, Vinmec"
+      },
+      "verified": true,
+      "dosageWarning": null
+    },
+    {
+      "name": "Metformin",
+      "dosage": "850mg",
+      "quantity": "60 viên",
+      "amountPerDose": "1 viên",
+      "timesPerDay": 2,
+      "frequency": "2 lần/ngày",
+      "times": [
+        "07:00",
+        "15:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": 30,
+      "instructions": "Uống 1 viên x 2 lần/ngày, sáng và chiều, sau khi ăn",
+      "route": "uống",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Kiểm soát mức đường huyết ở bệnh nhân đái tháo đường tuýp 2",
+        "mechanism": "Giảm sản xuất glucose ở gan và cải thiện độ nhạy insulin của mô ngoại vi",
+        "source": "Mayo Clinic, ADA (American Diabetes Association), Vinmec"
+      },
+      "verified": true,
+      "dosageWarning": null
+    },
+    {
+      "name": "Atorvastatin",
+      "dosage": "20mg",
+      "quantity": "30 viên",
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "22:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": 30,
+      "instructions": "Uống 1 viên buổi tối trước khi đi ngủ",
+      "route": "uống",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Giảm cholesterol và mỡ máu, bảo vệ tim mạch",
+        "mechanism": "Ức chế men HMG-CoA reductase để giảm tổng hợp cholesterol tại gan",
+        "source": "Dược Thư Quốc Gia Việt Nam, Hội Tim mạch học Việt Nam"
+      },
+      "verified": true,
+      "dosageWarning": null
+    }
+  ],
+  "hasDiabetesDrugs": true,
+  "diabetesDrugs": [
+    "Amaryl",
+    "Metformin"
+  ],
+  "doctorName": "Lê Hoàng Nam",
+  "prescriptionDate": "2026-09-02",
+  "nextAppointmentDate": null,
+  "diagnosis": "Đái tháo đường type 2",
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-3.6-flash",
+  "_seconds": 16.4
+}

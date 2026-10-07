@@ -1,0 +1,85 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "City Health Clinic",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Simvastatin",
+      "dosage": "250mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 0,
+      "frequency": "Khi cần",
+      "times": [],
+      "hasDoctorTime": false,
+      "durationDays": null,
+      "instructions": "Uống khi cần (khi đau)",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Giúp giảm cholesterol xấu và triglyceride trong máu, hỗ trợ bảo vệ tim mạch.",
+        "mechanism": "Ức chế enzyme HMG-CoA reductase, làm giảm tổng hợp cholesterol ở gan.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null,
+      "ocrAgreement": false
+    },
+    {
+      "name": "Amlodipine",
+      "dosage": "25mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 0,
+      "frequency": "Khi cần",
+      "times": [],
+      "hasDoctorTime": false,
+      "durationDays": null,
+      "instructions": "Uống khi cần (khi đau)",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Điều trị huyết áp cao và đau thắt ngực.",
+        "mechanism": "Chẹn kênh canxi, làm giãn cơ trơn mạch máu và giảm huyết áp.",
+        "source": "Dược Thư Quốc Gia Việt Nam, Hội Tim mạch học Việt Nam"
+      },
+      "verified": true,
+      "dosageWarning": null,
+      "ocrAgreement": false
+    },
+    {
+      "name": "Lisinopril",
+      "dosage": "500mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "12:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống sau bữa ăn",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Điều trị tăng huyết áp và suy tim.",
+        "mechanism": "Ức chế men chuyển (ACE), ngăn ngừa sự hình thành angiotensin II giúp giãn mạch.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null,
+      "ocrAgreement": false
+    }
+  ],
+  "hasDiabetesDrugs": false,
+  "diabetesDrugs": [],
+  "doctorName": "Dr. H. Johnson",
+  "prescriptionDate": "2024-12-16",
+  "nextAppointmentDate": null,
+  "diagnosis": null,
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-flash-lite-latest"
+}

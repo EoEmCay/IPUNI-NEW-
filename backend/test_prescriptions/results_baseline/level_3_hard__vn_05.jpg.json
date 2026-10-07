@@ -1,0 +1,91 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "Bệnh viện Nội tiết TP.HCM",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Diamicron MR",
+      "dosage": "60mg",
+      "quantity": "30 viên",
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống 1 viên mỗi ngày",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Hỗ trợ kiểm soát lượng đường huyết ở bệnh nhân đái tháo đường tuýp 2.",
+        "mechanism": "Kích thích tế bào beta tuyến tụy tăng tiết insulin để hạ đường huyết.",
+        "source": "Mayo Clinic, ADA, Hiệp hội Y dược Việt Nam"
+      },
+      "verified": true,
+      "dosageWarning": null
+    },
+    {
+      "name": "Lantus",
+      "dosage": "100IU/ml",
+      "quantity": "1 bút",
+      "amountPerDose": "18 IU",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "19:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Tiêm dưới da 18 IU tối",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Cung cấp insulin tác dụng kéo dài để kiểm soát đường huyết nền.",
+        "mechanism": "Thay thế insulin nội sinh, ức chế sản xuất glucose ở gan và tăng hấp thu glucose vào tế bào.",
+        "source": "ADA, Mayo Clinic, WHO"
+      },
+      "verified": true,
+      "dosageWarning": null
+    },
+    {
+      "name": "Metformin",
+      "dosage": "1000mg",
+      "quantity": "60 viên",
+      "amountPerDose": "1 viên",
+      "timesPerDay": 2,
+      "frequency": "2 lần/ngày",
+      "times": [
+        "07:00",
+        "19:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống 1 viên x 2 lần/ngày sau ăn",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Giảm lượng đường huyết ở bệnh nhân đái tháo đường tuýp 2.",
+        "mechanism": "Giảm sản xuất glucose ở gan và cải thiện độ nhạy cảm với insulin.",
+        "source": "Mayo Clinic, ADA (American Diabetes Association), Vinmec"
+      },
+      "verified": true,
+      "dosageWarning": null
+    }
+  ],
+  "hasDiabetesDrugs": true,
+  "diabetesDrugs": [
+    "Diamicron MR",
+    "Lantus",
+    "Metformin"
+  ],
+  "doctorName": "Võ Thanh Tùng",
+  "prescriptionDate": "2026-09-28",
+  "nextAppointmentDate": null,
+  "diagnosis": "Đái tháo đường tuýp 2",
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-flash-lite-latest"
+}

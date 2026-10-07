@@ -1,0 +1,35 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "bệnh viện",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Lantus",
+      "dosage": null,
+      "instructions": "tiêm dưới da 12 do toi 2 1h. 2. Gannuria 100mg. S.L. 280. twading BS. Train . Phil Mail",
+      "times": [],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "verified": true,
+      "dosageWarning": null,
+      "detail": {
+        "source": "ADA, Mayo Clinic, WHO"
+      }
+    }
+  ],
+  "hasDiabetesDrugs": true,
+  "diabetesDrugs": [
+    "Lantus"
+  ],
+  "doctorName": null,
+  "prescriptionDate": null,
+  "nextAppointmentDate": null,
+  "diagnosis": null,
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": null
+}

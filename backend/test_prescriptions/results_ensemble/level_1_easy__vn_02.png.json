@@ -1,0 +1,67 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "Phòng khám đa khoa Hòa Bình",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Lantus SoloStar",
+      "dosage": "12 IU",
+      "quantity": "1 bút",
+      "amountPerDose": "12 đơn vị",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "21:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Tiêm dưới da 12 đơn vị tối lúc 21h",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Hạ đường huyết bằng insulin tác dụng kéo dài.",
+        "mechanism": "Bổ sung insulin ngoại sinh, gắn kết với thụ thể insulin ở tế bào ngoại vi để thúc đẩy hấp thu glucose và ức chế sản xuất glucose ở gan.",
+        "source": "ADA, Mayo Clinic, WHO"
+      },
+      "verified": true,
+      "dosageWarning": null
+    },
+    {
+      "name": "Januvia",
+      "dosage": "100mg",
+      "quantity": "28 viên",
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống 1 viên buổi sáng",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Kiểm soát đường huyết ở bệnh nhân đái tháo đường type 2.",
+        "mechanism": "Ức chế enzyme DPP-4, làm chậm sự phân hủy của hormone incretin, từ đó kích thích giải phóng insulin và giảm nồng độ glucagon.",
+        "source": "ADA, Mayo Clinic, Vinmec"
+      },
+      "verified": true,
+      "dosageWarning": null
+    }
+  ],
+  "hasDiabetesDrugs": true,
+  "diabetesDrugs": [
+    "Lantus SoloStar",
+    "Januvia"
+  ],
+  "doctorName": "Trần Thị Mai",
+  "prescriptionDate": "2026-08-20",
+  "nextAppointmentDate": null,
+  "diagnosis": "Đái tháo đường type 2",
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-flash-lite-latest"
+}

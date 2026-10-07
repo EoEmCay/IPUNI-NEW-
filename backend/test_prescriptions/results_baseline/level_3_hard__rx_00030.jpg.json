@@ -1,0 +1,113 @@
+{
+  "isPrescription": true,
+  "isDiabetesPrescription": true,
+  "isLabReport": false,
+  "labReportAdvice": null,
+  "hospitalName": "Bệnh viện Oakview",
+  "rejectionReason": null,
+  "medications": [
+    {
+      "name": "Amoxicillin",
+      "dosage": "500 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 2,
+      "frequency": "2 lần/ngày",
+      "times": [
+        "07:00",
+        "19:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống với thức ăn",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Kháng sinh dùng để điều trị các bệnh nhiễm trùng do vi khuẩn.",
+        "mechanism": "Ức chế tổng hợp thành tế bào vi khuẩn, tiêu diệt vi khuẩn gây bệnh.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    },
+    {
+      "name": "Acetaminophen",
+      "dosage": "500 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 3,
+      "frequency": "3 lần/ngày",
+      "times": [
+        "07:00",
+        "12:00",
+        "19:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống sau bữa ăn",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Giảm đau và hạ sốt.",
+        "mechanism": "Tác động lên trung tâm điều nhiệt ở vùng dưới đồi để hạ nhiệt và ức chế tổng hợp prostaglandin để giảm đau.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    },
+    {
+      "name": "Glimepiride",
+      "dosage": "2 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "1 lần/ngày",
+      "times": [
+        "07:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống sau bữa ăn",
+      "isDiabetesDrug": true,
+      "detail": {
+        "purpose": "Hạ đường huyết ở bệnh nhân đái tháo đường type 2.",
+        "mechanism": "Kích thích tế bào beta tuyến tụy tiết insulin.",
+        "source": "Mayo Clinic, ADA, Vinmec"
+      },
+      "verified": true,
+      "dosageWarning": null
+    },
+    {
+      "name": "Rosuvastatin",
+      "dosage": "20 mg",
+      "quantity": null,
+      "amountPerDose": "1 viên",
+      "timesPerDay": 1,
+      "frequency": "Mỗi 24 giờ",
+      "times": [
+        "19:00"
+      ],
+      "hasDoctorTime": true,
+      "durationDays": null,
+      "instructions": "Uống mỗi 24 giờ",
+      "isDiabetesDrug": false,
+      "detail": {
+        "purpose": "Giảm cholesterol xấu và chất béo trung tính trong máu, bảo vệ tim mạch.",
+        "mechanism": "Ức chế cạnh tranh men HMG-CoA reductase, làm giảm tổng hợp cholesterol ở gan.",
+        "source": "AI_GENERATED"
+      },
+      "verified": false,
+      "dosageWarning": null
+    }
+  ],
+  "hasDiabetesDrugs": true,
+  "diabetesDrugs": [
+    "Glimepiride"
+  ],
+  "doctorName": "Dr. P. Darcy",
+  "prescriptionDate": "2024-12-12",
+  "nextAppointmentDate": null,
+  "diagnosis": "Đái tháo đường type 2",
+  "doctorNotes": null,
+  "metrics": [],
+  "error": null,
+  "_model": "gemini-flash-lite-latest"
+}

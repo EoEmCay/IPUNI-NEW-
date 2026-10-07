@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import {
   Pill, CheckCircle2, Star, Sun, Sunset, Moon, ChevronDown, CalendarDays, Mic, Settings2,
-  ScanText, CalendarPlus, AlarmClock, Radio, BarChart3, NotebookPen, Salad,
+  ScanText, CalendarPlus, AlarmClock, Radio, BarChart3, NotebookPen, Salad, Droplet, ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useMedications } from '../../hooks/useMedications';
@@ -13,8 +13,12 @@ import { useT } from '../../hooks/useT';
 import MedicationCard from '../../components/medications/MedicationCard';
 import MedicationHistoryModal from '../../components/medications/MedicationHistoryModal';
 import SosSheet from '../../components/sos/SosSheet';
-import EmptyState from '../../components/common/EmptyState';
-import GlucoseCard from '../../components/metrics/GlucoseCard';
+import Modal from '../../components/common/Modal';
+import GlucoseQuickModal from '../../components/metrics/GlucoseQuickModal';
+import { useMetrics } from '../../hooks/useMetrics';
+import { getMetricStatus, getStatusLabel, STATUS_COLORS } from '../../constants/metrics';
+import { getGlucoseUnit, formatGlucose } from '../../utils/glucoseUnit';
+import { saveGlucoseReading } from '../../utils/glucoseReading';
 import NotificationBell from '../../components/layout/NotificationBell';
 import DemoCountdown from '../../components/common/DemoCountdown';
 import styles from './DashboardPage.module.css';
@@ -98,6 +102,15 @@ export default function DashboardPage() {
   const { medications, todayMedications, fetchToday, fetchMedications } = useMedications();
   const [showAdherence, setShowAdherence] = useState(false);
   const [showSos, setShowSos] = useState(false);
+  const [showMeds, setShowMeds] = useState(false);
+  const [showGlucose, setShowGlucose] = useState(false);
+  const { metrics, fetchMetrics, addMetric } = useMetrics();
+  const unit = getGlucoseUnit();
+  const loadGlucose = () => fetchMetrics(undefined, 30);
+  useEffect(() => { loadGlucose(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const latest = (metrics || []).find((m) => m.measurement_type?.startsWith('glucose'));
+  const latestStatus = latest && getMetricStatus(latest.measurement_type, latest.value, user?.diagnosis);
+  const saveGlucose = async (data) => { await saveGlucoseReading(addMetric, data, user?.diagnosis); await loadGlucose(); };
   const medicationStatus = useMedicationsStore((s) => s.medicationStatus);
   const t = useT();
   const [soon, setSoon] = useState(null);
@@ -250,32 +263,39 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <section className={styles.medicationCard} aria-labelledby="today-meds">
-        <div className={`${styles.medicationHeader} tour-step-3`}>
-          <h2 id="today-meds" className={styles.medicationTitle}>
-            <Pill size={20} color="var(--color-primary)" aria-hidden="true" />
-            {t.dashboard.todayMeds}
-          </h2>
-        </div>
+      {/* Thuốc hôm nay + Đường huyết: 2 nút gọn. Bấm thuốc -> bảng có nút "Tôi đã uống" (nguồn nhật ký báo người nhà) */}
+      <div className={styles.quickRow}>
+        <button
+          type="button"
+          className={`${styles.quick} tour-step-3`}
+          onClick={() => (todayMedications.length ? setShowMeds(true) : navigate('/scan'))}
+        >
+          <span className={styles.quickHead}><Pill size={20} aria-hidden="true" /> {t.dashboard.todayMeds}</span>
+          <span className={`${styles.quickValue} ${allDone ? styles.quickDone : ''}`}>
+            {todayMedications.length === 0 ? 'Chưa có đơn'
+              : today.totalScheduled === 0 ? `${todayMedications.length} thuốc`
+                : allDone ? <><CheckCircle2 size={18} aria-hidden="true" /> Đã uống đủ</>
+                  : `Đã uống ${today.totalTaken}/${today.totalScheduled}`}
+          </span>
+          <span className={styles.quickHint}>
+            {todayMedications.length ? 'Bấm để đánh dấu' : 'Bấm để quét đơn'} <ChevronRight size={16} aria-hidden="true" />
+          </span>
+        </button>
 
-        {today.totalScheduled > 0 && (
-          <p className={`${styles.progress} ${allDone ? styles.progressDone : ''}`}>
-            {allDone
-              ? <><CheckCircle2 size={20} aria-hidden="true" /> Hôm nay đã dùng đủ thuốc</>
-              : `Hôm nay đã dùng ${today.totalTaken}/${today.totalScheduled} thuốc`}
-          </p>
-        )}
-
-        {todayMedications.length === 0 ? (
-          <EmptyState icon={Pill} title={t.dashboard.noMeds} subtitle="Bấm ô Quét AI ở trên để thêm thuốc từ đơn." />
-        ) : (
-          <div className={styles.medList}>
-            {todayMedications.map((m) => <MedicationCard key={m.id} medication={m} />)}
-          </div>
-        )}
-      </section>
-
-      <GlucoseCard />
+        <button type="button" className={styles.quick} onClick={() => setShowGlucose(true)}>
+          <span className={styles.quickHead}><Droplet size={20} aria-hidden="true" /> Đường huyết</span>
+          {latest ? (
+            <span className={styles.quickValue} style={{ color: STATUS_COLORS[latestStatus] }}>
+              {formatGlucose(latest.value, unit)} <small className={styles.quickUnit}>{unit}</small>
+            </span>
+          ) : (
+            <span className={styles.quickValue}>Chưa đo</span>
+          )}
+          <span className={styles.quickHint}>
+            {latest ? getStatusLabel(latestStatus, t, latest.measurement_type) : 'Bấm để ghi số đo'} <ChevronRight size={16} aria-hidden="true" />
+          </span>
+        </button>
+      </div>
 
       {/* Nút nổi + thông báo gắn thẳng vào body: nằm ngoài vùng cuộn có zoom (cỡ chữ) để không lệch vị trí */}
       {createPortal(
@@ -290,6 +310,23 @@ export default function DashboardPage() {
             <MedicationHistoryModal medications={medications || []} onClose={() => setShowAdherence(false)} />
           )}
           {showSos && <SosSheet onClose={() => setShowSos(false)} />}
+          {showMeds && (
+            <Modal title={t.dashboard.todayMeds} onClose={() => setShowMeds(false)}>
+              <div className={styles.medSheet}>
+                {today.totalScheduled > 0 && (
+                  <p className={`${styles.progress} ${allDone ? styles.progressDone : ''}`}>
+                    {allDone
+                      ? <><CheckCircle2 size={20} aria-hidden="true" /> Hôm nay đã dùng đủ thuốc</>
+                      : `Hôm nay đã dùng ${today.totalTaken}/${today.totalScheduled} thuốc`}
+                  </p>
+                )}
+                <div className={styles.medList}>
+                  {todayMedications.map((m) => <MedicationCard key={m.id} medication={m} />)}
+                </div>
+              </div>
+            </Modal>
+          )}
+          {showGlucose && <GlucoseQuickModal onClose={() => setShowGlucose(false)} onSave={saveGlucose} />}
         </>,
         document.body,
       )}

@@ -17,3 +17,13 @@
 .sep { color: #CBD5E1; }
 .temp { display: inline-flex; align-items: center; gap: 2px; font-weight: 700; color: #1E293B; }
 .temp svg { color: #EF4444; }
+.chip svg { flex-shrink: 0; }
+.chip > span { white-space: nowrap; }
+
+/* Điện thoại hẹp (<= 400px, vd 360px): bỏ chữ "Buổi sáng" (biểu tượng mặt trời/trăng đã đủ nghĩa)
+   để ngày + nhiệt độ không bị cắt khi đứng chung hàng với logo/chuông. */
+@media (max-width: 400px) {
+  .chip { gap: 4px; padding: 6px 10px; }
+  .label + .sep { display: none; }
+  .label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } /* ẩn khỏi mắt, trình đọc màn hình vẫn đọc */
+}

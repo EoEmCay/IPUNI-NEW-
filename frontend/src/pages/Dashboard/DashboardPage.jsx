@@ -158,7 +158,7 @@ export default function DashboardPage() {
 
         <div className={styles.greetRow}>
           <button type="button" className={styles.avatar} onClick={() => navigate('/profile')} aria-label="Hồ sơ của tôi">
-            <span className={styles.avatarText}>Đ+</span>
+            <img src="/avatar-logo.jpg" alt="" className={styles.avatarImg} width="56" height="56" />
             <span className={styles.avatarDot} />
           </button>
           <div className={styles.greetText}>

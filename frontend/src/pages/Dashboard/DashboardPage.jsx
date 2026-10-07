@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import {
-  Pill, CheckCircle2, Star, CalendarDays, Mic, Settings2,
+  Pill, CheckCircle2, Star, Settings2,
   ScanText, CalendarPlus, AlarmClock, Radio, BarChart3, NotebookPen, Salad, Droplet, ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
@@ -63,25 +63,7 @@ function DoctorPatientArt() {
   );
 }
 
-function MascotFace() {
-  return (
-    <svg viewBox="0 0 100 100" fill="none" aria-hidden="true">
-      <ellipse cx="50" cy="50" fill="#2563eb" rx="42" ry="40" />
-      <rect fill="#0284c7" height="20" rx="4" width="8" x="2" y="40" />
-      <rect fill="#0284c7" height="20" rx="4" width="8" x="90" y="40" />
-      <ellipse cx="50" cy="54" fill="#f8fafc" rx="33" ry="29" />
-      <ellipse cx="38" cy="50" fill="#1e293b" rx="6" ry="8" />
-      <ellipse cx="62" cy="50" fill="#1e293b" rx="6" ry="8" />
-      <circle cx="36" cy="47" fill="#ffffff" r="2.5" />
-      <circle cx="60" cy="47" fill="#ffffff" r="2.5" />
-      <ellipse cx="32" cy="60" fill="#fda4af" rx="4" ry="2" />
-      <ellipse cx="68" cy="60" fill="#fda4af" rx="4" ry="2" />
-      <path d="M44 60 Q50 67 56 60" fill="none" stroke="#1e293b" strokeLinecap="round" strokeWidth="2.5" />
-    </svg>
-  );
-}
-
-// Trang chủ (giao diện mới 10/2026): header riêng, trợ lý, banner, lưới tiện ích; bên dưới vẫn giữ
+// Trang chủ (giao diện mới 10/2026): header riêng, banner, lưới tiện ích; bên dưới vẫn giữ
 // "Thuốc hôm nay" (nút Tôi đã uống - nhật ký uống thuốc là nguồn để báo người nhà) + đường huyết.
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -103,21 +85,8 @@ export default function DashboardPage() {
   const [soon, setSoon] = useState(null);
   const [slide, setSlide] = useState(0);
   const carouselRef = useRef(null);
-  const gridRef = useRef(null);
-  const [gridVisible, setGridVisible] = useState(true);
 
   useEffect(() => { fetchToday(); }, [fetchToday]);
-  // Robot nổi tự ẩn khi lưới tiện ích chạy qua đúng dải robot đứng (~80-170px từ đáy) -> không bao giờ
-  // che ô SOS/tiện ích; cuộn tới phần khác thì robot hiện lại.
-  useEffect(() => {
-    const el = gridRef.current;
-    if (!el || !('IntersectionObserver' in window)) return undefined;
-    const io = new IntersectionObserver(([entry]) => setGridVisible(entry.isIntersecting), {
-      rootMargin: `${-(window.innerHeight - 170)}px 0px -80px 0px`,
-    });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
   useEffect(() => {
     if (!soon) return undefined;
     const timer = setTimeout(() => setSoon(null), 2200);
@@ -170,16 +139,6 @@ export default function DashboardPage() {
         <DemoCountdown />
       </header>
 
-      <section className={styles.assistant}>
-        <button type="button" className={styles.assistantMain} onClick={() => setSoon('Trợ lý DIAPLUS')}>
-          <span className={styles.assistantIcon}><CalendarDays size={22} aria-hidden="true" /></span>
-          <span className={styles.assistantText}>Trò chuyện cùng Trợ lý <b>DIAPLUS</b></span>
-        </button>
-        <button type="button" className={styles.micBtn} onClick={() => setSoon('Trợ lý giọng nói')} aria-label="Nói với trợ lý">
-          <Mic size={22} aria-hidden="true" />
-        </button>
-      </section>
-
       <section aria-label="Giới thiệu DIA+">
         <div className={styles.carousel} ref={carouselRef} onScroll={onCarouselScroll}>
           <div className={styles.banner}>
@@ -224,7 +183,7 @@ export default function DashboardPage() {
             <Settings2 size={16} aria-hidden="true" /> Tùy chỉnh
           </button>
         </div>
-        <div className={styles.grid} ref={gridRef}>
+        <div className={styles.grid}>
           {UTILITIES.map((item) => {
             const Icon = item.icon;
             return (
@@ -276,14 +235,9 @@ export default function DashboardPage() {
         </button>
       </div>
 
-      {/* Nút nổi + thông báo gắn thẳng vào body: nằm ngoài vùng cuộn có zoom (cỡ chữ) để không lệch vị trí */}
+      {/* Thông báo + các bảng gắn thẳng vào body: nằm ngoài vùng cuộn có zoom (cỡ chữ) để không lệch vị trí */}
       {createPortal(
         <>
-          {!gridVisible && (
-            <button type="button" className={styles.mascot} onClick={() => setSoon('Trợ lý DIAPLUS')} aria-label="Trợ lý DIAPLUS">
-              <MascotFace />
-            </button>
-          )}
           {soon && <div className={styles.soonToast} role="status">{soon} sắp ra mắt</div>}
           {showAdherence && (
             <MedicationHistoryModal medications={medications || []} onClose={() => setShowAdherence(false)} />

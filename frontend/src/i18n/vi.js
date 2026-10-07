@@ -186,7 +186,7 @@ const vi = {
       c_peptide: 'Thấp (thiếu insulin): <0.5 | Bình thường: 0.5–2.0 | Cao (kháng insulin): >2.0 ng/mL',
     },
     statusLow: 'Hạ đường huyết',
-    statusNormal: 'Đạt mục tiêu',
+    statusNormal: 'Bình thường',
     statusAboveTarget: 'Hơi cao',
     statusWarning: 'Cảnh báo',
     statusDanger: 'Cao, cần chú ý',

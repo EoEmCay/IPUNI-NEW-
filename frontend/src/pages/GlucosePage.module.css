@@ -119,7 +119,53 @@
 }
 
 .latestUnit { font-size: 17px; color: var(--color-text-secondary); }
-.latestStatus { font-size: 19px; font-weight: 700; }
+
+.latestCard {
+  flex-direction: row;
+  align-items: center;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+}
+.latestBody { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+.when { font-size: 15px; color: var(--color-text-secondary); }
+.latestValue { color: var(--color-text-primary); }
+.statusChip {
+  align-self: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 700;
+}
+.chev { color: var(--color-text-secondary); flex-shrink: 0; }
+
+.chartHead { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.chartTitle { margin: 0; display: flex; align-items: center; gap: 6px; font-size: 17px; font-weight: 700; color: var(--color-text-primary); }
+.chartTitle svg { color: var(--color-primary); }
+.chartHead .units { min-width: 168px; }
+
+.avgCard { flex-direction: row; align-items: center; gap: 12px; }
+.avgIcon {
+  width: 52px; height: 52px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+.avgBody { flex: 1; min-width: 0; }
+.avgLabel { margin: 0; font-size: 15px; font-weight: 600; color: var(--color-text-primary); }
+.avgLabel span { color: var(--color-text-secondary); font-weight: 500; white-space: nowrap; }
+.avgValue { margin: 2px 0 0; font-size: 30px; font-weight: 800; color: var(--color-text-primary); font-variant-numeric: tabular-nums; }
+.avgValue small { font-size: 16px; font-weight: 600; color: var(--color-text-secondary); }
+.diff {
+  flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-light);
+}
+.diffMain { display: flex; align-items: center; gap: 4px; font-size: 15px; font-weight: 700; color: var(--color-primary); }
+.diffSub { font-size: 14px; color: var(--color-text-secondary); }
 
 .empty {
   margin: 0;

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import {
-  Pill, CheckCircle2, Star, Sun, Sunset, Moon, ChevronDown, CalendarDays, Mic, Settings2,
+  Pill, CheckCircle2, Star, CalendarDays, Mic, Settings2,
   ScanText, CalendarPlus, AlarmClock, Radio, BarChart3, NotebookPen, Salad, Droplet, ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
@@ -21,6 +21,7 @@ import { getGlucoseUnit, formatGlucose } from '../../utils/glucoseUnit';
 import { saveGlucoseReading } from '../../utils/glucoseReading';
 import NotificationBell from '../../components/layout/NotificationBell';
 import DemoCountdown from '../../components/common/DemoCountdown';
+import DayChip from '../../components/common/DayChip';
 import styles from './DashboardPage.module.css';
 
 const BELL_CSS = { btn: styles.bellBtn, hasBadge: styles.bellHasBadge, active: styles.bellActive, badge: styles.bellBadge };
@@ -36,20 +37,6 @@ const UTILITIES = [
   { key: 'nutrition', label: 'Chế độ dinh dưỡng', icon: Salad, tone: 'green', to: '/advice' },
   { key: 'sos', label: 'Cảnh báo SOS', tone: 'sos' },
 ];
-
-function dayPart() {
-  const h = new Date().getHours();
-  if (h < 11) return { label: 'Buổi sáng', icon: Sun };
-  if (h < 14) return { label: 'Buổi trưa', icon: Sun };
-  if (h < 18) return { label: 'Buổi chiều', icon: Sunset };
-  return { label: 'Buổi tối', icon: Moon };
-}
-
-function shortDate() {
-  const now = new Date();
-  const pad = (n) => String(n).padStart(2, '0');
-  return `${pad(now.getDate())}/${pad(now.getMonth() + 1)}`;
-}
 
 // Hình bác sĩ + người bệnh ở banner (vẽ lại từ bản thiết kế).
 function DoctorPatientArt() {
@@ -142,8 +129,6 @@ export default function DashboardPage() {
     [todayMedications, medicationStatus] // eslint-disable-line react-hooks/exhaustive-deps
   );
   const allDone = today.totalScheduled > 0 && today.totalTaken >= today.totalScheduled;
-  const part = dayPart();
-  const PartIcon = part.icon;
 
   const open = (item) => {
     if (item.to) return navigate(item.to);
@@ -168,13 +153,7 @@ export default function DashboardPage() {
             <span className={styles.vipStar}><Star size={16} fill="currentColor" aria-hidden="true" /></span>
             <span className={styles.vipText}>HỘI VIÊN<span className={styles.vipSub}>ĐẶC BIỆT</span></span>
           </button>
-          <div className={styles.dayChip}>
-            <PartIcon size={18} className={styles.dayIcon} aria-hidden="true" />
-            <span className={styles.dayLabel}>{part.label}</span>
-            <span className={styles.daySep} aria-hidden="true">|</span>
-            <span className={styles.dayDate}>{shortDate()}</span>
-            <ChevronDown size={14} aria-hidden="true" />
-          </div>
+          <DayChip />
         </div>
 
         <div className={styles.greetRow}>

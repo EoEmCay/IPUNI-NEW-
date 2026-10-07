@@ -86,7 +86,7 @@ export default function GlucoseChart({ readings, unit, diagnosis }) {
       </svg>
       <ul className={styles.legend}>
         <li><span style={{ background: STATUS_COLORS.low }} />Thấp</li>
-        <li><span style={{ background: STATUS_COLORS.normal }} />Đạt mục tiêu</li>
+        <li><span style={{ background: STATUS_COLORS.normal }} />Bình thường</li>
         <li><span style={{ background: STATUS_COLORS.above_target }} />Hơi cao</li>
         <li><span style={{ background: STATUS_COLORS.danger }} />Cao</li>
         <li className={styles.legendSafe}><span />Vùng an toàn {unit === 'mg/dL' ? '70–180' : '3.9–10'} {unit}</li>

@@ -49,24 +49,6 @@
 }
 .vipSub { font-size: 12px; font-weight: 700; }
 
-.dayChip {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 44px;
-  padding: 6px 14px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  box-shadow: var(--shadow-sm);
-  font-size: 14px;
-  color: #475569;
-  white-space: nowrap;
-}
-.dayIcon { color: #F59E0B; }
-.dayLabel { font-weight: 700; color: #1E293B; }
-.daySep { color: #CBD5E1; }
-
 .greetRow { display: flex; align-items: center; gap: 14px; }
 
 .avatar {

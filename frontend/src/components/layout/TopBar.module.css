@@ -9,57 +9,30 @@
   box-sizing: border-box;
   height: calc(var(--color-topbar-height) + var(--safe-top));
   padding-top: var(--safe-top);
-  background: var(--color-primary);
+  background: var(--color-bg);
+  gap: 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding-left: max(16px, var(--safe-left));
   padding-right: max(16px, var(--safe-right));
   z-index: 999;
-  box-shadow: 0 2px 8px rgba(27,95,166,0.18);
   transition: background 0.3s ease, box-shadow 0.3s ease;
-}
-
-:global([data-theme="gold"]) .topbar {
-  background: linear-gradient(135deg, #9A6B00 0%, #C9921A 45%, #F0C040 100%);
-  box-shadow: 0 2px 12px rgba(184,134,11,0.35);
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.logoText {
-  color: #fff;
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: 1px;
 }
 
 .bellBtn {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.15);
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid #fff;
+  box-shadow: var(--shadow-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  border: none;
+  color: #64748B;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.15s;
-}
-
-.bellBtn:hover { background: rgba(255,255,255,0.25); }
-
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  position: relative;
 }
 
 .bellBtn {
@@ -67,6 +40,8 @@
 }
 
 /* Only red dot badge when there are notifications */
+/* chấm đỏ khi có thông báo */
+.bellBtn.hasBadge { color: #0F766E; }
 .bellBtn.hasBadge .badge {
   animation: none;
 }

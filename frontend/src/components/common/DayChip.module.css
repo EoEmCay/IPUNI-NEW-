@@ -1,0 +1,19 @@
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: var(--shadow-sm);
+  font-size: 14px;
+  color: #475569;
+  white-space: nowrap;
+}
+.icon { color: #F59E0B; }
+.label { font-weight: 700; color: #1E293B; }
+.sep { color: #CBD5E1; }
+.temp { display: inline-flex; align-items: center; gap: 2px; font-weight: 700; color: #1E293B; }
+.temp svg { color: #EF4444; }

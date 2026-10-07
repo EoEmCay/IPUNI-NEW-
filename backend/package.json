@@ -8,7 +8,7 @@
     "migrate": "knex migrate:latest",
     "migrate:rollback": "knex migrate:rollback",
     "seed": "knex seed:run",
-    "test": "node src/modules/medications/medicationSchedule.test.js && node src/modules/auth/googleLogin.test.js && node src/modules/auth/facebookLogin.test.js && node src/modules/scan/scanFuzzy.test.js && node src/services/zns.test.js && node src/services/telegram.test.js",
+    "test": "node src/modules/medications/medicationSchedule.test.js && node src/modules/auth/googleLogin.test.js && node src/modules/auth/facebookLogin.test.js && node src/modules/scan/scanFuzzy.test.js && node src/modules/scan/scanPresets.test.js && node src/services/zns.test.js && node src/services/telegram.test.js",
     "test:schedule": "node src/modules/medications/medicationSchedule.test.js"
   },
   "dependencies": {
@@ -21,6 +21,7 @@
     "express": "^4.19.2",
     "express-rate-limit": "^8.5.2",
     "helmet": "^8.2.0",
+    "jimp": "^1.6.1",
     "jsonrepair": "^3.15.0",
     "jsonwebtoken": "^9.0.2",
     "knex": "^3.1.0",

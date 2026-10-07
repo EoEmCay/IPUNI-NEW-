@@ -2,6 +2,7 @@ const svc = require('./scan.service');
 const { sendSuccess, sendError } = require('../../utils/response.helper');
 const { findMedicationInDatabase } = require('./scan.service');
 const { publish } = require('../../realtime/eventBus');
+const { findPreset } = require('./scanPresets');
 
 const fs = require('fs');
 
@@ -36,7 +37,11 @@ async function analyzePrescription(req, res, next) {
 
     const fileBuffer = fs.readFileSync(req.file.path);
     const lang = req.body.lang || 'vi';
-    const result = await svc.analyzePrescription(fileBuffer, req.file.mimetype, lang);
+    // Tài khoản dùng thử (buổi thi/demo): ảnh trùng đơn mẫu -> trả kết quả quét sẵn ngay, không chờ AI.
+    // Tài khoản thật luôn quét bằng AI. Lỗi đối chiếu -> cũng quét AI như cũ.
+    const preset = isDemo ? await findPreset(fileBuffer).catch(() => null) : null;
+    if (preset) console.log(`[Scan] Khớp đơn mẫu ${preset.label} (${preset.similarity.toFixed(3)})`);
+    const result = preset ? preset.result : await svc.analyzePrescription(fileBuffer, req.file.mimetype, lang);
 
     if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
 

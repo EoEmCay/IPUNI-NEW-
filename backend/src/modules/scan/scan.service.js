@@ -124,6 +124,7 @@ CRITICAL INSTRUCTIONS:
 - A valid medical prescription MUST contain a list of prescribed medications (drugs with names and dosages/frequencies).
 - You MUST extract ALL medications found in the prescription without exception. If there are 7 medications, return 7. Do NOT truncate, do NOT summarize, and do NOT skip ANY medication under any circumstances.
 - You MUST explicitly search for and extract the Doctor's name (doctorName), the Prescription Date (prescriptionDate), the Next Appointment Date (nextAppointmentDate), and any Doctor's Notes/Instructions (doctorNotes). These are very important.
+- doctorNotes = the printed "Lời dặn" section PLUS all handwritten notes on the paper (not only the printed line).
 - Extract any patient health metrics (e.g. Glucose, HbA1c, Blood Pressure, Weight, Height) present in the document into the "metrics" array. Do NOT parse diagnostic parameters as medications.
 - If the document is a laboratory test result, diagnostic imaging report, referral letter, or if the text is unreadable, set "isPrescription" to false.
 
@@ -168,7 +169,7 @@ JSON Schema:
   "prescriptionDate": "Prescription date in YYYY-MM-DD format" or null,
   "nextAppointmentDate": "Next appointment date in YYYY-MM-DD format" or null,
   "diagnosis": "Detailed diagnosis in ${targetLang}" or null,
-  "doctorNotes": "Doctor instructions/notes in ${targetLang}" or null,
+  "doctorNotes": "EVERYTHING the doctor wrote as advice/notes in ${targetLang}: the printed 'Lời dặn' text AND every handwritten line under or around it (handwritten notes are often the most important part), transcribed in reading order and joined with '; '. Example: 'Mang đơn này đi khám lần sau; Mua: Insulin 30/70 tiêm sáng 18 đơn vị, chiều 12 đơn vị; Glucophage'. Handwritten drug lines must ALSO appear in medications. Do not drop a handwritten line just because it is hard to read - transcribe your best reading" or null,
   "medications": [{
     "name": "Drug name only, as written on the prescription after decoding (e.g. Metformin, Diamicron MR, Lantus)",
     "dosage": "Strength per tablet with its unit, exactly as written (e.g. 500mg, 0.5mg). For insulin: units per injection (e.g. 12 IU)",

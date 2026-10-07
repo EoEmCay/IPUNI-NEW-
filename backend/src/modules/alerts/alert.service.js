@@ -6,7 +6,7 @@ const { notifyCaregivers } = require('./caregiverNotify');
 const logger = require('../../utils/logger');
 
 /** Đưa 1 cảnh báo vào clinical_alerts (idempotent theo dedupe_key) + phát realtime + báo người nhà nếu critical. */
-async function queue(patientId, alert) {
+async function queue(patientId, alert, { doseInstant } = {}) {
   try {
     await db('clinical_alerts')
       .insert({ patient_id: patientId, ...alert })
@@ -25,7 +25,7 @@ async function queue(patientId, alert) {
 
   if (!row.notified_caregiver) {
     const flag = ['missed_dose', 'skipped_dose'].includes(alert.type) ? 'alert_on_missed_dose' : 'alert_on_critical_glucose';
-    await notifyCaregivers(patientId, row, { onlyFlag: flag });
+    await notifyCaregivers(patientId, row, { onlyFlag: flag, doseInstant });
     await db('clinical_alerts').where({ id: row.id }).update({ notified_caregiver: true });
   }
   return row;

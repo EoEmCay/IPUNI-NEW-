@@ -170,6 +170,8 @@ app.use(errorMiddleware);
 const db = require('./src/config/database');
 const { cleanupExpiredDemos } = require('./src/utils/cleanupDemo');
 const { startMissedDoseJob } = require('./src/jobs/missedDoseChecker');
+const { startDoseReminderJob } = require('./src/jobs/doseReminder');
+const { startTelegramBot } = require('./src/jobs/telegramBot');
 
 async function startServer() {
   try {
@@ -197,6 +199,14 @@ async function startServer() {
       logger.info('[Hệ thống] Đã khởi động job kiểm tra liều thuốc quên định kỳ (5 phút)');
     } catch (e) {
       logger.error(`[Hệ thống] Lỗi khởi động MissedDoseJob: ${e.message}`);
+    }
+
+    // Nhắc uống thuốc qua Telegram / Zalo ZNS (mỗi kênh tự tắt khi chưa cấu hình)
+    try {
+      startDoseReminderJob();
+      startTelegramBot();
+    } catch (e) {
+      logger.error(`[Hệ thống] Lỗi khởi động nhắc thuốc ngoài app: ${e.message}`);
     }
   });
   server.timeout = 300000;

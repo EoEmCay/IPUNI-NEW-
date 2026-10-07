@@ -11,7 +11,10 @@ export const authService = {
   verifyOtp: (email, userOtp) => api.post('/auth/verify-otp', { email, userOtp }),
   getMe: () => api.get('/auth/me'),
   logout: () => api.post('/auth/logout'),
+  getProfile: () => api.get('/users/profile'),
   updateProfile: (data) => api.put('/users/profile', data),
+  getTelegramLink: () => api.get('/users/telegram-link'),
+  unlinkTelegram: () => api.delete('/users/telegram'),
   acknowledgeSession: () => api.post('/auth/acknowledge-session'),
 
   loginStatus: (requestId) => api.get('/auth/login-status', { params: { requestId } }),

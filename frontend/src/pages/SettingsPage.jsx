@@ -3,6 +3,8 @@ import useAccessibilityStore from '../store/accessibilityStore';
 import { useT } from '../hooks/useT';
 import UpgradeCard from '../components/settings/UpgradeCard';
 import FamilyCard from '../components/settings/FamilyCard';
+import ZaloReminderCard from '../components/settings/ZaloReminderCard';
+import TelegramCard from '../components/settings/TelegramCard';
 import styles from './SettingsPage.module.css';
 
 const ZOOM_LEVELS = [
@@ -51,6 +53,8 @@ export default function SettingsPage() {
         </div>
       </section>
 
+      <TelegramCard />
+      <ZaloReminderCard />
       <FamilyCard />
       <UpgradeCard />
 

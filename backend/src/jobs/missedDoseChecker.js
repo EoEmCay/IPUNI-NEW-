@@ -51,7 +51,7 @@ async function runMissedDoseCheck() {
         detail: `Cữ ${dose.slot} ngày ${sched.vnDayMonth(dose.instant)} — đã quá ${overdueMin} phút mà chưa uống.`,
         dedupe_key: `missed:${med.id}:${dose.instant.toISOString()}`,
       };
-      await queue(med.user_id, alert);
+      await queue(med.user_id, alert, { doseInstant: dose.instant });
       publish('patient.medication_logged', {
         patientId: med.user_id,
         log: { medication_id: med.id, status: 'missed', slot_time: dose.slot },

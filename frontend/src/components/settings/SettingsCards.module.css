@@ -50,6 +50,8 @@
 
 .primary { background: var(--color-primary); color: #fff; }
 .primary:disabled { opacity: 0.5; }
+a.primary { display: flex; align-items: center; justify-content: center; text-decoration: none; }
+a.primary[aria-disabled="true"] { opacity: 0.5; pointer-events: none; }
 .secondary { background: var(--color-surface); color: var(--color-text-secondary); border: 1.5px solid var(--color-border); }
 
 .error { margin: 0; font-size: 16px; color: var(--color-danger); }

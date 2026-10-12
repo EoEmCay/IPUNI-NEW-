@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { Settings, Mic, Square, Play, Trash2, Activity, HeartHandshake, History, ChevronRight } from 'lucide-react';
+import { Settings, Mic, Square, Play, Trash2, Activity, HeartHandshake, History, ChevronRight, PhoneCall } from 'lucide-react';
 import { voiceAlertService, ALERT_TYPES } from '../services/voiceAlert.service';
 import { useMedications } from '../hooks/useMedications';
 import { useT } from '../hooks/useT';
 import MedicationHistoryModal from '../components/medications/MedicationHistoryModal';
+import { triggerFamilyAlarm } from '../components/common/FamilyAlarmModal';
 // Dùng chung style với trang Cài đặt (trước đây 2 phần này nằm chung 1 trang)
 import styles from './SettingsPage.module.css';
 import PageHeader from '../components/common/PageHeader';
@@ -49,6 +50,7 @@ export default function VoicePage() {
   const [recordingId, setRecordingId] = useState(null);
   const [playingId, setPlayingId] = useState(null);
   const mediaRecorderRef = useRef(null);
+  const streamRef = useRef(null);
   const audioChunksRef = useRef([]);
 
   const loadSettings = async () => {
@@ -60,12 +62,17 @@ export default function VoicePage() {
     loadSettings();
     return () => {
       voiceAlertService.stopAlert();
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+      }
     };
   }, []);
 
   const startRecording = async (alertType) => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
@@ -85,6 +92,9 @@ export default function VoicePage() {
         
         // Stop all tracks
         stream.getTracks().forEach(track => track.stop());
+        if (streamRef.current === stream) {
+          streamRef.current = null;
+        }
       };
 
       mediaRecorder.start();
@@ -97,6 +107,10 @@ export default function VoicePage() {
   const stopRecording = () => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
     }
     setRecordingId(null);
   };
@@ -129,6 +143,47 @@ export default function VoicePage() {
   return (
     <div className={styles.page}>
       <PageHeader title="Giọng nhắc" subtitle={s.voiceDesc} />
+
+      <div
+        style={{
+          background: 'linear-gradient(135deg, #0f766e 0%, #047857 100%)',
+          color: '#ffffff',
+          borderRadius: '18px',
+          padding: '16px',
+          marginBottom: '16px',
+          boxShadow: '0 8px 20px rgba(15, 118, 110, 0.28)',
+        }}
+      >
+        <div style={{ fontSize: '17px', fontWeight: 800, marginBottom: '6px' }}>
+          🔔 Chế độ Báo thức Cuộc gọi Gia đình (Tầng 1)
+        </div>
+        <p style={{ fontSize: '14px', lineHeight: 1.4, opacity: 0.92, margin: '0 0 12px' }}>
+          Đến giờ uống thuốc, màn hình tự bật sáng với ảnh &amp; giọng con cháu ghi âm, không dùng số lạ.
+          Ông/bà chỉ cần bấm 1 nút xanh hoặc nói &ldquo;Uống rồi&rdquo;.
+        </p>
+        <button
+          type="button"
+          onClick={() => triggerFamilyAlarm({ meds: medications || [] })}
+          style={{
+            width: '100%',
+            minHeight: '48px',
+            background: '#ffffff',
+            color: '#0f766e',
+            border: 'none',
+            borderRadius: '14px',
+            fontSize: '16px',
+            fontWeight: 800,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            cursor: 'pointer',
+          }}
+        >
+          <PhoneCall size={20} />
+          Xem thử Chuông Gọi Nhắc Thuốc Của Con
+        </button>
+      </div>
 
       <div className={styles.alertList}>
         {ALERT_CONFIG.map((item) => {

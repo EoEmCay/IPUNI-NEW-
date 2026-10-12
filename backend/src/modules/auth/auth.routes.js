@@ -12,7 +12,6 @@ router.get('/me', authMiddleware, controller.getMe);
 router.post('/logout', authMiddleware, controller.logout);
 router.post('/google-login', controller.googleLogin);
 router.post('/facebook-login', controller.facebookLogin);
-router.post('/demo-login', controller.demoLogin);
 router.post('/acknowledge-session', authMiddleware, controller.acknowledgeSession);
 
 // Xác thực đăng nhập thiết bị mới (approval flow 2 thiết bị)

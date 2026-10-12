@@ -25,7 +25,25 @@ export default function MedicationsPage() {
   const [showForm, setShowForm] = useState(false);
   const [selectedMed, setSelectedMed] = useState(null);
   const [selectedGroup, setSelectedGroup] = useState(null);
-  const [expanded, setExpanded] = useState({}); // đơn đã thu gọn mà người dùng mở ra xem lại
+  // Quản lý trạng thái mở/thu gọn của từng đơn thuốc:
+  // Mặc định: đơn đang uống (active) thì mở (true), đơn đã uống xong (collapsed) thì thu gọn (false)
+  const [openMap, setOpenMap] = useState({});
+
+  const isGroupOpen = (group) => {
+    if (openMap[group.key] !== undefined) {
+      return openMap[group.key];
+    }
+    return group.status !== 'collapsed';
+  };
+
+  const toggleGroupOpen = (group, e) => {
+    if (e) e.stopPropagation();
+    const currentlyOpen = isGroupOpen(group);
+    setOpenMap((prev) => ({
+      ...prev,
+      [group.key]: !currentlyOpen,
+    }));
+  };
 
   useEffect(() => {
     fetchMedications();
@@ -53,15 +71,23 @@ export default function MedicationsPage() {
       ) : (
         <div className={styles.list}>
           {groups.map((group, i) => {
-            const collapsed = group.status === 'collapsed' && !expanded[group.key];
+            const isOpen = isGroupOpen(group);
+            const collapsed = !isOpen;
             return (
               <section key={group.key} className={styles.prescription} aria-label={`Đơn thuốc ${group.number}`}>
                 {i === firstCollapsed && <h2 className={styles.doneHeading}>Đơn đã uống xong</h2>}
-                <button
-                  type="button"
+                <div
                   className={`${styles.prescriptionHead} ${group.status !== 'active' ? styles.doneHead : ''}`}
-                  onClick={() => (collapsed ? setExpanded((e) => ({ ...e, [group.key]: true })) : setSelectedGroup(group))}
-                  aria-expanded={group.status === 'collapsed' ? !collapsed : undefined}
+                  onClick={() => (collapsed ? toggleGroupOpen(group) : setSelectedGroup(group))}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      collapsed ? toggleGroupOpen(group) : setSelectedGroup(group);
+                    }
+                  }}
+                  aria-expanded={isOpen}
                 >
                   <span className={styles.badge} style={{ background: group.status === 'active' ? group.color.c : 'var(--color-text-secondary)' }}>
                     Đơn {group.number}
@@ -76,11 +102,22 @@ export default function MedicationsPage() {
                     </span>
                     <SupplyStatus group={group} />
                   </span>
-                  {collapsed
-                    ? <ChevronDown size={22} className={styles.chevron} aria-hidden="true" />
-                    : <ChevronRight size={22} className={styles.chevron} aria-hidden="true" />}
-                </button>
-                {!collapsed && (
+                  <button
+                    type="button"
+                    className={styles.chevronBtn}
+                    onClick={(e) => toggleGroupOpen(group, e)}
+                    aria-label={isOpen ? `Thu gọn Đơn ${group.number}` : `Mở xem Đơn ${group.number}`}
+                    title={isOpen ? 'Bấm để thu gọn đơn thuốc' : 'Bấm để mở đơn thuốc'}
+                  >
+                    <ChevronDown
+                      size={22}
+                      strokeWidth={2.2}
+                      className={`${styles.chevron} ${isOpen ? styles.chevronOpen : styles.chevronCollapsed}`}
+                      aria-hidden="true"
+                    />
+                  </button>
+                </div>
+                {isOpen && (
                   <div className={group.status !== 'active' ? styles.doneTiles : undefined}>
                     <MedicationGrid>
                       {group.medications.map((m) => (

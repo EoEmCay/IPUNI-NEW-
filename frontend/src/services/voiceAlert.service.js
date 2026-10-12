@@ -39,11 +39,15 @@ export const voiceAlertService = {
    */
   stopAlert() {
     if (this.currentAudio) {
+      this.currentAudio.onended = null;
+      this.currentAudio.onerror = null;
       this.currentAudio.pause();
       this.currentAudio.currentTime = 0;
       this.currentAudio = null;
     }
-    window.speechSynthesis.cancel();
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
   },
 
   /**
@@ -108,7 +112,7 @@ export const voiceAlertService = {
   /**
    * Phát một âm thanh cảnh báo (Custom Voice hoặc Google TTS)
    */
-  // ttsText: câu đọc thay cho câu mặc định khi chưa ghi âm (vd "Bác Lan đã bỏ qua cữ Metformin")
+  // ttsText: câu đọc thay cho câu mặc định khi chưa ghi âm
   async playAlert(alertType, medsToTake = [], onEndedCallback = null, ttsText = null) {
     try {
       this.stopAlert();
@@ -121,6 +125,7 @@ export const voiceAlertService = {
         this.currentAudio = new Audio(setting.audioBase64);
         if (onEndedCallback) {
           this.currentAudio.onended = onEndedCallback;
+          this.currentAudio.onerror = onEndedCallback;
         }
         await this.currentAudio.play();
       } else {
@@ -130,15 +135,11 @@ export const voiceAlertService = {
           return;
         }
 
-        // Nếu là nhắc thuốc và có danh sách thuốc
-        if (alertType.startsWith('med_') && medsToTake.length > 0) {
+        // Chỉ nối danh sách thuốc khi dùng câu mặc định (không truyền ttsText riêng)
+        if (!ttsText && alertType.startsWith('med_') && medsToTake.length > 0) {
           text += ` Các thuốc cần uống là: ${medsToTake.join(', ')}.`;
         }
 
-        // Ưu tiên giọng "chị Google dịch" thật - đồng bộ y hệt cho mọi người dùng, thay
-        // vì phụ thuộc giọng có sẵn trên từng máy. Nếu backend/mạng lỗi (endpoint này
-        // không chính thức, Google có thể chặn bất cứ lúc nào), rơi về giọng máy như cũ -
-        // KHÔNG BAO GIỜ để lời nhắc thuốc bị im lặng hoàn toàn chỉ vì 1 API phụ trợ lỗi.
         const playedOnServer = await this._speakWithServerTTS(text, onEndedCallback);
         if (!playedOnServer) {
           this._speakWithBrowserTTS(text, onEndedCallback);
@@ -146,6 +147,7 @@ export const voiceAlertService = {
       }
     } catch (e) {
       console.error("Lỗi khi phát cảnh báo giọng nói: ", e);
+      if (onEndedCallback) onEndedCallback();
     }
   },
 

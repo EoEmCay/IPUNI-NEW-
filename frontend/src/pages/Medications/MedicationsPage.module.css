@@ -48,6 +48,13 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   text-align: left;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.prescriptionHead:hover {
+  border-color: #CBD5E1;
 }
 
 .badge {
@@ -78,7 +85,46 @@
   overflow-wrap: anywhere;
 }
 
-.chevron { flex-shrink: 0; color: var(--color-text-secondary); }
+.chevronBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  color: #1E293B;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.15s ease;
+}
+
+.chevronBtn:hover {
+  background: rgba(15, 23, 42, 0.06);
+}
+
+.chevronBtn:active {
+  background: rgba(15, 23, 42, 0.12);
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: #1E293B;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center center;
+}
+
+/* Khi thu gọn: mũi tên chỉ thẳng xuống dưới (0deg) */
+.chevronCollapsed {
+  transform: rotate(0deg);
+}
+
+/* Khi mở đơn thuốc: mũi tên quay sang phải 90 độ (-90deg -> chỉ sang phải '>') */
+.chevronOpen {
+  transform: rotate(-90deg);
+}
 
 /* Đơn đã hết thuốc: nền xám, thuốc mờ đi để không lẫn với đơn đang uống */
 .doneHeading {

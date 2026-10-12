@@ -3,7 +3,7 @@ import { ALERT_TYPES } from '../../services/voiceAlert.service';
 import { useMedications } from '../../hooks/useMedications';
 import { useToast } from '../../hooks/useToast';
 import { useT } from '../../hooks/useT';
-import { notifyWithEffects } from '../../lib/notify';
+import FamilyAlarmModal, { triggerFamilyAlarm } from './FamilyAlarmModal';
 
 export default function VoiceAlertEngine() {
   const { medications, fetchMedications } = useMedications();
@@ -33,6 +33,7 @@ export default function VoiceAlertEngine() {
 
       let triggeredType = null;
       let medsToTake = [];
+      let medObjectsToTake = [];
 
       medications.forEach(med => {
         if (med.times && med.times.includes(timeString)) {
@@ -40,6 +41,7 @@ export default function VoiceAlertEngine() {
           if (!alertedRef.current[alertKey]) {
             alertedRef.current[alertKey] = true;
             medsToTake.push(med.name);
+            medObjectsToTake.push(med);
             
             if (!triggeredType) {
               triggeredType = ALERT_TYPES.MED_ALL;
@@ -49,7 +51,11 @@ export default function VoiceAlertEngine() {
       });
 
       if (triggeredType && medsToTake.length > 0) {
-        notifyWithEffects(triggeredType, { meds: medsToTake });
+        // Kích hoạt màn hình Báo thức Giả lập Cuộc gọi Gia đình (Tầng 1)
+        triggerFamilyAlarm({
+          meds: medObjectsToTake,
+          slotTime: timeString,
+        });
         
         const baseMsg = t.common?.medReminderMsg || 'Đã đến giờ uống thuốc:';
         const msg = `${baseMsg} ${medsToTake.join(', ')}`;
@@ -78,7 +84,7 @@ export default function VoiceAlertEngine() {
     }, 30000);
     
     return () => clearInterval(interval);
-  }, [medications, showToast]);
+  }, [medications, showToast, t]);
 
-  return null;
+  return <FamilyAlarmModal />;
 }

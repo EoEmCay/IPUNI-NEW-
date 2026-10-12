@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { Pill, Syringe, Clock, Calendar, CheckSquare } from 'lucide-react';
+import { Pill, Syringe, Clock, Calendar, CheckSquare, Lock } from 'lucide-react';
 import Modal from '../common/Modal';
 import { withDoctorPrefix } from '../../utils/doctor';
 import { exportMedicationToCalendar } from '../../utils/calendar';
-import { isAlternateDayDose, extractMedicationTimes } from '../../utils/medicationTime';
+import { extractMedicationTimes } from '../../utils/medicationTime';
 import { medicationsService } from '../../services/medications.service';
 import { isInjection } from '../../utils/medForm';
+import { PERIOD_DEFS, inferDoctorPeriods, clampTimeToPeriod, classifyTimeToPeriod } from '../scan/SmartScheduleStep';
+import DrugPhotoPicker from './DrugPhotoPicker';
 import styles from './MedicationDetailModal.module.css';
 
 function Row({ label, value }) {
@@ -20,11 +22,27 @@ function Row({ label, value }) {
 
 export default function MedicationDetailModal({ medication, onClose }) {
   const med = medication || {};
+  const doctorPeriods = inferDoctorPeriods(med);
   const initialTimes = extractMedicationTimes(med);
-  const [currentTimes, setCurrentTimes] = useState(initialTimes);
-  const [editTimesStr, setEditTimesStr] = useState(initialTimes.join(', '));
+
+  // Ánh xạ giờ hiện tại của thuốc vào đúng các cử cố định của bác sĩ
+  const [periodClock, setPeriodClock] = useState(() => {
+    const map = {
+      morning: '07:00',
+      afternoon: '15:00',
+      evening: '18:30',
+    };
+    initialTimes.forEach((t) => {
+      const p = classifyTimeToPeriod(t);
+      map[p] = clampTimeToPeriod(p, t);
+    });
+    return map;
+  });
+
+  const [currentTimes, setCurrentTimes] = useState(() =>
+    doctorPeriods.map((p) => periodClock[p])
+  );
   const [isEditingTimes, setIsEditingTimes] = useState(false);
-  const [isAlternate, setIsAlternate] = useState(() => isAlternateDayDose(med));
   const [isSaving, setIsSaving] = useState(false);
 
   const prescribedAt = med.prescribed_at
@@ -36,24 +54,14 @@ export default function MedicationDetailModal({ medication, onClose }) {
   const handleSaveTimes = async () => {
     setIsSaving(true);
     try {
-      const timesArr = editTimesStr.split(',').map(s => s.trim()).filter(Boolean);
-      let newFreq = med.frequency || '1 lần/ngày';
-      if (isAlternate && !newFreq.toLowerCase().includes('cách ngày')) {
-        newFreq = `${newFreq} (Cách ngày)`;
-      } else if (!isAlternate && newFreq.toLowerCase().includes(' (cách ngày)')) {
-        newFreq = newFreq.replace(' (Cách ngày)', '');
-      }
-
+      const timesArr = doctorPeriods.map((p) => clampTimeToPeriod(p, periodClock[p]));
       await medicationsService.update(med.id, {
         times: timesArr,
-        frequency: newFreq
       });
 
       setCurrentTimes(timesArr);
       setIsEditingTimes(false);
-      // Cập nhật object tham chiếu để các chỗ khác nhận luôn
       med.times = timesArr;
-      med.frequency = newFreq;
     } catch (err) {
       alert('Có lỗi khi lưu giờ: ' + (err.response?.data?.message || err.message));
     } finally {
@@ -62,7 +70,6 @@ export default function MedicationDetailModal({ medication, onClose }) {
   };
 
   const handleGoogleCalendar = () => {
-    // Generate Google Calendar URL
     const text = encodeURIComponent(`Uống thuốc: ${med.name}`);
     const details = encodeURIComponent(`Liều dùng: ${med.dosage}\nCách dùng: ${med.frequency}\nChỉ dẫn: ${med.instructions}`);
     const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&details=${details}`;
@@ -70,13 +77,11 @@ export default function MedicationDetailModal({ medication, onClose }) {
   };
 
   const handleNotionCalendar = () => {
-    // There is no direct deep link for Notion Calendar creation without auth, but we can open the app
-    // or point to cron.com / notion calendar web. Let's just point to their web app.
     window.open('https://calendar.notion.so', '_blank');
   };
 
   return (
-    <Modal title="Chi tiết thuốc" onClose={onClose}>
+    <Modal title="Chi tiết thuốc & Hình ảnh nhận diện" onClose={onClose}>
       <div className={styles.hero}>
         <div className={styles.imgWrap}>
           {med.image ? (
@@ -91,6 +96,8 @@ export default function MedicationDetailModal({ medication, onClose }) {
         </div>
       </div>
 
+      <DrugPhotoPicker drugName={med.name} />
+
       <div className={styles.section}>
         <Row label="Tên đầy đủ" value={med.full_name || med.name} />
         <Row label="Xuất xứ" value={med.origin} />
@@ -102,23 +109,23 @@ export default function MedicationDetailModal({ medication, onClose }) {
         <Row label="Ngày kê đơn" value={prescribedAt} />
       </div>
 
-      {/* ── Chỉnh sửa giờ uống & Lịch cách ngày dành cho người nhà / người dùng ── */}
+      {/* ── Chỉnh sửa khung giờ uống trong cử cố định của bác sĩ ── */}
       <div className={styles.section} style={{ background: '#F8FAFC', padding: 14, borderRadius: 14, border: '1px solid #E2E8F0', marginTop: 12 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
           <div style={{ fontWeight: 700, fontSize: 16, color: '#1E293B', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Clock size={15} color="#2563EB" /> Giờ uống thuốc & Tần suất
+            <Clock size={15} color="#2563EB" /> Cử & Khung giờ uống thuốc
           </div>
           {!isEditingTimes ? (
             <button 
               onClick={() => setIsEditingTimes(true)}
-              style={{ fontSize: 15, color: '#2563EB', background: 'white', border: '1px solid #BFDBFE', padding: '4px 10px', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}
+              style={{ fontSize: 14, color: '#2563EB', background: 'white', border: '1px solid #BFDBFE', padding: '4px 10px', borderRadius: 8, cursor: 'pointer', fontWeight: 700 }}
             >
-              Chỉnh sửa giờ
+              Đổi khung giờ
             </button>
           ) : (
             <button 
               onClick={() => setIsEditingTimes(false)}
-              style={{ fontSize: 15, color: '#64748B', background: 'transparent', border: 'none', cursor: 'pointer' }}
+              style={{ fontSize: 14, color: '#64748B', background: 'transparent', border: 'none', cursor: 'pointer', fontWeight: 600 }}
             >
               Đóng
             </button>
@@ -126,90 +133,78 @@ export default function MedicationDetailModal({ medication, onClose }) {
         </div>
 
         {!isEditingTimes ? (
-          <div>
-            <div className={styles.timeList}>
-              {currentTimes.map((tm, i) => (
-                <div key={i} className={styles.timeItem}>
-                  <Clock size={14} color="#1B5FA6" /> {tm}
+          <div className={styles.timeList}>
+            {doctorPeriods.map((pKey, i) => {
+              const pDef = PERIOD_DEFS.find((d) => d.key === pKey);
+              const tm = currentTimes[i] || periodClock[pKey];
+              return (
+                <div key={pKey} className={styles.timeItem}>
+                  <Clock size={14} color="#1B5FA6" /> {pDef?.label}: <strong>{tm}</strong>
                 </div>
-              ))}
-            </div>
-            {isAlternate && (
-              <div style={{ marginTop: 8, fontSize: 15, color: '#4338CA', background: '#EEF2FF', padding: '4px 10px', borderRadius: 6, display: 'inline-block', fontWeight: 600 }}>
-                Tần suất: Uống cách ngày (1 ngày uống, 1 ngày nghỉ)
-              </div>
-            )}
+              );
+            })}
           </div>
         ) : (
-          <div style={{ marginTop: 10 }}>
-            <p style={{ fontSize: 15, color: '#64748B', margin: '0 0 8px' }}>
-              Chọn giờ uống phù hợp nhất với giờ sinh hoạt của gia đình:
-            </p>
+          <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ fontSize: 13, color: '#475569', display: 'flex', alignItems: 'center', gap: 6, fontWeight: 600 }}>
+              <Lock size={13} color="#2563EB" />
+              <span>Cử uống được giữ cố định theo đơn bác sĩ. Chỉ thay đổi giờ trong khung quy định:</span>
+            </div>
 
-            {/* Chip chọn nhanh buổi */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
-              {[
-                { label: 'Sáng', time: '07:00' },
-                { label: 'Trưa', time: '11:30' },
-                { label: 'Chiều', time: '15:30' },
-                { label: 'Tối', time: '18:30' },
-                { label: 'Trước ngủ', time: '21:30' }
-              ].map((p, idx) => {
-                const isSelected = editTimesStr.includes(p.time);
-                return (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => {
-                      let arr = editTimesStr.split(',').map(s => s.trim()).filter(Boolean);
-                      if (isSelected) {
-                        arr = arr.filter(t => t !== p.time);
-                      } else {
-                        arr.push(p.time);
-                        arr.sort();
-                      }
-                      setEditTimesStr(arr.join(', '));
-                    }}
+            {doctorPeriods.map((pKey) => {
+              const pDef = PERIOD_DEFS.find((d) => d.key === pKey);
+              if (!pDef) return null;
+              return (
+                <div
+                  key={pKey}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 10,
+                    padding: '10px 12px',
+                    borderRadius: 12,
+                    background: pDef.bg,
+                    border: `1.5px solid ${pDef.border}`,
+                  }}
+                >
+                  <div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: '#0F172A' }}>
+                      {pDef.icon} {pDef.label}
+                    </div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: '#475569' }}>
+                      Khung cố định: {pDef.rangeLabel}
+                    </div>
+                  </div>
+
+                  <select
+                    value={periodClock[pKey]}
+                    onChange={(e) =>
+                      setPeriodClock((prev) => ({
+                        ...prev,
+                        [pKey]: clampTimeToPeriod(pKey, e.target.value),
+                      }))
+                    }
                     style={{
                       fontSize: 15,
-                      padding: '5px 10px',
-                      borderRadius: 8,
-                      border: isSelected ? '1.5px solid #2563EB' : '1px solid #CBD5E1',
-                      background: isSelected ? '#EFF6FF' : 'white',
-                      color: isSelected ? '#1D4ED8' : '#334155',
-                      fontWeight: isSelected ? 700 : 500,
-                      cursor: 'pointer'
+                      fontWeight: 800,
+                      color: pDef.accent,
+                      background: '#FFFFFF',
+                      border: `2px solid ${pDef.accent}`,
+                      borderRadius: 10,
+                      padding: '6px 10px',
+                      cursor: 'pointer',
                     }}
                   >
-                    {p.label} ({p.time})
-                  </button>
-                );
-              })}
-            </div>
-
-            <div style={{ marginBottom: 10 }}>
-              <label style={{ fontSize: 15, color: '#475569', display: 'block', marginBottom: 4 }}>
-                Hoặc tự nhập giờ uống (cách nhau dấu phẩy):
-              </label>
-              <input
-                type="text"
-                value={editTimesStr}
-                onChange={(e) => setEditTimesStr(e.target.value)}
-                placeholder="VD: 07:00, 18:00"
-                style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #CBD5E1', fontSize: 17 }}
-              />
-            </div>
-
-            {/* Checkbox cách ngày */}
-            <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 16, color: '#1E293B', cursor: 'pointer', marginBottom: 12 }}>
-              <input
-                type="checkbox"
-                checked={isAlternate}
-                onChange={(e) => setIsAlternate(e.target.checked)}
-                style={{ width: 16, height: 16, accentColor: '#2563EB' }}
-              />
-              <span style={{ fontWeight: 600 }}>Uống cách ngày (2 ngày 1 lần / ngày uống ngày nghỉ)</span>
-            </label>
+                    {pDef.slots.map((slot) => (
+                      <option key={slot} value={slot}>
+                        {slot}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              );
+            })}
 
             <button
               onClick={handleSaveTimes}
@@ -223,40 +218,41 @@ export default function MedicationDetailModal({ medication, onClose }) {
                 borderRadius: 8,
                 fontWeight: 700,
                 fontSize: 16,
-                cursor: 'pointer'
+                cursor: 'pointer',
+                marginTop: 4,
               }}
             >
-              {isSaving ? 'Đang lưu...' : 'Lưu thay đổi giờ uống'}
+              {isSaving ? 'Đang lưu...' : 'Lưu khung giờ uống'}
             </button>
           </div>
         )}
       </div>
 
-          {isMobile ? (
-            <button 
-              className={styles.calendarBtn} 
-              onClick={() => exportMedicationToCalendar(med)}
-            >
-              <Calendar size={16} /> Thêm lịch nhắc vào điện thoại
-            </button>
-          ) : (
-            <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-              <button 
-                className={styles.calendarBtn} 
-                onClick={handleGoogleCalendar}
-                style={{ flex: 1, background: '#4285F4', color: 'white' }}
-              >
-                <Calendar size={16} /> Google Calendar
-              </button>
-              <button 
-                className={styles.calendarBtn} 
-                onClick={handleNotionCalendar}
-                style={{ flex: 1, background: '#111111', color: 'white' }}
-              >
-                <CheckSquare size={16} /> Notion Calendar
-              </button>
-            </div>
-          )}
+      {isMobile ? (
+        <button 
+          className={styles.calendarBtn} 
+          onClick={() => exportMedicationToCalendar(med)}
+        >
+          <Calendar size={16} /> Thêm lịch nhắc vào điện thoại
+        </button>
+      ) : (
+        <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+          <button 
+            className={styles.calendarBtn} 
+            onClick={handleGoogleCalendar}
+            style={{ flex: 1, background: '#4285F4', color: 'white' }}
+          >
+            <Calendar size={16} /> Google Calendar
+          </button>
+          <button 
+            className={styles.calendarBtn} 
+            onClick={handleNotionCalendar}
+            style={{ flex: 1, background: '#111111', color: 'white' }}
+          >
+            <CheckSquare size={16} /> Notion Calendar
+          </button>
+        </div>
+      )}
     </Modal>
   );
 }

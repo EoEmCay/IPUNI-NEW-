@@ -77,16 +77,6 @@ async function facebookLogin(req, res, next) {
   }
 }
 
-async function demoLogin(req, res, next) {
-  try {
-    const result = await authService.demoLogin();
-    sendSuccess(res, result, 'Đăng nhập demo thành công');
-  } catch (err) {
-    if (err.status) return sendError(res, err.message, err.status);
-    next(err);
-  }
-}
-
 async function acknowledgeSession(req, res) {
   try {
     const { token, user } = await authService.acknowledgeSession(req.user);
@@ -168,6 +158,6 @@ async function resetPassword(req, res, next) {
 }
 
 module.exports = {
-  login, register, getMe, logout, googleLogin, facebookLogin, demoLogin, acknowledgeSession,
+  login, register, getMe, logout, googleLogin, facebookLogin, acknowledgeSession,
   loginStatus, pendingApprovals, approveLogin, rejectLogin, changePassword, resetPassword,
 };

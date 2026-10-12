@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Camera, Upload, ImagePlus } from 'lucide-react';
 import { useT } from '../../hooks/useT';
 import { isNative } from '../../lib/native';
@@ -21,11 +21,7 @@ async function nativeGetPhoto(fromCamera) {
 export default function ScanCamera({ onImageScan }) {
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const [cameraReady, setCameraReady] = useState(false);
   const [cameraFailed, setCameraFailed] = useState(false);
-  const streamRef = useRef(null);
   const t = useT();
 
   const handleFileSelect = (e) => {
@@ -46,124 +42,45 @@ export default function ScanCamera({ onImageScan }) {
     }
   };
 
-  useEffect(() => {
-    // Trên app native: KHÔNG mở getUserMedia — dùng camera hệ thống qua plugin.
-    if (isNative) return undefined;
-
-    const startCamera = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' }
-        });
-        streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          setCameraReady(true);
-        }
-      } catch (err) {
-        console.error('Camera error:', err);
-        setCameraFailed(true);
-      }
-    };
-    startCamera();
-
-    return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
-    };
-  }, []);
-
-  const handleCapture = () => {
-    if (!videoRef.current || !canvasRef.current) return;
-    const context = canvasRef.current.getContext('2d');
-    canvasRef.current.width = videoRef.current.videoWidth || 430;
-    canvasRef.current.height = videoRef.current.videoHeight || 600;
-    context.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
-
-    canvasRef.current.toBlob((blob) => {
-      if (!blob) return;
-      const file = new File([blob], 'prescription.jpg', { type: 'image/jpeg' });
-      onImageScan(file);
-
-      // Stop camera after capture
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-        setCameraReady(false);
-      }
-    });
-  };
-
+  // Không tự động gọi navigator.mediaDevices.getUserMedia ngầm khi vào trang,
+  // tránh bật chấm đỏ ghi hình (🔴) trên thanh tab trình duyệt / điện thoại gây hoang mang cho người dùng.
   const pickCamera = () => (isNative ? handleNative(true) : cameraInputRef.current?.click());
   const pickLibrary = () => (isNative ? handleNative(false) : fileInputRef.current?.click());
 
   return (
     <div className={styles.container}>
-      {/* Camera view trực tiếp — chỉ dùng trên web khi getUserMedia sẵn sàng */}
-      {!isNative && cameraReady && (
-        <div className={styles.cameraSection}>
-          <video
-            ref={videoRef}
-            className={styles.video}
-            autoPlay
-            playsInline
-          />
-          <canvas
-            ref={canvasRef}
-            className={styles.canvas}
-          />
-
-          <div className={styles.controls}>
-            <button onClick={handleCapture} className={styles.captureBtn}>
-              <Camera size={24} />
-              {t.scan.capture}
+      <div className={styles.fallback}>
+        <div className={styles.fallbackContent}>
+          <div className={styles.fallbackIcon}>
+            <ImagePlus size={48} />
+          </div>
+          <h3>{t.scan.title}</h3>
+          <p>{t.scan.cameraFallbackDesc}</p>
+          <div style={{ display: 'flex', gap: '12px', width: '100%', maxWidth: '300px' }}>
+            <button
+              onClick={pickCamera}
+              className={styles.uploadBtn}
+              style={{ flex: 1, padding: '12px 0', justifyContent: 'center' }}
+            >
+              <Camera size={20} />
+              {t.scan.captureBtn}
             </button>
             <button
               onClick={pickLibrary}
-              className={styles.uploadBtnSmall}
+              className={styles.uploadBtn}
+              style={{ flex: 1, padding: '12px 0', justifyContent: 'center', backgroundColor: 'var(--color-bg-secondary)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
             >
               <Upload size={20} />
               {t.scan.gallery}
             </button>
           </div>
+          {cameraFailed && (
+            <span className={styles.cameraNote}>
+              {t.scan.cameraError}
+            </span>
+          )}
         </div>
-      )}
-
-      {/* Fallback / màn hình chính trên native */}
-      {(isNative || !cameraReady) && (
-        <div className={styles.fallback}>
-          <div className={styles.fallbackContent}>
-            <div className={styles.fallbackIcon}>
-              <ImagePlus size={48} />
-            </div>
-            <h3>{t.scan.title}</h3>
-            <p>{t.scan.cameraFallbackDesc}</p>
-            <div style={{ display: 'flex', gap: '12px', width: '100%', maxWidth: '300px' }}>
-              <button
-                onClick={pickCamera}
-                className={styles.uploadBtn}
-                style={{ flex: 1, padding: '12px 0', justifyContent: 'center' }}
-              >
-                <Camera size={20} />
-                {t.scan.captureBtn}
-              </button>
-              <button
-                onClick={pickLibrary}
-                className={styles.uploadBtn}
-                style={{ flex: 1, padding: '12px 0', justifyContent: 'center', backgroundColor: 'var(--color-bg-secondary)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }}
-              >
-                <Upload size={20} />
-                {t.scan.gallery}
-              </button>
-            </div>
-            {cameraFailed && (
-              <span className={styles.cameraNote}>
-                {t.scan.cameraError}
-              </span>
-            )}
-          </div>
-        </div>
-      )}
+      </div>
 
       <input
         ref={fileInputRef}

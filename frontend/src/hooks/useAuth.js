@@ -82,13 +82,6 @@ export function useAuth() {
   const googleLogin = (accessToken) => socialLogin(authService.googleLogin(accessToken));
   const facebookLogin = (accessToken) => socialLogin(authService.facebookLogin(accessToken));
 
-  const demoLogin = async () => {
-    const res = await authService.demoLogin();
-    const { token, user } = res.data.data;
-    setAuth(token, user);
-    return user;
-  };
-
   const register = async (email, phone, password, confirmPassword, extras = {}) => {
     const res = await authService.register(email, phone, password, confirmPassword, extras);
     const { token, user } = res.data.data;
@@ -111,7 +104,7 @@ export function useAuth() {
   };
 
   return {
-    user, token, isAuthenticated, login, googleLogin, facebookLogin, demoLogin, logout, register, updateProfile, completeRegistration,
+    user, token, isAuthenticated, login, googleLogin, facebookLogin, logout, register, updateProfile, completeRegistration,
     pollLoginStatus, approveLogin, rejectLogin, getPendingApprovals, changePassword,
   };
 }

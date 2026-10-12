@@ -44,7 +44,7 @@ import { useGoogleLogin } from '@react-oauth/google';
 import SplashScreen from '../../components/common/SplashScreen';
 
 export default function LoginPage() {
-  const { login, googleLogin, facebookLogin, demoLogin, pollLoginStatus } = useAuth();
+  const { login, googleLogin, facebookLogin, pollLoginStatus } = useAuth();
   const navigate = useNavigate();
   const applyDefaultLook = useThemeStore((s) => s.applyDefaultLook);
 
@@ -53,11 +53,9 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [demoLoading, setDemoLoading] = useState(false);
   const [awaitingApproval, setAwaitingApproval] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
-  // App cài trên điện thoại chưa có nút Google/Facebook -> mở sẵn ô email/mật khẩu
-  const [showPasswordForm, setShowPasswordForm] = useState(isNative);
+  const [showPasswordForm, setShowPasswordForm] = useState(true);
   const pollAbortRef = useRef(null);
 
   useEffect(() => { applyDefaultLook(); }, [applyDefaultLook]);
@@ -166,23 +164,10 @@ export default function LoginPage() {
     }
   };
 
-  const handleDemoLogin = async () => {
-    setDemoLoading(true);
-    try {
-      localStorage.setItem('diaplus_force_tour', 'true');
-      await demoLogin();
-      navigate('/');
-    } catch (err) {
-      setError(err?.response?.data?.message || 'Không thể vào chế độ demo');
-    } finally {
-      setDemoLoading(false);
-    }
-  };
-
   return (
     <div className={styles.page}>
-      {(loading || demoLoading) && (
-        <SplashScreen message={demoLoading ? "Đang khởi tạo tài khoản dùng thử DIA+..." : "Đang kết nối hệ thống y tế DIA+..."} />
+      {loading && (
+        <SplashScreen message="Đang kết nối hệ thống y tế DIA+..." />
       )}
       <div className={styles.orb1} />
       <div className={styles.orb2} />
@@ -227,30 +212,14 @@ export default function LoginPage() {
             </div>
           )}
 
-          <div className={styles.socialStack}>
-            {/* ponytail: app cài trên điện thoại chưa có Google/Facebook Sign-In thật (cần plugin Capacitor) nên ẩn */}
-            {!isNative && (
+          {!isNative && (
+            <div className={styles.socialStack}>
               <button type="button" className={`${styles.authBtn} ${styles.googleBtn}`} onClick={onGoogleBtnClick}>
                 <GoogleIcon className={styles.gIcon} />
                 <span>Tiếp tục với Google</span>
               </button>
-            )}
-
-            <button
-              className={`${styles.authBtn} ${styles.demoBtn}`}
-              onClick={handleDemoLogin}
-              disabled={demoLoading}
-            >
-              {demoLoading ? (
-                <span className={styles.demoSpinner} />
-              ) : (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                </svg>
-              )}
-              <span>{demoLoading ? 'Đang vào dùng thử...' : 'Dùng thử không cần tài khoản'}</span>
-            </button>
-          </div>
+            </div>
+          )}
 
           {!showPasswordForm ? (
             <button type="button" className={styles.emailToggle} onClick={() => setShowPasswordForm(true)}>

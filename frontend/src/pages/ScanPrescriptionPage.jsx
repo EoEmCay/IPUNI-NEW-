@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import {
   CheckCircle, AlertCircle, User, Calendar, FileText,
   XCircle, ChevronDown, ChevronUp, Hash, Stethoscope, BookOpen, Info, Activity, Sparkles, X,
-  Paperclip, ChevronLeft, ArrowRight
+  Paperclip, ChevronLeft, ArrowRight, Clock
 } from 'lucide-react';
 import { scanService } from '../services/scan.service';
 import { medicationsService } from '../services/medications.service';
@@ -15,7 +15,10 @@ import { useToast } from '../hooks/useToast';
 import { useT } from '../hooks/useT';
 import { createPortal } from 'react-dom';
 import ScanCamera from '../components/scan/ScanCamera';
+import SmartScheduleStep from '../components/scan/SmartScheduleStep';
 import MedicationTile, { MedicationGrid } from '../components/medications/MedicationTile';
+import DrugPhotoPicker from '../components/medications/DrugPhotoPicker';
+import { fetchAndCacheDrugVisual } from '../utils/drugVisuals';
 import { INSULIN_PATTERN } from '../utils/medForm';
 import styles from './ScanPrescriptionPage.module.css';
 import { useNavigate } from 'react-router-dom';
@@ -184,6 +187,16 @@ export default function ScanPrescriptionPage() {
     setScanWizardStep(1);
     setSelectedMedModalIndex(null);
   }
+
+  // Tự động tìm kiếm ảnh thật hộp/vỉ thuốc trên mạng ngay khi AI quét xong đơn thuốc
+  useEffect(() => {
+    if (!editableMeds || editableMeds.length === 0) return;
+    editableMeds.forEach((med) => {
+      if (med?.name) {
+        fetchAndCacheDrugVisual(med.name).catch(() => {});
+      }
+    });
+  }, [editableMeds]);
 
   // Đếm giây trong lúc AI đang phân tích - dùng để đổi thông điệp tiến trình, tăng dần
   // progress bar và xoay vòng mẹo sức khỏe. Reset về 0 mỗi khi bắt đầu 1 lượt phân tích
@@ -518,10 +531,15 @@ export default function ScanPrescriptionPage() {
                         <FileText size={18} className={styles.wizardTitleIcon} />
                         Tổng quan đơn thuốc
                       </>
-                    ) : (
+                    ) : scanWizardStep === 2 ? (
                       <>
                         <Paperclip size={18} className={styles.wizardTitleIcon} />
                         {editableMeds.length} {t.scanResult?.medsCount || 'loại thuốc'}
+                      </>
+                    ) : (
+                      <>
+                        <Clock size={18} className={styles.wizardTitleIcon} />
+                        Thời gian uống thuốc
                       </>
                     )}
                   </h3>
@@ -600,10 +618,10 @@ export default function ScanPrescriptionPage() {
                         )}
                       </div>
                     </div>
-                  ) : (
+                  ) : scanWizardStep === 2 ? (
                     <div className={styles.wizardStep2}>
                       <p className={styles.disclaimer} style={{ marginBottom: '12px' }}>
-                        <AlertCircle size={13} /> Vui lòng kiểm tra tên thuốc, liều dùng và giờ uống trước khi lưu vào tủ thuốc.
+                        <AlertCircle size={13} /> Đã tự động tìm <strong>ảnh hộp/vỉ thuốc thật trên mạng</strong> cho từng loại thuốc. Chạm vào từng ô thuốc để đổi mẫu hộp hoặc tải ảnh vỉ thuốc ở nhà!
                       </p>
 
                       <MedicationGrid>
@@ -613,12 +631,19 @@ export default function ScanPrescriptionPage() {
                             <MedicationTile
                               key={i}
                               medication={med}
-                              badge={hasDosageWarning ? '⚠️ Kiểm tra liều' : null}
+                              badge={hasDosageWarning ? '⚠️ Kiểm tra liều' : '📷 Có ảnh thuốc'}
                               onClick={() => setSelectedMedModalIndex(i)}
                             />
                           );
                         })}
                       </MedicationGrid>
+                    </div>
+                  ) : (
+                    <div className={styles.wizardStep2}>
+                      <SmartScheduleStep
+                        medications={editableMeds}
+                        onUpdateMedications={setEditableMeds}
+                      />
 
                       {requiresInsulinConfirm && (
                         <div className={styles.insulinConfirmBox} style={{ marginTop: '14px' }}>
@@ -664,7 +689,7 @@ export default function ScanPrescriptionPage() {
                     >
                       <CheckCircle size={20} /> Xác nhận đúng & Xem {editableMeds.length} loại thuốc <ArrowRight size={20} />
                     </button>
-                  ) : (
+                  ) : scanWizardStep === 2 ? (
                     <div className={styles.wizardFooterRow}>
                       <button 
                         type="button" 
@@ -675,11 +700,28 @@ export default function ScanPrescriptionPage() {
                       </button>
                       <button
                         type="button"
+                        className={styles.wizardSaveBtn}
+                        onClick={() => setScanWizardStep(3)}
+                      >
+                        <Clock size={18} /> Tiếp tục chọn giờ uống <ArrowRight size={18} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className={styles.wizardFooterRow}>
+                      <button 
+                        type="button" 
+                        className={styles.wizardBackBtn}
+                        onClick={() => setScanWizardStep(2)}
+                      >
+                        <ChevronLeft size={16} /> Quay lại
+                      </button>
+                      <button
+                        type="button"
                         className={isAllSaved ? styles.savedBtn : styles.wizardSaveBtn}
                         onClick={handleSaveAll}
                         disabled={isSavingAll || isAllSaved || (requiresInsulinConfirm && !insulinConfirmed)}
                       >
-                        {isSavingAll ? t.scanResult?.savingAll : isAllSaved ? t.scanResult?.savedAll : (t.scanResult?.addAll || 'Lưu tất cả vào tủ thuốc')}
+                        {isSavingAll ? t.scanResult?.savingAll : isAllSaved ? t.scanResult?.savedAll : (t.scanResult?.addAll || 'Thêm tất cả vào sổ tay')}
                       </button>
                     </div>
                   )}
@@ -743,14 +785,12 @@ export default function ScanPrescriptionPage() {
                   const originalDosage = result?.medications?.[selectedMedModalIndex]?.dosage;
                   const showDosageWarning = Boolean(currentMed.dosageWarning) && currentMed.dosage === originalDosage;
                   const schedule = getMedScheduleDetails(currentMed, result?.prescriptionDate);
-                  const hasDoctorTime = (currentMed.hasDoctorTime !== undefined && currentMed.hasDoctorTime !== null)
-                    ? Boolean(currentMed.hasDoctorTime)
-                    : Boolean(
-                        `${currentMed.instructions || ''} ${currentMed.frequency || ''} ${currentMed.dosage || ''}`.match(/sáng|trưa|chiều|tối|trước ăn|sau ăn|ngủ|buổi|\b\d{1,2}h\b|\b\d{1,2}:\d{2}\b/i)
-                      );
 
                   return (
                     <div className={styles.elderlyModalBody}>
+                      {/* 0. Khung chọn ảnh hộp/vỉ thuốc thật trên mạng hoặc chụp ảnh tại nhà */}
+                      <DrugPhotoPicker drugName={currentMed.name} />
+
                       {/* 1. Tóm tắt to rõ Liều & Cách dùng. Liều lượng CHO SỬA TRỰC TIẾP tại đây -
                           AI đọc chữ viết tay có thể nhầm số (vd "0,5mg" -> "5mg", sai lệch 10 lần,
                           đủ gây quá liều nguy hiểm). Đây chính là bước con người xác nhận cuối
@@ -792,89 +832,7 @@ export default function ScanPrescriptionPage() {
                             )}
                           </div>
                         ) : null}
-                        {hasDoctorTime && (
-                          <div className={styles.elderlyRow}>
-                            <span className={styles.elderlyLabel}>Giờ uống:</span>
-                            <span className={styles.elderlyValueHighlight}>
-                              {(currentMed.times && currentMed.times.length > 0) ? currentMed.times.join(', ') : '07:00'} (Theo đơn bác sĩ)
-                            </span>
-                          </div>
-                        )}
                       </div>
-
-                      {/* 2. Chọn cữ và giờ uống thuốc CHỈ ÁP DỤNG với những đơn thuốc không ghi giờ uống */}
-                      {!hasDoctorTime && (
-                        <div className={styles.elderlyTimeSection}>
-                          <div className={styles.elderlySectionHeader}>
-                            <span className={styles.elderlySectionTitle}>Chọn cữ giờ uống thuốc:</span>
-                            <span className={styles.elderlySectionSubtitle}>Đơn thuốc chưa ghi rõ giờ, vui lòng chọn cữ phù hợp</span>
-                          </div>
-
-                          <div className={styles.elderlyTimeSlotsGrid}>
-                            {[
-                              { label: 'Sáng', time: '07:00' },
-                              { label: 'Trưa', time: '11:30' },
-                              { label: 'Chiều', time: '15:30' },
-                              { label: 'Tối', time: '18:30' },
-                              { label: 'Trước ngủ', time: '21:30' }
-                            ].map((slot, idx) => {
-                              const currentTimes = currentMed.times || [];
-                              const isSelected = currentTimes.includes(slot.time);
-                              return (
-                                <button
-                                  key={idx}
-                                  type="button"
-                                  className={`${styles.elderlySlotBtn} ${isSelected ? styles.elderlySlotBtnActive : ''}`}
-                                  onClick={() => {
-                                    let nextArr = [...currentTimes];
-                                    if (isSelected) {
-                                      nextArr = nextArr.filter(t => t !== slot.time);
-                                    } else {
-                                      nextArr.push(slot.time);
-                                      nextArr.sort();
-                                    }
-                                    handleMedFieldChange(selectedMedModalIndex, 'times', nextArr);
-                                  }}
-                                >
-                                  <span className={styles.elderlySlotLabel}>{slot.label}</span>
-                                  <span className={styles.elderlySlotTime}>{slot.time}</span>
-                                </button>
-                              );
-                            })}
-                          </div>
-
-                          <div className={styles.elderlyCustomTimeRow}>
-                            <span className={styles.elderlyLabel}>Giờ cụ thể:</span>
-                            <input
-                              className={styles.elderlyInput}
-                              type="text"
-                              placeholder="VD: 07:00, 18:00"
-                              value={(currentMed.times || []).join(', ')}
-                              onChange={(e) => handleMedTimesChange(selectedMedModalIndex, e.target.value)}
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Lựa chọn uống cách ngày */}
-                      <label className={styles.elderlyCheckboxRow}>
-                        <input
-                          type="checkbox"
-                          checked={Boolean(currentMed.is_alternate_day || schedule.isAlternate)}
-                          onChange={(e) => {
-                            const checked = e.target.checked;
-                            handleMedFieldChange(selectedMedModalIndex, 'is_alternate_day', checked);
-                            let freq = currentMed.frequency || '1 lần/ngày';
-                            if (checked && !freq.includes('cách ngày')) {
-                              freq = `${freq} (Cách ngày)`;
-                            } else if (!checked) {
-                              freq = freq.replace(' (Cách ngày)', '');
-                            }
-                            handleMedFieldChange(selectedMedModalIndex, 'frequency', freq);
-                          }}
-                        />
-                        <span>Thuốc uống cách ngày (2 ngày uống 1 lần)</span>
-                      </label>
 
                       {/* 3. Chi tiết công dụng / lưu ý lâm sàng */}
                       {currentMed.detail && (

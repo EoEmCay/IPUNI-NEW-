@@ -226,16 +226,17 @@
   color: var(--color-primary);
 }
 
-.grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 
 .tile {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  gap: 4px;
   min-height: 112px;
-  padding: 14px 4px 10px;
+  padding: 12px 3px 10px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.95);
   box-shadow: var(--card-shadow);
@@ -257,14 +258,31 @@
 .badgeHot { background: #EF4444; }
 
 .tileImg {
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
   object-fit: contain;
   mix-blend-mode: multiply; /* nền trắng của ảnh hoà vào ô (kể cả ô ánh vàng ở giao diện Gold) */
   pointer-events: none;
+  margin-bottom: 2px;
 }
 
-.tileLabel { font-size: 14px; font-weight: 600; line-height: 1.2; color: #334155; }
+.tileLabel {
+  font-size: 12.5px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: #1E293B;
+  white-space: nowrap;
+}
+
+.tileSub {
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: #64748B;
+  white-space: nowrap;
+}
 
 /* ── Thuốc hôm nay (giữ từ trang cũ) ── */
 .quickRow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }

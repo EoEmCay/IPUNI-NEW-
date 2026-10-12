@@ -1,7 +1,18 @@
 const svc = require('./medications.service');
 const adherence = require('./adherence.service');
+const drugImageService = require('./drugImage.service');
 const { publish } = require('../../realtime/eventBus');
 const { sendSuccess, sendError } = require('../../utils/response.helper');
+
+async function getDrugImages(req, res, next) {
+  try {
+    const q = String(req.query.q || '').trim();
+    const result = await drugImageService.searchDrugImagesOnline(q);
+    sendSuccess(res, result);
+  } catch (err) {
+    next(err);
+  }
+}
 
 async function getMedications(req, res, next) {
   try { sendSuccess(res, await svc.getMedications(req.user.id)); } catch (err) { next(err); }
@@ -68,6 +79,7 @@ async function getUpcomingDoses(req, res, next) {
 }
 
 module.exports = {
+  getDrugImages,
   getMedications,
   getTodayMedications,
   createMedication,

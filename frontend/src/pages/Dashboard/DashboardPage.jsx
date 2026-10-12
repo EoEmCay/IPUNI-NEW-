@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { Pill, CheckCircle2, Star, Settings2, Droplet, ChevronRight, ScanText } from 'lucide-react';
+import { Pill, CheckCircle2, Star, Settings2, Droplet, ChevronRight, ScanText, PhoneCall } from 'lucide-react';
+import { triggerFamilyAlarm } from '../../components/common/FamilyAlarmModal';
 import { useAuth } from '../../hooks/useAuth';
 import { useMedications } from '../../hooks/useMedications';
 import useMedicationsStore from '../../store/medicationsStore';
@@ -17,23 +18,22 @@ import { getMetricStatus, getStatusLabel, STATUS_COLORS } from '../../constants/
 import { getGlucoseUnit, formatGlucose } from '../../utils/glucoseUnit';
 import { saveGlucoseReading } from '../../utils/glucoseReading';
 import NotificationBell from '../../components/layout/NotificationBell';
-import DemoCountdown from '../../components/common/DemoCountdown';
 import DayChip from '../../components/common/DayChip';
 import styles from './DashboardPage.module.css';
 
 const BELL_CSS = { btn: styles.bellBtn, hasBadge: styles.bellHasBadge, active: styles.bellActive, badge: styles.bellBadge };
 
-// Ô tiện ích: `to` = mở trang đã có; không có `to` = chưa làm, báo "sắp ra mắt".
-// Icon 3D theo bản ý tưởng ban đầu (public/icons/tienich/<key>.png, 128px)
+// Ô tiện ích: Tên ngắn gọn nằm trọn trên 1 dòng (không bị rớt chữ) kèm dòng chữ nhỏ mô tả công năng bên dưới.
+// Bấm vào là đi thẳng vào sử dụng tính năng luôn.
 const UTILITIES = [
-  { key: 'scan', label: 'Quét AI', badge: 'MỚI', to: '/scan' },
-  { key: 'booking', label: 'Đặt lịch bác sĩ', badge: 'HOT' },
-  { key: 'schedule', label: 'Lịch uống thuốc', to: '/medications' },
-  { key: 'cgm', label: 'Kết nối CGM' },
-  { key: 'adherence', label: 'Biểu đồ tuân thủ', modal: true },
-  { key: 'diary', label: 'Nhật ký sức khỏe', to: '/glucose' },
-  { key: 'nutrition', label: 'Chế độ dinh dưỡng', to: '/advice' },
-  { key: 'sos', label: 'Cảnh báo SOS' },
+  { key: 'scan', label: 'Quét đơn AI', sub: 'Đọc đơn & ảnh thuốc', badge: 'MỚI', to: '/scan' },
+  { key: 'booking', label: 'Hẹn bác sĩ', sub: 'Lịch tái khám', badge: 'HOT' },
+  { key: 'schedule', label: 'Lịch uống thuốc', sub: 'Sổ tay & giờ cử', to: '/medications' },
+  { key: 'cgm', label: 'Kết nối CGM', sub: 'Cảm biến 24/7' },
+  { key: 'adherence', label: 'Mức tuân thủ', sub: 'Tỷ lệ đúng giờ', modal: true },
+  { key: 'diary', label: 'Sổ sức khỏe', sub: 'Đường huyết & HA', to: '/glucose' },
+  { key: 'nutrition', label: 'Dinh dưỡng', sub: 'Thực đơn GI thấp', to: '/advice' },
+  { key: 'sos', label: 'Cảnh báo SOS', sub: 'Gọi cấp cứu nhanh' },
 ];
 
 // Hình bác sĩ + người bệnh ở banner (vẽ lại từ bản thiết kế).
@@ -103,6 +103,7 @@ export default function DashboardPage() {
     if (item.modal) { fetchMedications().catch(() => {}); return setShowAdherence(true); }
     return setSoon(item.label);
   };
+
   const onCarouselScroll = (e) => {
     const el = e.currentTarget;
     setSlide(Math.round(el.scrollLeft / el.clientWidth));
@@ -134,7 +135,6 @@ export default function DashboardPage() {
           </div>
           <NotificationBell css={BELL_CSS} />
         </div>
-        <DemoCountdown />
       </header>
 
       <section aria-label="Giới thiệu DIA+">
@@ -187,8 +187,9 @@ export default function DashboardPage() {
               {item.badge && (
                 <span className={`${styles.badge} ${item.badge === 'HOT' ? styles.badgeHot : ''}`}>{item.badge}</span>
               )}
-              <img src={`/icons/tienich/${item.key}.png`} alt="" className={styles.tileImg} width="56" height="56" />
+              <img src={`/icons/tienich/${item.key}.png`} alt="" className={styles.tileImg} width="52" height="52" />
               <span className={styles.tileLabel}>{item.label}</span>
+              <span className={styles.tileSub}>{item.sub}</span>
             </button>
           ))}
         </div>
@@ -227,6 +228,54 @@ export default function DashboardPage() {
           </span>
         </button>
       </div>
+
+      {/* Nút trải nghiệm nhanh Chuông gọi nhắc thuốc của con cháu (Tầng 1) */}
+      <button
+        type="button"
+        onClick={() => triggerFamilyAlarm({ meds: todayMedications.length ? todayMedications : medications })}
+        style={{
+          width: '100%',
+          marginTop: '12px',
+          padding: '14px 16px',
+          background: 'linear-gradient(135deg, #0f766e 0%, #059669 100%)',
+          color: '#ffffff',
+          border: 'none',
+          borderRadius: '18px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '12px',
+          cursor: 'pointer',
+          boxShadow: '0 6px 18px rgba(15, 118, 110, 0.25)',
+          textAlign: 'left',
+        }}
+      >
+        <span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span
+            style={{
+              width: '42px',
+              height: '42px',
+              borderRadius: '12px',
+              background: 'rgba(255,255,255,0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <PhoneCall size={22} />
+          </span>
+          <span>
+            <strong style={{ display: 'block', fontSize: '16px', fontWeight: 800 }}>
+              Chuông con cháu nhắc uống thuốc
+            </strong>
+            <span style={{ fontSize: '13px', opacity: 0.92 }}>
+              Bấm để mở màn hình báo thức giọng nói gia đình (Tầng 1)
+            </span>
+          </span>
+        </span>
+        <ChevronRight size={20} />
+      </button>
 
       {/* Thông báo + các bảng gắn thẳng vào body: nằm ngoài vùng cuộn có zoom (cỡ chữ) để không lệch vị trí */}
       {createPortal(

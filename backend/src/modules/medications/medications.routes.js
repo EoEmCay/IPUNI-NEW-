@@ -5,6 +5,7 @@ const { authMiddleware } = require('../../middlewares/auth.middleware');
 const { validate } = require('../../middlewares/validate.middleware');
 const { createMedicationSchema, updateMedicationSchema, logDoseSchema } = require('./medications.schema');
 
+router.get('/drug-images', controller.getDrugImages);
 router.use(authMiddleware);
 router.get('/today', controller.getTodayMedications);
 router.get('/adherence', controller.getAdherence);

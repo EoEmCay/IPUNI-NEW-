@@ -4,10 +4,10 @@ import { voiceAlertService } from '../services/voiceAlert.service';
 // Mọi thông báo của app dùng chung hàm này: âm thanh (giọng người thân đã ghi âm cho loại
 // thông báo đó, chưa có thì giọng đọc tự động) + rung + đèn (LED flash trên app điện thoại,
 // nháy màn hình ở mọi nơi vì trình duyệt không bật được đèn LED).
-export function notifyWithEffects(alertType, { meds = [], ttsText = null } = {}) {
+export function notifyWithEffects(alertType, { meds = [], ttsText = null, onEnded = null } = {}) {
   blinkFlash(4, 0.15); // rung + đèn LED (native)
   flashScreen();
-  return voiceAlertService.playAlert(alertType, meds, null, ttsText);
+  return voiceAlertService.playAlert(alertType, meds, onEnded, ttsText);
 }
 
 // Nháy màn hình 3 lần (dưới 3 lần/giây theo WCAG 2.3.1 cho người nhạy cảm ánh sáng).

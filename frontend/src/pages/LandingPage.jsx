@@ -45,10 +45,7 @@ import SplashScreen from '../components/common/SplashScreen';
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { demoLogin } = useAuth();
   const { isAuthenticated } = useAuthStore();
-  const [showModal, setShowModal] = useState(false);
-  const [demoLoading, setDemoLoading] = useState(false);
   const lang = useLangStore(s => s.lang);
   const t = useT();
   const text = t.landing;
@@ -73,7 +70,6 @@ export default function LandingPage() {
 
   return (
     <div className={styles.container}>
-      {demoLoading && <SplashScreen message="Đang khởi tạo tài khoản dùng thử DIA+..." />}
       {/* ── NAVBAR ── */}
       <nav className={styles.nav}>
         <div className={styles.navLogo}>
@@ -115,7 +111,7 @@ export default function LandingPage() {
           </h1>
           <p className={styles.heroSubtitle}>{text.heroSubtitle}</p>
           <div className={styles.heroCtas}>
-            <button onClick={() => setShowModal(true)} className={styles.heroBtn}>
+            <button onClick={() => navigate('/login')} className={styles.heroBtn}>
               {text.heroBtn} <ArrowRight size={18} />
             </button>
           </div>
@@ -350,31 +346,6 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
-
-      {/* ── MODAL ── */}
-      {showModal && (
-        <div className={styles.modalOverlay} onClick={() => setShowModal(false)}>
-          <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
-            <button className={styles.closeModal} onClick={() => setShowModal(false)}><X size={20}/></button>
-            <h2 className={styles.modalTitle}>{text.modalTitle}</h2>
-            <button className={styles.choiceBtn} onClick={() => navigate('/login')} disabled={demoLoading}>
-              <div className={styles.choiceIcon} style={{ background: '#EEF2FF', color: '#4F46E5' }}><Users size={24} /></div>
-              <div className={styles.choiceText}><h3>{text.modalBtn1Title}</h3><p>{text.modalBtn1Desc}</p></div>
-            </button>
-            <button className={styles.choiceBtn} disabled={demoLoading} onClick={async () => {
-              setDemoLoading(true);
-              try {
-                localStorage.setItem('diaplus_force_tour', 'true');
-                await demoLogin();
-                navigate('/dashboard');
-              } catch (err) { console.error(err); } finally { setDemoLoading(false); }
-            }}>
-              <div className={styles.choiceIcon} style={{ background: '#FEF3C7', color: '#D97706' }}><Play size={24} /></div>
-              <div className={styles.choiceText}><h3>{demoLoading ? text.modalBtn2TitleLoading : text.modalBtn2Title}</h3><p>{text.modalBtn2Desc}</p></div>
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

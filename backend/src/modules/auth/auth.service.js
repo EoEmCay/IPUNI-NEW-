@@ -330,43 +330,6 @@ async function facebookLogin(accessToken) {
   }
 }
 
-async function demoLogin() {
-  const suffix = crypto.randomUUID().slice(0, 12).replace(/-/g, '');
-  const email = `demo_${suffix}@ipuni.com`;
-  
-  let user_code;
-  do { user_code = genUserCode(); } while (await db('users').where({ user_code }).first());
-  
-  // Sử dụng chuỗi băm tính trước cho 'demo_mock' để tăng tốc độ load, tránh quá tải CPU trên các server nhỏ
-  const password_hash = '$2a$10$znBEfjEODDkbHtifoiREvuPZpM7AJ9CIUdUpwqlDSztp8H5R4g0j2';
-  const [insertedRow] = await db('users').insert({
-    email,
-    name: 'Người Dùng Demo',
-    password_hash,
-    user_code,
-    diagnosis: 'type2_diabetes',
-    plan: 'pro'
-  }).returning('id');
-  
-  const userId = typeof insertedRow === 'object' ? insertedRow.id : insertedRow;
-
-  // Không nạp dữ liệu thuốc mặc định nữa, để màn hình trống cho demo quét đơn thuốc
-  const user = await db('users').where({ id: userId }).first();
-  // Token demo hết hạn SỚM HƠN thời điểm cleanupExpiredDemos() xoá tài khoản (30 phút,
-  // xem backend/src/utils/cleanupDemo.js) - tránh trường hợp người dùng vẫn cầm JWT
-  // "hợp lệ" (theo JWT_EXPIRES_IN 7 ngày mặc định) trong khi tài khoản đã bị xoá thật,
-  // gây lỗi 404/401 khó hiểu giữa phiên demo.
-  const token = signToken(user, '25m');
-  return {
-    token,
-    user: { 
-      id: user.id, user_code: user.user_code, name: user.name, 
-      email: user.email, phone: user.phone, diagnosis: user.diagnosis, 
-      plan: user.plan, is_demo: true, created_at: user.created_at 
-    },
-  };
-}
-
 async function acknowledgeSession(decodedUser) {
   const user = await db('users').where({ id: decodedUser.id }).first();
   if (!user) throw { status: 404, message: 'Người dùng không tồn tại' };
@@ -477,6 +440,6 @@ async function logout(userId) {
 }
 
 module.exports = {
-  login, register, getMe, googleLogin, facebookLogin, demoLogin, acknowledgeSession, logout,
+  login, register, getMe, googleLogin, facebookLogin, acknowledgeSession, logout,
   getLoginStatus, getPendingApprovals, approveLogin, rejectLogin, changePassword, resetPassword,
 };

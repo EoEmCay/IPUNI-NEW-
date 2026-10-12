@@ -53,20 +53,8 @@ export default function OnboardingTour() {
   useEffect(() => {
     if (!user || ['/login', '/register', '/'].includes(location.pathname)) return undefined;
 
-    const isDemoUser = user.is_demo || (user.email && user.email.startsWith('demo_'));
-    const forceTour = localStorage.getItem('diaplus_force_tour');
     const hasSeenTour = localStorage.getItem('diaplus_has_seen_tour');
-
-    if (forceTour || (isDemoUser && !hasSeenTour)) {
-      const timer = setTimeout(() => {
-        startTour();
-        localStorage.removeItem('diaplus_force_tour');
-        localStorage.setItem('diaplus_has_seen_tour', 'true');
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-
-    if (!isDemoUser && !hasSeenTour) {
+    if (!hasSeenTour) {
       const timer = setTimeout(() => setShowChoice(true), 1000);
       return () => clearTimeout(timer);
     }

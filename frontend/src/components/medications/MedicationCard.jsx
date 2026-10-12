@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Pill, Syringe, ChevronRight, XCircle } from 'lucide-react';
+import { Pill, Syringe, ChevronRight, XCircle, Camera } from 'lucide-react';
 import useMedicationsStore from '../../store/medicationsStore';
 import { recordMedicationIntake } from '../../store/medicationAdherenceStore';
 import MedicationDetailModal from './MedicationDetailModal';
@@ -8,6 +8,7 @@ import { checkMedicationTimeEligibility } from '../../utils/medicationTime';
 import { cancelFollowupReminder, buildTodayInstant } from '../../lib/medReminders';
 import { useT } from '../../hooks/useT';
 import { isInjection } from '../../utils/medForm';
+import { getSavedDrugVisual, fetchAndCacheDrugVisual } from '../../utils/drugVisuals';
 import styles from './MedicationCard.module.css';
 
 const STATUS_STYLES = {
@@ -24,10 +25,29 @@ export default function MedicationCard({ medication }) {
   const [showSkipModal, setShowSkipModal] = useState(false);
   const [toastMsg, setToastMsg] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [visual, setVisual] = useState(() => getSavedDrugVisual(medication?.name));
+  const [candidateIdx, setCandidateIdx] = useState(0);
+  const [allFailed, setAllFailed] = useState(false);
   const t = useT();
   // Thuốc tiêm (insulin, GLP-1): nói "tiêm" thay cho "uống" để người lớn tuổi không nhầm
   const injection = isInjection(medication);
   const verb = injection ? 'tiêm' : 'uống';
+
+  useEffect(() => {
+    let active = true;
+    if (!medication?.name) return;
+    setCandidateIdx(0);
+    setAllFailed(false);
+    setVisual(getSavedDrugVisual(medication.name));
+    fetchAndCacheDrugVisual(medication.name).then((res) => {
+      if (active && res) {
+        setVisual(res);
+        setCandidateIdx(0);
+        setAllFailed(false);
+      }
+    });
+    return () => { active = false; };
+  }, [medication?.name, showDetail]);
 
   // Cập nhật giờ mỗi 30s để tự động mở khóa khi tới giờ uống
   useEffect(() => {
@@ -102,13 +122,66 @@ export default function MedicationCard({ medication }) {
 
   // Cho phép bấm "Bỏ qua cữ" khi cữ đã tới giờ, chưa được đánh dấu uống/bỏ qua rồi
   const canSkip = !isRestDay && !isTaken && !isSkipped && !isLocked;
+  const candidates = visual?.candidates?.length
+    ? visual.candidates
+    : visual?.imageUrl
+    ? [visual.imageUrl]
+    : [];
+  const activeImgUrl = !allFailed ? (candidates[candidateIdx] || visual?.imageUrl) : null;
+
+  const handleImgError = () => {
+    if (candidateIdx + 1 < candidates.length) {
+      setCandidateIdx((idx) => idx + 1);
+    } else {
+      setAllFailed(true);
+    }
+  };
 
   return (
     <div className={styles.card}>
-      <div className={styles.iconWrap}>{injection ? <Syringe size={22} /> : <Pill size={22} />}</div>
+      {activeImgUrl ? (
+        <div
+          onClick={() => setShowDetail(true)}
+          style={{
+            width: 68,
+            height: 68,
+            borderRadius: 14,
+            background: '#FFFFFF',
+            border: '1.5px solid #CBD5E1',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+            flexShrink: 0,
+            cursor: 'pointer'
+          }}
+          title="Chạm để xem ảnh hộp thuốc to hoặc đổi ảnh"
+        >
+          <img
+            src={activeImgUrl}
+            alt={medication.name}
+            style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 3 }}
+            onError={handleImgError}
+          />
+        </div>
+      ) : (
+        <div className={styles.iconWrap} onClick={() => setShowDetail(true)} style={{ cursor: 'pointer' }}>
+          {injection ? <Syringe size={22} /> : <Pill size={22} />}
+        </div>
+      )}
       <div className={styles.info}>
         <div className={styles.name}>{medication.name} {medication.dosage}</div>
+        {visual?.commonName && (
+          <div style={{ display: 'inline-block', fontSize: 12, fontWeight: 700, color: '#0369A1', background: '#E0F2FE', padding: '2px 8px', borderRadius: 999, marginTop: 3 }}>
+            {visual.commonName}
+          </div>
+        )}
         <div className={styles.frequency}>{medication.frequency}: {times}</div>
+        {visual?.appearance && (
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#92400E', background: '#FEF3C7', border: '1px solid #FDE68A', padding: '4px 8px', borderRadius: 8, marginTop: 5 }}>
+            💊 {visual.appearance}
+          </div>
+        )}
         {medication.instructions && <div className={styles.instructions}>{medication.instructions}</div>}
         {isLate && <div className={styles.lateNote}>Đã quá giờ {verb}</div>}
         {isRestDay && (
@@ -121,7 +194,7 @@ export default function MedicationCard({ medication }) {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
           <button className={styles.detailBtn} onClick={() => setShowDetail(true)}>
-            {t.medCard?.details || 'Chi tiết'} <ChevronRight size={13} />
+            <Camera size={14} style={{ marginRight: 3 }} /> {t.medCard?.details || 'Ảnh & Chi tiết'} <ChevronRight size={13} />
           </button>
           {canSkip && (
             <button className={styles.skipBtn} onClick={() => setShowSkipModal(true)}>

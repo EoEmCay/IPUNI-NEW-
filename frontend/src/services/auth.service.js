@@ -6,7 +6,6 @@ export const authService = {
   facebookLogin: (accessToken) => api.post('/auth/facebook-login', { accessToken }),
   register: (email, phone, password, confirmPassword, { name, diagnosis, registrationTicket } = {}) =>
     api.post('/auth/register', { email, phone, password, confirmPassword, name, diagnosis, registrationTicket }),
-  demoLogin: () => api.post('/auth/demo-login'),
   sendOtp: (email, password) => api.post('/auth/register-otp', { email, password }),
   verifyOtp: (email, userOtp) => api.post('/auth/verify-otp', { email, userOtp }),
   getMe: () => api.get('/auth/me'),

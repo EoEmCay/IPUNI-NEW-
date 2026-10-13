@@ -17,6 +17,7 @@ const scanRoutes = require('./src/modules/scan/scan.routes');
 const analyticsRoutes = require('./src/modules/analytics/analytics.routes');
 const ttsRoutes = require('./src/modules/tts/tts.routes');
 const jobsRoutes = require('./src/modules/jobs/jobs.routes');
+const careRoutes = require('./src/modules/care/care.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -162,6 +163,8 @@ app.use('/api/v1/scan', scanRoutes);
 app.use('/api/v1/analytics', adminLimiter, analyticsRoutes);
 app.use('/api/v1/tts', ttsRoutes);
 app.use('/api/v1/jobs', jobsRoutes);
+app.use('/api/v1/care', careRoutes);
+app.use('/api/v1/insights', careRoutes);
 
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 

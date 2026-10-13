@@ -5,7 +5,6 @@ import {
   Clock,
   Camera,
   RotateCcw,
-  ShieldCheck,
   Check,
   Sparkles,
   Lock,
@@ -13,7 +12,6 @@ import {
 import { useMedications } from '../../hooks/useMedications';
 import { extractMedicationTimes } from '../../utils/medicationTime';
 import useRoleModeStore from '../../store/roleModeStore';
-import RoleCircleSwitcher from '../common/RoleCircleSwitcher';
 import styles from './CaregiverMedicationChecklist.module.css';
 
 const DEFAULT_SLOTS = [
@@ -56,7 +54,6 @@ export default function CaregiverMedicationChecklist() {
   const caregiverData = useRoleModeStore((s) => s.caregiverData);
   const setCaregiverSlotTaken = useRoleModeStore((s) => s.setCaregiverSlotTaken);
   const undoCaregiverSlot = useRoleModeStore((s) => s.undoCaregiverSlot);
-  const openRoleSelector = useRoleModeStore((s) => s.openRoleSelector);
 
   // Khung giờ thực tế: từ 12:00 trở đi là đầu giờ chiều
   const currentHour = new Date().getHours();
@@ -181,7 +178,6 @@ export default function CaregiverMedicationChecklist() {
               Đã uống {takenCount}/{totalCount} cữ ({percent}%)
             </span>
           </div>
-          <RoleCircleSwitcher />
         </div>
       </header>
 

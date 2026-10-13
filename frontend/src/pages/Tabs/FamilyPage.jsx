@@ -3,12 +3,10 @@ import SupervisorFamilyHub from '../../components/supervisor/SupervisorFamilyHub
 import CaregiverMedicalProfile from '../../components/caregiver/CaregiverMedicalProfile';
 import FamilyCard from '../../components/settings/FamilyCard';
 import TelegramCard from '../../components/settings/TelegramCard';
-import RoleCircleSwitcher from '../../components/common/RoleCircleSwitcher';
 import { ShieldCheck, HeartHandshake, Users } from 'lucide-react';
 
 export default function FamilyPage() {
   const roleMode = useRoleModeStore((s) => s.roleMode);
-  const openRoleSelector = useRoleModeStore((s) => s.openRoleSelector);
 
   // Nếu đang ở Chế độ Người giám sát
   if (roleMode === 'supervisor') {
@@ -65,8 +63,6 @@ export default function FamilyPage() {
           >
             <HeartHandshake size={14} /> GIA ĐÌNH ĐỒNG HÀNH
           </span>
-
-          <RoleCircleSwitcher />
         </div>
 
         <div>

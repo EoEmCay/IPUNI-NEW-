@@ -533,6 +533,78 @@ export default function SupervisorDashboard() {
           </>
         )}
       </section>
+
+      {/* Cấu hình Cảnh báo Tự động Zalo / Telegram cho Con (Chuyển sang bên trái cho 2 cột cân bằng) */}
+      <section className={styles.sectionCard}>
+        <div className={styles.sectionHead}>
+          <h3 className={styles.sectionTitle}>
+            <MessageSquare size={18} color="#059669" />
+            Cấu hình Báo tin Tự động về Máy Con
+          </h3>
+          <span className={styles.sectionBadge}>Zalo ZNS & Telegram</span>
+        </div>
+
+        <div>
+          <div className={styles.switchItem}>
+            <div className={styles.switchInfo}>
+              <p className={styles.switchTitle}>🚨 Báo khẩn khi Bố/Mẹ quá giờ uống thuốc</p>
+              <p className={styles.switchDesc}>
+                Tự động nhắn tin cho con nếu quá giờ 30 phút hoặc sau 2 lần chuông nhắc chưa uống
+              </p>
+            </div>
+            <label className={styles.toggle}>
+              <input
+                type="checkbox"
+                checked={alertPrefs.urgentMissedDose}
+                onChange={(e) => updateAlertPrefs({ urgentMissedDose: e.target.checked })}
+              />
+              <span className={styles.slider} />
+            </label>
+          </div>
+
+          <div className={styles.switchItem}>
+            <div className={styles.switchInfo}>
+              <p className={styles.switchTitle}>💚 Bản tin An tâm 20:00 mỗi tối</p>
+              <p className={styles.switchDesc}>
+                Tổng kết cuối ngày: Bố/Mẹ đã uống đủ bao nhiêu cử và chỉ số đường huyết
+              </p>
+            </div>
+            <label className={styles.toggle}>
+              <input
+                type="checkbox"
+                checked={alertPrefs.eveningDigest}
+                onChange={(e) => updateAlertPrefs({ eveningDigest: e.target.checked })}
+              />
+              <span className={styles.slider} />
+            </label>
+          </div>
+
+          <div className={styles.switchItem}>
+            <div className={styles.switchInfo}>
+              <p className={styles.switchTitle}>🩸 Cảnh báo tức thì Đường huyết bất thường</p>
+              <p className={styles.switchDesc}>
+                Báo ngay khi đường huyết hạ thấp (&lt; 3.9 mmol/L) hoặc tăng cao (&gt; 10.0 mmol/L)
+              </p>
+            </div>
+            <label className={styles.toggle}>
+              <input
+                type="checkbox"
+                checked={alertPrefs.highLowGlucose}
+                onChange={(e) => updateAlertPrefs({ highLowGlucose: e.target.checked })}
+              />
+              <span className={styles.slider} />
+            </label>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className={styles.previewBtn}
+          onClick={() => setShowZaloPreview(true)}
+        >
+          <MessageSquare size={16} /> Xem thử tin nhắn Zalo / Telegram báo về máy con
+        </button>
+      </section>
     </div>
   );
 
@@ -847,78 +919,6 @@ export default function SupervisorDashboard() {
             {voiceToast}
           </div>
         )}
-      </section>
-
-      {/* Cấu hình Cảnh báo Tự động Zalo / Telegram cho Con */}
-      <section className={styles.sectionCard}>
-        <div className={styles.sectionHead}>
-          <h3 className={styles.sectionTitle}>
-            <MessageSquare size={18} color="#059669" />
-            Cấu hình Báo tin Tự động về Máy Con
-          </h3>
-          <span className={styles.sectionBadge}>Zalo ZNS & Telegram</span>
-        </div>
-
-        <div>
-          <div className={styles.switchItem}>
-            <div className={styles.switchInfo}>
-              <p className={styles.switchTitle}>🚨 Báo khẩn khi Bố/Mẹ quá giờ uống thuốc</p>
-              <p className={styles.switchDesc}>
-                Tự động nhắn tin cho con nếu quá giờ 30 phút hoặc sau 2 lần chuông nhắc chưa uống
-              </p>
-            </div>
-            <label className={styles.toggle}>
-              <input
-                type="checkbox"
-                checked={alertPrefs.urgentMissedDose}
-                onChange={(e) => updateAlertPrefs({ urgentMissedDose: e.target.checked })}
-              />
-              <span className={styles.slider} />
-            </label>
-          </div>
-
-          <div className={styles.switchItem}>
-            <div className={styles.switchInfo}>
-              <p className={styles.switchTitle}>💚 Bản tin An tâm 20:00 mỗi tối</p>
-              <p className={styles.switchDesc}>
-                Tổng kết cuối ngày: Bố/Mẹ đã uống đủ bao nhiêu cử và chỉ số đường huyết
-              </p>
-            </div>
-            <label className={styles.toggle}>
-              <input
-                type="checkbox"
-                checked={alertPrefs.eveningDigest}
-                onChange={(e) => updateAlertPrefs({ eveningDigest: e.target.checked })}
-              />
-              <span className={styles.slider} />
-            </label>
-          </div>
-
-          <div className={styles.switchItem}>
-            <div className={styles.switchInfo}>
-              <p className={styles.switchTitle}>🩸 Cảnh báo tức thì Đường huyết bất thường</p>
-              <p className={styles.switchDesc}>
-                Báo ngay khi đường huyết hạ thấp (&lt; 3.9 mmol/L) hoặc tăng cao (&gt; 10.0 mmol/L)
-              </p>
-            </div>
-            <label className={styles.toggle}>
-              <input
-                type="checkbox"
-                checked={alertPrefs.highLowGlucose}
-                onChange={(e) => updateAlertPrefs({ highLowGlucose: e.target.checked })}
-              />
-              <span className={styles.slider} />
-            </label>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          className={styles.previewBtn}
-          onClick={() => setShowZaloPreview(true)}
-        >
-          <MessageSquare size={16} /> Xem thử tin nhắn Zalo / Telegram báo về máy con
-        </button>
       </section>
     </div>
   );

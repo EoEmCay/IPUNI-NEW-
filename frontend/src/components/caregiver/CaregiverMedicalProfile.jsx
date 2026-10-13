@@ -1,11 +1,9 @@
-import { HeartHandshake, ShieldCheck, Stethoscope, Calendar, Clock, AlertCircle, FileText, Phone } from 'lucide-react';
+import { HeartHandshake, Stethoscope, Calendar, Clock, AlertCircle, FileText, Phone } from 'lucide-react';
 import useRoleModeStore from '../../store/roleModeStore';
-import RoleCircleSwitcher from '../common/RoleCircleSwitcher';
 import styles from './CaregiverMedicalProfile.module.css';
 
 export default function CaregiverMedicalProfile() {
   const caregiverData = useRoleModeStore((s) => s.caregiverData);
-  const openRoleSelector = useRoleModeStore((s) => s.openRoleSelector);
 
   return (
     <div className={styles.container}>
@@ -13,9 +11,8 @@ export default function CaregiverMedicalProfile() {
       <header className={styles.headerCard}>
         <div className={styles.headerTop}>
           <span className={styles.roleTag}>
-            <HeartHandshake size={14} /> BỆNH ÁN CỦA CỤ
+            <HeartHandshake size={14} /> BỆNH ÁN
           </span>
-          <RoleCircleSwitcher />
         </div>
 
         <div>

@@ -11,7 +11,6 @@ import {
   Trash2,
   Calendar,
   AlertTriangle,
-  RotateCcw,
   Pill,
   Droplet,
 } from 'lucide-react';
@@ -33,7 +32,6 @@ export default function SupervisorFamilyHub() {
 
   const deviceMode = useRoleModeStore((s) => s.deviceMode);
   const setDeviceMode = useRoleModeStore((s) => s.setDeviceMode);
-  const switchRole = useRoleModeStore((s) => s.switchRole);
   const callerTitle = useRoleModeStore((s) => s.callerTitle);
 
   const [members, setMembers] = useState([]);
@@ -226,16 +224,6 @@ export default function SupervisorFamilyHub() {
               <Monitor size={14} /> PC
             </button>
           </div>
-
-          {/* Nút Xoay 3D về màn hình Bố/Mẹ */}
-          <button
-            type="button"
-            className={styles.flipRoleBtn}
-            onClick={() => switchRole('patient')}
-            title="Quay lại giao diện dành cho Bố/Mẹ"
-          >
-            <RotateCcw size={14} /> Về Bố/Mẹ
-          </button>
         </div>
       </header>
 

@@ -8,7 +8,6 @@ import {
   Palette,
   LogOut,
   ChevronRight,
-  ShieldCheck,
   KeyRound,
   ZoomIn,
   FileText,
@@ -24,7 +23,6 @@ import SecurityModal from '../../components/profile/SecurityModal';
 import FontSizeModal from '../../components/profile/FontSizeModal';
 import LegalModal from '../../components/profile/LegalModal';
 import TimezoneUtcModal from '../../components/profile/TimezoneUtcModal';
-import RoleCircleSwitcher from '../../components/common/RoleCircleSwitcher';
 import styles from './TabPages.module.css';
 
 const initials = (name) =>
@@ -39,8 +37,6 @@ export default function ProfilePage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const roleMode = useRoleModeStore((s) => s.roleMode);
-  const switchRole = useRoleModeStore((s) => s.switchRole);
-  const openRoleSelector = useRoleModeStore((s) => s.openRoleSelector);
 
   const [modal, setModal] = useState(null); // 'profile' | 'theme'
   const [copiedCode, setCopiedCode] = useState(false);
@@ -72,12 +68,6 @@ export default function ProfilePage() {
       label: 'Thông tin Người Giám Sát',
       desc: 'Họ tên, số điện thoại, tài khoản',
       onClick: () => setModal('profile'),
-    },
-    {
-      icon: ShieldCheck,
-      label: 'Đổi vai trò sử dụng (3 chế độ)',
-      desc: 'Chuyển sang Bố/Mẹ (Người bệnh) hoặc Người chăm sóc (Hộ lý)',
-      onClick: openRoleSelector,
     },
     {
       icon: Mic,
@@ -120,12 +110,6 @@ export default function ProfilePage() {
       onClick: () => setModal('profile'),
     },
     {
-      icon: ShieldCheck,
-      label: 'Đổi vai trò sử dụng (3 chế độ)',
-      desc: 'Chuyển sang Bố/Mẹ (Người bệnh) hoặc Con cháu (Giám sát)',
-      onClick: openRoleSelector,
-    },
-    {
       icon: KeyRound,
       label: 'Bảo mật & Tài khoản',
       desc: 'Đổi mật khẩu, mã PIN ca trực',
@@ -158,12 +142,6 @@ export default function ProfilePage() {
       label: 'Thông tin cá nhân',
       desc: 'Họ tên, số điện thoại, BHYT',
       onClick: () => setModal('profile'),
-    },
-    {
-      icon: ShieldCheck,
-      label: 'Đổi vai trò sử dụng (3 chế độ)',
-      desc: 'Chuyển sang Người chăm sóc (Hộ lý) hoặc Con cháu (Giám sát)',
-      onClick: openRoleSelector,
     },
     {
       icon: Mic,
@@ -218,7 +196,6 @@ export default function ProfilePage() {
       <div className={styles.page}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
           <h1 className={styles.title}>Hồ Sơ Đăng Ký App</h1>
-          <RoleCircleSwitcher />
         </div>
 
         {/* Thẻ định danh tài khoản Hộ Lý */}
@@ -333,9 +310,7 @@ export default function ProfilePage() {
     <div className={styles.page}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
         <h1 className={styles.title}>{roleTitle}</h1>
-        <button
-          type="button"
-          onClick={openRoleSelector}
+        <span
           style={{
             fontSize: 12,
             fontWeight: 800,
@@ -346,13 +321,10 @@ export default function ProfilePage() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: 5,
-            border: 'none',
-            cursor: 'pointer',
           }}
-          title="Bấm để đổi vai trò"
         >
-          <ShieldCheck size={14} /> Đổi vai trò ▾
-        </button>
+          {roleBadgeLabel}
+        </span>
       </div>
 
       {/* Thẻ định danh tài khoản */}

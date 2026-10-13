@@ -58,10 +58,8 @@ export default function CaregiverMedicationChecklist() {
   const undoCaregiverSlot = useRoleModeStore((s) => s.undoCaregiverSlot);
   const openRoleSelector = useRoleModeStore((s) => s.openRoleSelector);
 
-  // Mô phỏng / thời gian thực: null = theo đồng hồ máy thật, 'morning' = giả lập sáng, 'afternoon' = giả lập đầu giờ chiều
-  const [timeShift, setTimeShift] = useState(null);
-  const currentHour = timeShift === 'afternoon' ? 14 : timeShift === 'morning' ? 8 : new Date().getHours();
-  // Qua đầu giờ chiều: từ 12:00 trở đi
+  // Khung giờ thực tế: từ 12:00 trở đi là đầu giờ chiều
+  const currentHour = new Date().getHours();
   const isAfternoon = currentHour >= 12;
 
   // Cữ chính theo khung giờ: Chiều nếu qua đầu giờ chiều, Sáng nếu trước 12:00
@@ -187,48 +185,6 @@ export default function CaregiverMedicationChecklist() {
         </div>
       </header>
 
-      {/* Thanh hiển thị & mô phỏng khung giờ ca trực */}
-      <div className={styles.timeModeBar}>
-        <div className={styles.timeModeLabel}>
-          <Clock size={13} />
-          <span>
-            {timeShift === 'afternoon'
-              ? 'Đang xem thử nghiệm: Đầu giờ chiều (14:00)'
-              : timeShift === 'morning'
-              ? 'Đang xem thử nghiệm: Buổi sáng (08:00)'
-              : `Khung giờ: ${isAfternoon ? 'Qua đầu giờ chiều (Cữ Chiều chính)' : 'Buổi sáng (Cữ Sáng chính)'}`}
-          </span>
-        </div>
-        <div className={styles.timeShiftBtns}>
-          <button
-            type="button"
-            className={`${styles.timeShiftBtn} ${(!timeShift && !isAfternoon) || timeShift === 'morning' ? styles.timeShiftBtnActive : ''}`}
-            onClick={() => setTimeShift('morning')}
-            title="Xem giao diện ca sáng: cữ Sáng chính, cữ Chiều bị khóa"
-          >
-            Ca Sáng
-          </button>
-          <button
-            type="button"
-            className={`${styles.timeShiftBtn} ${(!timeShift && isAfternoon) || timeShift === 'afternoon' ? styles.timeShiftBtnActive : ''}`}
-            onClick={() => setTimeShift('afternoon')}
-            title="Xem giao diện đầu giờ chiều: cữ Chiều chính, cữ Sáng màu xám"
-          >
-            Ca Chiều
-          </button>
-          {timeShift && (
-            <button
-              type="button"
-              className={styles.timeShiftBtnReset}
-              onClick={() => setTimeShift(null)}
-              title="Quay lại khung giờ theo đồng hồ thực tế"
-            >
-              Theo giờ thật
-            </button>
-          )}
-        </div>
-      </div>
-
       {/* Bộ lọc cữ thuốc: CHỈ hiển thị các cữ thực tế có thuốc, KHÔNG hiển thị cữ (0) */}
       {availablePeriods.length > 0 && (
         <div className={styles.filterRow}>
@@ -260,7 +216,6 @@ export default function CaregiverMedicationChecklist() {
                 {isPLocked && <Lock size={12} style={{ marginRight: 3, verticalAlign: -1 }} />}
                 Cữ {p.name} ({p.count})
                 {isPPast && ' (Đã qua)'}
-                {isPLocked && ' (Khoá)'}
               </button>
             );
           })}
@@ -329,7 +284,7 @@ export default function CaregiverMedicationChecklist() {
                     {isTaken
                       ? '✓ Đã uống'
                       : isLocked
-                      ? '🔒 Chưa tới giờ (Khoá)'
+                      ? '🔒 Chưa tới giờ'
                       : isPast
                       ? '⚠️ Quá giờ sáng'
                       : 'Chưa uống'}
@@ -373,7 +328,7 @@ export default function CaregiverMedicationChecklist() {
                   <div className={styles.lockedRow}>
                     <div className={styles.lockedNotice}>
                       <Lock size={14} color="#b45309" />
-                      <span>Chưa tới cữ {slot.period.toLowerCase()} · Khoá xác nhận (Chỉ cho nhìn thuốc)</span>
+                      <span>Chưa tới cữ {slot.period.toLowerCase()}</span>
                     </div>
                   </div>
                 ) : isPast ? (

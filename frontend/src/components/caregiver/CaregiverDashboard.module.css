@@ -163,14 +163,13 @@
 .wishMessage {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-family: 'Dancing Script', 'Caveat', 'Segoe Script', 'Brush Script MT', cursive, sans-serif;
-  font-size: 15px;
-  font-weight: 700;
-  font-style: italic;
+  gap: 6px;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-style: normal;
   color: #fef08a;
-  letter-spacing: 0.02em;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  letter-spacing: normal;
   white-space: nowrap;
 }
 

@@ -23,7 +23,7 @@ const SUPERVISOR_ITEMS = [
 const CAREGIVER_ITEMS = [
   { to: '/dashboard', icon: Home, label: 'Nhiệm vụ', exact: true },
   { to: '/medications', icon: Pill, label: 'Thuốc hôm nay' },
-  { to: '/family', icon: ClipboardList, label: 'Bệnh án cụ' },
+  { to: '/family', icon: ClipboardList, label: 'Bệnh án' },
   { to: '/profile', icon: User, label: 'Hồ sơ' },
 ];
 

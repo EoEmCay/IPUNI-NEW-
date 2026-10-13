@@ -46,6 +46,27 @@
   transform: scale(0.98);
 }
 
+.cardDeleteBtn {
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  color: #ef4444;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  align-self: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+.cardDeleteBtn:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  transform: scale(1.08);
+}
+
 .cardImage {
   width: 80px;
   height: 80px;
@@ -101,62 +122,135 @@
   bottom: 0;
   background: var(--bg, #f3f4f6);
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
   z-index: 1000;
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.25s ease-out;
+  overflow: hidden;
 }
 
 .modalContent {
   background: var(--bg, #f3f4f6);
   width: 100%;
   max-width: 600px;
-  height: 100vh;
-  height: 100dvh;
+  margin: 0 auto;
+  height: 100%;
+  max-height: 100%;
   border-radius: 0;
   display: flex;
   flex-direction: column;
-  animation: slideUp 0.3s ease-out;
   overflow: hidden;
+  position: relative;
 }
 
 .modalHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  padding: 16px 20px;
-  padding-top: max(16px, env(safe-area-inset-top));
+  gap: 10px;
+  padding: 12px 16px;
+  padding-top: max(12px, env(safe-area-inset-top));
   background: var(--bg, #fff);
   border-bottom: 1px solid var(--border, #e5e7eb);
+  flex-shrink: 0;
+  z-index: 10;
 }
 
-.modalHeader h2 {
+/* Khoảng trống trên khung iPhone desktop để tránh Dynamic Island */
+:global(.iphone-frame) .modalHeader {
+  padding-top: 36px;
+}
+
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+  font-size: 13.5px;
+  font-weight: 700;
+  padding: 7px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease;
+}
+.backBtn:hover {
+  background: #e2e8f0;
+}
+
+.modalTitle {
   margin: 0;
-  font-size: 19px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  text-align: center;
+  flex: 1;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.modalHeaderActions {
-  display: flex;
-  gap: 8px;
+.trashBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 7px 12px;
+  border-radius: 999px;
+  cursor: pointer;
   flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+.trashBtn:hover {
+  background: #fee2e2;
+  border-color: #f87171;
 }
 
-.closeBtn {
-  background: var(--surface-hover, #f1f5f9);
-  border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+.modalBottomActions {
   display: flex;
+  gap: 10px;
+  margin-top: 24px;
+  padding-bottom: 24px;
+}
+
+.bottomBackBtn {
+  flex: 1;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 12px;
   cursor: pointer;
-  color: var(--text, #6b7280);
+}
+
+.bottomDeleteBtn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  color: #b91c1c;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 12px;
+  cursor: pointer;
 }
 
 .modalBody {

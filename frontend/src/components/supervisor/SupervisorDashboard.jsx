@@ -533,158 +533,166 @@ export default function SupervisorDashboard() {
           </>
         )}
       </section>
+    </div>
+  );
 
-      {/* Thẻ Theo Dõi & Giao Nhiệm Vụ Cho Hộ Lý (Cô Lan) */}
-      <section className={styles.sectionCard} style={{ borderLeft: '4px solid #f59e0b' }}>
-        <div className={styles.sectionHead}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-            <span style={{ fontSize: 18 }}>📋</span>
-            <h3 className={styles.sectionTitle} style={{ fontSize: 14 }}>
-              Nhiệm Vụ Ca Trực Của Hộ Lý ({caregiverData?.nurseName || 'Cô Lan'})
-            </h3>
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowAddTaskModal(true)}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 4,
-              fontSize: 11.5,
-              fontWeight: 800,
-              color: '#d97706',
-              background: '#fef3c7',
-              border: '1px solid #fde68a',
-              padding: '4px 10px',
-              borderRadius: 8,
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              flexShrink: 0,
-            }}
-          >
-            <Plus size={13} strokeWidth={2.5} /> + Giao việc
-          </button>
+  // Thẻ Theo Dõi & Giao Nhiệm Vụ Cho Hộ Lý (Cô Lan)
+  const cleanNurseName =
+    caregiverData?.nurseName
+      ?.replace(/\s*\([^)]*Hộ\s*lý[^)]*\)/gi, '')
+      ?.replace(/\s*Hộ\s*lý/gi, '')
+      ?.trim() || 'Cô Lan';
+
+  const caregiverSection = (
+    <section className={styles.sectionCard} style={{ borderLeft: '4px solid #f59e0b' }}>
+      <div className={styles.sectionHead}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+          <span style={{ fontSize: 18 }}>📋</span>
+          <h3 className={styles.sectionTitle} style={{ fontSize: 14 }}>
+            Nhiệm Vụ Ca Trực Của Hộ Lý ({cleanNurseName})
+          </h3>
         </div>
+        <button
+          type="button"
+          onClick={() => setShowAddTaskModal(true)}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 4,
+            fontSize: 11.5,
+            fontWeight: 800,
+            color: '#d97706',
+            background: '#fef3c7',
+            border: '1px solid #fde68a',
+            padding: '4px 10px',
+            borderRadius: 8,
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+          }}
+        >
+          <Plus size={13} strokeWidth={2.5} /> + Giao việc
+        </button>
+      </div>
 
-        {/* Tiến độ hoàn thành nhiệm vụ theo ngày */}
-        {(() => {
-          const tasks = caregiverData?.dailyTasks || [];
-          const done = tasks.filter((t) => t.completed).length;
-          const total = tasks.length;
-          const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+      {/* Tiến độ hoàn thành nhiệm vụ theo ngày */}
+      {(() => {
+        const tasks = caregiverData?.dailyTasks || [];
+        const done = tasks.filter((t) => t.completed).length;
+        const total = tasks.length;
+        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
-          return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 12 }}>
-                <span style={{ color: '#64748b', fontWeight: 600 }}>
-                  Tiến độ ca trực: <strong style={{ color: '#0f172a' }}>{done}/{total} việc</strong>
-                </span>
-                <span style={{ color: done === total ? '#16a34a' : '#d97706', fontWeight: 800 }}>
-                  {pct}% đã xong
-                </span>
-              </div>
-              <div style={{ height: 6, background: '#f1f5f9', borderRadius: 999, overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${pct}%`, background: 'linear-gradient(90deg, #f59e0b, #10b981)', borderRadius: 999 }} />
-              </div>
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 12 }}>
+              <span style={{ color: '#64748b', fontWeight: 600 }}>
+                Tiến độ ca trực: <strong style={{ color: '#0f172a' }}>{done}/{total} việc</strong>
+              </span>
+              <span style={{ color: done === total ? '#16a34a' : '#d97706', fontWeight: 800 }}>
+                {pct}% đã xong
+              </span>
+            </div>
+            <div style={{ height: 6, background: '#f1f5f9', borderRadius: 999, overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${pct}%`, background: 'linear-gradient(90deg, #f59e0b, #10b981)', borderRadius: 999 }} />
+            </div>
 
-              {/* Danh sách nhiệm vụ con cháu theo dõi */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 4 }}>
-                {tasks.map((t) => (
-                  <div
-                    key={t.id}
+            {/* Danh sách nhiệm vụ con cháu theo dõi */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 4 }}>
+              {tasks.map((t) => (
+                <div
+                  key={t.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    background: t.completed ? '#f0fdf4' : '#f8fafc',
+                    border: `1px solid ${t.completed ? '#bbf7d0' : '#e2e8f0'}`,
+                    padding: '8px 10px',
+                    borderRadius: 10,
+                    gap: 8,
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
+                    <span style={{ fontSize: 16 }}>
+                      {t.category === 'medication' ? '💊' : t.category === 'meal' ? '🍲' : t.category === 'vital' ? '🩸' : t.category === 'activity' ? '🚶' : '📋'}
+                    </span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 12.5, fontWeight: 700, color: t.completed ? '#166534' : '#0f172a', textDecoration: t.completed ? 'line-through' : 'none', wordBreak: 'break-word' }}>
+                          {t.title}
+                        </span>
+                        {t.time && (
+                          <span style={{ fontSize: 10.5, fontWeight: 700, background: '#e2e8f0', color: '#475569', padding: '1px 5px', borderRadius: 4, whiteSpace: 'nowrap' }}>
+                            {t.time}
+                          </span>
+                        )}
+                      </div>
+                      <span style={{ fontSize: 11, color: t.completed ? '#15803d' : '#64748b', fontWeight: 600 }}>
+                        {t.completed ? `✓ Hộ lý đã làm lúc ${t.completedAt || 'hôm nay'}` : '○ Hộ lý chưa thực hiện'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => removeCaregiverTask(t.id)}
+                    title="Xóa nhiệm vụ này"
                     style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#94a3b8',
+                      cursor: 'pointer',
+                      padding: 4,
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'space-between',
-                      background: t.completed ? '#f0fdf4' : '#f8fafc',
-                      border: `1px solid ${t.completed ? '#bbf7d0' : '#e2e8f0'}`,
-                      padding: '8px 10px',
-                      borderRadius: 10,
-                      gap: 8,
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
-                      <span style={{ fontSize: 16 }}>
-                        {t.category === 'medication' ? '💊' : t.category === 'meal' ? '🍲' : t.category === 'vital' ? '🩸' : t.category === 'activity' ? '🚶' : '📋'}
-                      </span>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span style={{ fontSize: 12.5, fontWeight: 700, color: t.completed ? '#166534' : '#0f172a', textDecoration: t.completed ? 'line-through' : 'none', wordBreak: 'break-word' }}>
-                            {t.title}
-                          </span>
-                          {t.time && (
-                            <span style={{ fontSize: 10.5, fontWeight: 700, background: '#e2e8f0', color: '#475569', padding: '1px 5px', borderRadius: 4, whiteSpace: 'nowrap' }}>
-                              {t.time}
-                            </span>
-                          )}
-                        </div>
-                        <span style={{ fontSize: 11, color: t.completed ? '#15803d' : '#64748b', fontWeight: 600 }}>
-                          {t.completed ? `✓ Hộ lý đã làm lúc ${t.completedAt || 'hôm nay'}` : '○ Hộ lý chưa thực hiện'}
-                        </span>
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => removeCaregiverTask(t.id)}
-                      title="Xóa nhiệm vụ này"
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: '#94a3b8',
-                        cursor: 'pointer',
-                        padding: 4,
-                        display: 'flex',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                ))}
-              </div>
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              ))}
             </div>
-          );
-        })()}
-
-        {/* Báo cáo ghi chép ca trực */}
-        <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: 10, marginTop: 4, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13, color: '#334155' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: 12, fontWeight: 800, color: '#0f172a' }}>
-              📝 Ghi chép & Lời nhắn ca trực:
-            </span>
-            <span style={{ fontSize: 11, color: '#b45309', fontWeight: 700 }}>
-              {caregiverData?.dailyNote?.lastUpdated ? `Cập nhật lúc ${caregiverData.dailyNote.lastUpdated}` : 'Hôm nay'}
-            </span>
           </div>
+        );
+      })()}
 
-          {caregiverData?.dailyNote?.meals && (
-            <div style={{ display: 'flex', gap: 6, background: '#f8fafc', padding: '8px 10px', borderRadius: 10 }}>
-              <span style={{ fontWeight: 700, color: '#0f172a', minWidth: 68 }}>🍲 Bữa ăn:</span>
-              <span>{caregiverData.dailyNote.meals}</span>
-            </div>
-          )}
-          {caregiverData?.dailyNote?.mood && (
-            <div style={{ display: 'flex', gap: 6, background: '#f8fafc', padding: '8px 10px', borderRadius: 10 }}>
-              <span style={{ fontWeight: 700, color: '#0f172a', minWidth: 68 }}>😊 Tinh thần:</span>
-              <span>{caregiverData.dailyNote.mood}</span>
-            </div>
-          )}
-          {caregiverData?.dailyNote?.sleep && (
-            <div style={{ display: 'flex', gap: 6, background: '#f8fafc', padding: '8px 10px', borderRadius: 10 }}>
-              <span style={{ fontWeight: 700, color: '#0f172a', minWidth: 68 }}>🌙 Giấc ngủ:</span>
-              <span>{caregiverData.dailyNote.sleep}</span>
-            </div>
-          )}
-          {caregiverData?.dailyNote?.generalNotes && (
-            <div style={{ display: 'flex', gap: 6, background: '#fffbeb', padding: '8px 10px', borderRadius: 10, color: '#92400e', border: '1px solid #fef3c7' }}>
-              <span style={{ fontWeight: 700, minWidth: 68 }}>📝 Lời nhắn:</span>
-              <span>{caregiverData.dailyNote.generalNotes}</span>
-            </div>
-          )}
+      {/* Báo cáo ghi chép ca trực */}
+      <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: 10, marginTop: 4, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13, color: '#334155' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: 12, fontWeight: 800, color: '#0f172a' }}>
+            📝 Ghi chép & Lời nhắn ca trực:
+          </span>
+          <span style={{ fontSize: 11, color: '#b45309', fontWeight: 700 }}>
+            {caregiverData?.dailyNote?.lastUpdated ? `Cập nhật lúc ${caregiverData.dailyNote.lastUpdated}` : 'Hôm nay'}
+          </span>
         </div>
-      </section>
-    </div>
+
+        {caregiverData?.dailyNote?.meals && (
+          <div style={{ display: 'flex', gap: 6, background: '#f8fafc', padding: '8px 10px', borderRadius: 10 }}>
+            <span style={{ fontWeight: 700, color: '#0f172a', minWidth: 68 }}>🍲 Bữa ăn:</span>
+            <span>{caregiverData.dailyNote.meals}</span>
+          </div>
+        )}
+        {caregiverData?.dailyNote?.mood && (
+          <div style={{ display: 'flex', gap: 6, background: '#f8fafc', padding: '8px 10px', borderRadius: 10 }}>
+            <span style={{ fontWeight: 700, color: '#0f172a', minWidth: 68 }}>😊 Tinh thần:</span>
+            <span>{caregiverData.dailyNote.mood}</span>
+          </div>
+        )}
+        {caregiverData?.dailyNote?.sleep && (
+          <div style={{ display: 'flex', gap: 6, background: '#f8fafc', padding: '8px 10px', borderRadius: 10 }}>
+            <span style={{ fontWeight: 700, color: '#0f172a', minWidth: 68 }}>🌙 Giấc ngủ:</span>
+            <span>{caregiverData.dailyNote.sleep}</span>
+          </div>
+        )}
+        {caregiverData?.dailyNote?.generalNotes && (
+          <div style={{ display: 'flex', gap: 6, background: '#fffbeb', padding: '8px 10px', borderRadius: 10, color: '#92400e', border: '1px solid #fef3c7' }}>
+            <span style={{ fontWeight: 700, minWidth: 68 }}>📝 Lời nhắn:</span>
+            <span>{caregiverData.dailyNote.generalNotes}</span>
+          </div>
+        )}
+      </div>
+    </section>
   );
 
   const rightColumnContent = (
@@ -725,6 +733,9 @@ export default function SupervisorDashboard() {
           {latestGlucose?.measurement_time ? `Đo lúc ${latestGlucose.measurement_time}` : 'Tự động đồng bộ'}
         </span>
       </div>
+
+      {/* Ở chế độ PC: Thẻ Nhiệm vụ & Ghi chép Hộ lý chuyển sang bên phải để 2 cột cân đối */}
+      {caregiverSection}
 
       {/* Phòng điều khiển Chuông gọi Gia đình & Thu âm giọng con từ xa */}
       <section className={styles.voiceBox}>

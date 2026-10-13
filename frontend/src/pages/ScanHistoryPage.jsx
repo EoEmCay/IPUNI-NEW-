@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Clock, Pill, Image as ImageIcon, X, Trash2, Activity } from 'lucide-react';
+import { Clock, Pill, Image as ImageIcon, X, Trash2, Activity, ArrowLeft } from 'lucide-react';
 import { scanHistoryService } from '../services/scanHistory.service';
 import { useT } from '../hooks/useT';
 import styles from './ScanHistoryPage.module.css';
@@ -28,7 +28,7 @@ export default function ScanHistoryPage() {
 
   const handleDelete = async (id, e) => {
     if (e) e.stopPropagation();
-    if (window.confirm(t.scanHistory.deleteConfirm)) {
+    if (window.confirm(t.scanHistory.deleteConfirm || 'Bạn có chắc chắn muốn xóa đơn thuốc này không?')) {
       await scanHistoryService.deleteScan(id);
       loadHistory();
       if (selectedScan && selectedScan.id === id) {
@@ -79,6 +79,15 @@ export default function ScanHistoryPage() {
                   </span>
                 </div>
               </div>
+              <button
+                type="button"
+                className={styles.cardDeleteBtn}
+                onClick={(e) => handleDelete(scan.id, e)}
+                title="Xóa đơn thuốc này"
+                aria-label="Xóa đơn thuốc này"
+              >
+                <Trash2 size={16} />
+              </button>
             </div>
           ))}
         </div>
@@ -88,20 +97,31 @@ export default function ScanHistoryPage() {
         <div className={styles.modalOverlay} onClick={() => setSelectedScan(null)}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <h2>{selectedScan.result?.isLabReport ? 'Chi tiết phiếu xét nghiệm' : t.scanHistory.detailTitle}</h2>
-              <div className={styles.modalHeaderActions}>
-                <button 
-                  className={styles.trashBtn} 
-                  onClick={() => handleDelete(selectedScan.id)}
-                  title="Xóa"
-                >
-                  <Trash2 size={18} />
-                </button>
-                <button className={styles.closeBtn} onClick={() => setSelectedScan(null)}>
-                  <X size={20} />
-                </button>
-              </div>
+              <button
+                type="button"
+                className={styles.backBtn}
+                onClick={() => setSelectedScan(null)}
+                title="Thoát ra danh sách"
+              >
+                <ArrowLeft size={18} />
+                <span>Thoát ra</span>
+              </button>
+
+              <h2 className={styles.modalTitle}>
+                {selectedScan.result?.isLabReport ? 'Chi tiết xét nghiệm' : t.scanHistory.detailTitle}
+              </h2>
+
+              <button 
+                type="button"
+                className={styles.trashBtn} 
+                onClick={(e) => handleDelete(selectedScan.id, e)}
+                title="Xóa đơn thuốc này"
+              >
+                <Trash2 size={16} />
+                <span>Xóa đơn</span>
+              </button>
             </div>
+
             <div className={styles.modalBody}>
               <img src={selectedScan.image} alt="Original Image" className={styles.modalImage} />
               
@@ -125,6 +145,24 @@ export default function ScanHistoryPage() {
                   ))}
                 </div>
               )}
+
+              {/* Nút thao tác nhanh phía dưới để người dùng dễ bấm */}
+              <div className={styles.modalBottomActions}>
+                <button
+                  type="button"
+                  className={styles.bottomBackBtn}
+                  onClick={() => setSelectedScan(null)}
+                >
+                  <ArrowLeft size={16} /> Thoát ra danh sách
+                </button>
+                <button
+                  type="button"
+                  className={styles.bottomDeleteBtn}
+                  onClick={(e) => handleDelete(selectedScan.id, e)}
+                >
+                  <Trash2 size={16} /> Xóa đơn thuốc này
+                </button>
+              </div>
             </div>
           </div>
         </div>

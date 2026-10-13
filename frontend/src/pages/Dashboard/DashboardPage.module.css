@@ -439,10 +439,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
-  min-height: 106px;
-  padding: 12px 4px 10px;
+  justify-content: flex-start;
+  gap: 3px;
+  min-height: 114px;
+  padding: 22px 4px 10px;
   border-radius: 16px;
   background: #FFFFFF;
   text-align: center;
@@ -468,21 +468,23 @@
 }
 
 .customTileIconPod {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
+  width: 40px;
+  height: 40px;
+  border-radius: 13px;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-top: 2px;
   margin-bottom: 3px;
   flex-shrink: 0;
   position: relative;
+  z-index: 1;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
 }
 
 .customTileImg {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   object-fit: contain;
   pointer-events: none;
   image-rendering: -webkit-optimize-contrast;
@@ -491,8 +493,8 @@
 
 .actionCircleAdd {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: 5px;
+  right: 5px;
   width: 22px;
   height: 22px;
   border-radius: 50%;
@@ -502,12 +504,13 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 6px rgba(16, 185, 129, 0.35);
+  z-index: 5;
 }
 
 .actionCircleRemove {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: 5px;
+  right: 5px;
   width: 22px;
   height: 22px;
   border-radius: 50%;
@@ -517,19 +520,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 5;
 }
 
 .soonMiniTag {
   position: absolute;
-  top: 6px;
-  left: 6px;
+  top: 5px;
+  left: 5px;
   padding: 2px 6px;
   border-radius: 999px;
   background: #FEF3C7;
   color: #B45309;
-  font-size: 9.5px;
+  font-size: 9px;
   font-weight: 800;
   white-space: nowrap;
+  z-index: 5;
+  box-shadow: 0 1px 3px rgba(180, 83, 9, 0.12);
+  pointer-events: none;
 }
 
 .customFooter {
@@ -584,20 +591,55 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 6px;
-  padding: 14px 12px;
+  padding: 12px 10px;
   text-align: left;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   cursor: pointer;
   min-width: 0;
+  overflow: hidden;
 }
-.quickHead { display: flex; align-items: center; gap: 6px; font-size: 15.5px; font-weight: 700; color: var(--color-text-primary); white-space: nowrap; }
+.quickHead { display: flex; align-items: center; gap: 6px; font-size: 14.5px; font-weight: 700; color: var(--color-text-primary); white-space: nowrap; }
 .quickHead svg { color: var(--color-primary); flex-shrink: 0; }
-.quickValue { display: flex; align-items: center; gap: 6px; font-size: 19px; font-weight: 800; color: var(--color-text-primary); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.quickDone { color: #15803D; font-size: 18.5px; white-space: nowrap; }
+.quickValue {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
+  width: 100%;
+  min-width: 0;
+}
+.quickDone { color: #15803D; font-size: 17px; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
+.quickTakenWrap {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  flex-wrap: wrap;
+  line-height: 1.2;
+  min-width: 0;
+}
+.quickTakenPrefix {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+.quickTakenFraction {
+  font-size: 19px;
+  font-weight: 900;
+  color: var(--color-text-primary);
+}
+.quickTakenSuffix {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
 .quickUnit { font-size: 13.5px; font-weight: 600; color: var(--color-text-secondary); }
-.quickHint { display: flex; align-items: center; gap: 2px; font-size: 13.5px; font-weight: 600; color: var(--color-primary); white-space: nowrap; }
+.quickHint { display: flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 600; color: var(--color-primary); white-space: nowrap; }
 .medSheet { display: flex; flex-direction: column; gap: 12px; }
 .progress {
   margin: 0;

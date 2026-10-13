@@ -304,7 +304,15 @@ export default function DashboardPage() {
             {todayMedications.length === 0 ? 'Chưa có đơn'
               : today.totalScheduled === 0 ? `${todayMedications.length} thuốc`
                 : allDone ? <><CheckCircle2 size={18} aria-hidden="true" /> Đã uống đủ</>
-                  : `Đã uống ${today.totalTaken}/${today.totalScheduled} cử`}
+                  : (
+                    <span className={styles.quickTakenWrap}>
+                      <span className={styles.quickTakenPrefix}>Đã uống</span>
+                      <strong className={styles.quickTakenFraction}>
+                        {today.totalTaken}/{today.totalScheduled}
+                      </strong>
+                      <span className={styles.quickTakenSuffix}>cữ</span>
+                    </span>
+                  )}
           </span>
           <span className={styles.quickHint}>
             {todayMedications.length ? 'Bấm để đánh dấu' : 'Bấm để quét đơn'} <ChevronRight size={16} aria-hidden="true" />

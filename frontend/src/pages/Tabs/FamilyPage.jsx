@@ -3,7 +3,8 @@ import SupervisorFamilyHub from '../../components/supervisor/SupervisorFamilyHub
 import CaregiverMedicalProfile from '../../components/caregiver/CaregiverMedicalProfile';
 import FamilyCard from '../../components/settings/FamilyCard';
 import TelegramCard from '../../components/settings/TelegramCard';
-import { ShieldCheck, HeartHandshake, Users } from 'lucide-react';
+import CareTimeline from '../../components/care/CareTimeline';
+import { HeartHandshake } from 'lucide-react';
 
 export default function FamilyPage() {
   const roleMode = useRoleModeStore((s) => s.roleMode);
@@ -18,7 +19,7 @@ export default function FamilyPage() {
     return <CaregiverMedicalProfile />;
   }
 
-  // Chế độ Người bệnh (Bố/Mẹ) hoặc Hộ lý
+  // Chế độ Người bệnh (Bố/Mẹ)
   return (
     <div
       style={{
@@ -74,6 +75,9 @@ export default function FamilyPage() {
           </p>
         </div>
       </header>
+
+      {/* Dòng thời gian chăm sóc trực tiếp */}
+      <CareTimeline />
 
       {/* Thẻ Kết nối gia đình chuẩn */}
       <FamilyCard />

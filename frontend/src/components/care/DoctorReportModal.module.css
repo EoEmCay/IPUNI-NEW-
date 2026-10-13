@@ -1,0 +1,271 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  background: #FFFFFF;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.modalHeader {
+  padding: 16px 20px;
+  border-bottom: 1px solid #E5E7EB;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  background: #FFFFFF;
+  z-index: 10;
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.closeBtn {
+  background: #F3F4F6;
+  border: none;
+  font-size: 18px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4B5563;
+}
+
+.modalBody {
+  padding: 20px;
+}
+
+/* Header tài liệu y khoa */
+.docHeader {
+  border-bottom: 2px solid #0F766E;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.appBrand {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0F766E;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.docTitle {
+  font-size: 18px;
+  font-weight: 800;
+  color: #111827;
+  margin: 4px 0;
+}
+
+.patientMeta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  font-size: 13px;
+  color: #374151;
+  background: #F9FAFB;
+  padding: 10px 12px;
+  border-radius: 8px;
+  margin-top: 8px;
+}
+
+/* 3 Khối chỉ số sinh tử (The 3 vital metrics) */
+.vitalGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.vitalCard {
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+}
+
+.vitalValue {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0F766E;
+  margin: 2px 0;
+}
+
+.vitalDanger {
+  color: #DC2626;
+}
+
+.vitalLabel {
+  font-size: 11px;
+  color: #6B7280;
+  font-weight: 600;
+}
+
+/* Section chung */
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  margin: 14px 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid #E5E7EB;
+  padding-bottom: 4px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+
+.table th, .table td {
+  border: 1px solid #E5E7EB;
+  padding: 6px 8px;
+  text-align: left;
+}
+
+.table th {
+  background: #F9FAFB;
+  font-weight: 600;
+  color: #374151;
+}
+
+.patternAlert {
+  background: #FEF3C7;
+  border: 1px solid #FDE68A;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #92400E;
+  margin-bottom: 12px;
+}
+
+/* Mã QR xem nhanh trên mobile */
+.qrCard {
+  background: #F8FAFC;
+  border: 1px dashed #CBD5E1;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.qrImage {
+  width: 72px;
+  height: 72px;
+  border-radius: 6px;
+  background: #FFFFFF;
+  padding: 4px;
+  border: 1px solid #E2E8F0;
+}
+
+.qrTextTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0F766E;
+  margin: 0 0 2px 0;
+}
+
+.qrTextDesc {
+  font-size: 11px;
+  color: #64748B;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Footer & Nút bấm */
+.modalFooter {
+  padding: 14px 20px;
+  border-top: 1px solid #E5E7EB;
+  display: flex;
+  gap: 12px;
+  background: #FFFFFF;
+  position: sticky;
+  bottom: 0;
+}
+
+.printBtn {
+  flex: 1;
+  background: #0F766E;
+  color: #FFFFFF;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.secondaryBtn {
+  background: #F3F4F6;
+  color: #374151;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Chuẩn in ấn A4 (@media print) */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .modal, .modal * {
+    visibility: visible;
+  }
+  .overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 0;
+    background: none;
+  }
+  .modal {
+    box-shadow: none;
+    max-width: 100%;
+    border-radius: 0;
+    border: none;
+  }
+  .modalHeader, .modalFooter {
+    display: none !important;
+  }
+}

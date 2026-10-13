@@ -63,7 +63,7 @@ export default function DoctorReportModal({ onClose, reportData }) {
                 {glucose_profile?.hypoglycemia_count || 0}
               </div>
               <div style={{ fontSize: '10px', color: glucose_profile?.hypoglycemia_count > 0 ? '#DC2626' : '#6B7280' }}>
-                {glucose_profile?.hypoglycemia_count > 0 ? '⚠️ Cần điều chỉnh liều' : 'An toàn'}
+                {glucose_profile?.hypoglycemia_count > 0 ? 'Cần điều chỉnh liều' : 'An toàn'}
               </div>
             </div>
           </div>
@@ -71,13 +71,13 @@ export default function DoctorReportModal({ onClose, reportData }) {
           {/* Cảnh báo quy luật bỏ thuốc nếu có */}
           {adherence?.recurrent_miss_patterns && adherence.recurrent_miss_patterns.length > 0 && (
             <div className={styles.patternAlert}>
-              <b>⚠️ Phát hiện quy luật bỏ thuốc:</b> Bệnh nhân thường xuyên quên {adherence.recurrent_miss_patterns[0].label} (lỡ {adherence.recurrent_miss_patterns[0].missed}/{adherence.recurrent_miss_patterns[0].total} tuần). Khuyến nghị bác sĩ xem xét gộp cữ hoặc đổi phác đồ ít lần dùng hơn.
+              <b>Lưu ý lâm sàng:</b> Bệnh nhân thường xuyên quên {adherence.recurrent_miss_patterns[0].label} (lỡ {adherence.recurrent_miss_patterns[0].missed}/{adherence.recurrent_miss_patterns[0].total} tuần). Khuyến nghị bác sĩ xem xét gộp cữ hoặc đổi phác đồ ít lần dùng hơn.
             </div>
           )}
 
           {/* Danh sách thuốc đang dùng */}
           <div className={styles.sectionTitle}>
-            <span>💊 Toa thuốc hiện hành ({active_medications?.length || 0} loại)</span>
+            <span>Toa thuốc hiện hành ({active_medications?.length || 0} loại)</span>
           </div>
           {active_medications && active_medications.length > 0 ? (
             <table className={styles.table}>
@@ -118,7 +118,7 @@ export default function DoctorReportModal({ onClose, reportData }) {
 
         <div className={styles.modalFooter}>
           <button className={styles.printBtn} onClick={handlePrint}>
-            <span>🖨️ In phiếu A4 / Lưu PDF</span>
+            <span>In phiếu A4 / Lưu PDF</span>
           </button>
           <button className={styles.secondaryBtn} onClick={onClose}>
             Đóng

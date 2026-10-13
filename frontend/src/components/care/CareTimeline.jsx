@@ -76,16 +76,16 @@ export default function CareTimeline({ patientId = null }) {
 
   // Lấy text thông điệp thẻ an tâm trên cùng (Option 1A)
   let statusCardClass = styles.statusStable;
-  let statusTitle = `🟢 ${timelineData?.patient_name || 'Bố/Mẹ'} đang an toàn hôm nay`;
+  let statusTitle = `${timelineData?.patient_name || 'Bố/Mẹ'} đang an toàn hôm nay`;
   let statusDesc = 'Mọi cữ thuốc và chỉ số đường huyết đều đúng giờ, không có dấu hiệu bất thường.';
 
   if (isDanger) {
     statusCardClass = styles.statusDanger;
-    statusTitle = `🚨 CẢNH BÁO: Cần can thiệp gấp!`;
+    statusTitle = 'CẢNH BÁO: Cần can thiệp khẩn cấp';
     statusDesc = 'Có chỉ số đường huyết rơi vào vùng nguy hiểm hoặc cữ thuốc bị trễ nghiêm trọng.';
   } else if (isWarning) {
     statusCardClass = styles.statusWarning;
-    statusTitle = `⚠️ Chú ý: Có cữ thuốc cần kiểm tra`;
+    statusTitle = 'LƯU Ý: Có cữ thuốc cần kiểm tra';
     statusDesc = 'Có cữ thuốc chưa được xác nhận uống quá giờ dự kiến. Gia đình nên nhắc nhở.';
   }
 
@@ -97,7 +97,6 @@ export default function CareTimeline({ patientId = null }) {
       {/* 1. Thẻ tổng quan an tâm ở trên cùng (Option 1A) */}
       <div className={`${styles.peaceCard} ${statusCardClass}`}>
         <div className={styles.peaceHeader}>
-          <span className={styles.peaceIcon}>{isDanger ? '🚨' : isWarning ? '⏳' : '🛡️'}</span>
           <div>
             <h3 className={styles.peaceTitle}>{statusTitle}</h3>
             <p className={styles.peaceDesc}>{statusDesc}</p>
@@ -106,11 +105,11 @@ export default function CareTimeline({ patientId = null }) {
 
         <div className={styles.statsRow}>
           <div className={styles.statBadge}>
-            <span>💊 Thuốc:</span>
+            <span>Thuốc:</span>
             <b>{summary.taken_doses}/{summary.total_doses} cữ</b>
           </div>
           <div className={styles.statBadge}>
-            <span>🩸 Đường huyết:</span>
+            <span>Đường huyết:</span>
             <b>{summary.glucose_readings} lần đo</b>
           </div>
         </div>
@@ -133,32 +132,26 @@ export default function CareTimeline({ patientId = null }) {
               const isMed = item.type === 'medication';
               const isTaken = item.status === 'taken';
               const isMissed = item.status === 'missed';
-              const isPending = item.status === 'pending';
 
               let itemClass = styles.itemPending;
-              let markerIcon = isMed ? '💊' : '🩸';
               let badgeText = 'Đang đợi';
               let badgeClass = styles.badgePending;
 
               if (isTaken) {
                 itemClass = styles.itemCompleted;
-                markerIcon = '✓';
                 badgeText = item.taken_at ? `Đã uống ${item.taken_at}` : 'Đã uống';
                 badgeClass = styles.badgeTaken;
               } else if (isMissed) {
                 itemClass = styles.itemMissed;
-                markerIcon = '!';
                 badgeText = 'Trễ cữ (>60p)';
                 badgeClass = styles.badgeMissed;
               } else if (!isMed) {
                 if (item.status === 'danger') {
                   itemClass = styles.itemDanger;
-                  markerIcon = '⚠️';
                   badgeText = 'Nguy hiểm';
                   badgeClass = styles.badgeMissed;
                 } else {
                   itemClass = styles.itemCompleted;
-                  markerIcon = '🩸';
                   badgeText = 'Đã đo';
                   badgeClass = styles.badgeTaken;
                 }
@@ -166,7 +159,7 @@ export default function CareTimeline({ patientId = null }) {
 
               return (
                 <div key={item.id} className={`${styles.timelineItem} ${itemClass}`}>
-                  <div className={styles.nodeMarker}>{markerIcon}</div>
+                  <div className={styles.nodeMarker} />
                   <div className={styles.itemContent}>
                     <div className={styles.itemHeader}>
                       <span className={styles.itemTime}>{item.time}</span>
@@ -183,7 +176,6 @@ export default function CareTimeline({ patientId = null }) {
                         disabled={actionLoading}
                         onClick={() => handleConfirmDose(item.medication_id, item.time)}
                       >
-                        <span>✓</span>
                         <span>Tôi đã uống cữ này</span>
                       </button>
                     )}
@@ -199,8 +191,7 @@ export default function CareTimeline({ patientId = null }) {
       {weeklyData?.lines && weeklyData.lines.length > 0 && (
         <div className={styles.weeklyBox}>
           <div className={styles.weeklyTitle}>
-            <span>📊</span>
-            <span>{weeklyData.title || 'Bản tin tuần của bố mẹ'}</span>
+            <span>{weeklyData.title || 'Bản tin tuần'}</span>
           </div>
           {weeklyData.lines.map((line, idx) => (
             <p key={idx} className={styles.weeklyLine}>{line}</p>
@@ -210,8 +201,7 @@ export default function CareTimeline({ patientId = null }) {
 
       {/* 4. Nút mở Báo cáo 1 trang cho Bác sĩ (Option 4C) */}
       <button className={styles.doctorBriefBtn} onClick={handleOpenDoctorReport} disabled={actionLoading}>
-        <span>🏥</span>
-        <span>Bác sĩ tái khám: Xem &amp; In tóm tắt 1 trang (A4)</span>
+        <span>Xem phiếu tóm tắt điều trị (A4 / Bác sĩ)</span>
       </button>
 
       {/* Modal Bác sĩ tái khám */}

@@ -13,6 +13,7 @@ import {
   Footprints,
   Clock,
   ListTodo,
+  Heart,
 } from 'lucide-react';
 import useRoleModeStore from '../../store/roleModeStore';
 import Modal from '../common/Modal';
@@ -149,8 +150,14 @@ export default function CaregiverDashboard() {
         </div>
 
         <div className={styles.caregiverIdentity}>
-          <span className={styles.nurseLabel}>Họ và tên:</span>
-          <span className={styles.nurseName}>{cleanNurseName}</span>
+          <div className={styles.nurseInfoWrap}>
+            <span className={styles.nurseLabel}>Họ và tên:</span>
+            <span className={styles.nurseName}>{cleanNurseName}</span>
+          </div>
+          <div className={styles.wishMessage}>
+            Chúc cô làm việc một ngày vui vẻ{' '}
+            <Heart size={14} className={styles.heartIcon} fill="#ef4444" color="#ef4444" />
+          </div>
         </div>
       </header>
 

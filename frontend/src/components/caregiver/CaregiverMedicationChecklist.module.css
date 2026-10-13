@@ -140,6 +140,68 @@
   transition: width 0.3s ease;
 }
 
+/* Time Mode Bar */
+.timeModeBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: #fffbeb;
+  border: 1px solid #fed7aa;
+  padding: 8px 12px;
+  border-radius: 14px;
+  font-size: 12px;
+  color: #92400e;
+  box-sizing: border-box;
+}
+
+.timeModeLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.timeShiftBtns {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.timeShiftBtn {
+  border: 1px solid #d97706;
+  background: #ffffff;
+  color: #b45309;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.timeShiftBtnActive {
+  background: #d97706;
+  color: #ffffff;
+  box-shadow: 0 1px 4px rgba(217, 119, 6, 0.3);
+}
+
+.timeShiftBtnReset {
+  border: none;
+  background: transparent;
+  color: #b45309;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 2px 4px;
+  white-space: nowrap;
+}
+
 /* Filter pills */
 .filterRow {
   display: flex;
@@ -169,6 +231,19 @@
   color: #fff;
   border-color: #d97706;
   box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25);
+}
+
+.filterBtnPast {
+  background: #f1f5f9;
+  color: #94a3b8;
+  border-color: #cbd5e1;
+}
+
+.filterBtnLocked {
+  border-style: dashed;
+  border-color: #fcd34d;
+  color: #b45309;
+  background: #fefce8;
 }
 
 /* Section Card */
@@ -237,6 +312,20 @@
   border-color: #86efac;
 }
 
+.slotCardLocked {
+  background: #fffdf5;
+  border: 1.5px dashed #f59e0b;
+}
+
+.slotCardPast {
+  background: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+}
+
+.slotCardPast .medName {
+  color: #475569;
+}
+
 .slotHead {
   display: flex;
   align-items: center;
@@ -262,6 +351,16 @@
   color: #166534;
 }
 
+.timeBadgeLocked {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.timeBadgePast {
+  background: #e2e8f0;
+  color: #64748b;
+}
+
 .statusPill {
   font-size: 11px;
   font-weight: 700;
@@ -280,6 +379,18 @@
   color: #15803d;
 }
 
+.statusLocked {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px dashed #f59e0b;
+}
+
+.statusPast {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+}
+
 .medName {
   margin: 0;
   font-size: 15px;
@@ -293,6 +404,70 @@
   font-size: 13px;
   color: #64748b;
   line-height: 1.4;
+}
+
+/* Locked & Past Actions */
+.lockedRow {
+  margin-top: 4px;
+}
+
+.lockedNotice {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #b45309;
+}
+
+.actionRowPast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.btnConfirmPast {
+  flex: 1;
+  min-width: 140px;
+  background: #94a3b8;
+  color: #ffffff;
+  border: none;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.btnConfirmPast:hover {
+  background: #64748b;
+}
+
+.btnPhotoPast {
+  background: #f8fafc;
+  color: #64748b;
+  border: 1.5px solid #cbd5e1;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 11px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
 }
 
 /* Slot Actions */

@@ -129,15 +129,23 @@
 .caregiverIdentity {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
   gap: 8px;
   background: rgba(0, 0, 0, 0.22);
   padding: 10px 14px;
   border-radius: 14px;
   font-size: 14px;
-  font-weight: 700;
   color: #ffffff;
   box-sizing: border-box;
   width: 100%;
+}
+
+.nurseInfoWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
 }
 
 .nurseLabel {
@@ -150,6 +158,35 @@
   color: #ffffff;
   font-weight: 800;
   white-space: nowrap;
+}
+
+.wishMessage {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Dancing Script', 'Caveat', 'Segoe Script', 'Brush Script MT', cursive, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  font-style: italic;
+  color: #fef08a;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+}
+
+.heartIcon {
+  display: inline-block;
+  vertical-align: middle;
+  animation: pulseHeart 1.5s ease-in-out infinite;
+}
+
+@keyframes pulseHeart {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.22);
+  }
 }
 
 /* Thẻ tổng kết tiến độ ca trực */

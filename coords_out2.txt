@@ -1,0 +1,370 @@
+--- DIA_Giả Định ---
+R2C2: Cơ sở
+R3C2: Mã biến
+R3C3: Biến số
+R5C2: months_year
+R5C3: Số tháng trong năm
+R6C2: users_total
+R6C3: Tổng người dùng đăng ký
+R7C2: mau_rate
+R7C3: Tỷ lệ người dùng hoạt động MAU
+R8C2: pro_conv
+R8C3: Tỷ lệ chuyển đổi Free → Pro
+R9C2: pro_monthly_share
+R9C3: Tỷ lệ Pro trả theo tháng
+R10C2: pro_annual_share
+R10C3: Tỷ lệ Pro trả theo năm
+R11C2: clinic_monthly_share
+R11C3: Tỷ lệ Clinic trả theo tháng
+R12C2: clinic_annual_share
+R12C3: Tỷ lệ Clinc trả theo năm
+R13C2: mau
+R13C3: Số người thật sự dùng (MAU)
+R14C2: b2c_mau
+R14C3: Số người thật sự dùng phân khúc bệnh nhân
+R15C2: b2c_clinic_mau
+R15C3: Số người thật sự dùng phân khúc phòng khám
+R16C2: b2c_retention_monthly
+R16C3: Tỷ lệ giữ chân hằng tháng phân khúc bệnh nhân
+R17C2: b2c_churn_monthly
+R17C3: Tỷ lệ rời bỏ hằng tháng phân khúc bệnh nhân
+R18C2: b2b_retention_monthly
+R18C3: Tỷ lệ giữ chân hằng tháng phân khúc phòng khám
+R19C2: b2b_churn_monthly
+R19C3: Tỷ lệ rời bỏ hằng tháng phân khúc phòng khám
+R20C2: new_users
+R20C3: Tổng số người dùng mới trong năm
+R21C2: b2c_new_users_annual
+R21C3: Tổng số người dùng mới là bệnh nhân trong năm
+R22C2: b2b_new_clinics_annual
+R22C3: Tổng số người dùng mới là phòng khám trong năm
+R23C2: scans_per_mau
+R23C3: Lượt quét đơn thuốc / MAU / tháng
+R25C2: hospitals_end
+R25C3: Số bệnh viện cuối năm
+R26C2: clinics_end
+R26C3: Số phòng khám cuối năm
+R27C2: new_hospitals
+R27C3: Bệnh viện ký mới trong năm
+R28C2: new_clinics
+R28C3: Phòng khám ký mới trong năm
+R29C2: new_facilities
+R29C3: Tổng cơ sở ký mới trong năm
+R30C2: avg_active_new_factor
+R30C3: Tỷ lệ hoạt động bình quân của cơ sở ký mới
+R31C2: patients_hospital
+R31C3: Bệnh nhân trung bình / bệnh viện
+R32C2: patients_clinic
+R32C3: Bệnh nhân trung bình / phòng khám
+R33C2: b2b_renewal
+R33C3: Tỷ lệ gia hạn hợp đồng B2B
+R34C3: (r = 10%/năm, rf tháng = 10,47%)
+R35C2: premium_month
+R35C3: Giá DIA+ Pro/ tháng
+R36C2: premium_year
+R36C3: Giá DIA+ Pro / năm
+R37C2: clinic_month
+R37C3: Giá DIA+ Clinic / tháng
+R38C2: clinic_month
+R38C3: Giá DIA+ Clinic/năm
+R39C2: deploy_hospital_fee
+R39C3: Phí triển khai / bệnh viện (Doanh thu)
+R40C2: deploy_clinic_fee
+R40C3: Phí triển khai / phòng khám (Doanh thu)
+R41C2: training_fee
+R41C3: Phí đào tạo / cơ sở
+R42C2: api_fee
+R42C3: Phí tích hợp API / hệ thống
+R43C2: api_adoption
+R43C3: Tỷ lệ cơ sở ký mới mua tích hợp API
+R45C2: ai_cost_scan
+R45C3: Chi phí AI/OCR / lượt
+R46C2: cloud_cost_mau
+R46C3: Chi phí cloud / MAU / tháng
+R47C2: storage_cost_mau
+R47C3: Chi phí lưu trữ / MAU / tháng
+R48C2: notify_cost_mau
+R48C3: Chi phí SMS/email/push / MAU / tháng
+R49C2: payment_fee
+R49C3: Phí cổng thanh toán
+R50C2: support_cost_premium
+R50C3: Hỗ trợ / Pro / tháng
+R51C2: deploy_cost_hospital
+R51C3: Chi phí triển khai / bệnh viện
+R52C2: deploy_cost_clinic
+R52C3: Chi phí triển khai / phòng khám
+R53C2: sales_commission
+R53C3: Hoa hồng bán hàng B2B
+R54C2: care_cost_facility
+R54C3: CSKH / cơ sở / tháng
+R55C2: partner_cost_rate
+R55C3: Chi phí đối tác
+R56C2: doctor_sessions
+R56C3: Số phiên tư vấn bác sĩ / Pro / năm
+R57C2: doctor_cost_session
+R57C3: Chi phí bác sĩ / phiên
+R59C2: tax_rate
+R59C3: Thuế TNDN
+R60C2: discount_rate
+R60C3: Tỷ lệ chiết khấu
+R61C2: debt_ratio
+R61C3: Tỷ lệ vốn vay
+R62C2: interest_rate
+R62C3: Lãi suất vay
+R63C2: equity_ratio
+R63C3: Tỷ lệ vốn chủ sở hữu
+R64C2: software_amort_years
+R64C3: Phân bổ phần mềm bản quyền Microsoft 365 Family
+R65C2: equipment_dep_years
+R65C3: Khấu hao thiết bị
+R66C2: project_life
+R66C3: Vòng đời dự án
+R67C2: min_wc_months
+R67C3: Vốn lưu động tối thiểu
+R68C2: salary_growth
+R68C3: Tăng lương
+R69C2: cloud_growth
+R69C3: Tăng chi phí cloud
+R70C2: marketing_growth
+R70C3: Tăng chi phí marketing
+R71C2: loan_term
+R71C3: Thời hạn vay
+R72C2: b2c_marketing_share
+R72C3: Tỷ lệ marketing phân bổ B2C
+R73C2: additional_capex
+R73C3: Chi đầu tư bổ sung
+R75C2: fix_tech
+R75C3: Lương đội ngũ công nghệ
+R76C2: fix_product
+R76C3: Lương sản phẩm và UI/UX
+R77C2: fix_medical
+R77C3: Lương chuyên môn y tế
+R78C2: fix_sales
+R78C3: Nhân sự kinh doanh B2B
+R79C2: fix_marketing
+R79C3: Marketing
+R80C2: fix_cs
+R80C3: Chăm sóc khách hàng
+R81C2: fix_admin
+R81C3: Kế toán và hành chính
+R82C2: fix_office
+R82C3: Thuê mặt bằng văn phòng co - working
+R83C2: fix_tools
+R83C3: Phần mềm và công cụ làm việc
+R84C2: fix_security
+R84C3: Kiểm tra bảo mật định kỳ
+R85C2: fix_legal
+R85C3: Pháp lý và tuân thủ dữ liệu
+R86C2: fix_rd
+R86C3: Nghiên cứu và phát triển
+R87C2: fix_travel
+R87C3: Đi lại, demo, làm việc bệnh viện
+R88C2: fix_contingency
+R88C3: Dự phòng vận hành
+R90C2: init_research_qty
+R90C3: Nghiên cứu thị trường – Số lượng
+R91C2: init_research_price
+R91C3: Nghiên cứu thị trường – Đơn giá
+R92C2: init_security_storage_qty
+R92C3: Bảo mật và lưu trữ thông tin - Số lượng
+R93C2: init_security_storage_price
+R93C3: Bảo mật và lưu trữ thông tin - Đơn giá
+R94C2: init_infrastructure_qty
+R94C3: Hạ tầng công nghệ - Số lượng
+R95C2: init_infrastructure_price
+R95C3: Hạ tầng công nghệ - Đơn giá
+R96C2: init_ai_qty
+R96C3: Tích hợp AI – Số lượng
+R97C2: init_ai_price
+R97C3: Tích hợp AI – Đơn giá
+R98C2: init_testing_qty
+R98C3: Kiểm thử phần mềm – Số lượng
+R99C2: init_testing_price
+R99C3: Kiểm thử phần mềm – Đơn giá
+R100C2: init_security_qty
+R100C3: Kiểm thử bảo mật – Số lượng
+R101C2: init_security_price
+R101C3: Kiểm thử bảo mật – Đơn giá
+R102C2: init_trademark_qty
+R102C3: Đăng ký thương hiệu – Số lượng
+R103C2: init_trademark_price
+R103C3: Đăng ký thương hiệu – Đơn giá
+R104C2: cap_licenses_qty
+R104C3: Bản quyền Microsoft 365 Family chính hãng (có AI Copilot) - Số lượng
+R105C2: cap_licenses_price
+R105C3: Bản quyền Microsoft 365 Family chính hãng (có AI Copilot) - Đơn giá
+R106C2: init_business_registration_qty
+R106C3: Đăng ký thành lập doanh nghiệp đầy đủ - Số lượng
+R107C2: init_business_registration_price
+R107C3: Đăng ký thành lập doanh nghiệp đầy đủ - Đơn giá
+R108C2: init_medical_legal_consulting_qty
+R108C3: Tư vấn pháp lý y tế - Số lượng
+R109C2: init_medical_legal_consulting_price
+R109C3: Tư vấn pháp lý y tế - Đơn giá
+R110C2: init_app_copyright_qty
+R110C3: Đăng ký bản quyền phần mềm app- Số lượng
+R111C2: init_app_copyright_price
+R111C3: Đăng ký bản quyền phần mềm app - Đơn giá
+R112C2: init_ecommerce_license_qty
+R112C3: Giấy phép Thương mại điện tử (Bộ Công Thương) - Số lượng
+R113C2: init_ecommerce_license_price
+R113C3: Giấy phép Thương mại điện tử (Bộ Công Thương) - Đơn giá
+R114C2: init_work_equipment_qty
+R114C3: Thiết bị làm việc (laptop) – Số lượng
+R115C2: init_work_equipment_price
+R115C3: Thiết bị làm việc (laptop) – Đơn giá
+R116C2: init_test_devices_qty
+R116C3: Điện thoại iphone kiểm thử – Số lượng
+R117C2: init_test_devices_price
+R117C3: Điện thoại iphone kiểm thử – Đơn giá
+R118C2: init_pilot_qty
+R118C3: Thí điểm tại bệnh viện – Số lượng
+R119C2: init_pilot_price
+R119C3: Thí điểm tại bệnh viện – Đơn giá
+R120C2: init_launch_marketing_qty
+R120C3: Marketing ra mắt – Số lượng
+R121C2: init_launch_marketing_price
+R121C3: Marketing ra mắt – Đơn giá
+R122C2: init_training_qty
+R122C3: Đào tạo nhân sự – Số lượng
+R123C2: init_training_price
+R123C3: Đào tạo nhân sự – Đơn giá
+R124C2: init_working_capital_qty
+R124C3: Vốn lưu động ban đầu – Số lượng
+R125C2: init_working_capital_price
+R125C3: Vốn lưu động ban đầu – Đơn giá
+R126C2: init_contingency_qty
+R126C3: Dự phòng chi phí phát sinh ban đầu – Số lượng
+R127C2: init_contingency_price
+R127C3: Dự phòng chi phí phát sinh ban đầu – Đơn giá
+R129C2: cap_laptop_qty
+R129C3: Laptop phát triển – Số lượng
+R130C2: cap_laptop_price
+R130C3: Laptop phát triển – Đơn giá
+R131C2: cap_android_qty
+R131C3: Điện thoại Iphone test – Số lượng
+R132C2: cap_android_price
+R132C3: Điện thoại Iphone test– Đơn giá
+R133C2: cap_security_qty
+R133C3: Bảo mật Đám mây (Cloudflare Pro / WAF) - Số lượng
+R134C2: cap_security_price
+R134C3: Bảo mật Đám mây (Cloudflare Pro / WAF) - Đơn giá
+R135C2: cap_licenses_qty
+R135C3: Bản quyền Microsoft 365 Family chính hãng (có AI Copilot) - Số lượng
+R136C2: cap_licenses_price
+R136C3: Bản quyền Microsoft 365 Family chính hãng (có AI Copilot) - Đơn giá
+R137C2: cap_platform_qty
+R137C3: Bảo trì hệ thống - dự trù chi phí phát sinh  – Số lượng
+R138C2: cap_platform_price
+R138C3: Bảo trì hệ thống - dự trù chi phí phát sinh  – Đơn giá
+R139C2: cap_ai_qty
+R139C3: Tích hợp AI – Số lượng
+R140C2: cap_ai_price
+R140C3: Tích hợp AI – Đơn giá
+R141C2: cap_consulting_qty
+R141C3: Tư vấn pháp lý và đăng ký kinh doanh – Số lượng
+R142C2: cap_consulting_price
+R142C3: Tư vấn bảo mật và đăng ký kinh doanh – Đơn giá
+R144C2: sens_m80
+R144C3: Hệ số 80%
+R145C2: sens_m90
+R145C3: Hệ số 90%
+R146C2: sens_m100
+R146C3: Hệ số 100%
+R147C2: sens_m110
+R147C3: Hệ số 110%
+R148C2: sens_m120
+R148C3: Hệ số 120%
+--- DIA_Chi Phí ---
+R5C2: Số lượng
+R5C3: Đơn giá
+R6C2: 1.0
+R6C3: 270000000.0
+R7C2: 1.0
+R7C3: 259850000.0
+R8C2: 2.0
+R8C3: 8000000.0
+R9C2: 1.0
+R9C3: 2600000.0
+R10C2: 1.0
+R10C3: 96000000.0
+R11C2: 1.0
+R11C3: 40000000.0
+R12C2: 1.0
+R12C3: 40000000.0
+R13C2: 6.0
+R13C3: 41000000.0
+R14C2: 5.0
+R14C3: 24700000.0
+R15C2: 1.0
+R15C3: 16300000.0
+R16C2: 1.0
+R16C3: 80000000.0
+R17C2: 1.0
+R17C3: 150000000.0
+R18C2: 1.0
+R18C3: 20000000.0
+R19C2: 1.0
+R19C3: 300000000.0
+R20C2: 1.0
+R20C3: 300000000.0
+R25C2: Tháng Năm 1
+R25C3: Năm 1
+R26C2: 25000000.0
+R26C3: 300000000.0
+R27C2: 8000000.0
+R27C3: 96000000.0
+R28C2: 6000000.0
+R28C3: 72000000.0
+R29C2: 8000000.0
+R29C3: 96000000.0
+R30C2: 15000000.0
+R30C3: 180000000.0
+R31C2: 10000000.0
+R31C3: 120000000.0
+R32C2: 7000000.0
+R32C3: 84000000.0
+R33C2: -
+R33C3: -
+R34C2: 22812500.0
+R34C3: 273750000.0
+R35C2: 2000000.0
+R35C3: 24000000.0
+R36C2: 10000000.0
+R36C3: 120000000.0
+R37C2: 5000000.0
+R37C3: 60000000.0
+R38C2: 5000000.0
+R38C3: 60000000.0
+R39C2: 4000000.0
+R39C3: 48000000.0
+R40C2: 3000000.0
+R40C3: 36000000.0
+R41C2: 6000000.0
+R41C3: 72000000.0
+R42C2: 136812500.0
+R42C3: 1641750000.0
+R46C2: Cơ sở tính
+R46C3: Đơn vị
+R47C2: MAU × lượt quét × giá/lượt
+R47C3: VNĐ
+R48C2: MAU × chi phí cloud/tháng
+R48C3: VNĐ
+R49C2: MAU × chi phí lưu trữ/tháng
+R49C3: VNĐ
+R50C2: Doanh thu B2C × tỷ lệ phí
+R50C3: VNĐ
+R51C2: MAU × chi phí/tháng
+R51C3: VNĐ
+R52C2: Premium × phí hỗ trợ/tháng
+R52C3: VNĐ
+R53C2: Cơ sở ký mới × chi phí theo loại
+R53C3: VNĐ
+R54C2: Doanh thu B2B × tỷ lệ
+R54C3: VNĐ
+R55C2: Tổng doanh thu × tỷ lệ
+R55C3: VNĐ
+R56C2: Cơ sở bình quân × phí/tháng
+R56C3: VNĐ
+R57C2: Premium × phiên × giá/phiên
+R57C3: VNĐ

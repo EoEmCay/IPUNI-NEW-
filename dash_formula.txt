@@ -1,0 +1,30 @@
+R10 C2: 60.0 | C4 Formula: ='DIA_Giả Định'!$P$25+'DIA_Giả Định'!$P$26
+R10 C7: 0.0 | C9 Formula: ='DIA_Hiệu Quả TC'!$B$78
+R10 C7 Formula: ='DIA_Hiệu Quả TC'!$D$91
+R11 C2: 2201140000.0 | C4 Formula: ='DIA_Hiệu Quả TC'!$D$29
+R11 C7: 8.677352183113342 | C9 Formula: ='DIA_Hiệu Quả TC'!$D$88
+R11 C7 Formula: ='DIA_Hiệu Quả TC'!$B$79
+R12 C2: 2056139999.9999998 | C4 Formula: ='DIA_Giá và Doanh Thu'!$H$24
+R12 C7: 54587243.36346638 | C9 Formula: ='DIA_Hiệu Quả TC'!$D$92
+R12 C7 Formula: ='DIA_Hiệu Quả TC'!$D$90
+R13 C2: 2616013100.0 | C4 Formula: ='DIA_Chi Phí'!$F$65
+R13 C7: 0.0 | C9 Formula: =ROUNDUP($G$13 / 100000000, 0) * 100000000
+R13 C7 Formula: =-MIN('DIA_Hiệu Quả TC'!C255:F255)
+R14 C2: 1226876900.0 | C4 Formula: ='DIA_Hiệu Quả TC'!$D$34
+R14 C7: None | C9 Formula: 
+R14 C7 Formula: 
+R15 C2: -414873100.0 | C4 Formula: ='DIA_Hiệu Quả TC'!$D$40
+R15 C7: None | C9 Formula: 
+R15 C7 Formula: 
+R16 C2: -904273100.0 | C4 Formula: ='DIA_Hiệu Quả TC'!$D$47
+R16 C7: None | C9 Formula: 
+R16 C7 Formula: 
+R17 C2: -414873100.0 | C4 Formula: ='DIA_Hiệu Quả TC'!$E$60
+R17 C7: None | C9 Formula: 
+R17 C7 Formula: 
+R18 C2: -414873100.0 | C4 Formula: ='DIA_Hiệu Quả TC'!$E$61
+R18 C7: None | C9 Formula: 
+R18 C7 Formula: 
+R19 C2: None | C4 Formula: 
+R19 C7: None | C9 Formula: 
+R19 C7 Formula: 

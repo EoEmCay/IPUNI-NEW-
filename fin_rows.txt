@@ -1,0 +1,17 @@
+R40: -1201647250.0 -> Yr0: None, Yr1: None
+R41: -1.2083536125496506 -> Yr0: None, Yr1: None
+R42: 489400000.0 -> Yr0: None, Yr1: None
+R43: -1691047250.0 -> Yr0: None, Yr1: None
+R44: 0.0 -> Yr0: None, Yr1: None
+R45: -1691047250.0 -> Yr0: None, Yr1: None
+R46: 0.0 -> Yr0: None, Yr1: None
+R47: -1691047250.0 -> Yr0: None, Yr1: None
+R48: -1.7004849414249081 -> Yr0: None, Yr1: None
+R52: Năm 0 -> Yr0: Năm 3, Yr1: None
+R53: -1755250000.0 -> Yr0: 0.0, Yr1: None
+R54: 0.0 -> Yr0: -758072954.86184, Yr1: None
+R55: 0.0 -> Yr0: 0.0, Yr1: None
+R56: 1755250000.0 -> Yr0: 0.0, Yr1: None
+R57: 0.0 -> Yr0: 0.0, Yr1: None
+R58: 0.0 -> Yr0: -150000000.0, Yr1: None
+R59: 0.0 -> Yr0: -101000000.0, Yr1: None

@@ -1,0 +1,53 @@
+=== Dashboard formulas ===
+G7 formula: =NPV('DIA_Giả Định'!C60, 'DIA_Hiệu Quả TC'!D62:F62) + 'DIA_Hiệu Quả TC'!C62
+G7 value: -2146826273
+I7 formula: =IFERROR(IRR('DIA_Hiệu Quả TC'!C62:F62), "Âm")
+I7 value: 4.564885992118644
+
+DIA_Giả Định C60 value: Tỷ lệ chiết khấu
+DIA_Giả Định C60 type: <class 'str'>
+
+=== Cash Flow Row 62 (C to F) ===
+  Col 3: value=-234018480.0, formula==B43*(1-'DIA_Giả Định'!$N$59)+B42+C58+C59
+  Col 4: value=851832401.1440006, formula==C43*(1-'DIA_Giả Định'!$O$59)+C42+D58+D59
+  Col 5: value=2506723819.7049103, formula==D43*(1-'DIA_Giả Định'!$P$59)+D42+E58+E59
+  Col 6: value=None, formula=
+
+=== DIA_Hiệu Quả TC rows 60-70 ===
+R60: 0.0 | -414873100.0 | 851832401.1440006 | 2506723819.7049103 | None
+R61: 0.0 | -414873100.0 | 436959301.14400065 | 2943683120.848911 | None
+R62: -1755250000.0 | -234018480.0 | 851832401.1440006 | 2506723819.7049103 | None
+R63: -1755250000.0 | -198320745.76271188 | 611772767.268027 | 1525669505.952964 | None
+R64: -1755250000.0 | -1989268480.0 | -1137436078.8559995 | 1369287740.8489108 | None
+R65: -1755250000.0 | -1953570745.762712 | -1341797978.4946852 | 183871527.4582789 | None
+R66: None | None | None | None | None
+R67: None | None | None | None | None
+R68: None | None | None | None | None
+R69: Giá trị | Diễn giải | Đánh giá | Kết luận | None
+R70: 183871527.45827913 | Kết quả thay đổi theo kịch bản và giả định. | NPV | CÓ — NPV>0, dự án có hiệu quả tài chính | None
+
+=== Looking for NCF, NPV rows in DIA_Hiệu Quả TC B70-B100 ===
+R70: 183871527.45827913 | Kết quả thay đổi theo kịch bản và giả định. | NPV | CÓ — NPV>0, dự án có hiệu quả tài chính
+R71: 0.22137182714400705 | Kết quả thay đổi theo kịch bản và giả định. | IRR | CÓ — IRR>r, dự án có hiệu quả tài chính
+R72: 2.453754047380416 | Kết quả thay đổi theo kịch bản và giả định. | Hoàn vốn | CÓ — Hoàn vốn trong vòng đời dự án
+R73: 2.8794814166889777 | Kết quả thay đổi theo kịch bản và giả định. | Dòng tiền | TỐT — Dòng tiền chiết khấu lũy kế dương
+R74: 1.6148030883628604 | Kết quả thay đổi theo kịch bản và giả định. | None | None
+R75: 0.6924730900131518 | Kết quả thay đổi theo kịch bản và giả định. | None | None
+R76: 0.3791318496461978 | Kết quả thay đổi theo kịch bản và giả định. | None | None
+R77: 0.3002225128547571 | Kết quả thay đổi theo kịch bản và giả định. | None | None
+R78: 34572758.333333336 | Kết quả thay đổi theo kịch bản và giả định. | None | None
+R79: 8.677352183113342 | Kết quả thay đổi theo kịch bản và giả định. | None | None
+R80: 4103769577.4517794 | Kết quả thay đổi theo kịch bản và giả định. | None | None
+R81: 0.0 | Kết quả thay đổi theo kịch bản và giả định. | None | None
+R82: 37.48319311890155 | Kết quả thay đổi theo kịch bản và giả định. | None | None
+R86: Năm 1 | Năm 2 | Năm 3 | None
+R87: 44999.99999999999 | 20656.587086631647 | 0.0 | None
+R88: 26571428.57142857 | 19846153.846153848 | 15120000.0 | None
+R89: 249317.1889884332 | 250422.0731990079 | 371022.70164811594 | None
+R90: 35837464.75117439 | 37314403.17687186 | 54587243.36346638 | None
+R91: 5.540381977520738 | 12.123109792956742 | 0.0 | None
+R92: 1.3487217917108643 | 1.8801831058113725 | 3.610267418218676 | None
+R93: 324717.4999999999 | 351719.1215000001 | 384318.8330002001 | None
+R94: 23108833.333333332 | 25952196.437593985 | 28035895.929827746 | None
+R95: 1.6629839783812086 | 0.704764199291848 | 0.0 | None
+R96: 13.798063201970798 | 9.176635462301752 | 6.471703292597962 | None

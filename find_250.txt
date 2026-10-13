@@ -1,0 +1,10 @@
+R250: None | None | None | None
+R251: None | None | None | None
+R252: Dòng tiền ròng tổng hợp (IRR) | 0.0 | 0.0 | 0.0
+R253: Giá trị thanh lý (Terminal Value) | None | None | None
+R254: Dòng tiền ròng tổng hợp (chạy IRR) | 0.0 | 0.0 | 0.0
+R255: Dòng tiền lũy kế (Funding) | 0.0 | 0.0 | 0.0
+R256: None | None | None | None
+R257: None | None | None | None
+R258: None | None | None | None
+R259: None | None | None | None

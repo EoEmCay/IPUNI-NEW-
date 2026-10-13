@@ -1,0 +1,16 @@
+=== DIA_Tóm Tắt Row 7 - All Columns ===
+  Col A (col 1): value=Tổng người dùng, formula=Tổng người dùng
+  Col B (col 2): value=70000.0, formula=='DIA_Giả Định'!$N$6
+  Col C (col 3): value=190000.0, formula=='DIA_Giả Định'!$O$6
+  Col D (col 4): value=70000.0, formula=='DIA_Giả Định'!$P$6
+  Col E (col 5): value=None, formula=
+  Col F (col 6): value=NPV, formula=NPV
+  Col G (col 7): value=183871527.45827913, formula=='DIA_Hiệu Quả TC'!B70
+  Col H (col 8): value=IRR, formula=IRR
+  Col I (col 9): value=0.22137182714400705, formula==IFERROR('DIA_Hiệu Quả TC'!B71, "Âm")
+  Col J (col 10): value=4.564885992118644, formula==IFERROR(IRR('DIA_Hiệu Quả TC'!C62:F62), "Âm")
+  Col K (col 11): value=None, formula=
+  Col L (col 12): value=None, formula=
+  Col M (col 13): value=None, formula=
+  Col N (col 14): value=None, formula=
+  Col O (col 15): value=None, formula=

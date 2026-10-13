@@ -1,0 +1,3 @@
+--- DIA_Hiệu Quả TC ---
+Row 252: Dòng tiền ròng tổng hợp (IRR) = [0.0, 0.0, 0.0, 0.0]
+--- DIA_Tóm Tắt ---

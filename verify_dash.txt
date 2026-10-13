@@ -1,0 +1,5 @@
+--- Dashboard Final Values ---
+NPV: -2146826273
+IRR: -2146826252
+Nhu cầu vốn: 0.0
+Vốn gọi đề xuất: 0.0

@@ -168,7 +168,6 @@ app.get('/health', (req, res) => res.json({ status: 'ok' }));
 app.use(errorMiddleware);
 
 const db = require('./src/config/database');
-const { cleanupExpiredDemos } = require('./src/utils/cleanupDemo');
 const { startMissedDoseJob } = require('./src/jobs/missedDoseChecker');
 const { startDoseReminderJob } = require('./src/jobs/doseReminder');
 const { startTelegramBot } = require('./src/jobs/telegramBot');
@@ -186,12 +185,6 @@ async function startServer() {
 
   const server = app.listen(PORT, () => {
     logger.info(`[Hệ thống] Server DIA+ đang khởi động và chạy thành công trên cổng: ${PORT}`);
-    
-    // Khởi chạy dọn dẹp tài khoản demo
-    cleanupExpiredDemos(); // Chạy luôn lần đầu
-    setInterval(() => {
-      cleanupExpiredDemos();
-    }, 10 * 60 * 1000); // Mỗi 10 phút
 
     // Khởi chạy job kiểm tra cữ thuốc bị bỏ quên để cảnh báo người nhà
     try {

@@ -5,15 +5,9 @@ export const COLLAPSE_AFTER_DAYS = 7;
 // Còn từ ngần này ngày trở xuống thì báo "sắp hết thuốc".
 export const LOW_SUPPLY_DAYS = 3;
 
-// Mỗi đơn thuốc 1 màu để thuốc của đơn này nhìn khác thuốc của đơn kia.
-const PRESCRIPTION_COLORS = [
-  { c: '#1B5FA6', soft: '#E8F0FA' }, // xanh dương
-  { c: '#0F766E', soft: '#E0F2EF' }, // xanh ngọc
-  { c: '#7C3AED', soft: '#F1EAFE' }, // tím
-  { c: '#C2410C', soft: '#FDEDE4' }, // cam
-  { c: '#BE185D', soft: '#FCE7F1' }, // hồng
-  { c: '#15803D', soft: '#E4F5EA' }, // xanh lá
-];
+// Đơn đang uống: màu xanh lá. Đơn đã qua ngày tháng cuối cùng của đơn thuốc: màu xám.
+export const ACTIVE_PRESCRIPTION_COLOR = { c: '#16A34A', soft: '#DCFCE7' };
+export const EXPIRED_PRESCRIPTION_COLOR = { c: '#6B7280', soft: '#F1F5F9' };
 
 // "60 viên" / "1/2 viên" / "1,5 gói" -> số; không đọc được -> null
 const firstNumber = (text) => {
@@ -43,10 +37,11 @@ export function daysUntil(endDateStr, today = new Date()) {
 }
 
 /**
- * Gom thuốc theo đơn (bác sĩ + ngày kê). Đánh số/màu theo thời gian (đơn cũ nhất = Đơn 1) để thêm
- * đơn mới không đổi màu đơn cũ. Mỗi đơn có:
+ * Gom thuốc theo đơn (bác sĩ + ngày kê). Đánh số theo thời gian (đơn cũ nhất = Đơn 1).
+ * Mỗi đơn có:
  *  - endDate / daysLeft: ngày hết thuốc = ngày kết thúc muộn nhất; null nếu còn thuốc chưa có ngày kết thúc
  *  - status: 'active' | 'finished' (đã hết, chưa quá 7 ngày) | 'collapsed' (thu gọn)
+ *  - color: xanh lá nếu đang uống ('active'), xám nếu đã qua ngày cuối cùng của đơn thuốc
  * Thứ tự hiển thị: đơn đang uống (mới nhất trước) -> đơn vừa hết -> đơn đã thu gọn.
  */
 export function groupByPrescription(medications = [], today = new Date()) {
@@ -62,12 +57,12 @@ export function groupByPrescription(medications = [], today = new Date()) {
   const oldestFirst = Object.values(byKey).sort((a, b) => new Date(a.prescribed_at || 0) - new Date(b.prescribed_at || 0));
   oldestFirst.forEach((g, i) => {
     g.number = i + 1;
-    g.color = PRESCRIPTION_COLORS[i % PRESCRIPTION_COLORS.length];
     const ends = g.medications.map((m) => m.end_date);
     g.endDate = ends.every(Boolean) ? ends.map((e) => String(e).slice(0, 10)).sort().at(-1) : null;
     g.daysLeft = g.endDate ? daysUntil(g.endDate, today) : null;
     g.status = g.daysLeft == null || g.daysLeft >= 0 ? 'active'
       : g.daysLeft < -COLLAPSE_AFTER_DAYS ? 'collapsed' : 'finished';
+    g.color = g.status === 'active' ? ACTIVE_PRESCRIPTION_COLOR : EXPIRED_PRESCRIPTION_COLOR;
   });
 
   const rank = { active: 0, finished: 1, collapsed: 2 };

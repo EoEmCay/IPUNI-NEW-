@@ -1,0 +1,330 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(15, 23, 42, 0.68);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.22s ease-out forwards;
+}
+
+@media (min-width: 640px) {
+  .backdrop {
+    align-items: center;
+    padding: 20px;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.sheet {
+  width: 100%;
+  max-width: 520px;
+  background: #ffffff;
+  border-radius: 28px 28px 0 0;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+  overflow: hidden;
+  animation: slideUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (min-width: 640px) {
+  .sheet {
+    border-radius: 28px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0.7;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.handleBar {
+  width: 44px;
+  height: 5px;
+  background: #cbd5e1;
+  border-radius: 999px;
+  margin: 12px auto 6px;
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .handleBar {
+    display: none;
+  }
+}
+
+.header {
+  padding: 16px 20px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+
+.titleBox h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+}
+
+.titleBox p {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.closeBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.closeBtn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.body {
+  padding: 16px 20px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Thẻ Vai Trò */
+.roleCard {
+  border-radius: 20px;
+  border: 2px solid #e2e8f0;
+  background: #ffffff;
+  padding: 16px 16px 14px;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+}
+
+.roleCard:hover {
+  border-color: #94a3b8;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.roleCardActive {
+  border-color: #0284c7;
+  background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 100%);
+  box-shadow: 0 10px 28px rgba(2, 132, 199, 0.14);
+}
+
+.roleCardActive.cardCaregiver {
+  border-color: #f59e0b;
+  background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%);
+  box-shadow: 0 10px 28px rgba(245, 158, 11, 0.14);
+}
+
+.roleCardActive.cardSupervisor {
+  border-color: #10b981;
+  background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%);
+  box-shadow: 0 10px 28px rgba(16, 185, 129, 0.14);
+}
+
+.cardHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+}
+
+.iconOrb {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.orbPatient {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+}
+
+.orbCaregiver {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.orbSupervisor {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.cardHeadText {
+  flex: 1;
+}
+
+.cardTopBadges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.tierPill {
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tierPillPatient {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.tierPillCaregiver {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.tierPillSupervisor {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.activeBadge {
+  font-size: 11px;
+  font-weight: 800;
+  color: #059669;
+  background: #dcfce7;
+  padding: 2px 8px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.roleName {
+  margin: 0;
+  font-size: 15.5px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.25;
+}
+
+.roleTarget {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.featureList {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: #f8fafc;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #f1f5f9;
+}
+
+.featureItem {
+  font-size: 12px;
+  color: #334155;
+  line-height: 1.4;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.featureBullet {
+  color: #0284c7;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.cardCaregiver .featureBullet {
+  color: #d97706;
+}
+
+.cardSupervisor .featureBullet {
+  color: #059669;
+}
+
+.cardActionRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: 2px;
+}
+
+.switchBtn {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0284c7;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.cardCaregiver .switchBtn {
+  color: #d97706;
+}
+
+.cardSupervisor .switchBtn {
+  color: #059669;
+}
+
+.noteFooter {
+  font-size: 11.5px;
+  color: #64748b;
+  text-align: center;
+  line-height: 1.45;
+  background: #f1f5f9;
+  padding: 9px 12px;
+  border-radius: 12px;
+}

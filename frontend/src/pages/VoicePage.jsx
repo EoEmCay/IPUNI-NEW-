@@ -1,10 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { Settings, Mic, Square, Play, Trash2, Activity, HeartHandshake, History, ChevronRight, PhoneCall } from 'lucide-react';
+import { Settings, Mic, Square, Play, Trash2, Activity } from 'lucide-react';
 import { voiceAlertService, ALERT_TYPES } from '../services/voiceAlert.service';
-import { useMedications } from '../hooks/useMedications';
 import { useT } from '../hooks/useT';
-import MedicationHistoryModal from '../components/medications/MedicationHistoryModal';
-import { triggerFamilyAlarm } from '../components/common/FamilyAlarmModal';
 // Dùng chung style với trang Cài đặt (trước đây 2 phần này nằm chung 1 trang)
 import styles from './SettingsPage.module.css';
 import PageHeader from '../components/common/PageHeader';
@@ -36,15 +33,10 @@ const ALERT_CONFIG = [
   }
 ];
 
-// Trang "Giọng nhắc": ghi âm giọng con cháu để app đọc khi nhắc thuốc / cảnh báo đường huyết,
-// cùng người nhà nhận thông báo và nhật ký uống thuốc.
+// Trang "Giọng nhắc": ghi âm giọng con cháu để app đọc khi nhắc thuốc / cảnh báo đường huyết.
 export default function VoicePage() {
   const t = useT();
   const s = t.settings;
-  const { medications, fetchMedications } = useMedications();
-  const [historyTab, setHistoryTab] = useState(null); // null | 'caregiver' | 'stats'
-
-  useEffect(() => { fetchMedications(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [settings, setSettings] = useState({});
   const [recordingId, setRecordingId] = useState(null);
@@ -144,47 +136,6 @@ export default function VoicePage() {
     <div className={styles.page}>
       <PageHeader title="Giọng nhắc" subtitle={s.voiceDesc} />
 
-      <div
-        style={{
-          background: 'linear-gradient(135deg, #0f766e 0%, #047857 100%)',
-          color: '#ffffff',
-          borderRadius: '18px',
-          padding: '16px',
-          marginBottom: '16px',
-          boxShadow: '0 8px 20px rgba(15, 118, 110, 0.28)',
-        }}
-      >
-        <div style={{ fontSize: '17px', fontWeight: 800, marginBottom: '6px' }}>
-          🔔 Chế độ Báo thức Cuộc gọi Gia đình (Tầng 1)
-        </div>
-        <p style={{ fontSize: '14px', lineHeight: 1.4, opacity: 0.92, margin: '0 0 12px' }}>
-          Đến giờ uống thuốc, màn hình tự bật sáng với ảnh &amp; giọng con cháu ghi âm, không dùng số lạ.
-          Ông/bà chỉ cần bấm 1 nút xanh hoặc nói &ldquo;Uống rồi&rdquo;.
-        </p>
-        <button
-          type="button"
-          onClick={() => triggerFamilyAlarm({ meds: medications || [] })}
-          style={{
-            width: '100%',
-            minHeight: '48px',
-            background: '#ffffff',
-            color: '#0f766e',
-            border: 'none',
-            borderRadius: '14px',
-            fontSize: '16px',
-            fontWeight: 800,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            cursor: 'pointer',
-          }}
-        >
-          <PhoneCall size={20} />
-          Xem thử Chuông Gọi Nhắc Thuốc Của Con
-        </button>
-      </div>
-
       <div className={styles.alertList}>
         {ALERT_CONFIG.map((item) => {
           const setting = settings[item.id] || {};
@@ -239,30 +190,6 @@ export default function VoicePage() {
           );
         })}
       </div>
-
-
-      <div className={styles.familyLinks}>
-        <button type="button" className={styles.familyBtn} onClick={() => setHistoryTab('caregiver')}>
-          <HeartHandshake size={26} aria-hidden="true" />
-          <span className={styles.familyText}>
-            <span className={styles.familyTitle}>Người nhà nhận thông báo</span>
-            <span className={styles.familyDesc}>Báo cho con cháu khi quên uống thuốc</span>
-          </span>
-          <ChevronRight size={22} aria-hidden="true" />
-        </button>
-        <button type="button" className={styles.familyBtn} onClick={() => setHistoryTab('stats')}>
-          <History size={26} aria-hidden="true" />
-          <span className={styles.familyText}>
-            <span className={styles.familyTitle}>Nhật ký uống thuốc</span>
-            <span className={styles.familyDesc}>Những lần đã uống, bỏ qua trong 7 ngày</span>
-          </span>
-          <ChevronRight size={22} aria-hidden="true" />
-        </button>
-      </div>
-
-      {historyTab && (
-        <MedicationHistoryModal medications={medications || []} initialTab={historyTab} onClose={() => setHistoryTab(null)} />
-      )}
     </div>
   );
 }

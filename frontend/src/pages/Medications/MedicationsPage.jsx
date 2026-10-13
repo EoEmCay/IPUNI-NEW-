@@ -13,10 +13,19 @@ import MedicationFormModal from '../../components/medications/MedicationFormModa
 import PrescriptionInfoModal from '../../components/medications/PrescriptionInfoModal';
 import Modal from '../../components/common/Modal';
 import EmptyState from '../../components/common/EmptyState';
+import useRoleModeStore from '../../store/roleModeStore';
+import CaregiverMedicationChecklist from '../../components/caregiver/CaregiverMedicationChecklist';
 import styles from './MedicationsPage.module.css';
 import PageHeader from '../../components/common/PageHeader';
 
 export default function MedicationsPage() {
+  const roleMode = useRoleModeStore((s) => s.roleMode);
+
+  // Khi ở Chế độ Hộ lý (Caregiver): Hiển thị Checklist thuốc chuyên trách màu cam
+  if (roleMode === 'caregiver') {
+    return <CaregiverMedicationChecklist />;
+  }
+
   const navigate = useNavigate();
   const t = useT();
   const { medications, loading, fetchMedications } = useMedications();
@@ -51,7 +60,7 @@ export default function MedicationsPage() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const groups = groupByPrescription(medications || []);
-  const firstCollapsed = groups.findIndex((g) => g.status === 'collapsed');
+  const firstCollapsed = groups.findIndex((g) => g.status !== 'active');
 
   return (
     <div className={styles.page}>
@@ -89,7 +98,7 @@ export default function MedicationsPage() {
                   }}
                   aria-expanded={isOpen}
                 >
-                  <span className={styles.badge} style={{ background: group.status === 'active' ? group.color.c : 'var(--color-text-secondary)' }}>
+                  <span className={styles.badge} style={{ background: group.status === 'active' ? '#16A34A' : '#6B7280' }}>
                     Đơn {group.number}
                   </span>
                   <span className={styles.headText}>

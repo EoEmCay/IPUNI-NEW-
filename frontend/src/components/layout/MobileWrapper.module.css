@@ -1,3 +1,25 @@
+/* Nền canvas desktop khi hiển thị khung iPhone */
+.desktopCanvas {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f5f9;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  padding: 16px 0;
+}
+
+.pcCanvas {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--color-bg);
+  box-sizing: border-box;
+}
+
 .mobileWrapper {
   max-width: var(--app-max-width, 480px);
   margin: 0 auto;
@@ -8,5 +30,114 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  box-sizing: border-box;
+  transition:
+    max-width 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.4s ease,
+    border-radius 0.4s ease;
+}
+
+/* Chế độ PC của Người giám sát (1180px) */
+.pcSupervisorWrapper {
+  max-width: 1180px !important;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
   overflow-x: hidden;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  min-height: 100vh;
+}
+
+/* Khung iPhone trên màn hình máy tính (>= 600px) */
+@media (min-width: 600px) {
+  .iphoneFrame {
+    width: 420px;
+    max-width: 420px;
+    height: min(92vh, 880px);
+    max-height: 880px;
+    min-height: auto;
+    border-radius: 48px;
+    border: 9px solid #0f172a;
+    box-shadow:
+      0 0 0 2px #334155,
+      0 20px 60px rgba(15, 23, 42, 0.32);
+    overflow: hidden;
+    position: relative;
+    /* QUAN TRỌNG: transform tạo ra containing block mới, ép TopBar và BottomNav (position: fixed)
+       phải nằm 100% bên trong khung iPhone, không bao giờ bị tràn hay trôi ra ngoài trình duyệt */
+    transform: translateZ(0);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+
+  /* Dynamic Island (Đảo thích ứng trên iPhone) */
+  .dynamicIsland {
+    position: absolute;
+    top: 11px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 116px;
+    height: 28px;
+    background: #000000;
+    border-radius: 999px;
+    z-index: 1001;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+
+  .cameraDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #111827;
+    border: 1.5px solid #1f2937;
+  }
+
+  /* Home Indicator (Thanh gạt về Home dưới đáy iPhone) */
+  .homeIndicator {
+    position: absolute;
+    bottom: 7px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 130px;
+    height: 4.5px;
+    background: #0f172a;
+    border-radius: 999px;
+    z-index: 1001;
+    pointer-events: none;
+    opacity: 0.65;
+  }
+}
+
+/* Trên màn hình điện thoại thật (< 600px) */
+@media (max-width: 599px) {
+  .desktopCanvas {
+    background: transparent;
+    padding: 0;
+    display: block;
+  }
+
+  .iphoneFrame {
+    width: 100%;
+    max-width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    transform: none;
+    overflow-x: hidden;
+  }
+
+  .dynamicIsland,
+  .homeIndicator {
+    display: none;
+  }
 }

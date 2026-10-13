@@ -89,6 +89,29 @@ export function hasGenericMealTimes(medication) {
   return !hasSpecificTime;
 }
 
+export function classifySlotPeriod(timeStr) {
+  if (timeStr === 'morning' || timeStr === 'afternoon' || timeStr === 'evening') {
+    return timeStr;
+  }
+  const mins = timeStringToMinutes(timeStr);
+  if (mins === null) return 'morning';
+  if (mins <= 720) return 'morning';                  // 00:00 - 12:00
+  if (mins > 720 && mins <= 1050) return 'afternoon'; // 12:01 - 17:30
+  return 'evening';
+}
+
+export function getPeriodShortLabel(periodKey) {
+  if (periodKey === 'morning') return 'Sáng';
+  if (periodKey === 'afternoon') return 'Chiều';
+  return 'Tối';
+}
+
+export function getPeriodFullLabel(periodKey) {
+  if (periodKey === 'morning') return 'Cử sáng';
+  if (periodKey === 'afternoon') return 'Cử chiều';
+  return 'Cử tối';
+}
+
 /**
  * Trích xuất danh sách giờ uống dạng HH:mm từ thuốc (hỗ trợ mảng, chuỗi JSON, chuỗi phân tách hoặc từ khóa buổi)
  */
@@ -118,10 +141,10 @@ export function extractMedicationTimes(medication) {
     result.push(...parts);
   }
 
+  const text = `${medication.frequency || ''} ${medication.timing || ''} ${medication.instructions || ''}`.toLowerCase();
+
   // Nếu không có times rõ ràng, quét trong frequency, timing, instructions
   if (result.length === 0) {
-    const text = `${medication.frequency || ''} ${medication.timing || ''} ${medication.instructions || ''}`.toLowerCase();
-    
     // Tìm mẫu giờ như: 08:00, 8:00, 8h30, 20h00
     const timeMatches = text.match(/\b\d{1,2}[:h]\d{2}\b/g);
     if (timeMatches && timeMatches.length > 0) {
@@ -133,22 +156,74 @@ export function extractMedicationTimes(medication) {
     } else {
       // Map từ khóa buổi nếu có
       if (text.includes('sáng')) result.push('07:00');
-      if (text.includes('trưa')) result.push('11:30');
-      if (text.includes('chiều')) result.push('15:00');
+      if (text.includes('trưa')) result.push('12:30');
+      if (text.includes('chiều')) result.push('16:00');
       if (text.includes('tối')) result.push('18:30');
-      if (text.includes('ngủ') || text.includes('đêm')) result.push('21:30');
+      if (text.includes('ngủ') || text.includes('đêm')) result.push('20:30');
+    }
+  } else {
+    // Đảm bảo nếu lời dặn bác sĩ ghi rõ cả Sáng và Chiều (2 cử) mà mảng times cũ chỉ lưu 1 giờ thì bổ sung đủ cử
+    const normalizedExisting = result
+      .map(t => {
+        const clean = t.replace(/[^0-9:]/g, '');
+        const [h, m] = clean.split(':');
+        return h != null && m != null ? `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}` : t;
+      })
+      .filter(t => /^\d{2}:\d{2}$/.test(t));
+
+    const existingPeriods = new Set(normalizedExisting.map(classifySlotPeriod));
+    if (text.includes('sáng') && !existingPeriods.has('morning')) {
+      result.push('07:00');
+    }
+    if ((text.includes('chiều') || text.includes('trưa')) && !existingPeriods.has('afternoon')) {
+      result.push('16:00');
+    }
+    if (text.includes('tối') && !existingPeriods.has('evening')) {
+      result.push('18:30');
     }
   }
 
-  // Chuẩn hóa dạng HH:mm
-  return result.map(t => {
-    const clean = t.replace(/[^0-9:]/g, '');
-    const [h, m] = clean.split(':');
-    if (h != null && m != null) {
-      return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-    }
-    return t;
-  }).filter(t => /^\d{2}:\d{2}$/.test(t));
+  // Chuẩn hóa dạng HH:mm và sắp xếp theo thứ tự thời gian trong ngày
+  const normalized = result
+    .map(t => {
+      const clean = t.replace(/[^0-9:]/g, '');
+      const [h, m] = clean.split(':');
+      if (h != null && m != null) {
+        return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+      }
+      return t;
+    })
+    .filter(t => /^\d{2}:\d{2}$/.test(t));
+
+  const unique = Array.from(new Set(normalized));
+  unique.sort((a, b) => (timeStringToMinutes(a) || 0) - (timeStringToMinutes(b) || 0));
+  return unique;
+}
+
+/**
+ * Trả về danh sách các cử uống trong ngày của 1 loại thuốc (mỗi cử gồm time, period, periodLabel)
+ */
+export function getMedicationSlotObjects(medication) {
+  const times = extractMedicationTimes(medication);
+  const rawSlots = times.length > 0 ? times : ['07:00'];
+  const seenPeriods = new Set();
+  const slots = [];
+
+  rawSlots.forEach((timeStr) => {
+    const period = classifySlotPeriod(timeStr);
+    // Gộp theo cử Sáng / Chiều / Tối để mỗi cử trong đơn bác sĩ là 1 lần uống độc lập
+    const key = seenPeriods.has(period) ? `${period}_${timeStr}` : period;
+    seenPeriods.add(period);
+    slots.push({
+      key,
+      period,
+      time: timeStr,
+      shortLabel: getPeriodShortLabel(period),
+      periodLabel: getPeriodFullLabel(period),
+    });
+  });
+
+  return slots;
 }
 
 /**

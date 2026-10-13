@@ -1,0 +1,961 @@
+.container {
+  width: 100%;
+  max-width: 100%;
+  padding: 16px 14px 100px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #f8fafc;
+  min-height: 100%;
+}
+
+/* Header ca trực của Hộ lý */
+.headerCard {
+  background: linear-gradient(135deg, #b45309 0%, #78350f 100%);
+  color: #ffffff;
+  border-radius: 24px;
+  padding: 18px 18px 16px;
+  box-shadow: 0 10px 30px rgba(180, 83, 9, 0.22);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.headerCard::after {
+  content: '';
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 130px;
+  height: 130px;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.25) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.shiftTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  background: rgba(254, 243, 199, 0.22);
+  color: #fef3c7;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.roleTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(254, 243, 199, 0.22);
+  color: #fef3c7;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.roleSwitchBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 800;
+  background: rgba(15, 23, 42, 0.55);
+  color: #fef08a;
+  border: 1.5px solid rgba(251, 191, 36, 0.5);
+  padding: 5px 11px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  backdrop-filter: blur(4px);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.roleSwitchBtn:hover {
+  background: rgba(15, 23, 42, 0.85);
+  transform: translateY(-1px);
+}
+
+.patientInfoBox {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.patientName {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.3;
+  color: #ffffff;
+  word-break: break-word;
+}
+
+.patientMeta {
+  margin: 0;
+  font-size: 12.5px;
+  color: #fde68a;
+  font-weight: 500;
+  line-height: 1.45;
+  word-break: normal;
+}
+
+.caregiverIdentity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.22);
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.nurseLabel {
+  color: #fde68a;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.nurseName {
+  color: #ffffff;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* Thẻ tổng kết tiến độ ca trực */
+.progressCard {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.progressTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.progressTitle {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #0f172a;
+  white-space: nowrap;
+}
+
+.progressTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.progressTitle {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+  white-space: nowrap;
+}
+
+.progressPercent {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #d97706;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.progressBarBg {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f59e0b 0%, #10b981 100%);
+  transition: width 0.3s ease;
+}
+
+.quickPillGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.quickPill {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 8px 4px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.quickPillLabel {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+.quickPillValue {
+  font-size: 12px;
+  color: #0f172a;
+  font-weight: 800;
+  line-height: 1.25;
+  word-break: break-word;
+}
+
+/* Section chung */
+.sectionCard {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 18px 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+}
+
+.sectionTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 15.5px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.sectionBadge {
+  font-size: 11.5px;
+  font-weight: 800;
+  background: #fef3c7;
+  color: #b45309;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Bộ lọc nhiệm vụ */
+.taskFilterRow {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.taskFilterBtn {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.taskFilterBtnActive {
+  background: #d97706;
+  border-color: #d97706;
+  color: #ffffff;
+}
+
+/* Danh sách nhiệm vụ ca trực */
+.taskList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.taskItem {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.taskItem:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.taskItemDone {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.taskMain {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.taskIconWrap {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: #fef3c7;
+  color: #d97706;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.taskItemDone .taskIconWrap {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.taskInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.taskTitle {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.taskItemDone .taskTitle {
+  color: #166534;
+  text-decoration: line-through;
+}
+
+.taskMeta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  flex-wrap: nowrap;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.taskTimeBadge {
+  font-size: 10.5px;
+  font-weight: 800;
+  background: #f1f5f9;
+  color: #334155;
+  padding: 1px 6px;
+  border-radius: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.taskCheckBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: none;
+  background: #d97706;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 5px rgba(217, 119, 6, 0.22);
+}
+
+.taskCheckBtn:active {
+  transform: scale(0.95);
+}
+
+.taskDoneBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #86efac;
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 11.5px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.taskDoneBtn:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+/* Danh sách cữ thuốc */
+.medList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.medItem {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.2s ease;
+  background: #ffffff;
+}
+
+.medItemDone {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+
+.medItemTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.medNameBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.medIconOrb {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: #fef3c7;
+  color: #d97706;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.medItemDone .medIconOrb {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.medName {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.25;
+}
+
+.medInstructions {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.medTimeBadge {
+  font-size: 12px;
+  font-weight: 800;
+  background: #f1f5f9;
+  color: #334155;
+  padding: 3px 9px;
+  border-radius: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.medItemDone .medTimeBadge {
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* Hàng nút thao tác - KHÔNG BAO GIỜ BỊ RỚT DÒNG */
+.medActionsRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #e2e8f0;
+  width: 100%;
+}
+
+.photoUploadBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex: 1;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.photoUploadBtn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.photoUploadedBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0284c7;
+  background: #e0f2fe;
+  padding: 8px 10px;
+  border-radius: 10px;
+  white-space: nowrap;
+  flex: 1;
+  box-sizing: border-box;
+}
+
+.checkTakeBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 800;
+  background: #d97706;
+  color: #ffffff;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex: 1;
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.22);
+  box-sizing: border-box;
+}
+
+.checkTakeBtn:hover {
+  background: #b45309;
+}
+
+.undoTakeBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  background: transparent;
+  color: #16a34a;
+  border: 1px solid #86efac;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex: 1;
+  box-sizing: border-box;
+}
+
+.undoTakeBtn:hover {
+  background: #dcfce7;
+}
+
+/* Phần nhập chỉ số đường huyết */
+.vitalsForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.inputLabel {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.textInput {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1.5px solid #cbd5e1;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  box-sizing: border-box;
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.textInput:focus {
+  border-color: #d97706;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15);
+}
+
+.tagRow {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.tagBtn {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #475569;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tagBtnActive {
+  background: #fef3c7;
+  color: #b45309;
+  border-color: #f59e0b;
+}
+
+/* CẢNH BÁO HẠ ĐƯỜNG HUYẾT NGUY HIỂM (Quy tắc 15-15) */
+.hypoAlert {
+  background: #fef2f2;
+  border: 2px solid #ef4444;
+  border-radius: 16px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: shakeAlert 0.4s ease;
+}
+
+@keyframes shakeAlert {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+.hypoAlertHead {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: #dc2626;
+  font-size: 13.5px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.hypoAlertBody {
+  font-size: 12px;
+  color: #991b1b;
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+.hypoRulesBox {
+  background: #ffffff;
+  border: 1px dashed #fca5a5;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 12px;
+  color: #7f1d1d;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.saveVitalBtn {
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  color: #ffffff;
+  border: none;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.25);
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.saveVitalBtn:hover {
+  filter: brightness(1.05);
+}
+
+/* KHU VỰC CHỤP ẢNH MÁY ĐO HUYẾT ÁP */
+.bpPhotoBox {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.bpPhotoBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1.5px dashed #d97706;
+  background: #fffbeb;
+  color: #b45309;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s ease;
+  box-sizing: border-box;
+}
+
+.bpPhotoBtn:hover {
+  background: #fef3c7;
+}
+
+.bpPhotoPreviewBox {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+  max-height: 180px;
+  background: #000;
+}
+
+.bpPhotoPreviewImg {
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+.bpRemovePhotoBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(15, 23, 42, 0.82);
+  color: #ffffff;
+  border: none;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* LỊCH SỬ CHỈ SỐ GẦN NHẤT ĐÃ GHI - KHÔNG BAO GIỜ BỊ RỚT DÒNG */
+.vitalHistoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.vitalHistoryItem {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vitalHistoryHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}
+
+.vitalHistoryVal {
+  font-weight: 800;
+  color: #0f172a;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.vitalHistoryMeta {
+  color: #64748b;
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.vitalHistoryTag {
+  font-size: 11.5px;
+  color: #475569;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Sổ nhật ký chăm sóc hàng ngày */
+.noteItem {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.noteLabel {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #334155;
+  white-space: nowrap;
+}
+
+.noteInput {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1.5px solid #cbd5e1;
+  font-size: 13px;
+  color: #0f172a;
+  box-sizing: border-box;
+  background: #ffffff;
+  outline: none;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 52px;
+}
+
+.noteInput:focus {
+  border-color: #d97706;
+}
+
+/* NÚT LƯU & BÁO CÁO Ở CHÍNH GIỮA */
+.saveNoteBtn {
+  width: 100%;
+  padding: 13px;
+  border-radius: 14px;
+  background: #0f172a;
+  color: #ffffff;
+  border: none;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.saveNoteBtn:hover {
+  background: #1e293b;
+}

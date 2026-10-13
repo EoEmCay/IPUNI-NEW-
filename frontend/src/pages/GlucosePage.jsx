@@ -9,7 +9,6 @@ import { useT } from '../hooks/useT';
 import GlucoseChart from '../components/metrics/GlucoseChart';
 import GlucoseQuickModal from '../components/metrics/GlucoseQuickModal';
 import MetricHistoryItem from '../components/metrics/MetricHistoryItem';
-import ExportReportButton from '../components/reports/ExportReportButton';
 import styles from './GlucosePage.module.css';
 import PageHeader from '../components/common/PageHeader';
 
@@ -129,7 +128,6 @@ export default function GlucosePage() {
           {readings.length === 0
             ? <p className={styles.empty}>Chưa có số đo trong {days} ngày qua.</p>
             : readings.map((m) => <MetricHistoryItem key={m.id} metric={m} onDelete={remove} unit={unit} />)}
-          <ExportReportButton days={days} />
         </section>
       )}
 

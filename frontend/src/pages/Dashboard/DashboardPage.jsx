@@ -1,12 +1,31 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { Pill, CheckCircle2, Star, Settings2, Droplet, ChevronRight, ScanText, PhoneCall } from 'lucide-react';
+import {
+  Pill,
+  CheckCircle2,
+  Settings2,
+  Droplet,
+  ChevronRight,
+  ScanText,
+  PhoneCall,
+  Plus,
+  Minus,
+  RotateCcw,
+  Check,
+  ShieldCheck,
+} from 'lucide-react';
 import { triggerFamilyAlarm } from '../../components/common/FamilyAlarmModal';
 import { useAuth } from '../../hooks/useAuth';
 import { useMedications } from '../../hooks/useMedications';
 import useMedicationsStore from '../../store/medicationsStore';
-import { calculateAdherenceStats } from '../../store/medicationAdherenceStore';
+import useRoleModeStore from '../../store/roleModeStore';
+import SupervisorDashboard from '../../components/supervisor/SupervisorDashboard';
+import CaregiverDashboard from '../../components/caregiver/CaregiverDashboard';
+import {
+  calculateAdherenceStats,
+  getNextAlarmPayloadForToday,
+} from '../../store/medicationAdherenceStore';
 import { useT } from '../../hooks/useT';
 import MedicationCard from '../../components/medications/MedicationCard';
 import MedicationHistoryModal from '../../components/medications/MedicationHistoryModal';
@@ -19,22 +38,40 @@ import { getGlucoseUnit, formatGlucose } from '../../utils/glucoseUnit';
 import { saveGlucoseReading } from '../../utils/glucoseReading';
 import NotificationBell from '../../components/layout/NotificationBell';
 import DayChip from '../../components/common/DayChip';
+import RoleCircleSwitcher from '../../components/common/RoleCircleSwitcher';
 import styles from './DashboardPage.module.css';
 
 const BELL_CSS = { btn: styles.bellBtn, hasBadge: styles.bellHasBadge, active: styles.bellActive, badge: styles.bellBadge };
 
-// Ô tiện ích: Tên ngắn gọn nằm trọn trên 1 dòng (không bị rớt chữ) kèm dòng chữ nhỏ mô tả công năng bên dưới.
-// Bấm vào là đi thẳng vào sử dụng tính năng luôn.
-const UTILITIES = [
-  { key: 'scan', label: 'Quét đơn AI', sub: 'Đọc đơn & ảnh thuốc', badge: 'MỚI', to: '/scan' },
-  { key: 'booking', label: 'Hẹn bác sĩ', sub: 'Lịch tái khám', badge: 'HOT' },
-  { key: 'schedule', label: 'Lịch uống thuốc', sub: 'Sổ tay & giờ cử', to: '/medications' },
-  { key: 'cgm', label: 'Kết nối CGM', sub: 'Cảm biến 24/7' },
-  { key: 'adherence', label: 'Mức tuân thủ', sub: 'Tỷ lệ đúng giờ', modal: true },
-  { key: 'diary', label: 'Sổ sức khỏe', sub: 'Đường huyết & HA', to: '/glucose' },
-  { key: 'nutrition', label: 'Dinh dưỡng', sub: 'Thực đơn GI thấp', to: '/advice' },
-  { key: 'sos', label: 'Cảnh báo SOS', sub: 'Gọi cấp cứu nhanh' },
+// Danh sách toàn bộ tiện ích:
+// - Các tiện ích đã ra mắt (launched: true) mặc định nằm ở "Đã thêm vào" và hiển thị ngoài trang chủ.
+// - Các tiện ích chưa ra mắt (launched: false) mặc định được đưa vào "Tùy chỉnh" (hàng trên: "Chưa thêm vào").
+const ALL_UTILITIES = [
+  { key: 'scan', label: 'Quét đơn AI', sub: 'Đọc đơn & ảnh thuốc', badge: 'MỚI', to: '/scan', launched: true },
+  { key: 'schedule', label: 'Lịch uống thuốc', sub: 'Sổ tay & giờ cử', to: '/medications', launched: true },
+  { key: 'adherence', label: 'Mức tuân thủ', sub: 'Tỷ lệ đúng giờ', modal: true, launched: true },
+  { key: 'diary', label: 'Sổ sức khỏe', sub: 'Đường huyết & HA', to: '/glucose', launched: true },
+  { key: 'nutrition', label: 'Dinh dưỡng', sub: 'Thực đơn GI thấp', to: '/advice', launched: true },
+  { key: 'sos', label: 'Cảnh báo SOS', sub: 'Gọi cấp cứu nhanh', launched: true },
+  { key: 'booking', label: 'Hẹn bác sĩ', sub: 'Lịch tái khám', badge: 'SẮP RA', launched: false },
+  { key: 'cgm', label: 'Kết nối CGM', sub: 'Cảm biến 24/7', badge: 'SẮP RA', launched: false },
 ];
+
+const DEFAULT_ADDED_KEYS = ALL_UTILITIES.filter((u) => u.launched).map((u) => u.key);
+const CUSTOM_UTILS_STORAGE_KEY = 'diaplus_custom_utilities_v1';
+
+function loadAddedUtilityKeys() {
+  try {
+    const raw = localStorage.getItem(CUSTOM_UTILS_STORAGE_KEY);
+    if (!raw) return DEFAULT_ADDED_KEYS;
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed) || parsed.length === 0) return DEFAULT_ADDED_KEYS;
+    const validKeys = parsed.filter((k) => ALL_UTILITIES.some((u) => u.key === k));
+    return validKeys.length > 0 ? validKeys : DEFAULT_ADDED_KEYS;
+  } catch {
+    return DEFAULT_ADDED_KEYS;
+  }
+}
 
 // Hình bác sĩ + người bệnh ở banner (vẽ lại từ bản thiết kế).
 function DoctorPatientArt() {
@@ -71,6 +108,8 @@ export default function DashboardPage() {
   const [showSos, setShowSos] = useState(false);
   const [showMeds, setShowMeds] = useState(false);
   const [showGlucose, setShowGlucose] = useState(false);
+  const [showCustomize, setShowCustomize] = useState(false);
+  const [addedKeys, setAddedKeys] = useState(() => loadAddedUtilityKeys());
   const { metrics, fetchMetrics, addMetric } = useMetrics();
   const unit = getGlucoseUnit();
   const loadGlucose = () => fetchMetrics(undefined, 30);
@@ -79,6 +118,7 @@ export default function DashboardPage() {
   const latestStatus = latest && getMetricStatus(latest.measurement_type, latest.value, user?.diagnosis);
   const saveGlucose = async (data) => { await saveGlucoseReading(addMetric, data, user?.diagnosis); await loadGlucose(); };
   const medicationStatus = useMedicationsStore((s) => s.medicationStatus);
+  const statusVersion = useMedicationsStore((s) => s.statusVersion);
   const t = useT();
   const [soon, setSoon] = useState(null);
   const [slide, setSlide] = useState(0);
@@ -91,9 +131,45 @@ export default function DashboardPage() {
     return () => clearTimeout(timer);
   }, [soon]);
 
+  const updateAddedKeys = (nextKeys) => {
+    setAddedKeys(nextKeys);
+    try {
+      localStorage.setItem(CUSTOM_UTILS_STORAGE_KEY, JSON.stringify(nextKeys));
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const handleAddUtility = (key) => {
+    if (addedKeys.includes(key)) return;
+    updateAddedKeys([...addedKeys, key]);
+  };
+
+  const handleRemoveUtility = (key) => {
+    if (addedKeys.length <= 1) {
+      setSoon('Cần giữ ít nhất 1 tiện ích');
+      return;
+    }
+    updateAddedKeys(addedKeys.filter((k) => k !== key));
+  };
+
+  const handleResetUtilities = () => {
+    updateAddedKeys(DEFAULT_ADDED_KEYS);
+  };
+
+  const addedUtilities = useMemo(
+    () => addedKeys.map((k) => ALL_UTILITIES.find((u) => u.key === k)).filter(Boolean),
+    [addedKeys]
+  );
+
+  const unaddedUtilities = useMemo(
+    () => ALL_UTILITIES.filter((u) => !addedKeys.includes(u.key)),
+    [addedKeys]
+  );
+
   const today = useMemo(
     () => calculateAdherenceStats(todayMedications, 1),
-    [todayMedications, medicationStatus] // eslint-disable-line react-hooks/exhaustive-deps
+    [todayMedications, medicationStatus, statusVersion] // eslint-disable-line react-hooks/exhaustive-deps
   );
   const allDone = today.totalScheduled > 0 && today.totalTaken >= today.totalScheduled;
 
@@ -101,7 +177,7 @@ export default function DashboardPage() {
     if (item.to) return navigate(item.to);
     if (item.key === 'sos') return setShowSos(true);
     if (item.modal) { fetchMedications().catch(() => {}); return setShowAdherence(true); }
-    return setSoon(item.label);
+    return setSoon(`${item.label} sắp ra mắt`);
   };
 
   const onCarouselScroll = (e) => {
@@ -113,15 +189,32 @@ export default function DashboardPage() {
     if (el) el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' });
   };
 
+  const roleMode = useRoleModeStore((s) => s.roleMode);
+  const switchRole = useRoleModeStore((s) => s.switchRole);
+  const openRoleSelector = useRoleModeStore((s) => s.openRoleSelector);
+
+  if (roleMode === 'supervisor') {
+    return <SupervisorDashboard />;
+  }
+
+  if (roleMode === 'caregiver') {
+    return <CaregiverDashboard />;
+  }
+
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <div className={styles.topRow}>
-          <button type="button" className={styles.vip} onClick={() => navigate('/settings')}>
-            <span className={styles.vipStar}><Star size={16} fill="currentColor" aria-hidden="true" /></span>
-            <span className={styles.vipText}>HỘI VIÊN<span className={styles.vipSub}>ĐẶC BIỆT</span></span>
-          </button>
+        <div
+          className={styles.topRow}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '8px',
+          }}
+        >
           <DayChip />
+          <RoleCircleSwitcher />
         </div>
 
         <div className={styles.greetRow}>
@@ -177,17 +270,21 @@ export default function DashboardPage() {
             <span className={styles.gridIcon} aria-hidden="true"><i /><i /><i /><i /></span>
             Tiện ích y tế DIA+
           </h2>
-          <button type="button" className={styles.customize} onClick={() => setSoon('Tùy chỉnh tiện ích')}>
+          <button type="button" className={styles.customize} onClick={() => setShowCustomize(true)}>
             <Settings2 size={16} aria-hidden="true" /> Tùy chỉnh
           </button>
         </div>
-        <div className={styles.grid}>
-          {UTILITIES.map((item) => (
+        <div className={`${styles.grid} ${addedUtilities.length <= 6 && addedUtilities.length !== 4 ? styles.gridThree : ''}`}>
+          {addedUtilities.map((item) => (
             <button key={item.key} type="button" className={`${styles.tile} tour-${item.key}`} onClick={() => open(item)}>
               {item.badge && (
-                <span className={`${styles.badge} ${item.badge === 'HOT' ? styles.badgeHot : ''}`}>{item.badge}</span>
+                <span className={`${styles.badge} ${!item.launched ? styles.badgeSoon : item.badge === 'HOT' ? styles.badgeHot : ''}`}>
+                  {item.badge}
+                </span>
               )}
-              <img src={`/icons/tienich/${item.key}.png`} alt="" className={styles.tileImg} width="52" height="52" />
+              <div className={`${styles.tileIconPod} ${styles['pod_' + item.key] || ''}`}>
+                <img src={`/icons/tienich/${item.key}.png`} alt="" className={styles.tileImg} width="44" height="44" />
+              </div>
               <span className={styles.tileLabel}>{item.label}</span>
               <span className={styles.tileSub}>{item.sub}</span>
             </button>
@@ -207,7 +304,7 @@ export default function DashboardPage() {
             {todayMedications.length === 0 ? 'Chưa có đơn'
               : today.totalScheduled === 0 ? `${todayMedications.length} thuốc`
                 : allDone ? <><CheckCircle2 size={18} aria-hidden="true" /> Đã uống đủ</>
-                  : `Đã uống ${today.totalTaken}/${today.totalScheduled}`}
+                  : `Đã uống ${today.totalTaken}/${today.totalScheduled} cử`}
           </span>
           <span className={styles.quickHint}>
             {todayMedications.length ? 'Bấm để đánh dấu' : 'Bấm để quét đơn'} <ChevronRight size={16} aria-hidden="true" />
@@ -232,11 +329,15 @@ export default function DashboardPage() {
       {/* Nút trải nghiệm nhanh Chuông gọi nhắc thuốc của con cháu (Tầng 1) */}
       <button
         type="button"
-        onClick={() => triggerFamilyAlarm({ meds: todayMedications.length ? todayMedications : medications })}
+        onClick={() =>
+          triggerFamilyAlarm(
+            getNextAlarmPayloadForToday(todayMedications.length ? todayMedications : medications)
+          )
+        }
         style={{
           width: '100%',
           marginTop: '12px',
-          padding: '14px 16px',
+          padding: '13px 14px',
           background: 'linear-gradient(135deg, #0f766e 0%, #059669 100%)',
           color: '#ffffff',
           border: 'none',
@@ -244,17 +345,17 @@ export default function DashboardPage() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '12px',
+          gap: '10px',
           cursor: 'pointer',
           boxShadow: '0 6px 18px rgba(15, 118, 110, 0.25)',
           textAlign: 'left',
         }}
       >
-        <span style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
           <span
             style={{
-              width: '42px',
-              height: '42px',
+              width: '40px',
+              height: '40px',
               borderRadius: '12px',
               background: 'rgba(255,255,255,0.2)',
               display: 'flex',
@@ -263,24 +364,150 @@ export default function DashboardPage() {
               flexShrink: 0,
             }}
           >
-            <PhoneCall size={22} />
+            <PhoneCall size={20} />
           </span>
-          <span>
-            <strong style={{ display: 'block', fontSize: '16px', fontWeight: 800 }}>
+          <span style={{ minWidth: 0, flex: 1 }}>
+            <strong
+              style={{
+                display: 'block',
+                fontSize: '15.5px',
+                fontWeight: 800,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
               Chuông con cháu nhắc uống thuốc
             </strong>
-            <span style={{ fontSize: '13px', opacity: 0.92 }}>
-              Bấm để mở màn hình báo thức giọng nói gia đình (Tầng 1)
+            <span
+              style={{
+                display: 'block',
+                fontSize: '12.5px',
+                opacity: 0.94,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              Mở báo thức giọng nói gia đình (Tầng 1)
             </span>
           </span>
         </span>
-        <ChevronRight size={20} />
+        <ChevronRight size={20} style={{ flexShrink: 0 }} />
       </button>
 
       {/* Thông báo + các bảng gắn thẳng vào body: nằm ngoài vùng cuộn có zoom (cỡ chữ) để không lệch vị trí */}
       {createPortal(
         <>
-          {soon && <div className={styles.soonToast} role="status">{soon} sắp ra mắt</div>}
+          {soon && <div className={styles.soonToast} role="status">{soon}</div>}
+          {showCustomize && (
+            <Modal title="Tùy chỉnh tiện ích DIA+" onClose={() => setShowCustomize(false)}>
+              <div className={styles.customSheet}>
+                {/* Hàng trên: Chưa thêm vào */}
+                <div className={styles.customGroupUnadded}>
+                  <div className={styles.customGroupHead}>
+                    <span className={styles.customGroupTitle}>
+                      <span className={styles.dotUnadded} aria-hidden="true" />
+                      Chưa thêm vào
+                    </span>
+                    <span className={styles.customGroupHint}>Chạm để thêm +</span>
+                  </div>
+
+                  {unaddedUtilities.length === 0 ? (
+                    <div className={styles.customEmpty}>
+                      Đã thêm toàn bộ tiện ích ra màn hình chính
+                    </div>
+                  ) : (
+                    <div className={styles.customGrid}>
+                      {unaddedUtilities.map((item) => (
+                        <button
+                          key={item.key}
+                          type="button"
+                          className={`${styles.customTile} ${styles.customTileUnadded}`}
+                          onClick={() => handleAddUtility(item.key)}
+                        >
+                          <span className={styles.actionCircleAdd} aria-hidden="true">
+                            <Plus size={14} strokeWidth={3} />
+                          </span>
+                          {!item.launched && (
+                            <span className={styles.soonMiniTag}>Sắp ra mắt</span>
+                          )}
+                          <div className={`${styles.customTileIconPod} ${styles['pod_' + item.key] || ''}`}>
+                            <img
+                              src={`/icons/tienich/${item.key}.png`}
+                              alt=""
+                              className={styles.customTileImg}
+                              width="38"
+                              height="38"
+                            />
+                          </div>
+                          <span className={styles.tileLabel}>{item.label}</span>
+                          <span className={styles.tileSub}>{item.sub}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Hàng dưới: Đã thêm vào */}
+                <div className={styles.customGroupAdded}>
+                  <div className={styles.customGroupHead}>
+                    <span className={styles.customGroupTitle}>
+                      <span className={styles.dotAdded} aria-hidden="true" />
+                      Đã thêm vào
+                    </span>
+                    <span className={styles.customGroupHint}>Chạm để ẩn −</span>
+                  </div>
+
+                  <div className={styles.customGrid}>
+                    {addedUtilities.map((item) => (
+                      <button
+                        key={item.key}
+                        type="button"
+                        className={`${styles.customTile} ${styles.customTileAdded}`}
+                        onClick={() => handleRemoveUtility(item.key)}
+                      >
+                        <span className={styles.actionCircleRemove} aria-hidden="true">
+                          <Minus size={14} strokeWidth={3} />
+                        </span>
+                        {!item.launched && (
+                          <span className={styles.soonMiniTag}>Sắp ra mắt</span>
+                        )}
+                        <div className={`${styles.customTileIconPod} ${styles['pod_' + item.key] || ''}`}>
+                          <img
+                            src={`/icons/tienich/${item.key}.png`}
+                            alt=""
+                            className={styles.customTileImg}
+                            width="38"
+                            height="38"
+                          />
+                        </div>
+                        <span className={styles.tileLabel}>{item.label}</span>
+                        <span className={styles.tileSub}>{item.sub}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className={styles.customFooter}>
+                  <button
+                    type="button"
+                    className={styles.customResetBtn}
+                    onClick={handleResetUtilities}
+                  >
+                    <RotateCcw size={16} aria-hidden="true" /> Mặc định
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.customDoneBtn}
+                    onClick={() => setShowCustomize(false)}
+                  >
+                    <Check size={18} strokeWidth={2.5} aria-hidden="true" /> Xong
+                  </button>
+                </div>
+              </div>
+            </Modal>
+          )}
           {showAdherence && (
             <MedicationHistoryModal medications={medications || []} onClose={() => setShowAdherence(false)} />
           )}
@@ -291,8 +518,8 @@ export default function DashboardPage() {
                 {today.totalScheduled > 0 && (
                   <p className={`${styles.progress} ${allDone ? styles.progressDone : ''}`}>
                     {allDone
-                      ? <><CheckCircle2 size={20} aria-hidden="true" /> Hôm nay đã dùng đủ thuốc</>
-                      : `Hôm nay đã dùng ${today.totalTaken}/${today.totalScheduled} thuốc`}
+                      ? <><CheckCircle2 size={20} aria-hidden="true" /> Đã uống đủ {today.totalTaken}/{today.totalScheduled} cử hôm nay</>
+                      : `Đã uống ${today.totalTaken}/${today.totalScheduled} cử hôm nay (${today.score}%)`}
                   </p>
                 )}
                 <div className={styles.medList}>

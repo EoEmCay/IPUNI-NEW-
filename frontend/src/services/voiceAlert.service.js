@@ -33,11 +33,87 @@ if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
 
 export const voiceAlertService = {
   currentAudio: null,
-  
+  audioCtx: null,
+  analyser: null,
+  freqData: null,
+  isSynthSpeaking: false,
+  lastWordPulseAt: 0,
+
+  /**
+   * Kết nối thẻ Audio với Web Audio API AnalyserNode để đọc biên độ tần số sóng âm thật theo thời gian thực
+   */
+  _attachAnalyser(audioEl) {
+    try {
+      if (typeof window === 'undefined') return;
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+
+      if (!this.audioCtx || this.audioCtx.state === 'closed') {
+        this.audioCtx = new AudioCtx();
+      }
+      if (this.audioCtx.state === 'suspended') {
+        this.audioCtx.resume().catch(() => {});
+      }
+
+      const analyser = this.audioCtx.createAnalyser();
+      analyser.fftSize = 128;
+      analyser.smoothingTimeConstant = 0.65;
+
+      const source = this.audioCtx.createMediaElementSource(audioEl);
+      source.connect(analyser);
+      analyser.connect(this.audioCtx.destination);
+
+      this.analyser = analyser;
+      this.freqData = new Uint8Array(analyser.frequencyBinCount);
+    } catch (e) {
+      console.warn('Không gắn được AnalyserNode cho audio:', e.message);
+    }
+  },
+
+  /**
+   * Lấy mảng độ cao thực tế (0..100) của `barCount` vạch sóng âm từ âm thanh đang phát
+   */
+  getPlaybackBands(barCount = 44) {
+    if (this.analyser && this.freqData && this.currentAudio && !this.currentAudio.paused) {
+      this.analyser.getByteFrequencyData(this.freqData);
+      const bins = this.freqData.length;
+      const usableBins = Math.max(12, Math.floor(bins * 0.72));
+      const result = new Array(barCount);
+      for (let i = 0; i < barCount; i++) {
+        // Đối xứng nhẹ từ giữa ra 2 bên hoặc trải đều dải tần giọng nói người (80Hz - 4000Hz)
+        const binIdx = Math.min(
+          usableBins - 1,
+          Math.floor((i / barCount) * usableBins)
+        );
+        const raw = this.freqData[binIdx] || 0; // 0..255
+        const normalized = Math.min(100, Math.max(8, Math.round((raw / 230) * 100)));
+        result[i] = normalized;
+      }
+      return result;
+    }
+
+    // Nếu đang phát bằng trình đọc dự phòng của trình duyệt (speechSynthesis)
+    if (this.isSynthSpeaking && typeof window !== 'undefined' && window.speechSynthesis?.speaking) {
+      const now = performance.now();
+      // Tạo biên độ theo nhịp phát âm thực tế (boundary)
+      const sincePulse = now - this.lastWordPulseAt;
+      const env = sincePulse < 240 ? 1 - sincePulse / 320 : 0.35 + 0.25 * Math.sin(now * 0.018);
+      const result = new Array(barCount);
+      for (let i = 0; i < barCount; i++) {
+        const wave = Math.abs(Math.sin(now * 0.015 + i * 0.45)) * 75 * env;
+        result[i] = Math.min(96, Math.max(8, Math.round(10 + wave)));
+      }
+      return result;
+    }
+
+    return null;
+  },
+
   /**
    * Dừng âm thanh đang phát
    */
   stopAlert() {
+    this.isSynthSpeaking = false;
     if (this.currentAudio) {
       this.currentAudio.onended = null;
       this.currentAudio.onerror = null;
@@ -45,6 +121,8 @@ export const voiceAlertService = {
       this.currentAudio.currentTime = 0;
       this.currentAudio = null;
     }
+    this.analyser = null;
+    this.freqData = null;
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
     }
@@ -123,6 +201,7 @@ export const voiceAlertService = {
       if (setting && setting.useCustomVoice && setting.audioBase64) {
         // Phát custom voice
         this.currentAudio = new Audio(setting.audioBase64);
+        this._attachAnalyser(this.currentAudio);
         if (onEndedCallback) {
           this.currentAudio.onended = onEndedCallback;
           this.currentAudio.onerror = onEndedCallback;
@@ -164,7 +243,12 @@ export const voiceAlertService = {
       });
       const url = URL.createObjectURL(res.data);
       this.currentAudio = new Audio(url);
+      this._attachAnalyser(this.currentAudio);
       this.currentAudio.onended = () => {
+        URL.revokeObjectURL(url);
+        if (onEndedCallback) onEndedCallback();
+      };
+      this.currentAudio.onerror = () => {
         URL.revokeObjectURL(url);
         if (onEndedCallback) onEndedCallback();
       };
@@ -181,22 +265,26 @@ export const voiceAlertService = {
    * được giọng đồng bộ từ server.
    */
   _speakWithBrowserTTS(text, onEndedCallback) {
-    // Cần chuyển toàn bộ chữ về in thường.
-    // Lỗi phổ biến trên Android: Google TTS sẽ "đánh vần" từng chữ cái nếu từ đó viết HOA toàn bộ (VD: PARACETAMOL -> P-A-R...)
     const spokenText = text.toLowerCase();
 
     const utterance = new SpeechSynthesisUtterance(spokenText);
-    if (onEndedCallback) {
-      utterance.onend = onEndedCallback;
-      utterance.onerror = onEndedCallback;
-    }
-    // Force language regardless of what voice is chosen
+    this.isSynthSpeaking = true;
+    this.lastWordPulseAt = performance.now();
+
+    utterance.onboundary = () => {
+      this.lastWordPulseAt = performance.now();
+    };
+    utterance.onend = () => {
+      this.isSynthSpeaking = false;
+      if (onEndedCallback) onEndedCallback();
+    };
+    utterance.onerror = () => {
+      this.isSynthSpeaking = false;
+      if (onEndedCallback) onEndedCallback();
+    };
     utterance.lang = 'vi-VN';
 
-    // Try to explicitly select a Vietnamese voice (Google TTS or system default vi-VN)
     let voices = window.speechSynthesis.getVoices();
-
-    // Cứu cánh cho Android nếu getVoices() vẫn rỗng:
     if (voices.length === 0) {
       // Thử lấy lại lần nữa
       voices = window.speechSynthesis.getVoices();

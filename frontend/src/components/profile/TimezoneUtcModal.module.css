@@ -1,0 +1,460 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tabNav {
+  display: flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
+}
+
+.tabBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 8px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tabBtnActive {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.tabContent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: fadeIn 0.18s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Selector Card */
+.selectorCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.selectorHead {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.selectorLabel {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.selectorHint {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tzChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tzChip:hover {
+  border-color: #93c5fd;
+  background: #f0f9ff;
+}
+
+.tzChipActive {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+}
+
+/* So Sánh 2 Đồng Hồ */
+.compareGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.compareCard {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1.5px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vnCard {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-color: #86efac;
+}
+
+.cardHeaderSmall {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.flagBadge {
+  font-size: 11px;
+  font-weight: 800;
+  color: #475569;
+}
+
+.vnCard .flagBadge {
+  color: #166534;
+}
+
+.abbrPill {
+  font-size: 10px;
+  font-weight: 800;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 1px 6px;
+  border-radius: 999px;
+  color: #475569;
+}
+
+.locationTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.clockBig {
+  font-size: 24px;
+  font-weight: 900;
+  font-family: 'SF Mono', 'Courier New', Courier, monospace;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.clockVn {
+  color: #15803d;
+}
+
+.dateSub {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* Thẻ Độ Lệch & Lời Khuyên */
+.diffCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.diffHero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.diffBadge {
+  font-size: 12.5px;
+  font-weight: 800;
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.syncPulse {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #15803d;
+}
+
+.pulseDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+  animation: pulse 1.4s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.caregiverTipText {
+  margin: 0;
+  font-size: 12px;
+  color: #334155;
+  line-height: 1.55;
+  background: #f8fafc;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border-left: 3px solid #0284c7;
+}
+
+/* Danh Sách World Clocks */
+.worldList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 48dvh;
+  overflow-y: auto;
+}
+
+.worldItem {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.worldItem:hover {
+  border-color: #93c5fd;
+  transform: translateY(-1px);
+}
+
+.worldItemActive {
+  background: #f0f9ff;
+  border-color: #0284c7;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.12);
+}
+
+.worldItemLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.worldFlag {
+  font-size: 22px;
+}
+
+.worldName {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.youBadge {
+  font-size: 9.5px;
+  font-weight: 800;
+  background: #0284c7;
+  color: #ffffff;
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+
+.worldRegion {
+  font-size: 11px;
+  color: #64748b;
+  margin-top: 1px;
+}
+
+.worldItemRight {
+  text-align: right;
+}
+
+.worldTime {
+  font-size: 16px;
+  font-weight: 900;
+  font-family: 'SF Mono', 'Courier New', Courier, monospace;
+  color: #0f172a;
+}
+
+.worldDate {
+  font-size: 10.5px;
+  color: #64748b;
+  margin-top: 1px;
+}
+
+/* Tab UTC */
+.utcCard {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #ffffff;
+  border-radius: 18px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.cardHeaderUtc {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.globeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #38bdf8;
+}
+
+.syncStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #86efac;
+  background: rgba(16, 185, 129, 0.2);
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.timeHero {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.timeBig {
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  font-family: 'SF Mono', 'Courier New', Courier, monospace;
+  color: #f8fafc;
+}
+
+.dateHero {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: #94a3b8;
+}
+
+.dateHero strong {
+  color: #e2e8f0;
+}
+
+.isoTag {
+  font-size: 11px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.isoTag code {
+  color: #7dd3fc;
+  font-family: monospace;
+}
+
+.medicalNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.noticeHeading {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #065f46;
+}
+
+.noticeText {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: #047857;
+  line-height: 1.5;
+}
+
+.closeBtn {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+  transition: transform 0.15s;
+}
+
+.closeBtn:hover {
+  transform: translateY(-1px);
+}

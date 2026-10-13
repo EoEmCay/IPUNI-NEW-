@@ -43,8 +43,8 @@
 }
 
 .title {
-  font-size: 19px;
-  font-weight: 700;
+  font-size: 17.5px;
+  font-weight: 800;
   color: var(--color-text-primary);
   min-width: 0;
   overflow: hidden;

@@ -1,7 +1,10 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Pill, Syringe, ChevronRight, XCircle, Camera } from 'lucide-react';
+import { Pill, Syringe, ChevronRight, XCircle, Camera, RotateCcw } from 'lucide-react';
 import useMedicationsStore from '../../store/medicationsStore';
-import { recordMedicationIntake } from '../../store/medicationAdherenceStore';
+import {
+  recordMedicationIntake,
+  getMedicationDayProgress,
+} from '../../store/medicationAdherenceStore';
 import MedicationDetailModal from './MedicationDetailModal';
 import SkipDoseModal from './SkipDoseModal';
 import { checkMedicationTimeEligibility } from '../../utils/medicationTime';
@@ -12,15 +15,16 @@ import { getSavedDrugVisual, fetchAndCacheDrugVisual } from '../../utils/drugVis
 import styles from './MedicationCard.module.css';
 
 const STATUS_STYLES = {
-  taken: { bg: '#DCFCE7', color: '#16A34A', border: '#86EFAC' },
+  taken: { bg: '#DCFCE7', color: '#15803D', border: '#86EFAC' },
+  waitingNext: { bg: '#DCFCE7', color: '#15803D', border: '#86EFAC' },
+  partial: { bg: '#0EA5E9', color: '#FFFFFF', border: '#0284C7' },
   late: { bg: '#DC2626', color: '#fff', border: '#DC2626' },
   skipped: { bg: '#F1F5F9', color: '#64748B', border: '#CBD5E1' },
 };
 
 export default function MedicationCard({ medication }) {
   const times = Array.isArray(medication.times) ? medication.times.join(' & ') : medication.times;
-  const { medicationStatus, setMedicationStatus } = useMedicationsStore();
-  const status = medicationStatus[medication.id] || 'pending';
+  const { medicationStatus, statusVersion } = useMedicationsStore();
   const [showDetail, setShowDetail] = useState(false);
   const [showSkipModal, setShowSkipModal] = useState(false);
   const [toastMsg, setToastMsg] = useState(null);
@@ -60,18 +64,40 @@ export default function MedicationCard({ medication }) {
     return checkMedicationTimeEligibility(medication, currentTime);
   }, [medication, currentTime]);
 
+  const dayProgress = useMemo(() => {
+    return getMedicationDayProgress(medication, currentTime);
+  }, [medication, currentTime, medicationStatus, statusVersion]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const isRestDay = timeEligibility.isRestDay;
-  const isTaken = !isRestDay && status === 'taken';
-  const isSkipped = !isRestDay && status === 'skipped';
-  const isLocked = !isRestDay && !isTaken && !isSkipped && !timeEligibility.isTimeArrived;
-  const isLate = !isRestDay && !isTaken && !isSkipped && (status === 'late' || timeEligibility.isLate);
+  const isTaken = !isRestDay && dayProgress.isAllTaken;
+  const isSkipped = !isRestDay && !isTaken && dayProgress.isAllDone && dayProgress.skippedSlots >= dayProgress.totalSlots;
+  const isPartial = !isRestDay && dayProgress.isPartial;
+  // Đã uống xong cử trước (ví dụ Cử sáng 09:00), đang chờ tới giờ cử tiếp theo (ví dụ Cử chiều 16:00 chưa tới giờ)
+  const isWaitingNextSlot = isPartial && !dayProgress.isNextSlotArrived;
+  // Chưa uống cử nào và cử đầu tiên trong ngày vẫn chưa tới giờ
+  const isLocked = !isRestDay && !isTaken && !isSkipped && !isPartial && !dayProgress.isNextSlotArrived;
+  // Chỉ báo "Đã quá giờ" khi cử ĐANG CẦN UỐNG hiện tại thực sự bị trễ >= 60 phút
+  const isLate = !isRestDay && !isTaken && !isSkipped && dayProgress.isNextSlotLate;
+
+  const nextSlot = dayProgress.nextPendingSlot;
+  const lastCompletedSlot = dayProgress.lastCompletedSlot;
 
   // Huỷ thông báo nhắc lại (Lần 2, sau 15 phút) của cữ ĐANG được xác nhận (uống hoặc bỏ qua),
   // để máy không đổ chuông oan 15 phút sau khi bệnh nhân đã phản hồi rồi.
-  const cancelActiveFollowup = () => {
-    if (!timeEligibility.activeSlotTime) return;
-    const instantIso = buildTodayInstant(timeEligibility.activeSlotTime, currentTime);
+  const cancelActiveFollowup = (targetSlotTime) => {
+    const slotT = targetSlotTime || timeEligibility.activeSlotTime;
+    if (!slotT) return;
+    const instantIso = buildTodayInstant(slotT, currentTime);
     if (instantIso) cancelFollowupReminder(instantIso);
+  };
+
+  const handleUndoLastSlot = () => {
+    recordMedicationIntake(medication, 'pending', new Date(), null, null);
+    const undoneLabel = lastCompletedSlot
+      ? `${lastCompletedSlot.periodLabel.toLowerCase()} (${lastCompletedSlot.time})`
+      : '';
+    setToastMsg(`↩️ Đã hoàn tác ${undoneLabel}. Bác có thể bấm xác nhận lại khi cần nhé!`);
+    setTimeout(() => setToastMsg(null), 3000);
   };
 
   const handleStatusToggle = () => {
@@ -82,23 +108,40 @@ export default function MedicationCard({ medication }) {
     }
 
     if (isLocked) {
-      const timeHint = timeEligibility.earliestUpcomingTime
+      const timeHint = nextSlot?.time
+        || timeEligibility.earliestUpcomingTime
         || (timeEligibility.startsTomorrowAt ? `ngày mai ${timeEligibility.startsTomorrowAt}` : 'sau');
       setToastMsg(`⏳ Chưa tới giờ ${verb} ${medication.name} (Lịch: ${timeHint}). Vui lòng ${verb} đúng giờ nhé!`);
       setTimeout(() => setToastMsg(null), 3500);
       return;
     }
 
-    const nextStatus = (isTaken || isSkipped) ? 'pending' : 'taken';
-    setMedicationStatus(medication.id, nextStatus);
-    recordMedicationIntake(medication, nextStatus, new Date(), null, timeEligibility.activeSlotTime);
-    if (nextStatus === 'taken') cancelActiveFollowup();
+    if (isWaitingNextSlot) {
+      const doneLabel = lastCompletedSlot
+        ? `${lastCompletedSlot.periodLabel.toLowerCase()} (${lastCompletedSlot.time})`
+        : 'cử trước';
+      const upcomingLabel = nextSlot
+        ? `${nextSlot.periodLabel.toLowerCase()} lúc ${nextSlot.time}`
+        : 'cử tiếp theo';
+      setToastMsg(`✅ Bác đã ${verb} ${doneLabel} rồi! Tới ${upcomingLabel} hệ thống sẽ mở tiếp nhé.`);
+      setTimeout(() => setToastMsg(null), 3500);
+      return;
+    }
+
+    if (isTaken || isSkipped) {
+      handleUndoLastSlot();
+      return;
+    }
+
+    const targetKey = nextSlot ? nextSlot.key : (timeEligibility.activeSlotTime || 'morning');
+    recordMedicationIntake(medication, 'taken', new Date(), null, targetKey);
+    cancelActiveFollowup(nextSlot?.time);
   };
 
   const handleSkipConfirm = async (reason) => {
-    setMedicationStatus(medication.id, 'skipped');
-    recordMedicationIntake(medication, 'skipped', new Date(), reason, timeEligibility.activeSlotTime);
-    cancelActiveFollowup();
+    const targetKey = nextSlot ? nextSlot.key : (timeEligibility.activeSlotTime || 'morning');
+    recordMedicationIntake(medication, 'skipped', new Date(), reason, targetKey);
+    cancelActiveFollowup(nextSlot?.time);
     setShowSkipModal(false);
   };
 
@@ -107,21 +150,39 @@ export default function MedicationCard({ medication }) {
   if (isRestDay) {
     buttonLabel = '📅 Nghỉ cữ';
   } else if (isTaken) {
-    buttonLabel = injection ? '✓ Đã tiêm' : `✓ ${t.medCard?.statusTaken || 'Đã uống'}`;
+    const baseTaken = injection ? '✓ Đã tiêm' : `✓ ${t.medCard?.statusTaken || 'Đã uống'}`;
+    buttonLabel = dayProgress.totalSlots > 1
+      ? `${baseTaken} đủ hôm nay (${dayProgress.totalSlots}/${dayProgress.totalSlots} cử)`
+      : `${baseTaken} hôm nay`;
+  } else if (isWaitingNextSlot) {
+    const doneSlotName = lastCompletedSlot?.periodLabel?.toLowerCase() || 'cử trước';
+    const nextSlotInfo = nextSlot ? `${nextSlot.periodLabel} lúc ${nextSlot.time}` : 'Chờ cử tiếp';
+    buttonLabel = `✓ Đã ${verb} ${doneSlotName} (${dayProgress.completedSlots}/${dayProgress.totalSlots} cử) · ${nextSlotInfo}`;
+  } else if (isPartial) {
+    const nextLabel = nextSlot?.periodLabel?.toLowerCase() || 'cử tiếp';
+    const nextTime = nextSlot?.time ? ` (${nextSlot.time})` : '';
+    buttonLabel = `✓ Tôi đã ${verb} ${nextLabel}${nextTime}`;
   } else if (isSkipped) {
-    buttonLabel = '⏭ Đã bỏ qua';
+    buttonLabel = '⏭ Đã bỏ qua hôm nay';
   } else if (isLocked) {
-    buttonLabel = timeEligibility.earliestUpcomingTime
-      ? `${injection ? 'Tiêm' : 'Uống'} lúc ${timeEligibility.earliestUpcomingTime}`
+    const upcomingTime = nextSlot?.time || timeEligibility.earliestUpcomingTime;
+    const upcomingPeriod = nextSlot?.periodLabel ? `${nextSlot.periodLabel} lúc ` : `${injection ? 'Tiêm' : 'Uống'} lúc `;
+    buttonLabel = upcomingTime
+      ? `🕒 ${upcomingPeriod}${upcomingTime}`
       : timeEligibility.startsTomorrowAt
-      ? `${injection ? 'Tiêm' : 'Uống'} từ mai lúc ${timeEligibility.startsTomorrowAt}`
-      : `Chưa tới giờ ${verb}`;
+      ? `🕒 ${injection ? 'Tiêm' : 'Uống'} từ mai lúc ${timeEligibility.startsTomorrowAt}`
+      : `🕒 Chưa tới giờ ${verb}`;
   } else {
-    buttonLabel = `✓ Tôi đã ${verb}`;
+    const firstLabel = nextSlot?.periodLabel?.toLowerCase();
+    const firstTime = nextSlot?.time ? ` (${nextSlot.time})` : '';
+    buttonLabel = dayProgress.totalSlots > 1 && firstLabel
+      ? `✓ Tôi đã ${verb} ${firstLabel}${firstTime}`
+      : `✓ Tôi đã ${verb}${firstTime}`;
   }
 
-  // Cho phép bấm "Bỏ qua cữ" khi cữ đã tới giờ, chưa được đánh dấu uống/bỏ qua rồi
-  const canSkip = !isRestDay && !isTaken && !isSkipped && !isLocked;
+  // Chỉ hiện nút "Bỏ qua cữ" khi cử hiện tại đã tới giờ và đang chờ uống
+  const canSkip = !isRestDay && !isTaken && !isSkipped && !isLocked && !isWaitingNextSlot;
+  const canUndo = !isRestDay && dayProgress.completedSlots > 0;
   const candidates = visual?.candidates?.length
     ? visual.candidates
     : visual?.imageUrl
@@ -170,20 +231,92 @@ export default function MedicationCard({ medication }) {
         </div>
       )}
       <div className={styles.info}>
-        <div className={styles.name}>{medication.name} {medication.dosage}</div>
+        <div className={styles.name}>
+          {medication.name}{' '}
+          {medication.dosage && (
+            <span style={{ whiteSpace: 'nowrap', display: 'inline-block' }}>
+              {medication.dosage}
+            </span>
+          )}
+        </div>
         {visual?.commonName && (
           <div style={{ display: 'inline-block', fontSize: 12, fontWeight: 700, color: '#0369A1', background: '#E0F2FE', padding: '2px 8px', borderRadius: 999, marginTop: 3 }}>
             {visual.commonName}
           </div>
         )}
         <div className={styles.frequency}>{medication.frequency}: {times}</div>
+
+        {/* Hiển thị rõ trạng thái của từng cử trong ngày để người dùng không bao giờ bị nhầm lẫn */}
+        {!isRestDay && dayProgress.slots.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
+            {dayProgress.slots.map((slot) => {
+              let badgeBg = '#F8FAFC';
+              let badgeColor = '#64748B';
+              let badgeBorder = '#E2E8F0';
+              let statusText = 'Chưa tới giờ';
+              let prefixIcon = '🕒';
+
+              if (slot.status === 'taken') {
+                badgeBg = '#DCFCE7';
+                badgeColor = '#15803D';
+                badgeBorder = '#86EFAC';
+                statusText = `Đã ${verb}`;
+                prefixIcon = '✓';
+              } else if (slot.status === 'skipped') {
+                badgeBg = '#F1F5F9';
+                badgeColor = '#475569';
+                badgeBorder = '#CBD5E1';
+                statusText = 'Đã bỏ qua';
+                prefixIcon = '⏭';
+              } else if (slot.isLate) {
+                badgeBg = '#FEE2E2';
+                badgeColor = '#B91C1C';
+                badgeBorder = '#FCA5A5';
+                statusText = 'Quá giờ';
+                prefixIcon = '⚠️';
+              } else if (slot.isArrived) {
+                badgeBg = '#DBEAFE';
+                badgeColor = '#1D4ED8';
+                badgeBorder = '#93C5FD';
+                statusText = `Đến giờ ${verb}`;
+                prefixIcon = '🔔';
+              }
+
+              return (
+                <span
+                  key={slot.key}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: badgeColor,
+                    background: badgeBg,
+                    border: `1.5px solid ${badgeBorder}`,
+                    padding: '3px 9px',
+                    borderRadius: 999,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {prefixIcon} {slot.periodLabel} ({slot.time}): {statusText}
+                </span>
+              );
+            })}
+          </div>
+        )}
+
         {visual?.appearance && (
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#92400E', background: '#FEF3C7', border: '1px solid #FDE68A', padding: '4px 8px', borderRadius: 8, marginTop: 5 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#92400E', background: '#FEF3C7', border: '1px solid #FDE68A', padding: '4px 8px', borderRadius: 8, marginTop: 6 }}>
             💊 {visual.appearance}
           </div>
         )}
         {medication.instructions && <div className={styles.instructions}>{medication.instructions}</div>}
-        {isLate && <div className={styles.lateNote}>Đã quá giờ {verb}</div>}
+        {isLate && (
+          <div className={styles.lateNote}>
+            Đã quá giờ {verb} {nextSlot ? `${nextSlot.periodLabel.toLowerCase()} (${nextSlot.time})` : ''}
+          </div>
+        )}
         {isRestDay && (
           <div style={{ marginTop: 4 }}>
             <span style={{ fontSize: 14, background: '#F3F4F6', color: '#6B7280', padding: '2px 8px', borderRadius: 6, display: 'inline-flex', alignItems: 'center', gap: 4, fontWeight: 600 }}>
@@ -192,13 +325,38 @@ export default function MedicationCard({ medication }) {
           </div>
         )}
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-          <button className={styles.detailBtn} onClick={() => setShowDetail(true)}>
-            <Camera size={14} style={{ marginRight: 3 }} /> {t.medCard?.details || 'Ảnh & Chi tiết'} <ChevronRight size={13} />
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>
+          <button className={styles.detailBtn} onClick={() => setShowDetail(true)} style={{ whiteSpace: 'nowrap' }}>
+            <Camera size={14} style={{ marginRight: 3, flexShrink: 0 }} /> {t.medCard?.details || 'Ảnh & Chi tiết'} <ChevronRight size={13} style={{ flexShrink: 0 }} />
           </button>
           {canSkip && (
-            <button className={styles.skipBtn} onClick={() => setShowSkipModal(true)}>
-              <XCircle size={13} /> Bỏ qua cữ
+            <button className={styles.skipBtn} onClick={() => setShowSkipModal(true)} style={{ whiteSpace: 'nowrap' }}>
+              <XCircle size={13} style={{ flexShrink: 0 }} /> Bỏ qua {nextSlot ? nextSlot.periodLabel.toLowerCase() : 'cữ'}
+            </button>
+          )}
+          {canUndo && (
+            <button
+              type="button"
+              onClick={handleUndoLastSlot}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4,
+                marginTop: 8,
+                minHeight: 48,
+                padding: '8px 12px',
+                borderRadius: 16,
+                fontSize: 15,
+                fontWeight: 600,
+                color: '#475569',
+                background: '#F1F5F9',
+                border: '1px solid #CBD5E1',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+              }}
+              title="Hoàn tác cử vừa đánh dấu"
+            >
+              <RotateCcw size={14} style={{ flexShrink: 0 }} /> Hoàn tác
             </button>
           )}
         </div>
@@ -215,21 +373,29 @@ export default function MedicationCard({ medication }) {
             ? {}
             : isTaken
             ? { background: STATUS_STYLES.taken.bg, color: STATUS_STYLES.taken.color, borderColor: STATUS_STYLES.taken.border, cursor: 'pointer' }
+            : isWaitingNextSlot
+            ? { background: STATUS_STYLES.waitingNext.bg, color: STATUS_STYLES.waitingNext.color, borderColor: STATUS_STYLES.waitingNext.border, cursor: 'pointer' }
             : isSkipped
             ? { background: STATUS_STYLES.skipped.bg, color: STATUS_STYLES.skipped.color, borderColor: STATUS_STYLES.skipped.border, cursor: 'pointer' }
             : isLate
             ? { background: STATUS_STYLES.late.bg, color: STATUS_STYLES.late.color, borderColor: STATUS_STYLES.late.border, cursor: 'pointer' }
+            : isPartial
+            ? { background: STATUS_STYLES.partial.bg, color: STATUS_STYLES.partial.color, borderColor: STATUS_STYLES.partial.border, cursor: 'pointer' }
             : { background: 'var(--color-primary)', color: '#fff', borderColor: 'var(--color-primary)', cursor: 'pointer' }
         }
         title={
           isRestDay
             ? 'Hôm nay là ngày nghỉ cữ của thuốc này'
             : isLocked
-            ? `Chưa tới giờ ${verb} (${timeEligibility.earliestUpcomingTime || ''}). Sẽ cho phép chọn khi tới giờ!`
+            ? `Chưa tới giờ ${verb} (${nextSlot?.time || timeEligibility.earliestUpcomingTime || ''}). Sẽ cho phép chọn khi tới giờ!`
             : isTaken
-            ? 'Đã uống - Bấm để thay đổi'
+            ? 'Đã uống đủ hôm nay - Bấm để hoàn tác'
+            : isWaitingNextSlot
+            ? `Đã ${verb} ${lastCompletedSlot?.periodLabel?.toLowerCase() || 'cử trước'} (${dayProgress.completedSlots}/${dayProgress.totalSlots} cử). Cử tiếp theo lúc ${nextSlot?.time || ''}`
+            : isPartial
+            ? `Đã uống ${dayProgress.takenCount}/${dayProgress.totalSlots} cử - Bấm để đánh dấu ${nextSlot?.periodLabel?.toLowerCase() || 'cử tiếp theo'}`
             : isSkipped
-            ? 'Đã bỏ qua cữ này - Bấm để thay đổi'
+            ? 'Đã bỏ qua hôm nay - Bấm để hoàn tác'
             : 'Bấm để đánh dấu đã uống'
         }
       >

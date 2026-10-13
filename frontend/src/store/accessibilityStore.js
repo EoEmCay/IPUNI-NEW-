@@ -4,7 +4,7 @@ const SCALE_KEY = 'diaplus-font-scale';
 
 function getStoredLevel() {
   const v = parseFloat(localStorage.getItem(SCALE_KEY));
-  return !isNaN(v) && v >= 1 && v <= 2 ? v : 1;
+  return !isNaN(v) && v >= 1 && v <= 1.3 ? v : 1;
 }
 
 function saveStoredLevel(factor) {
@@ -25,6 +25,9 @@ const useAccessibilityStore = create((set) => {
       set(() => {
         const clamped = Math.min(1.3, Math.max(1, level));
         saveStoredLevel(clamped);
+        if (typeof document !== 'undefined') {
+          document.documentElement.style.setProperty('--font-scale', String(clamped));
+        }
         return { fontScale: clamped };
       }),
   };

@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { Award, Flame, Calendar, Phone, Mail, User, ShieldAlert, CheckCircle2, Clock, X, HeartHandshake } from 'lucide-react';
 import Modal from '../common/Modal';
+import useMedicationsStore from '../../store/medicationsStore';
 import {
   calculateAdherenceStats,
   getCaregiverInfo,
@@ -10,7 +11,12 @@ import { careLinksService } from '../../services/careLinks.service';
 
 export default function MedicationHistoryModal({ medications = [], onClose, initialTab = 'stats' }) {
   const [activeTab, setActiveTab] = useState(initialTab); // 'stats' | 'caregiver'
-  const stats = useMemo(() => calculateAdherenceStats(medications, 7), [medications]);
+  const statusVersion = useMedicationsStore((s) => s.statusVersion);
+  const medicationStatus = useMedicationsStore((s) => s.medicationStatus);
+  const stats = useMemo(
+    () => calculateAdherenceStats(medications, 7),
+    [medications, statusVersion, medicationStatus] // eslint-disable-line react-hooks/exhaustive-deps
+  );
 
   const [caregiver, setCaregiver] = useState(() => getCaregiverInfo());
   const [caregiverSaved, setCaregiverSaved] = useState(false);
@@ -82,7 +88,7 @@ export default function MedicationHistoryModal({ medications = [], onClose, init
   };
 
   return (
-    <Modal title="Nhật Ký Uống Thuốc & Điểm Tuân Thủ" onClose={onClose}>
+    <Modal title="Nhật Ký Uống Thuốc & Tuân Thủ" onClose={onClose}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {/* Navigation Tabs */}
         <div style={{ display: 'flex', background: '#F1F5F9', padding: 4, borderRadius: 12, gap: 4 }}>
@@ -91,12 +97,13 @@ export default function MedicationHistoryModal({ medications = [], onClose, init
             onClick={() => setActiveTab('stats')}
             style={{
               flex: 1,
-              padding: '8px 12px',
+              padding: '8px 10px',
               border: 'none',
               borderRadius: 8,
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: 700,
               cursor: 'pointer',
+              whiteSpace: 'nowrap',
               background: activeTab === 'stats' ? '#FFFFFF' : 'transparent',
               color: activeTab === 'stats' ? '#1E293B' : '#64748B',
               boxShadow: activeTab === 'stats' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none'
@@ -109,12 +116,13 @@ export default function MedicationHistoryModal({ medications = [], onClose, init
             onClick={() => setActiveTab('caregiver')}
             style={{
               flex: 1,
-              padding: '8px 12px',
+              padding: '8px 10px',
               border: 'none',
               borderRadius: 8,
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: 700,
               cursor: 'pointer',
+              whiteSpace: 'nowrap',
               background: activeTab === 'caregiver' ? '#FFFFFF' : 'transparent',
               color: activeTab === 'caregiver' ? '#1E293B' : '#64748B',
               boxShadow: activeTab === 'caregiver' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none'
@@ -132,29 +140,74 @@ export default function MedicationHistoryModal({ medications = [], onClose, init
                 background: 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)',
                 color: 'white',
                 borderRadius: 16,
-                padding: '18px 20px',
+                padding: '16px 18px',
                 marginBottom: 16,
                 boxShadow: '0 8px 20px -4px rgba(15, 23, 42, 0.25)'
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <div style={{ fontSize: 15, color: '#94A3B8', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div
+                    style={{
+                      fontSize: 13.5,
+                      color: '#94A3B8',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: 0.4,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
                     Điểm Tuân Thủ (7 Ngày Qua)
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginTop: 4 }}>
-                    <span style={{ fontSize: 36, fontWeight: 900, color: '#38BDF8' }}>{stats.score}%</span>
-                    <span style={{ fontSize: 16, padding: '3px 10px', borderRadius: 100, background: 'rgba(56, 189, 248, 0.15)', color: '#7DD3FC', fontWeight: 700 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginTop: 6 }}>
+                    <span style={{ fontSize: 32, fontWeight: 900, color: '#38BDF8', lineHeight: 1.1, whiteSpace: 'nowrap' }}>
+                      {stats.score}%
+                    </span>
+                    <span
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        fontSize: 13.5,
+                        padding: '4px 10px',
+                        borderRadius: 999,
+                        background: 'rgba(56, 189, 248, 0.15)',
+                        color: '#7DD3FC',
+                        fontWeight: 700,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
                       {stats.rating.badge}
                     </span>
                   </div>
                 </div>
 
-                <div style={{ textAlign: 'right', background: 'rgba(255,255,255,0.08)', padding: '8px 14px', borderRadius: 12 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#FB923C', fontWeight: 800, fontSize: 17 }}>
-                    <Flame size={18} fill="#FB923C" /> {stats.streakDays} ngày
+                <div
+                  style={{
+                    textAlign: 'right',
+                    background: 'rgba(255,255,255,0.08)',
+                    padding: '8px 12px',
+                    borderRadius: 12,
+                    flexShrink: 0,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'flex-end',
+                      gap: 5,
+                      color: '#FB923C',
+                      fontWeight: 800,
+                      fontSize: 16,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    <Flame size={17} fill="#FB923C" style={{ flexShrink: 0 }} /> {stats.streakDays} ngày
                   </div>
-                  <div style={{ fontSize: 14, color: '#CBD5E1', marginTop: 2 }}>Chuỗi đúng giờ</div>
+                  <div style={{ fontSize: 13, color: '#CBD5E1', marginTop: 2, whiteSpace: 'nowrap' }}>
+                    Chuỗi đúng giờ
+                  </div>
                 </div>
               </div>
 
@@ -164,16 +217,28 @@ export default function MedicationHistoryModal({ medications = [], onClose, init
                   <div
                     style={{
                       height: '100%',
-                      width: `${stats.score}%`,
+                      width: `${Math.min(100, stats.score)}%`,
                       background: stats.score >= 85 ? '#22C55E' : stats.score >= 70 ? '#38BDF8' : '#EF4444',
                       borderRadius: 100,
                       transition: 'width 0.5s ease'
                     }}
                   />
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, color: '#94A3B8', marginTop: 6 }}>
-                  <span>Đã uống: <strong>{stats.totalTaken}</strong> / {stats.totalScheduled} cữ</span>
-                  <span>Mục tiêu y khoa: &gt; 80%</span>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: 8,
+                    fontSize: 13.5,
+                    color: '#94A3B8',
+                    marginTop: 6,
+                  }}
+                >
+                  <span style={{ whiteSpace: 'nowrap' }}>
+                    Đã uống: <strong style={{ color: '#F8FAFC' }}>{stats.totalTaken}</strong> / {stats.totalScheduled} cử
+                  </span>
+                  <span style={{ whiteSpace: 'nowrap' }}>Mục tiêu y khoa: &gt; 80%</span>
                 </div>
               </div>
             </div>
@@ -190,10 +255,28 @@ export default function MedicationHistoryModal({ medications = [], onClose, init
                 const isToday = i === arr.length - 1;
                 const color = none ? '#CBD5E1' : day.score === 100 ? '#16A34A' : isToday ? '#0EA5E9' : day.score >= 50 ? '#F59E0B' : '#DC2626';
                 return (
-                  <div key={day.date} aria-hidden="true" style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', justifyContent: 'flex-end' }}>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: none ? '#94A3B8' : '#1E293B' }}>{none ? '—' : `${day.score}%`}</span>
+                  <div key={day.date} aria-hidden="true" style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', justifyContent: 'flex-end' }}>
+                    <span
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: none ? '#94A3B8' : '#1E293B',
+                        whiteSpace: 'nowrap',
+                        letterSpacing: -0.3,
+                      }}
+                    >
+                      {none ? '—' : `${day.score}%`}
+                    </span>
                     <div style={{ width: '100%', maxWidth: 34, height: `${none ? 4 : Math.max(day.score, 4)}%`, background: color, borderRadius: '6px 6px 0 0', marginTop: 4 }} />
-                    <span style={{ fontSize: 14, color: '#475569', marginTop: 6, fontWeight: isToday ? 800 : 500 }}>
+                    <span
+                      style={{
+                        fontSize: 13.5,
+                        color: '#475569',
+                        marginTop: 6,
+                        fontWeight: isToday ? 800 : 500,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
                       {isToday ? 'Nay' : new Date(`${day.date}T00:00`).toLocaleDateString('vi-VN', { weekday: 'short' })}
                     </span>
                   </div>
@@ -218,21 +301,37 @@ export default function MedicationHistoryModal({ medications = [], onClose, init
                     boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                    <span style={{ fontWeight: 700, fontSize: 16, color: '#1E293B' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <span style={{ fontWeight: 700, fontSize: 15.5, color: '#1E293B', whiteSpace: 'nowrap' }}>
                       {idx === 0 ? 'Hôm nay' : idx === 1 ? 'Hôm qua' : day.dateLabel} ({day.date})
                     </span>
                     <span
                       style={{
-                        fontSize: 15,
+                        fontSize: 13.5,
                         fontWeight: 700,
-                        padding: '2px 8px',
+                        padding: '3px 8px',
                         borderRadius: 6,
-                        background: day.score === 100 ? '#DCFCE7' : day.score >= 50 ? '#FEF3C7' : '#FEE2E2',
-                        color: day.score === 100 ? '#16A34A' : day.score >= 50 ? '#B45309' : '#DC2626'
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0,
+                        background:
+                          day.score === 100
+                            ? '#DCFCE7'
+                            : day.score >= 50
+                            ? '#FEF3C7'
+                            : day.taken > 0
+                            ? '#E0F2FE'
+                            : '#FEE2E2',
+                        color:
+                          day.score === 100
+                            ? '#16A34A'
+                            : day.score >= 50
+                            ? '#B45309'
+                            : day.taken > 0
+                            ? '#0369A1'
+                            : '#DC2626',
                       }}
                     >
-                      {day.score}% hoàn thành
+                      {day.score}% hoàn thành ({day.taken}/{day.scheduled} cử)
                     </span>
                   </div>
 
@@ -244,27 +343,103 @@ export default function MedicationHistoryModal({ medications = [], onClose, init
                           display: 'flex',
                           justifyContent: 'space-between',
                           alignItems: 'center',
-                          fontSize: 15,
-                          padding: '4px 8px',
-                          borderRadius: 6,
-                          background: m.status === 'taken' ? '#F0FDF4' : m.status === 'rest_day' ? '#F8FAFC' : '#FFFBEB'
+                          gap: 8,
+                          fontSize: 14.5,
+                          padding: '6px 8px',
+                          borderRadius: 8,
+                          background:
+                            m.status === 'taken'
+                              ? '#F0FDF4'
+                              : m.status === 'partial'
+                              ? '#F0F9FF'
+                              : m.status === 'rest_day'
+                              ? '#F8FAFC'
+                              : '#FFFBEB',
                         }}
                       >
-                        <span style={{ color: '#334155', fontWeight: 600 }}>
-                          💊 {m.name} <span style={{ color: '#64748B', fontWeight: 400 }}>({m.dosage})</span>
+                        <span
+                          style={{
+                            color: '#1E293B',
+                            fontWeight: 700,
+                            minWidth: 0,
+                            flex: 1,
+                            lineHeight: 1.35,
+                            wordBreak: 'keep-all',
+                          }}
+                        >
+                          💊 {m.name}{' '}
+                          {m.dosage && (
+                            <span
+                              style={{
+                                color: '#64748B',
+                                fontWeight: 500,
+                                fontSize: 13.5,
+                                whiteSpace: 'nowrap',
+                                display: 'inline-block',
+                              }}
+                            >
+                              ({m.dosage})
+                            </span>
+                          )}
                         </span>
 
                         {m.status === 'taken' ? (
-                          <span style={{ color: '#16A34A', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 4 }}>
-                            <CheckCircle2 size={13} /> {m.takenAt ? `Đã uống ${m.takenAt}` : 'Đã uống'}
+                          <span
+                            style={{
+                              color: '#16A34A',
+                              fontWeight: 700,
+                              fontSize: 13.5,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 4,
+                              whiteSpace: 'nowrap',
+                              flexShrink: 0,
+                            }}
+                          >
+                            <CheckCircle2 size={14} style={{ flexShrink: 0 }} />{' '}
+                            {m.takenSummary || (m.takenAt ? `Đã uống ${m.takenAt}` : 'Đã uống')}
+                          </span>
+                        ) : m.status === 'partial' ? (
+                          <span
+                            style={{
+                              color: '#0369A1',
+                              background: '#E0F2FE',
+                              padding: '2px 8px',
+                              borderRadius: 999,
+                              fontWeight: 700,
+                              fontSize: 13,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 4,
+                              whiteSpace: 'nowrap',
+                              flexShrink: 0,
+                            }}
+                          >
+                            <Clock size={13} style={{ flexShrink: 0 }} /> {m.takenSummary}
                           </span>
                         ) : m.status === 'rest_day' ? (
-                          <span style={{ color: '#64748B', fontStyle: 'italic' }}>
+                          <span
+                            style={{
+                              color: '#64748B',
+                              fontStyle: 'italic',
+                              fontSize: 13.5,
+                              whiteSpace: 'nowrap',
+                              flexShrink: 0,
+                            }}
+                          >
                             📅 Nghỉ cữ
                           </span>
                         ) : (
-                          <span style={{ color: '#D97706', fontWeight: 600 }}>
-                            Chưa uống
+                          <span
+                            style={{
+                              color: '#D97706',
+                              fontWeight: 700,
+                              fontSize: 13.5,
+                              whiteSpace: 'nowrap',
+                              flexShrink: 0,
+                            }}
+                          >
+                            {m.totalSlots > 1 ? `Chưa uống (0/${m.totalSlots} cử)` : 'Chưa uống'}
                           </span>
                         )}
                       </div>

@@ -1,7 +1,6 @@
 import { ZoomIn } from 'lucide-react';
 import useAccessibilityStore from '../store/accessibilityStore';
 import { useT } from '../hooks/useT';
-import UpgradeCard from '../components/settings/UpgradeCard';
 import ZaloReminderCard from '../components/settings/ZaloReminderCard';
 import styles from './SettingsPage.module.css';
 import PageHeader from '../components/common/PageHeader';
@@ -48,7 +47,6 @@ export default function SettingsPage() {
       </section>
 
       <ZaloReminderCard />
-      <UpgradeCard />
 
       <p className={styles.version}>{s.version}</p>
     </div>

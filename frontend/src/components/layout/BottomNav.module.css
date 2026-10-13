@@ -81,4 +81,80 @@
   background: #FFF3CD;
 }
 
+/* ── Supervisor Mode (Tầng 2) ── */
+.supervisorNav {
+  border-top-color: #bae6fd;
+}
+
+.supervisorNav .navItem.active {
+  color: #0284c7;
+  font-weight: 700;
+}
+
+.supervisorNav .navItem.active .iconWrap {
+  background: #e0f2fe;
+}
+
+/* ── Caregiver Mode (Hộ Lý - Màu Cam) ── */
+.caregiverNav {
+  border-top: 1.5px solid #fed7aa;
+  background: #ffffff;
+}
+
+.caregiverNav .label {
+  font-size: 12.5px;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.caregiverNav .navItem.active {
+  color: #d97706;
+  font-weight: 800;
+}
+
+.caregiverNav .navItem.active .iconWrap {
+  background: #ffedd5;
+  color: #ea580c;
+}
+
+.caregiverNav .navItem.active .label {
+  color: #c2410c;
+  font-weight: 800;
+}
+
+/* Supervisor Mode on PC (Dock nổi sang trọng, rộng rãi ở giữa màn hình) */
+.pcSupervisorNav {
+  max-width: 560px !important;
+  bottom: 16px;
+  border-radius: 24px;
+  border: 1.5px solid #cbd5e1;
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.16);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  padding: 6px 16px;
+  height: 64px;
+  margin: 0 auto;
+}
+
+.pcSupervisorNav .navItem {
+  padding: 4px 12px;
+  border-radius: 14px;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.pcSupervisorNav .navItem:hover {
+  background: rgba(241, 245, 249, 0.8);
+  transform: translateY(-1px);
+}
+
+/* Khi nằm bên trong khung iPhone trên desktop */
+@media (min-width: 600px) {
+  :global(.iphone-frame) .nav:not(.pcSupervisorNav) {
+    padding-bottom: 20px;
+    height: calc(var(--color-nav-height) + 16px);
+    border-radius: 0 0 40px 40px;
+  }
+}
+
+
 

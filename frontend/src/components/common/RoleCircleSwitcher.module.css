@@ -1,0 +1,246 @@
+.wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  z-index: 100;
+  font-family: var(--font-body);
+}
+
+/* Nút trigger hình tròn chính */
+.triggerBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  outline: none;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.triggerBtn:hover {
+  transform: scale(1.08);
+}
+
+.triggerBtn:active {
+  transform: scale(0.95);
+}
+
+/* Màu sắc của vòng tròn chính theo vai trò hiện tại */
+.triggerPatient {
+  background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+  border-color: #5eead4;
+  color: #ffffff;
+  box-shadow: 0 3px 10px rgba(13, 148, 136, 0.35);
+}
+
+.triggerCaregiver {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border-color: #fde68a;
+  color: #ffffff;
+  box-shadow: 0 3px 10px rgba(217, 119, 6, 0.38);
+}
+
+.triggerSupervisor {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  border-color: #7dd3fc;
+  color: #ffffff;
+  box-shadow: 0 3px 10px rgba(2, 132, 199, 0.38);
+}
+
+.triggerActive {
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.4), 0 6px 16px rgba(0, 0, 0, 0.3);
+  transform: scale(1.05);
+}
+
+/* Chấm mini báo hiệu nhỏ xíu góc dưới */
+.subDot {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1.5px solid #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.subDotInner {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #22c55e;
+}
+
+/* Menu popover chứa 3 vòng tròn */
+.popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  border-radius: 20px;
+  padding: 10px 14px 12px;
+  box-shadow:
+    0 16px 36px rgba(0, 0, 0, 0.4),
+    0 2px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 99999;
+  animation: popIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  min-width: 180px;
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.popoverTitle {
+  font-size: 11px;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: center;
+  margin: 0;
+  padding-bottom: 2px;
+}
+
+/* Hàng chứa 3 vòng tròn */
+.circlesRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* Mỗi ô vai trò gồm 1 vòng tròn và 1 nhãn chữ nhỏ bên dưới */
+.roleOption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  outline: none;
+  font-family: var(--font-body);
+  transition: transform 0.15s ease;
+}
+
+.roleOption:hover {
+  transform: translateY(-2px);
+}
+
+.roleOption:active {
+  transform: scale(0.92);
+}
+
+/* Vòng tròn vai trò */
+.circleBtn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* 1. Vòng tròn Bố / Mẹ (Bệnh nhân) */
+.circlePatient {
+  background: #ecfdf5;
+  border: 2px solid #10b981;
+  color: #047857;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+}
+
+.circlePatient.activeRole {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #6ee7b7;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.4), 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+/* 2. Vòng tròn Hộ lý (Người chăm sóc) */
+.circleCaregiver {
+  background: #fffbeb;
+  border: 2px solid #f59e0b;
+  color: #b45309;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+}
+
+.circleCaregiver.activeRole {
+  background: #f59e0b;
+  color: #ffffff;
+  border-color: #fde68a;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.4), 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+/* 3. Vòng tròn Con cháu (Người giám sát) */
+.circleSupervisor {
+  background: #f0f9ff;
+  border: 2px solid #0284c7;
+  color: #0369a1;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
+}
+
+.circleSupervisor.activeRole {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #7dd3fc;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.4), 0 4px 12px rgba(2, 132, 199, 0.4);
+}
+
+/* Nhãn chữ dưới vòng tròn */
+.roleLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: #cbd5e1;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+.roleLabelActive {
+  color: #ffffff;
+  font-weight: 800;
+}
+
+/* Dấu check nhỏ trên vòng tròn đang được chọn */
+.checkDot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #22c55e;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #0f172a;
+}

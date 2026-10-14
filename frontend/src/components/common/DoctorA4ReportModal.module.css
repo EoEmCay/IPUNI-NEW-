@@ -463,46 +463,60 @@
 }
 
 /* ========================================================
-   IN ẤN CHUẨN A4: KHÔNG BAO GIỜ BỊ NHẢY TRANG HOẶC TRÀN
+   IN ẤN CHUẨN A4: HIỂN THỊ 100% ĐẦY ĐỦ, KHÔNG BAO GIỜ BỊ TRẮNG TRANG
    ======================================================== */
 @media print {
-  /* Ẩn mọi thứ của giao diện web */
-  body * {
-    visibility: hidden;
+  /* Khôi phục toàn diện thuộc tính in cho html và body */
+  :global(html),
+  :global(body) {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  /* Chỉ hiển thị duy nhất nội dung bên trong tờ A4 */
-  .a4Sheet,
-  .a4Sheet * {
-    visibility: visible;
+  /* Ẩn toàn bộ giao diện web (#root) và các thành phần khác, chỉ hiển thị duy nhất portal A4 */
+  :global(body > *:not(#doctor-a4-portal)) {
+    display: none !important;
   }
 
-  .overlay {
-    position: static;
-    background: transparent;
-    padding: 0;
-    margin: 0;
-    overflow: visible;
-  }
-
+  /* Ẩn thanh điều khiển in & nút đóng */
   .topBar {
     display: none !important;
   }
 
+  /* Chuyển overlay thành container in chuẩn */
+  .overlay {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    overflow: visible !important;
+    backdrop-filter: none !important;
+  }
+
+  /* Tờ A4 hiển thị trọn vẹn, không bị absolute hay xén mất nội dung */
   .a4Sheet {
-    position: absolute;
-    left: 0;
-    top: 0;
+    position: relative !important;
+    display: block !important;
+    visibility: visible !important;
     width: 100% !important;
     max-width: 100% !important;
-    height: 100% !important;
-    max-height: 280mm !important;
-    margin: 0 !important;
-    padding: 6mm 8mm !important;
-    border-radius: 0;
+    height: auto !important;
+    margin: 0 auto !important;
+    padding: 4mm 6mm !important;
+    border-radius: 0 !important;
     box-shadow: none !important;
     border: none !important;
-    overflow: hidden !important;
+    overflow: visible !important;
     page-break-after: avoid !important;
     break-after: avoid !important;
     page-break-inside: avoid !important;
@@ -513,6 +527,7 @@
 
   @page {
     size: A4 portrait;
-    margin: 6mm 8mm;
+    margin: 4mm 6mm;
   }
 }
+

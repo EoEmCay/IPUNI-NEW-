@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Printer,
   X,
@@ -11,12 +12,24 @@ import {
 import styles from './DoctorA4ReportModal.module.css';
 
 export default function DoctorA4ReportModal({ isOpen, onClose, user }) {
+  const handlePrint = () => {
+    // Khắc phục triệt để lỗi Chrome in trang trắng: Phải nhả overflow: visible cho body trước khi print
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'visible';
+    window.print();
+    setTimeout(() => {
+      if (isOpen) {
+        document.body.style.overflow = 'hidden';
+      }
+    }, 600);
+  };
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();
       if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
         e.preventDefault();
-        window.print();
+        handlePrint();
       }
     };
     if (isOpen) {
@@ -38,8 +51,12 @@ export default function DoctorA4ReportModal({ isOpen, onClose, user }) {
     year: 'numeric',
   });
 
-  return (
-    <div className={styles.overlay} onClick={(e) => e.target === e.currentTarget && onClose()}>
+  return createPortal(
+    <div
+      id="doctor-a4-portal"
+      className={styles.overlay}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
       {/* THANH ĐIỀU KHIỂN TRÊN CÙNG (TỰ ĐỘNG ẨN KHI IN ẤN) */}
       <div className={styles.topBar}>
         <div className={styles.topBarTitle}>
@@ -52,7 +69,7 @@ export default function DoctorA4ReportModal({ isOpen, onClose, user }) {
           <button
             type="button"
             className={styles.printBtn}
-            onClick={() => window.print()}
+            onClick={handlePrint}
             title="In ra giấy A4 hoặc Lưu file PDF (Ctrl + P)"
           >
             <Printer size={15} />
@@ -349,6 +366,7 @@ export default function DoctorA4ReportModal({ isOpen, onClose, user }) {
           </div>
         </footer>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

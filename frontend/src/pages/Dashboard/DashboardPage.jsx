@@ -407,7 +407,7 @@ export default function DashboardPage() {
         <ChevronRight size={20} style={{ flexShrink: 0 }} />
       </button>
 
-      {/* NÚT THỬ NGHIỆM TRÊN LOCALHOST: Hộp thuốc bí mật cho Cụ (Secret Pokémon Mode) */}
+      {/* Hộp thuốc tương tác trực quan cho Cụ */}
       <button
         type="button"
         onClick={() => setShowSecretBox(true)}
@@ -415,7 +415,7 @@ export default function DashboardPage() {
           width: '100%',
           marginTop: '10px',
           padding: '13px 14px',
-          background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+          background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
           color: '#ffffff',
           border: 'none',
           borderRadius: '18px',
@@ -424,7 +424,7 @@ export default function DashboardPage() {
           justifyContent: 'space-between',
           gap: '10px',
           cursor: 'pointer',
-          boxShadow: '0 6px 18px rgba(217, 119, 6, 0.28)',
+          boxShadow: '0 6px 18px rgba(2, 132, 199, 0.22)',
           textAlign: 'left',
         }}
       >
@@ -454,7 +454,7 @@ export default function DashboardPage() {
                 textOverflow: 'ellipsis',
               }}
             >
-              ✨ Thử nghiệm: Hộp thuốc bí mật cho Cụ
+              Hộp thuốc trực quan cho Cụ
             </strong>
             <span
               style={{
@@ -466,7 +466,7 @@ export default function DashboardPage() {
                 textOverflow: 'ellipsis',
               }}
             >
-              Bật pop-up lấp lánh, giọng con nền, chạm gạch thuốc & pháo hoa
+              Giao diện tương tác 1-chạm xác nhận cữ thuốc kèm âm thanh hướng dẫn
             </span>
           </span>
         </span>

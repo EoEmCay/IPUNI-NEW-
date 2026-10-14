@@ -3,6 +3,8 @@ dist
 dist-ssr
 *.local
 *.log
+*.sqlite3-shm
+*.sqlite3-wal
 .DS_Store
 .env
 .env.local

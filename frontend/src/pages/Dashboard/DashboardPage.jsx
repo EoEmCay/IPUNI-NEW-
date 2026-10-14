@@ -14,7 +14,9 @@ import {
   RotateCcw,
   Check,
   ShieldCheck,
+  Sparkles,
 } from 'lucide-react';
+import SecretPillBoxModal from '../../components/common/SecretPillBoxModal';
 import { triggerFamilyAlarm } from '../../components/common/FamilyAlarmModal';
 import { useAuth } from '../../hooks/useAuth';
 import { useMedications } from '../../hooks/useMedications';
@@ -109,6 +111,7 @@ export default function DashboardPage() {
   const [showMeds, setShowMeds] = useState(false);
   const [showGlucose, setShowGlucose] = useState(false);
   const [showCustomize, setShowCustomize] = useState(false);
+  const [showSecretBox, setShowSecretBox] = useState(false);
   const [addedKeys, setAddedKeys] = useState(() => loadAddedUtilityKeys());
   const { metrics, fetchMetrics, addMetric } = useMetrics();
   const unit = getGlucoseUnit();
@@ -404,6 +407,72 @@ export default function DashboardPage() {
         <ChevronRight size={20} style={{ flexShrink: 0 }} />
       </button>
 
+      {/* NÚT THỬ NGHIỆM TRÊN LOCALHOST: Hộp thuốc bí mật cho Cụ (Secret Pokémon Mode) */}
+      <button
+        type="button"
+        onClick={() => setShowSecretBox(true)}
+        style={{
+          width: '100%',
+          marginTop: '10px',
+          padding: '13px 14px',
+          background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+          color: '#ffffff',
+          border: 'none',
+          borderRadius: '18px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '10px',
+          cursor: 'pointer',
+          boxShadow: '0 6px 18px rgba(217, 119, 6, 0.28)',
+          textAlign: 'left',
+        }}
+      >
+        <span style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
+          <span
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '12px',
+              background: 'rgba(255,255,255,0.22)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <Sparkles size={20} />
+          </span>
+          <span style={{ minWidth: 0, flex: 1 }}>
+            <strong
+              style={{
+                display: 'block',
+                fontSize: '15px',
+                fontWeight: 800,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              ✨ Thử nghiệm: Hộp thuốc bí mật cho Cụ
+            </strong>
+            <span
+              style={{
+                display: 'block',
+                fontSize: '12px',
+                opacity: 0.95,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              Bật pop-up lấp lánh, giọng con nền, chạm gạch thuốc & pháo hoa
+            </span>
+          </span>
+        </span>
+        <ChevronRight size={20} style={{ flexShrink: 0 }} />
+      </button>
+
       {/* Thông báo + các bảng gắn thẳng vào body: nằm ngoài vùng cuộn có zoom (cỡ chữ) để không lệch vị trí */}
       {createPortal(
         <>
@@ -537,6 +606,14 @@ export default function DashboardPage() {
             </Modal>
           )}
           {showGlucose && <GlucoseQuickModal onClose={() => setShowGlucose(false)} onSave={saveGlucose} />}
+          {showSecretBox && (
+            <SecretPillBoxModal
+              isOpen={showSecretBox}
+              onClose={() => setShowSecretBox(false)}
+              medications={todayMedications.length ? todayMedications : medications}
+              slotTitle="Cữ Thuốc Của Cụ (12:00)"
+            />
+          )}
         </>,
         document.body,
       )}

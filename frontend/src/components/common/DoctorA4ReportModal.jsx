@@ -6,7 +6,6 @@ import {
   Activity,
   Heart,
   Pill,
-  ShieldCheck,
   Stethoscope,
 } from 'lucide-react';
 import styles from './DoctorA4ReportModal.module.css';
@@ -340,48 +339,13 @@ export default function DoctorA4ReportModal({ isOpen, onClose, user }) {
           </table>
         </section>
 
-        {/* HÀNG 4: 5. ĐÁNH GIÁ LÂM SÀNG & CHỮ KÝ BÁC SĨ (FULL WIDTH) */}
-        <section className={styles.assessmentSection}>
-          <div className={styles.sectionHeader}>
-            <ShieldCheck size={14} color="#0284c7" />
-            <h2 className={styles.sectionTitle}>
-              5. Đánh giá sơ bộ từ hệ thống &amp; Nhận xét của Bác sĩ điều trị
-            </h2>
-          </div>
-
-          <div className={styles.clinicalNoteBox}>
-            <strong>Gợi ý lâm sàng từ DIA+:</strong> Bệnh nhân duy trì mức tuân thủ tốt (94.2%), đường huyết TB 7.1 mmol/L và eHbA1c 6.2% đạt mục tiêu. Có 2 đợt hạ đường huyết nhẹ (3.4 &amp; 3.6 mmol/L) vào cữ xế chiều và đêm muộn $\rightarrow$ Bác sĩ cân nhắc: (1) Duy trì Metformin XR 1000mg; (2) Xem xét giảm nhẹ liều Diamicron MR hoặc dặn dò bệnh nhân ăn bữa phụ lúc 15:00; (3) Huyết áp kiểm soát rất ổn định với Amlor 5mg (124/78 mmHg).
-          </div>
-
-          {/* Ô trống dành riêng cho bác sĩ ghi tay */}
-          <div className={styles.doctorNoteBlank}>
-            <strong>Ghi chú &amp; Chỉ định của Bác sĩ khám lâm sàng:</strong>
-          </div>
-
-          {/* Chữ ký 2 bên */}
-          <div className={styles.signatureRow}>
-            <div className={styles.signBox}>
-              <div className={styles.signRole}>ĐẠI DIỆN GIA ĐÌNH / NGƯỜI CHĂM SÓC</div>
-              <div className={styles.signSub}>(Ký và ghi rõ họ tên)</div>
-              <div className={styles.signSpace}></div>
-              <div className={styles.signName}>Nguyễn Thị Trinh</div>
-            </div>
-            <div className={styles.signBox}>
-              <div className={styles.signRole}>BÁC SĨ ĐIỀU TRỊ PHỤ TRÁCH</div>
-              <div className={styles.signSub}>(Ký tên, ghi rõ họ tên &amp; đóng dấu)</div>
-              <div className={styles.signSpace}></div>
-              <div className={styles.signName}>BS.CKII Trần Hoài Nam</div>
-            </div>
-          </div>
-        </section>
-
         {/* FOOTER */}
         <footer className={styles.footer}>
           <div>
-            Nền tảng Quản trị Đái tháo đường <strong>DIAPLUS.VN</strong> | Hotline: 1900 888 999 | Email: contact@diaplus.vn
+            Nền tảng Giám sát Điều trị Đái tháo đường &amp; Tim mạch <strong>DIAPLUS.VN</strong> | Hotline: 1900 888 999 | Email: contact@diaplus.vn
           </div>
           <div>
-            Mã bảo mật: <strong>SHA256: 8F2A-99B1-E37C</strong> | Báo cáo y khoa hợp lệ
+            Mã bảo mật: <strong>SHA256: 8F2A-99B1-E37C</strong> | Báo cáo theo dõi tự động
           </div>
         </footer>
       </div>

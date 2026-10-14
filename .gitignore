@@ -12,3 +12,18 @@ dist-ssr
 * 2
 * 2.*
 * 2/
+
+# SQLite runtime transaction journals (tránh commit làm hỏng database và phình to repo)
+*.sqlite3-shm
+*.sqlite3-wal
+*.sqlite3-journal
+
+# Python and Excel temporary files
+__pycache__/
+*.pyc
+*.pyo
+~$*.xlsx
+
+# Local agent scratch & dev configs
+.claude/
+.scratch/

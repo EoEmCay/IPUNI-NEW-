@@ -13,15 +13,96 @@ import styles from './DoctorA4ReportModal.module.css';
 
 export default function DoctorA4ReportModal({ isOpen, onClose, user }) {
   const handlePrint = () => {
-    // Khắc phục triệt để lỗi Chrome in trang trắng: Phải nhả overflow: visible cho body trước khi print
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'visible';
-    window.print();
+    const sheet = document.getElementById('medical-a4-sheet');
+    if (!sheet) {
+      window.print();
+      return;
+    }
+
+    // Xóa iframe in cũ nếu có
+    const oldIframe = document.getElementById('dia-print-frame');
+    if (oldIframe) oldIframe.remove();
+
+    // Tạo iframe in chuyên dụng độc lập để cách ly 100% khỏi CSS/overflow của màn hình chính
+    const iframe = document.createElement('iframe');
+    iframe.id = 'dia-print-frame';
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    iframe.style.visibility = 'hidden';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow.document;
+
+    // Sao chép toàn bộ stylesheets (CSS Modules, Fonts, Global styles) sang iframe
+    const styleTags = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+      .map((el) => el.outerHTML)
+      .join('\n');
+
+    doc.open();
+    doc.write(`
+      <!DOCTYPE html>
+      <html lang="vi">
+        <head>
+          <meta charset="utf-8" />
+          <title>Bản in A4 Báo cáo Y khoa - DIAPLUS.VN</title>
+          ${styleTags}
+          <style>
+            @page {
+              size: A4 portrait;
+              margin: 4mm 6mm;
+            }
+            html, body {
+              margin: 0 !important;
+              padding: 0 !important;
+              background: #ffffff !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            }
+            #medical-a4-sheet {
+              width: 100% !important;
+              max-width: 100% !important;
+              margin: 0 auto !important;
+              padding: 4mm 6mm !important;
+              box-shadow: none !important;
+              border: none !important;
+              border-radius: 0 !important;
+              page-break-after: avoid !important;
+              break-after: avoid !important;
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+          </style>
+        </head>
+        <body>
+          ${sheet.outerHTML}
+        </body>
+      </html>
+    `);
+    doc.close();
+
+    // Đợi 250ms cho font và style render hoàn tất rồi in trực tiếp từ iframe
     setTimeout(() => {
-      if (isOpen) {
-        document.body.style.overflow = 'hidden';
+      try {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+      } catch (err) {
+        console.error('Print iframe error:', err);
+        window.print();
+      } finally {
+        setTimeout(() => {
+          if (iframe && iframe.parentNode) {
+            iframe.parentNode.removeChild(iframe);
+          }
+        }, 3000);
       }
-    }, 600);
+    }, 250);
   };
 
   useEffect(() => {

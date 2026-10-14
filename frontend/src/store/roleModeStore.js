@@ -290,6 +290,11 @@ const useRoleModeStore = create((set, get) => ({
       /* ignore */
     }
     set({ caregiverData: nextData });
+    try {
+      window.dispatchEvent(new CustomEvent('medicationIntakeChanged', { detail: { slotId, status: 'taken' } }));
+    } catch {
+      /* ignore */
+    }
   },
 
   undoCaregiverSlot: (slotId) => {
@@ -303,6 +308,49 @@ const useRoleModeStore = create((set, get) => ({
       /* ignore */
     }
     set({ caregiverData: nextData });
+    try {
+      window.dispatchEvent(new CustomEvent('medicationIntakeChanged', { detail: { slotId, status: 'pending' } }));
+    } catch {
+      /* ignore */
+    }
+  },
+
+  // Đồng bộ trạng thái cữ thuốc từ store tuân thủ (khi bệnh nhân hoặc người con bấm uống)
+  syncSlotFromAdherence: (medicationId, slotTime, status, takenAt = null, by = 'Bệnh nhân') => {
+    const prev = get().caregiverData;
+    const nowStr = takenAt || new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    const cleanTimeKey = String(slotTime || '').replace(':', '');
+    const nextChecklist = { ...prev.checklistLogs };
+
+    const matchingKey = Object.keys(nextChecklist).find(
+      (k) => (medicationId && k.includes(String(medicationId))) || (cleanTimeKey && k.includes(cleanTimeKey))
+    ) || `${medicationId || 'med'}_slot_0_${cleanTimeKey}`;
+
+    if (status === 'taken') {
+      nextChecklist[matchingKey] = {
+        ...(nextChecklist[matchingKey] || {}),
+        taken: true,
+        takenAt: nowStr,
+        by: by || nextChecklist[matchingKey]?.by || 'Bệnh nhân',
+      };
+    } else if (status === 'pending') {
+      if (nextChecklist[matchingKey]) {
+        delete nextChecklist[matchingKey];
+      }
+    }
+
+    const nextData = { ...prev, checklistLogs: nextChecklist };
+    try {
+      localStorage.setItem(CAREGIVER_DATA_KEY, JSON.stringify(nextData));
+    } catch {
+      /* ignore */
+    }
+    set({ caregiverData: nextData });
+    try {
+      window.dispatchEvent(new CustomEvent('medicationIntakeChanged', { detail: { medicationId, slotTime, status } }));
+    } catch {
+      /* ignore */
+    }
   },
 
   // Thêm chỉ số đo trực tiếp từ Hộ lý
@@ -341,6 +389,11 @@ const useRoleModeStore = create((set, get) => ({
       /* ignore */
     }
     set({ caregiverData: nextData });
+    try {
+      window.dispatchEvent(new CustomEvent('caregiverDataChanged', { detail: nextData }));
+    } catch {
+      /* ignore */
+    }
   },
 
   // Hộ lý tick hoàn thành hoặc hoàn tác nhiệm vụ trong ngày
@@ -366,6 +419,11 @@ const useRoleModeStore = create((set, get) => ({
       /* ignore */
     }
     set({ caregiverData: nextData });
+    try {
+      window.dispatchEvent(new CustomEvent('caregiverDataChanged', { detail: nextData }));
+    } catch {
+      /* ignore */
+    }
   },
 
   // Con cháu thêm nhiệm vụ mới giao cho Hộ lý
@@ -389,6 +447,11 @@ const useRoleModeStore = create((set, get) => ({
       /* ignore */
     }
     set({ caregiverData: nextData });
+    try {
+      window.dispatchEvent(new CustomEvent('caregiverDataChanged', { detail: nextData }));
+    } catch {
+      /* ignore */
+    }
   },
 
   // Con cháu xóa nhiệm vụ
@@ -403,6 +466,11 @@ const useRoleModeStore = create((set, get) => ({
       /* ignore */
     }
     set({ caregiverData: nextData });
+    try {
+      window.dispatchEvent(new CustomEvent('caregiverDataChanged', { detail: nextData }));
+    } catch {
+      /* ignore */
+    }
   },
 
   // Con cháu chỉnh sửa nhiệm vụ
@@ -417,6 +485,11 @@ const useRoleModeStore = create((set, get) => ({
       /* ignore */
     }
     set({ caregiverData: nextData });
+    try {
+      window.dispatchEvent(new CustomEvent('caregiverDataChanged', { detail: nextData }));
+    } catch {
+      /* ignore */
+    }
   },
 }));
 

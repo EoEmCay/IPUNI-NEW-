@@ -83,7 +83,7 @@ export default function CaregiverMedicalProfile() {
               <br />• <strong>Mục tiêu:</strong> Đường huyết lúc đói: 4.4 - 7.0 mmol/L, sau ăn 2h: &lt; 10.0 mmol/L.
             </p>
             <div className={styles.diseaseNote}>
-              ⚠️ <strong>Lưu ý hộ lý:</strong> Cụ dễ bị hạ đường huyết lúc 10:00 sáng nếu ăn sáng ít. Nếu đường huyết &lt; 3.9 mmol/L, cho uống ngay 1/2 cốc nước đường theo quy tắc 15-15.
+              <strong>Lưu ý hộ lý:</strong> Cụ dễ bị hạ đường huyết lúc 10:00 sáng nếu ăn sáng ít. Nếu đường huyết &lt; 3.9 mmol/L, cho uống ngay 1/2 cốc nước đường theo quy tắc 15-15.
             </div>
           </div>
 
@@ -91,7 +91,7 @@ export default function CaregiverMedicalProfile() {
           <div className={styles.diseaseCard}>
             <div className={styles.diseaseHead}>
               <h3 className={styles.diseaseTitle}>
-                💓 Tăng huyết áp độ 2
+                Tăng huyết áp độ 2
               </h3>
               <span className={styles.diseaseBadgeGood}>Kiểm soát ổn định</span>
             </div>
@@ -100,7 +100,7 @@ export default function CaregiverMedicalProfile() {
               <br />• <strong>Huyết áp mục tiêu:</strong> 120/75 mmHg đến 130/80 mmHg.
             </p>
             <div className={styles.diseaseNote}>
-              📌 <strong>Lưu ý hộ lý:</strong> Đo huyết áp khi cụ đã ngồi nghỉ ngơi tĩnh 15 phút. Chụp ảnh màn hình máy đo để gửi báo cáo.
+              <strong>Lưu ý hộ lý:</strong> Đo huyết áp khi cụ đã ngồi nghỉ ngơi tĩnh 15 phút. Chụp ảnh màn hình máy đo để gửi báo cáo.
             </div>
           </div>
 
@@ -108,7 +108,7 @@ export default function CaregiverMedicalProfile() {
           <div className={styles.diseaseCard}>
             <div className={styles.diseaseHead}>
               <h3 className={styles.diseaseTitle}>
-                🥗 Chế độ dinh dưỡng & Dị ứng
+                Chế độ dinh dưỡng & Dị ứng
               </h3>
               <span className={styles.diseaseBadgeGood}>An toàn</span>
             </div>
@@ -134,7 +134,7 @@ export default function CaregiverMedicalProfile() {
         <div className={styles.revisitCard}>
           <div className={styles.visitTop}>
             <h3 className={styles.revisitTitle}>
-              📅 Lịch Tái Khám Sắp Tới
+              Lịch Tái Khám Sắp Tới
             </h3>
             <span className={styles.revisitDateBadge}>25/10/2026 (Còn 12 ngày)</span>
           </div>
@@ -142,14 +142,14 @@ export default function CaregiverMedicalProfile() {
             Phòng khám 102 - Khoa Nội tiết, Bệnh viện Đại học Y Dược TP.HCM
           </p>
           <div className={styles.diseaseNote} style={{ background: '#ffffff', borderColor: '#f59e0b' }}>
-            💡 <strong>Dặn dò Hộ lý:</strong> Cụ cần nhịn ăn sáng từ 22:00 hôm trước để làm xét nghiệm máu (HbA1c, chức năng thận). Chuẩn bị sẵn sổ y bạ và đơn thuốc cũ.
+            <strong>Dặn dò Hộ lý:</strong> Cụ cần nhịn ăn sáng từ 22:00 hôm trước để làm xét nghiệm máu (HbA1c, chức năng thận). Chuẩn bị sẵn sổ y bạ và đơn thuốc cũ.
           </div>
         </div>
 
         {/* Đợt khám gần nhất */}
         <div className={styles.visitCard}>
           <div className={styles.visitTop}>
-            <h3 className={styles.visitHospital}>🏥 Đợt Khám Gần Nhất (10/10/2026)</h3>
+            <h3 className={styles.visitHospital}>Đợt Khám Gần Nhất (10/10/2026)</h3>
             <span className={styles.visitDate}>10/10/2026</span>
           </div>
           <p className={styles.doctorText}>

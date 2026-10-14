@@ -53,10 +53,23 @@ export default function MedicationCard({ medication }) {
     return () => { active = false; };
   }, [medication?.name, showDetail]);
 
-  // Cập nhật giờ mỗi 30s để tự động mở khóa khi tới giờ uống
+  // Cập nhật giờ mỗi 30s để tự động mở khóa khi tới giờ uống, đồng thời nghe sự kiện đồng bộ
+  const [syncTick, setSyncTick] = useState(0);
+
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 30000);
-    return () => clearInterval(timer);
+    const handleSync = () => {
+      setSyncTick((t) => t + 1);
+      setCurrentTime(new Date());
+    };
+    window.addEventListener('medicationIntakeChanged', handleSync);
+    window.addEventListener('storage', handleSync);
+
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('medicationIntakeChanged', handleSync);
+      window.removeEventListener('storage', handleSync);
+    };
   }, []);
 
   // Kiểm tra xem đã tới giờ uống chưa
@@ -66,7 +79,7 @@ export default function MedicationCard({ medication }) {
 
   const dayProgress = useMemo(() => {
     return getMedicationDayProgress(medication, currentTime);
-  }, [medication, currentTime, medicationStatus, statusVersion]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [medication, currentTime, medicationStatus, statusVersion, syncTick]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isRestDay = timeEligibility.isRestDay;
   const isTaken = !isRestDay && dayProgress.isAllTaken;
@@ -96,13 +109,13 @@ export default function MedicationCard({ medication }) {
     const undoneLabel = lastCompletedSlot
       ? `${lastCompletedSlot.periodLabel.toLowerCase()} (${lastCompletedSlot.time})`
       : '';
-    setToastMsg(`↩️ Đã hoàn tác ${undoneLabel}. Bác có thể bấm xác nhận lại khi cần nhé!`);
+    setToastMsg(`Đã hoàn tác ${undoneLabel}. Bác có thể bấm xác nhận lại khi cần nhé!`);
     setTimeout(() => setToastMsg(null), 3000);
   };
 
   const handleStatusToggle = () => {
     if (isRestDay) {
-      setToastMsg(`📅 Hôm nay là ngày nghỉ cữ của ${medication.name}. Bác không cần uống hôm nay nhé!`);
+      setToastMsg(`Hôm nay là ngày nghỉ cữ của ${medication.name}. Bác không cần uống hôm nay nhé!`);
       setTimeout(() => setToastMsg(null), 3500);
       return;
     }
@@ -111,7 +124,7 @@ export default function MedicationCard({ medication }) {
       const timeHint = nextSlot?.time
         || timeEligibility.earliestUpcomingTime
         || (timeEligibility.startsTomorrowAt ? `ngày mai ${timeEligibility.startsTomorrowAt}` : 'sau');
-      setToastMsg(`⏳ Chưa tới giờ ${verb} ${medication.name} (Lịch: ${timeHint}). Vui lòng ${verb} đúng giờ nhé!`);
+      setToastMsg(`Chưa tới giờ ${verb} ${medication.name} (Lịch: ${timeHint}). Vui lòng ${verb} đúng giờ nhé!`);
       setTimeout(() => setToastMsg(null), 3500);
       return;
     }
@@ -123,7 +136,7 @@ export default function MedicationCard({ medication }) {
       const upcomingLabel = nextSlot
         ? `${nextSlot.periodLabel.toLowerCase()} lúc ${nextSlot.time}`
         : 'cử tiếp theo';
-      setToastMsg(`✅ Bác đã ${verb} ${doneLabel} rồi! Tới ${upcomingLabel} hệ thống sẽ mở tiếp nhé.`);
+      setToastMsg(`Bác đã ${verb} ${doneLabel} rồi! Tới ${upcomingLabel} hệ thống sẽ mở tiếp nhé.`);
       setTimeout(() => setToastMsg(null), 3500);
       return;
     }
@@ -148,7 +161,7 @@ export default function MedicationCard({ medication }) {
   // Xác định text hiển thị trên nút
   let buttonLabel;
   if (isRestDay) {
-    buttonLabel = '📅 Nghỉ cữ';
+    buttonLabel = 'Nghỉ cữ';
   } else if (isTaken) {
     const baseTaken = injection ? '✓ Đã tiêm' : `✓ ${t.medCard?.statusTaken || 'Đã uống'}`;
     buttonLabel = dayProgress.totalSlots > 1
@@ -168,10 +181,10 @@ export default function MedicationCard({ medication }) {
     const upcomingTime = nextSlot?.time || timeEligibility.earliestUpcomingTime;
     const upcomingPeriod = nextSlot?.periodLabel ? `${nextSlot.periodLabel} lúc ` : `${injection ? 'Tiêm' : 'Uống'} lúc `;
     buttonLabel = upcomingTime
-      ? `🕒 ${upcomingPeriod}${upcomingTime}`
+      ? `${upcomingPeriod}${upcomingTime}`
       : timeEligibility.startsTomorrowAt
-      ? `🕒 ${injection ? 'Tiêm' : 'Uống'} từ mai lúc ${timeEligibility.startsTomorrowAt}`
-      : `🕒 Chưa tới giờ ${verb}`;
+      ? `${injection ? 'Tiêm' : 'Uống'} từ mai lúc ${timeEligibility.startsTomorrowAt}`
+      : `Chưa tới giờ ${verb}`;
   } else {
     const firstLabel = nextSlot?.periodLabel?.toLowerCase();
     const firstTime = nextSlot?.time ? ` (${nextSlot.time})` : '';
@@ -254,7 +267,7 @@ export default function MedicationCard({ medication }) {
               let badgeColor = '#64748B';
               let badgeBorder = '#E2E8F0';
               let statusText = 'Chưa tới giờ';
-              let prefixIcon = '🕒';
+              let prefixIcon = '○';
 
               if (slot.status === 'taken') {
                 badgeBg = '#DCFCE7';
@@ -267,19 +280,19 @@ export default function MedicationCard({ medication }) {
                 badgeColor = '#475569';
                 badgeBorder = '#CBD5E1';
                 statusText = 'Đã bỏ qua';
-                prefixIcon = '⏭';
+                prefixIcon = '—';
               } else if (slot.isLate) {
                 badgeBg = '#FEE2E2';
                 badgeColor = '#B91C1C';
                 badgeBorder = '#FCA5A5';
                 statusText = 'Quá giờ';
-                prefixIcon = '⚠️';
+                prefixIcon = '!';
               } else if (slot.isArrived) {
                 badgeBg = '#DBEAFE';
                 badgeColor = '#1D4ED8';
                 badgeBorder = '#93C5FD';
                 statusText = `Đến giờ ${verb}`;
-                prefixIcon = '🔔';
+                prefixIcon = '●';
               }
 
               return (
@@ -307,8 +320,8 @@ export default function MedicationCard({ medication }) {
         )}
 
         {visual?.appearance && (
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#92400E', background: '#FEF3C7', border: '1px solid #FDE68A', padding: '4px 8px', borderRadius: 8, marginTop: 6 }}>
-            💊 {visual.appearance}
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#92400E', background: '#FEF3C7', border: '1px solid #FDE68A', padding: '4px 8px', borderRadius: 8, marginTop: 6 }}>
+            {visual.appearance}
           </div>
         )}
         {medication.instructions && <div className={styles.instructions}>{medication.instructions}</div>}
@@ -319,8 +332,8 @@ export default function MedicationCard({ medication }) {
         )}
         {isRestDay && (
           <div style={{ marginTop: 4 }}>
-            <span style={{ fontSize: 14, background: '#F3F4F6', color: '#6B7280', padding: '2px 8px', borderRadius: 6, display: 'inline-flex', alignItems: 'center', gap: 4, fontWeight: 600 }}>
-              📅 Uống cách ngày • Hôm nay nghỉ cữ
+            <span style={{ fontSize: 13, background: '#F3F4F6', color: '#6B7280', padding: '2px 8px', borderRadius: 6, display: 'inline-flex', alignItems: 'center', gap: 4, fontWeight: 600 }}>
+              Uống cách ngày • Hôm nay nghỉ cữ
             </span>
           </div>
         )}

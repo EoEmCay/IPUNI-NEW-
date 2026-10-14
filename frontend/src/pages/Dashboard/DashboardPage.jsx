@@ -14,8 +14,10 @@ import {
   Check,
   ShieldCheck,
   Sparkles,
+  Printer,
 } from 'lucide-react';
 import SecretPillBoxModal from '../../components/common/SecretPillBoxModal';
+import DoctorA4ReportModal from '../../components/common/DoctorA4ReportModal';
 import { triggerFamilyAlarm } from '../../components/common/FamilyAlarmModal';
 import { useAuth } from '../../hooks/useAuth';
 import { useMedications } from '../../hooks/useMedications';
@@ -105,6 +107,7 @@ export default function DashboardPage() {
   const [showGlucose, setShowGlucose] = useState(false);
   const [showCustomize, setShowCustomize] = useState(false);
   const [showSecretBox, setShowSecretBox] = useState(false);
+  const [showDoctorReport, setShowDoctorReport] = useState(false);
   const [addedKeys, setAddedKeys] = useState(() => loadAddedUtilityKeys());
   const { metrics, fetchMetrics, addMetric } = useMetrics();
   const unit = getGlucoseUnit();
@@ -473,6 +476,72 @@ export default function DashboardPage() {
         <ChevronRight size={20} style={{ flexShrink: 0 }} />
       </button>
 
+      {/* TỜ A4 BÁO CÁO Y KHOA GỬI BÁC SĨ (ĐẶT NGAY PHÍA DƯỚI HỘP THUỐC TRỰC QUAN) */}
+      <button
+        type="button"
+        onClick={() => setShowDoctorReport(true)}
+        style={{
+          width: '100%',
+          marginTop: '10px',
+          padding: '13px 14px',
+          background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          border: 'none',
+          borderRadius: '18px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '10px',
+          cursor: 'pointer',
+          boxShadow: '0 6px 18px rgba(30, 58, 138, 0.25)',
+          textAlign: 'left',
+        }}
+      >
+        <span style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
+          <span
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '12px',
+              background: 'rgba(255,255,255,0.22)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <Printer size={20} />
+          </span>
+          <span style={{ minWidth: 0, flex: 1 }}>
+            <strong
+              style={{
+                display: 'block',
+                fontSize: '15px',
+                fontWeight: 800,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              Báo cáo y khoa A4 in gửi Bác sĩ
+            </strong>
+            <span
+              style={{
+                display: 'block',
+                fontSize: '12px',
+                opacity: 0.95,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              Tổng hợp tuân thủ thuốc, đường huyết &amp; huyết áp chuẩn lâm sàng
+            </span>
+          </span>
+        </span>
+        <ChevronRight size={20} style={{ flexShrink: 0 }} />
+      </button>
+
       {/* Thông báo + các bảng gắn thẳng vào body: nằm ngoài vùng cuộn có zoom (cỡ chữ) để không lệch vị trí */}
       {createPortal(
         <>
@@ -612,6 +681,14 @@ export default function DashboardPage() {
               onClose={() => setShowSecretBox(false)}
               medications={todayMedications.length ? todayMedications : medications}
               slotTitle="Cữ Thuốc Của Cụ (12:00)"
+            />
+          )}
+          {showDoctorReport && (
+            <DoctorA4ReportModal
+              isOpen={showDoctorReport}
+              onClose={() => setShowDoctorReport(false)}
+              user={user}
+              medications={medications}
             />
           )}
         </>,

@@ -197,7 +197,7 @@ try {
 function saveCache() {
   try {
     memoryCache._version = 2;
-    fs.writeFileSync(CACHE_FILE, JSON.stringify(memoryCache, null, 2), 'utf-8');
+    fs.promises.writeFile(CACHE_FILE, JSON.stringify(memoryCache, null, 2), 'utf-8').catch(() => {});
   } catch {
     /* ignore */
   }
@@ -223,7 +223,7 @@ function getVisualHintForDrug(drugName) {
  * 100% ảnh hiển thị tức thì trên trình duyệt, không bao giờ bị lỗi 403/404 hay chặn hotlink.
  */
 async function searchDrugImagesOnline(drugName) {
-  const cleanName = String(drugName || '').trim();
+  const cleanName = String(drugName || '').trim().slice(0, 100);
   if (!cleanName) {
     return {
       query: '',

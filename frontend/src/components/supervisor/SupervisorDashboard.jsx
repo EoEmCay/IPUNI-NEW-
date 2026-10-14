@@ -101,6 +101,8 @@ export default function SupervisorDashboard() {
   const chunksRef = useRef([]);
   const recordIntervalRef = useRef(null);
 
+  const [syncTick, setSyncTick] = useState(0);
+
   useEffect(() => {
     fetchToday();
     fetchMedications().catch(() => {});
@@ -109,7 +111,22 @@ export default function SupervisorDashboard() {
       setHasCustomVoice(Boolean(data?.[ALERT_TYPES.MED_ALL]?.audioBase64));
     });
     const timer = setInterval(() => setCurrentTime(new Date()), 30000);
-    return () => clearInterval(timer);
+
+    const handleSync = () => {
+      setSyncTick((t) => t + 1);
+      fetchToday();
+      fetchMetrics(undefined, 30).catch(() => {});
+    };
+    window.addEventListener('medicationIntakeChanged', handleSync);
+    window.addEventListener('caregiverDataChanged', handleSync);
+    window.addEventListener('storage', handleSync);
+
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('medicationIntakeChanged', handleSync);
+      window.removeEventListener('caregiverDataChanged', handleSync);
+      window.removeEventListener('storage', handleSync);
+    };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const activeMeds = todayMedications?.length ? todayMedications : medications || [];
@@ -151,16 +168,16 @@ export default function SupervisorDashboard() {
     });
     items.sort((a, b) => (a.slot.minutes ?? 0) - (b.slot.minutes ?? 0));
     return items;
-  }, [activeMeds, currentTime, medicationStatus, statusVersion]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeMeds, currentTime, medicationStatus, statusVersion, syncTick]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const todayStats = useMemo(
     () => calculateAdherenceStats(activeMeds, 1),
-    [activeMeds, medicationStatus, statusVersion] // eslint-disable-line react-hooks/exhaustive-deps
+    [activeMeds, medicationStatus, statusVersion, syncTick] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const weekStats = useMemo(
     () => calculateAdherenceStats(activeMeds, 7),
-    [activeMeds, medicationStatus, statusVersion] // eslint-disable-line react-hooks/exhaustive-deps
+    [activeMeds, medicationStatus, statusVersion, syncTick] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   const lateItems = useMemo(
@@ -221,7 +238,7 @@ export default function SupervisorDashboard() {
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
         await voiceAlertService.saveVoice(ALERT_TYPES.MED_ALL, blob);
         setHasCustomVoice(true);
-        setVoiceToast('✅ Đã lưu giọng nhắc của con! Chuông bên máy Bố/Mẹ đã đồng bộ.');
+        setVoiceToast('Đã lưu giọng nhắc của con! Chuông bên máy Bố/Mẹ đã đồng bộ.');
         setTimeout(() => setVoiceToast(null), 3200);
       };
       mediaRecorderRef.current = mr;
@@ -238,7 +255,7 @@ export default function SupervisorDashboard() {
         });
       }, 1000);
     } catch {
-      setVoiceToast('⚠️ Vui lòng cấp quyền Micro trên trình duyệt để thu âm giọng nhắc.');
+      setVoiceToast('Vui lòng cấp quyền Micro trên trình duyệt để thu âm giọng nhắc.');
       setTimeout(() => setVoiceToast(null), 3200);
     }
   };
@@ -308,14 +325,14 @@ export default function SupervisorDashboard() {
         <div className={styles.adherenceTop}>
           <h3 className={styles.adherenceTitle}>Điểm tuân thủ (7 ngày qua)</h3>
           <span className={styles.streakPill}>
-            🔥 {weekStats.streakDays || 6} ngày Chuỗi đúng giờ
+            {weekStats.streakDays || 6} ngày chuỗi đúng giờ
           </span>
         </div>
 
         <div className={styles.scoreRow}>
           <span className={styles.scoreNumber}>{weekStats.score}%</span>
           <span className={styles.scoreBadge}>
-            {weekStats.score < 80 ? '⏳ Còn cử chưa uống' : '🌟 Xuất sắc duy trì đều'}
+            {weekStats.score < 80 ? 'Còn cử chưa uống' : 'Duy trì đều đặn'}
           </span>
         </div>
 
@@ -426,24 +443,24 @@ export default function SupervisorDashboard() {
 
                 let pillBg = '#f1f5f9';
                 let pillColor = '#64748b';
-                let pillLabel = `🕒 Chưa tới giờ (${slot.time})`;
+                let pillLabel = `Chưa tới giờ (${slot.time})`;
 
                 if (slot.status === 'taken') {
                   pillBg = '#dcfce7';
                   pillColor = '#15803d';
-                  pillLabel = `✓ Đã uống${slot.takenAt ? ` lúc ${slot.takenAt}` : ''}`;
+                  pillLabel = `Đã uống${slot.takenAt ? ` lúc ${slot.takenAt}` : ''}`;
                 } else if (slot.status === 'skipped') {
                   pillBg = '#f1f5f9';
                   pillColor = '#475569';
-                  pillLabel = '⏭ Đã bỏ qua';
+                  pillLabel = 'Đã bỏ qua';
                 } else if (slot.isLate) {
                   pillBg = '#fee2e2';
                   pillColor = '#b91c1c';
-                  pillLabel = `⚠️ Quá giờ (${slot.time})`;
+                  pillLabel = `Quá giờ (${slot.time})`;
                 } else if (slot.isArrived) {
                   pillBg = '#dbeafe';
                   pillColor = '#1d4ed8';
-                  pillLabel = `🔔 Đến giờ (${slot.time})`;
+                  pillLabel = `Đến giờ (${slot.time})`;
                 }
 
                 return (
@@ -492,7 +509,7 @@ export default function SupervisorDashboard() {
                             <RotateCcw size={13} /> Hoàn tác
                           </>
                         ) : (
-                          '✓ Đánh dấu hộ'
+                          'Đánh dấu hộ'
                         )}
                       </button>
                     </div>
@@ -500,7 +517,7 @@ export default function SupervisorDashboard() {
                     {caregiverData?.checklistLogs?.[item.id]?.photoProof && (
                       <div style={{ marginTop: 6, paddingTop: 6, borderTop: '1px dashed #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <span style={{ fontSize: 11.5, color: '#059669', fontWeight: 700 }}>
-                          👩‍⚕️ Hộ lý ({caregiverData.nurseName}) đã cho uống lúc {caregiverData.checklistLogs[item.id].takenAt}
+                          Hộ lý ({caregiverData.nurseName}) đã cho uống lúc {caregiverData.checklistLogs[item.id].takenAt}
                         </span>
                         <button
                           type="button"
@@ -516,7 +533,7 @@ export default function SupervisorDashboard() {
                             cursor: 'pointer',
                           }}
                         >
-                          📷 Xem ảnh xác nhận
+                          Xem ảnh xác nhận
                         </button>
                       </div>
                     )}
@@ -527,7 +544,7 @@ export default function SupervisorDashboard() {
 
             {allTodaySlots.length > 4 && (
               <p className={styles.scrollMoreHint}>
-                ⬇️ Cuộn danh sách để xem thêm {allTodaySlots.length - 4} cử khác
+                Cuộn danh sách để xem thêm {allTodaySlots.length - 4} cử khác
               </p>
             )}
           </>
@@ -547,7 +564,7 @@ export default function SupervisorDashboard() {
         <div>
           <div className={styles.switchItem}>
             <div className={styles.switchInfo}>
-              <p className={styles.switchTitle}>🚨 Báo khẩn khi Bố/Mẹ quá giờ uống thuốc</p>
+              <p className={styles.switchTitle}>Báo khẩn khi Bố/Mẹ quá giờ uống thuốc</p>
               <p className={styles.switchDesc}>
                 Tự động nhắn tin cho con nếu quá giờ 30 phút hoặc sau 2 lần chuông nhắc chưa uống
               </p>
@@ -564,7 +581,7 @@ export default function SupervisorDashboard() {
 
           <div className={styles.switchItem}>
             <div className={styles.switchInfo}>
-              <p className={styles.switchTitle}>💚 Bản tin An tâm 20:00 mỗi tối</p>
+              <p className={styles.switchTitle}>Bản tin An tâm 20:00 mỗi tối</p>
               <p className={styles.switchDesc}>
                 Tổng kết cuối ngày: Bố/Mẹ đã uống đủ bao nhiêu cử và chỉ số đường huyết
               </p>
@@ -581,7 +598,7 @@ export default function SupervisorDashboard() {
 
           <div className={styles.switchItem}>
             <div className={styles.switchInfo}>
-              <p className={styles.switchTitle}>🩸 Cảnh báo tức thì Đường huyết bất thường</p>
+              <p className={styles.switchTitle}>Cảnh báo tức thì Đường huyết bất thường</p>
               <p className={styles.switchDesc}>
                 Báo ngay khi đường huyết hạ thấp (&lt; 3.9 mmol/L) hoặc tăng cao (&gt; 10.0 mmol/L)
               </p>
@@ -619,7 +636,6 @@ export default function SupervisorDashboard() {
     <section className={styles.sectionCard} style={{ borderLeft: '4px solid #f59e0b' }}>
       <div className={styles.sectionHead}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-          <span style={{ fontSize: 18 }}>📋</span>
           <h3 className={styles.sectionTitle} style={{ fontSize: 14 }}>
             Nhiệm Vụ Ca Trực Của Hộ Lý ({cleanNurseName})
           </h3>
@@ -685,9 +701,19 @@ export default function SupervisorDashboard() {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
-                    <span style={{ fontSize: 16 }}>
-                      {t.category === 'medication' ? '💊' : t.category === 'meal' ? '🍲' : t.category === 'vital' ? '🩸' : t.category === 'activity' ? '🚶' : '📋'}
-                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 26, height: 26, borderRadius: 6, background: t.completed ? '#dcfce7' : '#e2e8f0', color: t.completed ? '#15803d' : '#475569', flexShrink: 0 }}>
+                      {t.category === 'medication' ? (
+                        <Pill size={14} />
+                      ) : t.category === 'meal' ? (
+                        <Utensils size={14} />
+                      ) : t.category === 'vital' ? (
+                        <Activity size={14} />
+                      ) : t.category === 'activity' ? (
+                        <Footprints size={14} />
+                      ) : (
+                        <FileText size={14} />
+                      )}
+                    </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <span style={{ fontSize: 12.5, fontWeight: 700, color: t.completed ? '#166534' : '#0f172a', textDecoration: t.completed ? 'line-through' : 'none', wordBreak: 'break-word' }}>
@@ -732,7 +758,7 @@ export default function SupervisorDashboard() {
       <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: 10, marginTop: 4, display: 'flex', flexDirection: 'column', gap: 8, fontSize: 13, color: '#334155' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span style={{ fontSize: 12, fontWeight: 800, color: '#0f172a' }}>
-            📝 Ghi chép & Lời nhắn ca trực:
+            Ghi chép & Lời nhắn ca trực:
           </span>
           <span style={{ fontSize: 11, color: '#b45309', fontWeight: 700 }}>
             {caregiverData?.dailyNote?.lastUpdated ? `Cập nhật lúc ${caregiverData.dailyNote.lastUpdated}` : 'Hôm nay'}
@@ -741,25 +767,25 @@ export default function SupervisorDashboard() {
 
         {caregiverData?.dailyNote?.meals && (
           <div style={{ display: 'flex', gap: 6, background: '#f8fafc', padding: '8px 10px', borderRadius: 10 }}>
-            <span style={{ fontWeight: 700, color: '#0f172a', minWidth: 68 }}>🍲 Bữa ăn:</span>
+            <span style={{ fontWeight: 700, color: '#0f172a', minWidth: 68 }}>Bữa ăn:</span>
             <span>{caregiverData.dailyNote.meals}</span>
           </div>
         )}
         {caregiverData?.dailyNote?.mood && (
           <div style={{ display: 'flex', gap: 6, background: '#f8fafc', padding: '8px 10px', borderRadius: 10 }}>
-            <span style={{ fontWeight: 700, color: '#0f172a', minWidth: 68 }}>😊 Tinh thần:</span>
+            <span style={{ fontWeight: 700, color: '#0f172a', minWidth: 68 }}>Tinh thần:</span>
             <span>{caregiverData.dailyNote.mood}</span>
           </div>
         )}
         {caregiverData?.dailyNote?.sleep && (
           <div style={{ display: 'flex', gap: 6, background: '#f8fafc', padding: '8px 10px', borderRadius: 10 }}>
-            <span style={{ fontWeight: 700, color: '#0f172a', minWidth: 68 }}>🌙 Giấc ngủ:</span>
+            <span style={{ fontWeight: 700, color: '#0f172a', minWidth: 68 }}>Giấc ngủ:</span>
             <span>{caregiverData.dailyNote.sleep}</span>
           </div>
         )}
         {caregiverData?.dailyNote?.generalNotes && (
           <div style={{ display: 'flex', gap: 6, background: '#fffbeb', padding: '8px 10px', borderRadius: 10, color: '#92400e', border: '1px solid #fef3c7' }}>
-            <span style={{ fontWeight: 700, minWidth: 68 }}>📝 Lời nhắn:</span>
+            <span style={{ fontWeight: 700, minWidth: 68 }}>Lời nhắn:</span>
             <span>{caregiverData.dailyNote.generalNotes}</span>
           </div>
         )}
@@ -813,7 +839,7 @@ export default function SupervisorDashboard() {
       <section className={styles.voiceBox}>
         <div className={styles.voiceHead}>
           <h3 className={styles.voiceTitle}>
-            📞 Điều khiển Chuông Con Cháu Nhắc Thuốc Bố/Mẹ
+            Điều khiển Chuông Con Cháu Nhắc Thuốc Bố/Mẹ
           </h3>
           <span
             style={{
@@ -825,7 +851,7 @@ export default function SupervisorDashboard() {
               color: '#a7f3d0',
             }}
           >
-            {hasCustomVoice ? '🎙️ Đã có giọng thu âm' : '🔊 Giọng đọc tự động'}
+            {hasCustomVoice ? 'Đã có giọng thu âm' : 'Giọng đọc tự động'}
           </span>
         </div>
 
@@ -1048,7 +1074,7 @@ export default function SupervisorDashboard() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div className={styles.zaloBubble}>
               <div style={{ fontWeight: 800, color: '#0369a1', marginBottom: 6 }}>
-                🛡️ TRỢ LÝ GIA ĐÌNH DIA+ · CẬP NHẬT TỨC THÌ
+                TRỢ LÝ GIA ĐÌNH DIA+ · CẬP NHẬT TỨC THÌ
               </div>
               <div>
                 <strong>Người thân:</strong> {user?.name || 'Bố/Mẹ'}
@@ -1061,7 +1087,7 @@ export default function SupervisorDashboard() {
               </div>
               {lateItems.length > 0 ? (
                 <div style={{ color: '#b91c1c', fontWeight: 700, marginTop: 6 }}>
-                  ⚠️ Cảnh báo quá giờ:{' '}
+                  Cảnh báo quá giờ:{' '}
                   {lateItems
                     .map((x) => `${x.med.name} (${x.slot.periodLabel} ${x.slot.time})`)
                     .join(', ')}
@@ -1069,12 +1095,12 @@ export default function SupervisorDashboard() {
                 </div>
               ) : (
                 <div style={{ color: '#15803d', fontWeight: 700, marginTop: 6 }}>
-                  ✅ Tất cả các cử tới giờ hôm nay đều đã được Bố/Mẹ uống đúng lịch!
+                  Tất cả các cử tới giờ hôm nay đều đã được Bố/Mẹ uống đúng lịch.
                 </div>
               )}
               {latestGlucose && (
                 <div style={{ marginTop: 6 }}>
-                  🩸 <strong>Đường huyết gần nhất:</strong>{' '}
+                  <strong>Đường huyết gần nhất:</strong>{' '}
                   {formatGlucose(latestGlucose.value, unit)} {unit} (
                   {getStatusLabel(latestGlucoseStatus, t, latestGlucose.measurement_type)})
                 </div>
@@ -1207,11 +1233,11 @@ export default function SupervisorDashboard() {
                     background: '#fff',
                   }}
                 >
-                  <option value="meal">🍲 Bữa ăn</option>
-                  <option value="medication">💊 Thuốc</option>
-                  <option value="vital">🩸 Đo chỉ số</option>
-                  <option value="activity">🚶 Vận động</option>
-                  <option value="custom">📋 Khác</option>
+                  <option value="meal">Bữa ăn</option>
+                  <option value="medication">Thuốc</option>
+                  <option value="vital">Đo chỉ số sức khỏe</option>
+                  <option value="activity">Vận động</option>
+                  <option value="custom">Nhiệm vụ khác</option>
                 </select>
               </div>
             </div>

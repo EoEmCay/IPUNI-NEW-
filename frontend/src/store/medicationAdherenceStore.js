@@ -11,6 +11,7 @@ import { medicationsService } from '../services/medications.service';
 import { buildTodayInstant } from '../lib/medReminders';
 import { localYmd } from '../utils/date';
 import useMedicationsStore from './medicationsStore';
+import useRoleModeStore from './roleModeStore';
 
 const LOGS_STORAGE_KEY = 'diaplus_medication_intake_logs_v2';
 const CAREGIVER_STORAGE_KEY = 'diaplus_caregiver_info_v1';
@@ -254,6 +255,28 @@ export function recordMedicationIntake(
 
   try {
     useMedicationsStore.getState().setMedicationStatus(medication.id, overallStatus, slotKey);
+  } catch {
+    /* ignore */
+  }
+
+  // Tự động đồng bộ sang checklist của Hộ lý & Người con
+  try {
+    const roleStore = useRoleModeStore.getState();
+    if (roleStore && typeof roleStore.syncSlotFromAdherence === 'function') {
+      const activeRole = roleStore.roleMode;
+      const actorLabel = activeRole === 'supervisor' ? 'Người con' : activeRole === 'caregiver' ? 'Hộ lý' : 'Bệnh nhân';
+      roleStore.syncSlotFromAdherence(medication.id, resolvedSlotTime, status, entry.takenAt, actorLabel);
+    }
+  } catch {
+    /* ignore */
+  }
+
+  try {
+    window.dispatchEvent(
+      new CustomEvent('medicationIntakeChanged', {
+        detail: { medicationId: medication.id, slotTime: resolvedSlotTime, status, entry },
+      })
+    );
   } catch {
     /* ignore */
   }

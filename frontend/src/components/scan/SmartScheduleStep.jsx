@@ -22,12 +22,12 @@ export const PERIOD_DEFS = [
     label: 'Cử Buổi Sáng',
     shortLabel: 'Sáng',
     rangeLabel: '04:00 – 12:00 (4h sáng – 12h trưa)',
-    icon: '☀️',
+    icon: '',
     defaultTime: '07:00',
     minMinutes: 4 * 60,       // 04:00
     maxMinutes: 12 * 60,      // 12:00
     slots: buildHalfHourSlots(4, 0, 12, 0),
-    presets: ['06:00', '06:30', '07:00', '07:30', '08:00', '09:00'],
+    presets: ['06:00', '07:00', '08:00', '09:00', '11:30', '12:00'],
     bg: '#EFF6FF',
     border: '#BFDBFE',
     accent: '#1D4ED8',
@@ -38,7 +38,7 @@ export const PERIOD_DEFS = [
     label: 'Cử Buổi Chiều',
     shortLabel: 'Chiều',
     rangeLabel: '12:30 – 17:00 (12h30 trưa – 5h chiều)',
-    icon: '🌇',
+    icon: '',
     defaultTime: '15:00',
     minMinutes: 12 * 60 + 30, // 12:30
     maxMinutes: 17 * 60,      // 17:00
@@ -54,7 +54,7 @@ export const PERIOD_DEFS = [
     label: 'Cử Buổi Tối',
     shortLabel: 'Tối',
     rangeLabel: '17:30 – 21:00 (5h30 chiều – 9h tối)',
-    icon: '🌙',
+    icon: '',
     defaultTime: '18:30',
     minMinutes: 17 * 60 + 30, // 17:30
     maxMinutes: 21 * 60,      // 21:00
@@ -424,7 +424,7 @@ export default function SmartScheduleStep({ medications, onUpdateMedications }) 
                           <span>✓ Uống lúc {group.currentTime} ({group.label})</span>
                         ) : (
                           <span>
-                            🔄 Liều {doseNumber}/{totalDoses} lúc {group.currentTime} · Đồng bộ cùng {otherPeriods.join(', ')}
+                            Liều {doseNumber}/{totalDoses} lúc {group.currentTime} · Đồng bộ cùng {otherPeriods.join(', ')}
                           </span>
                         )}
                       </div>

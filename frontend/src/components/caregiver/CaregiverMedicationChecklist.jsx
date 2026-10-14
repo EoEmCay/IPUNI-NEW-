@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Pill,
   CheckCircle2,
@@ -6,17 +7,23 @@ import {
   Camera,
   RotateCcw,
   Check,
-  Sparkles,
   Lock,
+  PlusCircle,
+  AlertCircle,
 } from 'lucide-react';
 import { useMedications } from '../../hooks/useMedications';
 import { extractMedicationTimes } from '../../utils/medicationTime';
 import useRoleModeStore from '../../store/roleModeStore';
+import useMedicationsStore from '../../store/medicationsStore';
+import { getIntakeLogs, recordMedicationIntake } from '../../store/medicationAdherenceStore';
+import { careService } from '../../services/care.service';
 import styles from './CaregiverMedicationChecklist.module.css';
 
 const DEFAULT_SLOTS = [
   {
     id: 'med_slot_1',
+    medId: 101,
+    medication: { id: 101, name: 'Glucophage 500mg (Metformin)', dosage: '1 viên' },
     name: 'Glucophage 500mg (Metformin)',
     dosage: '1 viên',
     instruction: 'Uống ngay sau bữa ăn sáng',
@@ -25,6 +32,8 @@ const DEFAULT_SLOTS = [
   },
   {
     id: 'med_slot_2',
+    medId: 102,
+    medication: { id: 102, name: 'Amlodipine 5mg', dosage: '1 viên' },
     name: 'Amlodipine 5mg',
     dosage: '1 viên',
     instruction: 'Uống hạ áp cố định đầu ngày',
@@ -33,6 +42,8 @@ const DEFAULT_SLOTS = [
   },
   {
     id: 'med_slot_afternoon',
+    medId: 103,
+    medication: { id: 103, name: 'Nicorandil 5mg', dosage: '1 viên' },
     name: 'Nicorandil 5mg',
     dosage: '1 viên',
     instruction: 'Uống sau ăn trưa / chiều để ngừa đau thắt ngực',
@@ -41,6 +52,8 @@ const DEFAULT_SLOTS = [
   },
   {
     id: 'med_slot_3',
+    medId: 101,
+    medication: { id: 101, name: 'Glucophage 500mg (Metformin)', dosage: '1 viên' },
     name: 'Glucophage 500mg (Metformin)',
     dosage: '1 viên',
     instruction: 'Uống ngay sau bữa ăn tối',
@@ -50,10 +63,14 @@ const DEFAULT_SLOTS = [
 ];
 
 export default function CaregiverMedicationChecklist() {
+  const navigate = useNavigate();
   const { todayMedications, fetchToday } = useMedications();
   const caregiverData = useRoleModeStore((s) => s.caregiverData);
   const setCaregiverSlotTaken = useRoleModeStore((s) => s.setCaregiverSlotTaken);
   const undoCaregiverSlot = useRoleModeStore((s) => s.undoCaregiverSlot);
+  const statusVersion = useMedicationsStore((s) => s.statusVersion);
+
+  const [syncTick, setSyncTick] = useState(0);
 
   // Khung giờ thực tế: từ 12:00 trở đi là đầu giờ chiều
   const currentHour = new Date().getHours();
@@ -70,6 +87,20 @@ export default function CaregiverMedicationChecklist() {
     fetchToday();
   }, [fetchToday]);
 
+  // Lắng nghe sự kiện đồng bộ chéo giữa các vai trò & các tab/thiết bị
+  useEffect(() => {
+    const handleSync = () => {
+      setSyncTick((t) => t + 1);
+      fetchToday();
+    };
+    window.addEventListener('medicationIntakeChanged', handleSync);
+    window.addEventListener('storage', handleSync);
+    return () => {
+      window.removeEventListener('medicationIntakeChanged', handleSync);
+      window.removeEventListener('storage', handleSync);
+    };
+  }, [fetchToday]);
+
   // Chuẩn hóa danh sách cữ thuốc (đọc đầy đủ từ mảng times hoặc chỉ định liều dùng)
   const slots = useMemo(() => {
     if (todayMedications && todayMedications.length > 0) {
@@ -82,6 +113,8 @@ export default function CaregiverMedicationChecklist() {
           const period = hour < 12 ? 'Sáng' : hour < 14 ? 'Trưa' : hour < 18 ? 'Chiều' : 'Tối';
           items.push({
             id: `${med.id || 'med'}_slot_${idx}_${tStr.replace(':', '')}`,
+            medId: med.id,
+            medication: med,
             name: med.name || 'Thuốc điều trị',
             dosage: med.dosage || '1 viên',
             instruction: med.instructions || 'Uống theo chỉ dẫn của bác sĩ',
@@ -95,9 +128,28 @@ export default function CaregiverMedicationChecklist() {
     return DEFAULT_SLOTS;
   }, [todayMedications]);
 
+  const intakeLogs = useMemo(() => getIntakeLogs(), [syncTick, statusVersion]);
   const checklistLogs = caregiverData?.checklistLogs || {};
+
+  // Hàm xác định trạng thái uống thuốc đồng bộ từ cả 2 nguồn (Hộ lý + Bệnh nhân/Người con)
+  const getSlotIntakeInfo = (slot) => {
+    const logFromCaregiver = checklistLogs[slot.id];
+    const logFromAdherence = (intakeLogs || []).find(
+      (l) =>
+        String(l.medicationId) === String(slot.medId) &&
+        (l.slotTime === slot.time || l.slotKey === slot.time)
+    );
+
+    const isTaken = Boolean(logFromCaregiver?.taken || logFromAdherence?.status === 'taken');
+    const takenAt = logFromCaregiver?.takenAt || logFromAdherence?.takenAt || slot.time;
+    const photoProof = logFromCaregiver?.photoProof || null;
+    const actor = logFromCaregiver?.by || (logFromAdherence?.status === 'taken' ? 'Bệnh nhân' : null);
+
+    return { isTaken, takenAt, photoProof, actor };
+  };
+
   const totalCount = slots.length;
-  const takenCount = slots.filter((s) => checklistLogs[s.id]?.taken).length;
+  const takenCount = slots.filter((s) => getSlotIntakeInfo(s).isTaken).length;
   const percent = totalCount > 0 ? Math.round((takenCount / totalCount) * 100) : 0;
 
   // Lọc ra các cữ THỰC SỰ có thuốc (không bao giờ để cữ có số 0)
@@ -133,9 +185,39 @@ export default function CaregiverMedicationChecklist() {
     return slots.filter((s) => s.period === activeFilter);
   }, [slots, activeFilter]);
 
+  // Xử lý xác nhận uống thuốc có đồng bộ chéo 2 chiều
+  const handleConfirmTaken = (slot, photoProof = null) => {
+    setCaregiverSlotTaken(slot.id, photoProof);
+
+    if (slot.medication) {
+      recordMedicationIntake(slot.medication, 'taken', new Date(), null, slot.time);
+    }
+
+    if (slot.medId) {
+      careService
+        .logDose({
+          medication_id: slot.medId,
+          slot: slot.time,
+          status: 'taken',
+          taken_at: new Date().toISOString(),
+        })
+        .catch(() => {});
+    }
+
+    setSyncTick((t) => t + 1);
+  };
+
+  const handleUndoSlot = (slot) => {
+    undoCaregiverSlot(slot.id);
+    if (slot.medication) {
+      recordMedicationIntake(slot.medication, 'pending', new Date(), null, slot.time);
+    }
+    setSyncTick((t) => t + 1);
+  };
+
   // Xử lý chụp / chọn ảnh
-  const handleTriggerUpload = (slotId) => {
-    setActiveSlotForPhoto(slotId);
+  const handleTriggerUpload = (slot) => {
+    setActiveSlotForPhoto(slot);
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
@@ -148,7 +230,7 @@ export default function CaregiverMedicationChecklist() {
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result;
-      setCaregiverSlotTaken(activeSlotForPhoto, dataUrl);
+      handleConfirmTaken(activeSlotForPhoto, dataUrl);
       setActiveSlotForPhoto(null);
     };
     reader.readAsDataURL(file);
@@ -167,7 +249,7 @@ export default function CaregiverMedicationChecklist() {
         onChange={handleFileChange}
       />
 
-      {/* Header Gọn Gàng - Không có khối thông tin bự cụ Nguyễn Văn An */}
+      {/* Header Gọn Gàng */}
       <header className={styles.headerCompact}>
         <div className={styles.headerTop}>
           <div className={styles.headerTitleWrap}>
@@ -178,10 +260,31 @@ export default function CaregiverMedicationChecklist() {
               Đã uống {takenCount}/{totalCount} cữ ({percent}%)
             </span>
           </div>
+
+          <button
+            type="button"
+            className={styles.roleSwitchBtn}
+            onClick={() => navigate('/scan')}
+            style={{
+              background: '#ffffff',
+              color: '#b45309',
+              fontWeight: 800,
+              fontSize: 12,
+              padding: '6px 12px',
+              borderRadius: 999,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 5,
+              border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            <PlusCircle size={14} /> Quét đơn thuốc mới
+          </button>
         </div>
       </header>
 
-      {/* Bộ lọc cữ thuốc: CHỈ hiển thị các cữ thực tế có thuốc, KHÔNG hiển thị cữ (0) */}
+      {/* Bộ lọc cữ thuốc: CHỈ hiển thị các cữ thực tế có thuốc */}
       {availablePeriods.length > 0 && (
         <div className={styles.filterRow}>
           {availablePeriods.length > 1 && (
@@ -232,11 +335,8 @@ export default function CaregiverMedicationChecklist() {
 
         <div className={styles.slotList}>
           {filteredSlots.map((slot) => {
-            const isTaken = !!checklistLogs[slot.id]?.taken;
-            const log = checklistLogs[slot.id];
-            // Nếu chưa tới cữ chiều/tối thì khóa: "Nếu chưa tới cử chiều thì sẽ khóa, chỉ cho nhìn thôi"
+            const { isTaken, takenAt, photoProof, actor } = getSlotIntakeInfo(slot);
             const isLocked = !isAfternoon && (slot.period === 'Chiều' || slot.period === 'Tối');
-            // Cữ sáng khi qua đầu giờ chiều: "còn cử sáng sẽ màu xám không hiện lên chính (theo khung giờ)"
             const isPast = isAfternoon && slot.period === 'Sáng';
 
             return (
@@ -278,11 +378,11 @@ export default function CaregiverMedicationChecklist() {
                     }`}
                   >
                     {isTaken
-                      ? '✓ Đã uống'
+                      ? 'Đã uống'
                       : isLocked
-                      ? '🔒 Chưa tới giờ'
+                      ? 'Chưa tới giờ'
                       : isPast
-                      ? '⚠️ Quá giờ sáng'
+                      ? 'Quá giờ sáng'
                       : 'Chưa uống'}
                   </span>
                 </div>
@@ -291,22 +391,25 @@ export default function CaregiverMedicationChecklist() {
                   <h3 className={styles.medName}>
                     {slot.name} · {slot.dosage}
                   </h3>
-                  <p className={styles.medInstruction}>📌 {slot.instruction}</p>
+                  <p className={styles.medInstruction}>{slot.instruction}</p>
                 </div>
 
                 {isTaken ? (
                   <div className={styles.takenProofRow}>
                     <div className={styles.takenProofText}>
                       <CheckCircle2 size={16} />
-                      <span>Đã cho cụ uống lúc {log?.takenAt || slot.time}</span>
+                      <span>
+                        {actor ? `${actor} xác nhận lúc ` : 'Đã uống lúc '}
+                        {takenAt}
+                      </span>
                     </div>
 
-                    {log?.photoProof && (
+                    {photoProof && (
                       <img
-                        src={log.photoProof}
+                        src={photoProof}
                         alt="Ảnh xác nhận"
                         className={styles.proofThumb}
-                        onClick={() => setModalPhoto(log.photoProof)}
+                        onClick={() => setModalPhoto(photoProof)}
                         title="Bấm để xem ảnh lớn"
                       />
                     )}
@@ -314,7 +417,7 @@ export default function CaregiverMedicationChecklist() {
                     <button
                       type="button"
                       className={styles.btnUndo}
-                      onClick={() => undoCaregiverSlot(slot.id)}
+                      onClick={() => handleUndoSlot(slot)}
                       title="Hoàn tác lại cữ này"
                     >
                       <RotateCcw size={12} /> Hoàn tác
@@ -332,14 +435,14 @@ export default function CaregiverMedicationChecklist() {
                     <button
                       type="button"
                       className={styles.btnConfirmPast}
-                      onClick={() => setCaregiverSlotTaken(slot.id)}
+                      onClick={() => handleConfirmTaken(slot)}
                     >
                       <Check size={15} /> Uống bù cữ sáng
                     </button>
                     <button
                       type="button"
                       className={styles.btnPhotoPast}
-                      onClick={() => handleTriggerUpload(slot.id)}
+                      onClick={() => handleTriggerUpload(slot)}
                     >
                       <Camera size={14} /> Chụp ảnh
                     </button>
@@ -349,14 +452,14 @@ export default function CaregiverMedicationChecklist() {
                     <button
                       type="button"
                       className={styles.btnConfirm}
-                      onClick={() => setCaregiverSlotTaken(slot.id)}
+                      onClick={() => handleConfirmTaken(slot)}
                     >
                       <Check size={16} /> Xác nhận đã uống
                     </button>
                     <button
                       type="button"
                       className={styles.btnPhoto}
-                      onClick={() => handleTriggerUpload(slot.id)}
+                      onClick={() => handleTriggerUpload(slot)}
                     >
                       <Camera size={15} /> Chụp ảnh
                     </button>

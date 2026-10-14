@@ -139,6 +139,15 @@ const adminLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Giới hạn cho các endpoint gọi AI (Gemini Bữa ăn / Quét đơn) để bảo vệ quota & chi phí
+const aiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 40, // 40 lượt gọi AI / 15 phút / IP
+  message: { message: 'Bạn đã thực hiện quá nhiều yêu cầu phân tích AI. Vui lòng thử lại sau vài phút.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Áp dụng giới hạn chung cho toàn bộ API
 app.use('/api/', apiLimiter);
 
@@ -156,6 +165,7 @@ app.use('/api/v1/dashboard', dashboardRoutes);
 app.use('/api/v1/metrics', metricsRoutes);
 app.use('/api/v1/medications', medicationsRoutes);
 app.use('/api/v1/appointments', appointmentsRoutes);
+app.use('/api/v1/advice/analyze-meal', aiLimiter);
 app.use('/api/v1/advice', adviceRoutes);
 app.use('/api/v1/users', usersRoutes);
 app.use('/api/v1/care-links', careLinksRoutes);

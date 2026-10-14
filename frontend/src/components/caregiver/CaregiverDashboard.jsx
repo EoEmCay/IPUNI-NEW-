@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   HeartHandshake,
   Pill,
@@ -14,6 +15,7 @@ import {
   Clock,
   ListTodo,
   Heart,
+  PlusCircle,
 } from 'lucide-react';
 import useRoleModeStore from '../../store/roleModeStore';
 import Modal from '../common/Modal';
@@ -21,6 +23,7 @@ import RoleCircleSwitcher from '../common/RoleCircleSwitcher';
 import styles from './CaregiverDashboard.module.css';
 
 export default function CaregiverDashboard() {
+  const navigate = useNavigate();
   const caregiverData = useRoleModeStore((s) => s.caregiverData);
   const toggleCaregiverTask = useRoleModeStore((s) => s.toggleCaregiverTask);
   const addCaregiverVital = useRoleModeStore((s) => s.addCaregiverVital);
@@ -75,7 +78,7 @@ export default function CaregiverDashboard() {
   const handleSaveBpPhoto = (e) => {
     e.preventDefault();
     if (!bpPhotoPreview) {
-      showToast('⚠️ Vui lòng chụp ảnh máy đo huyết áp trước khi lưu');
+      showToast('Vui lòng chụp ảnh máy đo huyết áp trước khi lưu.');
       return;
     }
     addCaregiverVital({
@@ -85,7 +88,7 @@ export default function CaregiverDashboard() {
       status: 'normal',
     });
     setBpPhotoPreview(null);
-    showToast('✅ Đã lưu ảnh máy đo huyết áp thành công!');
+    showToast('Đã lưu ảnh máy đo huyết áp thành công.');
   };
 
   // Cảnh báo hạ đường huyết thông minh
@@ -96,7 +99,7 @@ export default function CaregiverDashboard() {
   const handleSaveGlucose = (e) => {
     e.preventDefault();
     if (!numGlucose || isNaN(numGlucose)) {
-      showToast('⚠️ Vui lòng nhập số đường huyết hợp lệ (mmol/L)');
+      showToast('Vui lòng nhập số đường huyết hợp lệ (mmol/L).');
       return;
     }
     addCaregiverVital({
@@ -106,13 +109,13 @@ export default function CaregiverDashboard() {
       status: isHypo ? 'danger_low' : isHyper ? 'warning_high' : 'normal',
     });
     setGlucoseVal('');
-    showToast(`✅ Đã ghi nhận đường huyết: ${numGlucose} mmol/L`);
+    showToast(`Đã ghi nhận đường huyết: ${numGlucose} mmol/L.`);
   };
 
   const handleSaveDailyNote = (e) => {
     e.preventDefault();
     updateCaregiverDailyNote(dailyNoteState);
-    showToast('✅ Đã lưu và báo cáo ca trực thành công!');
+    showToast('Đã lưu và báo cáo ca trực thành công.');
   };
 
   // Ca trực thời gian thật: Sáng (06:00 - 18:00) hoặc Tối (18:00 - 06:00)
@@ -183,6 +186,52 @@ export default function CaregiverDashboard() {
           {toastMsg}
         </div>
       )}
+
+      {/* Thẻ thao tác nhanh: Quét đơn thuốc mới & Báo cáo */}
+      <section
+        style={{
+          background: '#ffffff',
+          borderRadius: 18,
+          border: '1.5px solid #fed7aa',
+          padding: '14px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+          boxShadow: '0 2px 10px rgba(249, 115, 22, 0.08)',
+        }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0 }}>
+          <span style={{ fontSize: 13.5, fontWeight: 800, color: '#9a3412' }}>
+            Chụp & Quét đơn thuốc mới (AI)
+          </span>
+          <span style={{ fontSize: 11.5, color: '#64748b' }}>
+            Tự động nhận diện đơn thuốc, cập nhật cữ uống cho gia đình
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => navigate('/scan')}
+          style={{
+            background: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: 10,
+            padding: '9px 14px',
+            fontSize: 12.5,
+            fontWeight: 800,
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+            boxShadow: '0 4px 12px rgba(234, 88, 12, 0.25)',
+          }}
+        >
+          <Camera size={15} /> Quét đơn
+        </button>
+      </section>
 
       {/* Thẻ tổng kết tiến độ ca trực */}
       <section className={styles.progressCard}>
@@ -255,7 +304,7 @@ export default function CaregiverDashboard() {
           {filteredTasks.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '24px 10px', color: '#64748b', fontSize: 13 }}>
               {taskFilter === 'pending'
-                ? '🎉 Tuyệt vời! Hộ lý đã hoàn thành tất cả nhiệm vụ trong ca trực.'
+                ? 'Hộ lý đã hoàn thành tất cả nhiệm vụ trong ca trực.'
                 : 'Chưa có nhiệm vụ nào trong danh mục này.'}
             </div>
           ) : (
@@ -304,7 +353,7 @@ export default function CaregiverDashboard() {
                     className={isDone ? styles.taskDoneBtn : styles.taskCheckBtn}
                     onClick={() => {
                       toggleCaregiverTask(task.id);
-                      showToast(isDone ? '↩️ Đã hoàn tác' : `✅ Đã xong: ${task.title}`);
+                      showToast(isDone ? 'Đã hoàn tác' : `Đã hoàn thành: ${task.title}`);
                     }}
                     title={isDone ? 'Bấm để hoàn tác nếu đánh dấu nhầm' : 'Bấm để đánh dấu hoàn thành'}
                   >
@@ -374,13 +423,13 @@ export default function CaregiverDashboard() {
             <div className={styles.hypoAlert}>
               <div className={styles.hypoAlertHead}>
                 <AlertTriangle size={18} />
-                <span>🚨 CẢNH BÁO: HẠ ĐƯỜNG HUYẾT NGUY HIỂM ({numGlucose} mmol/L)!</span>
+                <span>CẢNH BÁO: HẠ ĐƯỜNG HUYẾT NGUY HIỂM ({numGlucose} mmol/L)</span>
               </div>
               <p className={styles.hypoAlertBody}>
                 Đường huyết dưới 3.9 mmol/L có thể khiến cụ chóng mặt, ngất xỉu. Hộ lý cần thực hiện ngay:
               </p>
               <div className={styles.hypoRulesBox}>
-                ⏱️ <strong>ÁP DỤNG QUY TẮC 15-15:</strong>
+                <strong>ÁP DỤNG QUY TẮC 15-15:</strong>
                 <br />1. Cho cụ uống ngay 1/2 cốc nước đường (hoặc 1 hộp sữa có đường, 3 viên kẹo).
                 <br />2. Cho cụ nằm nghỉ tại chỗ, sau <strong>15 phút</strong> đo lại đường huyết.
                 <br />3. Nếu sau 15 phút vẫn &lt; 3.9 mmol/L, gọi ngay người nhà hoặc 115!
@@ -390,7 +439,7 @@ export default function CaregiverDashboard() {
 
           {isHyper && (
             <div style={{ background: '#fffbeb', border: '1.5px solid #f59e0b', borderRadius: 14, padding: 12, fontSize: 12, color: '#92400e', lineHeight: 1.4 }}>
-              ⚠️ <strong>Đường huyết tăng cao ({numGlucose} mmol/L):</strong> Cho cụ uống thêm 1 cốc nước ấm, tránh ăn đồ ngọt và theo dõi sát sao.
+              <strong>Đường huyết tăng cao ({numGlucose} mmol/L):</strong> Cho cụ uống thêm 1 cốc nước ấm, tránh ăn đồ ngọt và theo dõi sát sao.
             </div>
           )}
         </form>
@@ -398,7 +447,7 @@ export default function CaregiverDashboard() {
         {/* CHỤP ẢNH MÁY ĐO HUYẾT ÁP - KHÔNG CẦN NHẬP SỐ */}
         <div className={styles.bpPhotoBox}>
           <label className={styles.inputLabel}>
-            💓 Huyết áp & Nhịp tim (Chụp ảnh màn hình máy đo)
+            Huyết áp & Nhịp tim (Chụp ảnh màn hình máy đo)
           </label>
 
           {bpPhotoPreview ? (
@@ -413,7 +462,7 @@ export default function CaregiverDashboard() {
                 className={styles.bpRemovePhotoBtn}
                 onClick={() => setBpPhotoPreview(null)}
               >
-                ✕ Chụp lại
+                Chụp lại
               </button>
             </div>
           ) : (
@@ -438,7 +487,7 @@ export default function CaregiverDashboard() {
           )}
         </div>
 
-        {/* LỊCH SỬ CHỈ SỐ GẦN NHẤT ĐÃ GHI - KHÔNG BAO GIỜ BỊ RỚT DÒNG */}
+        {/* LỊCH SỬ CHỈ SỐ GẦN NHẤT ĐÃ GHI */}
         {caregiverData?.vitalsLogs?.length > 0 && (
           <div className={styles.vitalHistoryList}>
             <span style={{ fontSize: 11.5, fontWeight: 700, color: '#64748b' }}>
@@ -449,8 +498,8 @@ export default function CaregiverDashboard() {
                 <div className={styles.vitalHistoryHead}>
                   <span className={styles.vitalHistoryVal}>
                     {item.type === 'glucose'
-                      ? `🩸 Đường huyết: ${item.value} mmol/L`
-                      : '💓 Huyết áp: Đã chụp ảnh máy đo'}
+                      ? `Đường huyết: ${item.value} mmol/L`
+                      : 'Huyết áp: Đã chụp ảnh máy đo'}
                   </span>
                   <span className={styles.vitalHistoryMeta}>
                     {item.time} · {item.loggedBy}
@@ -478,7 +527,7 @@ export default function CaregiverDashboard() {
                         whiteSpace: 'nowrap',
                       }}
                     >
-                      📷 Xem ảnh máy đo
+                      Xem ảnh máy đo
                     </button>
                   </div>
                 )}
@@ -500,7 +549,7 @@ export default function CaregiverDashboard() {
 
         <form onSubmit={handleSaveDailyNote} className={styles.vitalsForm}>
           <div className={styles.noteItem}>
-            <label className={styles.noteLabel}>🍲 Bữa ăn & Dinh dưỡng của Cụ</label>
+            <label className={styles.noteLabel}>Bữa ăn & Dinh dưỡng của Cụ</label>
             <textarea
               className={styles.noteInput}
               value={dailyNoteState.meals || ''}
@@ -510,7 +559,7 @@ export default function CaregiverDashboard() {
           </div>
 
           <div className={styles.noteItem}>
-            <label className={styles.noteLabel}>😊 Tinh thần & Vận động</label>
+            <label className={styles.noteLabel}>Tinh thần & Vận động</label>
             <textarea
               className={styles.noteInput}
               value={dailyNoteState.mood || ''}
@@ -520,7 +569,7 @@ export default function CaregiverDashboard() {
           </div>
 
           <div className={styles.noteItem}>
-            <label className={styles.noteLabel}>🌙 Giấc ngủ & Thể trạng</label>
+            <label className={styles.noteLabel}>Giấc ngủ & Thể trạng</label>
             <textarea
               className={styles.noteInput}
               value={dailyNoteState.sleep || ''}
@@ -530,7 +579,7 @@ export default function CaregiverDashboard() {
           </div>
 
           <div className={styles.noteItem}>
-            <label className={styles.noteLabel}>📝 Lời nhắn gửi riêng cho Con Cháu</label>
+            <label className={styles.noteLabel}>Lời nhắn gửi riêng cho Con Cháu</label>
             <textarea
               className={styles.noteInput}
               value={dailyNoteState.generalNotes || ''}

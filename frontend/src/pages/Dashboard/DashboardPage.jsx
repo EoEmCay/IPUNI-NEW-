@@ -7,7 +7,6 @@ import {
   Settings2,
   Droplet,
   ChevronRight,
-  ScanText,
   PhoneCall,
   Plus,
   Minus,
@@ -75,30 +74,24 @@ function loadAddedUtilityKeys() {
   }
 }
 
-// Hình bác sĩ + người bệnh ở banner (vẽ lại từ bản thiết kế).
-function DoctorPatientArt() {
-  return (
-    <svg className={styles.bannerArt} viewBox="0 0 160 160" fill="none" aria-hidden="true">
-      <rect fill="#0284c7" fillOpacity="0.9" height="52" rx="10" width="46" x="90" y="80" />
-      <rect fill="#38bdf8" height="35" rx="8" width="38" x="94" y="60" />
-      <circle cx="112" cy="46" fill="#fbd5bb" r="14" />
-      <path d="M102 38 Q112 30 122 38 Q124 35 120 32 Q112 28 102 33 Z" fill="#e2e8f0" />
-      <rect fill="none" height="4" rx="1.5" stroke="#475569" strokeWidth="1.2" width="6" x="105" y="44" />
-      <rect fill="none" height="4" rx="1.5" stroke="#475569" strokeWidth="1.2" width="6" x="113" y="44" />
-      <line stroke="#475569" strokeWidth="1.2" x1="111" x2="113" y1="46" y2="46" />
-      <path d="M98 62 C98 56 126 56 126 62 L128 92 L96 92 Z" fill="#93c5fd" />
-      <circle cx="48" cy="44" fill="#fbd5bb" r="14" />
-      <path d="M38 41 C38 31 58 31 58 41 C55 35 41 35 38 41 Z" fill="#334155" />
-      <path d="M34 60 C34 54 62 54 62 60 L65 110 L31 110 Z" fill="#ffffff" />
-      <path d="M42 58 L48 76 L54 58" fill="none" stroke="#0284c7" strokeWidth="2.5" />
-      <rect fill="#60a5fa" height="30" rx="3" width="22" x="52" y="68" />
-      <rect fill="#ffffff" height="2" rx="1" width="16" x="55" y="73" />
-      <rect fill="#ffffff" height="2" rx="1" width="12" x="55" y="78" />
-      <rect fill="#ffffff" height="2" rx="1" width="14" x="55" y="83" />
-      <circle cx="80" cy="55" fill="#38bdf8" opacity="0.6" r="3" />
-    </svg>
-  );
-}
+// Danh sách 3 banner hình ảnh mới trong public (banner1.png, banner2.png, banner3.png)
+const BANNERS = [
+  {
+    id: 1,
+    src: '/banner1.png',
+    alt: 'DIA+ - Công nghệ thông minh vì sức khỏe người đái tháo đường',
+  },
+  {
+    id: 2,
+    src: '/banner2.png',
+    alt: 'DIA+ - Cùng gia đình kiểm soát tiểu đường',
+  },
+  {
+    id: 3,
+    src: '/banner3.png',
+    alt: 'DIA+ - Đồng hành cùng bạn kiểm soát đường huyết',
+  },
+];
 
 // Trang chủ (giao diện mới 10/2026): header riêng, banner, lưới tiện ích; bên dưới vẫn giữ
 // "Thuốc hôm nay" (nút Tôi đã uống - nhật ký uống thuốc là nguồn để báo người nhà) + đường huyết.
@@ -133,6 +126,21 @@ export default function DashboardPage() {
     const timer = setTimeout(() => setSoon(null), 2200);
     return () => clearTimeout(timer);
   }, [soon]);
+
+  // Tự động chuyển banner định kỳ mỗi 4.5 giây
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSlide((prev) => {
+        const next = (prev + 1) % BANNERS.length;
+        const el = carouselRef.current;
+        if (el && el.clientWidth) {
+          el.scrollTo({ left: next * el.clientWidth, behavior: 'smooth' });
+        }
+        return next;
+      });
+    }, 4500);
+    return () => clearInterval(timer);
+  }, []);
 
   const updateAddedKeys = (nextKeys) => {
     setAddedKeys(nextKeys);
@@ -235,27 +243,19 @@ export default function DashboardPage() {
 
       <section aria-label="Giới thiệu DIA+">
         <div className={styles.carousel} ref={carouselRef} onScroll={onCarouselScroll}>
-          <div className={styles.banner}>
-            <div className={styles.bannerText}>
-              <span className={styles.bannerBrand}>DIA+</span>
-              <p className={styles.bannerTag}>Đồng hành cùng gia đình</p>
-              <h2 className={styles.bannerTitle}>ĐO LƯỜNG CHỈ SỐ SỨC KHỎE<span>PHÂN TÍCH ĐƠN THUỐC</span></h2>
-              <a className={styles.bannerLink} href="https://diaplus.vn" target="_blank" rel="noreferrer">DIAPLUS.VN</a>
+          {BANNERS.map((item, idx) => (
+            <div key={item.id} className={styles.imageBannerSlide}>
+              <img
+                src={item.src}
+                alt={item.alt}
+                className={styles.bannerImg}
+                loading={idx === 0 ? 'eager' : 'lazy'}
+              />
             </div>
-            <DoctorPatientArt />
-          </div>
-          <div className={styles.banner}>
-            <div className={styles.bannerText}>
-              <span className={styles.bannerBrand}>QUÉT AI</span>
-              <p className={styles.bannerTag}>Chụp ảnh đơn thuốc</p>
-              <h2 className={styles.bannerTitle}>APP TỰ ĐỌC TÊN THUỐC<span>LIỀU DÙNG & GIỜ UỐNG</span></h2>
-              <button type="button" className={styles.bannerLink} onClick={() => navigate('/scan')}>Quét ngay</button>
-            </div>
-            <ScanText className={styles.bannerIcon} aria-hidden="true" />
-          </div>
+          ))}
         </div>
         <div className={styles.dots}>
-          {[0, 1].map((i) => (
+          {BANNERS.map((_, i) => (
             <button
               key={i}
               type="button"

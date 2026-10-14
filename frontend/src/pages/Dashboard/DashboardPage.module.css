@@ -103,21 +103,22 @@
   position: relative;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   background: #f1f5f9;
   box-sizing: border-box;
   display: flex;
+  aspect-ratio: 3168 / 1344;
 }
 
 .bannerImg {
   width: 100%;
-  height: auto;
+  height: 100%;
   display: block;
   border-radius: 20px;
   user-select: none;
   -webkit-user-drag: none;
-  aspect-ratio: 4128 / 1024;
   object-fit: cover;
+  aspect-ratio: 3168 / 1344;
 }
 
 .banner {

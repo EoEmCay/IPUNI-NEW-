@@ -19,6 +19,10 @@ import {
   Check,
   Plus,
   Trash2,
+  Utensils,
+  Activity,
+  Footprints,
+  FileText,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useMedications } from '../../hooks/useMedications';

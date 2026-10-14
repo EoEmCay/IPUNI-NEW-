@@ -1,14 +1,13 @@
 import { NavLink } from 'react-router-dom';
-import { Home, Activity, Users, MessageCircle, User, Pill, ClipboardList } from 'lucide-react';
+import { Home, Activity, Users, User, Pill, ClipboardList } from 'lucide-react';
 import useRoleModeStore from '../../store/roleModeStore';
 import styles from './BottomNav.module.css';
 
-// Chế độ Người bệnh (Bố/Mẹ): 5 tab chuẩn
+// Chế độ Người bệnh (Bố/Mẹ): 4 tab tinh gọn (Trang chủ, Chỉ số, Gia đình, Hồ sơ)
 const PATIENT_ITEMS = [
   { to: '/dashboard', icon: Home, label: 'Trang chủ', exact: true },
   { to: '/glucose', icon: Activity, label: 'Chỉ số' },
   { to: '/family', icon: Users, label: 'Gia đình' },
-  { to: '/messages', icon: MessageCircle, label: 'Tin nhắn' },
   { to: '/profile', icon: User, label: 'Hồ sơ' },
 ];
 

@@ -279,8 +279,8 @@ export default function BodySimulationPage() {
     rotY: 0,
     targetRotY: 0,
     targetRotX: 0,
-    distance: 2.95,
-    targetDistance: 2.95,
+    distance: 2.7,
+    targetDistance: 2.7,
   });
   const skinGroupRef = useRef(null);
   const skeletonGroupRef = useRef(null);
@@ -299,9 +299,9 @@ export default function BodySimulationPage() {
     scene.background = new THREE.Color(0x050914); // Deep navy black matching iStock photo
     scene.fog = new THREE.FogExp2(0x050914, 0.05);
 
-    // 2. Camera (framing full T-pose human from head to toes on pedestal)
+    // 2. Camera (framing full standing human from head to toes on pedestal)
     const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 50);
-    camera.position.set(0, 0.95, 2.95);
+    camera.position.set(0, 0.95, 2.7);
     camera.lookAt(0, 0.95, 0);
     cameraRef.current = camera;
 
@@ -368,8 +368,8 @@ export default function BodySimulationPage() {
     const pedestal = new THREE.Group();
     scene.add(pedestal);
 
-    // Base disc
-    const discGeo = new THREE.CircleGeometry(1.28, 64);
+    // Base disc (compact for straight down pose)
+    const discGeo = new THREE.CircleGeometry(0.95, 64);
     discGeo.rotateX(-Math.PI / 2);
     const discMat = new THREE.MeshBasicMaterial({
       color: 0x030e1c,
@@ -380,8 +380,8 @@ export default function BodySimulationPage() {
     discMesh.position.y = 0.001;
     pedestal.add(discMesh);
 
-    // Outer cyan perimeter ring (R = 1.28)
-    const outerRingGeo = new THREE.RingGeometry(1.26, 1.28, 96);
+    // Outer cyan perimeter ring (R = 0.95)
+    const outerRingGeo = new THREE.RingGeometry(0.935, 0.95, 96);
     outerRingGeo.rotateX(-Math.PI / 2);
     const ringMat = new THREE.MeshBasicMaterial({
       color: 0x00f5ff,
@@ -393,8 +393,8 @@ export default function BodySimulationPage() {
     outerRing.position.y = 0.003;
     pedestal.add(outerRing);
 
-    // Middle concentric ring (R = 0.58)
-    const midRingGeo = new THREE.RingGeometry(0.56, 0.58, 80);
+    // Middle concentric ring (R = 0.52)
+    const midRingGeo = new THREE.RingGeometry(0.505, 0.52, 80);
     midRingGeo.rotateX(-Math.PI / 2);
     const midRing = new THREE.Mesh(midRingGeo, ringMat);
     midRing.position.y = 0.004;
@@ -408,7 +408,7 @@ export default function BodySimulationPage() {
     pedestal.add(innerRing);
 
     // Low Upward Hologram Projection Cone (Rises from outer ring up to shin level, y ~ 0.55)
-    const coneGeo = new THREE.CylinderGeometry(1.55, 1.28, 0.55, 64, 1, true);
+    const coneGeo = new THREE.CylinderGeometry(1.08, 0.95, 0.55, 64, 1, true);
     coneGeo.translate(0, 0.275, 0);
     const beamMat = new THREE.ShaderMaterial({
       vertexShader: BEAM_VERT,
@@ -427,7 +427,7 @@ export default function BodySimulationPage() {
     uniformsRef.current.push(beamMat.uniforms.uTime);
 
     // Floating Scanner Ring 1 (Lower leg / shin level, y ~ 0.38)
-    const legRingGeo = new THREE.RingGeometry(0.81, 0.816, 96);
+    const legRingGeo = new THREE.RingGeometry(0.52, 0.525, 96);
     legRingGeo.rotateX(Math.PI / 2);
     const scannerMat = new THREE.MeshBasicMaterial({
       color: 0x00f5ff,
@@ -440,7 +440,7 @@ export default function BodySimulationPage() {
     scene.add(legRing);
 
     // Floating Scanner Ring 2 (Faint mid-height ring around knee/lower thigh, y ~ 0.82)
-    const midScannerGeo = new THREE.RingGeometry(0.92, 0.925, 96);
+    const midScannerGeo = new THREE.RingGeometry(0.58, 0.585, 96);
     midScannerGeo.rotateX(Math.PI / 2);
     const midScannerMat = new THREE.MeshBasicMaterial({
       color: 0x00d4ff,
@@ -452,8 +452,8 @@ export default function BodySimulationPage() {
     midScannerRing.position.y = 0.82;
     scene.add(midScannerRing);
 
-    // Floating Scanner Ring 3 (Chest level below armpits, y ~ 1.24)
-    const chestRingGeo = new THREE.RingGeometry(1.04, 1.047, 96);
+    // Floating Scanner Ring 3 (Chest level, y ~ 1.24)
+    const chestRingGeo = new THREE.RingGeometry(0.66, 0.666, 96);
     chestRingGeo.rotateX(Math.PI / 2);
     const chestRing = new THREE.Mesh(chestRingGeo, scannerMat);
     chestRing.position.y = 1.24;
@@ -525,8 +525,7 @@ export default function BodySimulationPage() {
           }
         });
 
-        // Pose arms into horizontal T-pose
-        poseArmsToT(skelRoot);
+        // Arms hang naturally straight down along the body per user request
 
         // Normalize height and place feet on pedestal at y = 0
         skelRoot.updateMatrixWorld(true);
@@ -559,9 +558,7 @@ export default function BodySimulationPage() {
               }
             });
 
-            // Pose arms of skin to match skeleton T-pose
-            poseArmsToT(skinRoot);
-
+            // Arms hang naturally straight down matching skeleton
             skinRoot.scale.set(scale, scale, scale);
             skinRoot.position.set(
               skelRoot.position.x,
@@ -721,7 +718,7 @@ export default function BodySimulationPage() {
   const resetCamera = useCallback(() => {
     controlsState.current.targetRotY = 0;
     controlsState.current.targetRotX = 0;
-    controlsState.current.targetDistance = 2.95;
+    controlsState.current.targetDistance = 2.7;
   }, []);
 
   return (

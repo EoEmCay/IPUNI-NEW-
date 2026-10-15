@@ -138,6 +138,9 @@ function AppRoutes() {
             : <LandingPage />
         } />
         <Route path="/landing" element={<LandingPage />} />
+        <Route path="/features" element={<LandingPage section="features" />} />
+        <Route path="/impact" element={<LandingPage section="impact" />} />
+        <Route path="/contact" element={<LandingPage section="contact" />} />
         {/* Trang pháp lý công khai (Facebook/Google yêu cầu khi phát hành ứng dụng) */}
         <Route path="/chinh-sach-bao-mat" element={<PrivacyPage />} />
         <Route path="/xoa-du-lieu" element={<DataDeletionPage />} />

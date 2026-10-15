@@ -43,7 +43,7 @@ const features = [
 
 import SplashScreen from '../components/common/SplashScreen';
 
-export default function LandingPage() {
+export default function LandingPage({ section }) {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
   const lang = useLangStore(s => s.lang);
@@ -53,6 +53,38 @@ export default function LandingPage() {
   useEffect(() => {
     if (isAuthenticated) navigate('/dashboard');
   }, [isAuthenticated, navigate]);
+
+  const scrollToSection = (id) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  useEffect(() => {
+    // 1. Nếu có prop section (từ URL sạch như /features, /impact, /contact)
+    if (section) {
+      const el = document.getElementById(section);
+      if (el) {
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 150);
+      }
+    }
+
+    // 2. Nếu có #hash cũ trên URL (vd: diaplus.vn/#features), tự cuộn đến phần đó và làm sạch URL
+    if (window.location.hash) {
+      const targetId = window.location.hash.replace('#', '');
+      const el = document.getElementById(targetId);
+      if (el) {
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 150);
+      }
+      // Dọn dẹp URL sạch đẹp thành diaplus.vn (loại bỏ vĩnh viễn #hash)
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  }, [section]);
 
   const observerRef = useRef(null);
   useEffect(() => {
@@ -72,15 +104,22 @@ export default function LandingPage() {
     <div className={styles.container}>
       {/* ── NAVBAR ── */}
       <nav className={styles.nav}>
-        <div className={styles.navLogo}>
+        <div
+          className={styles.navLogo}
+          onClick={() => scrollToSection('home')}
+          style={{ cursor: 'pointer' }}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && scrollToSection('home')}
+        >
           <img src="/logo.jpg" alt="DIA+" className={styles.navLogoImg} />
           <span className={styles.navLogoText}>IAPLUS.VN</span>
         </div>
         <div className={styles.navMenu}>
-          <a href="#home" className={styles.navLink}>{text.navHome}</a>
-          <a href="#features" className={styles.navLink}>{text.navFeatures}</a>
-          <a href="#impact" className={styles.navLink}>{text.navImpact}</a>
-          <a href="#contact" className={styles.navLink}>{text.navContact}</a>
+          <button type="button" onClick={() => scrollToSection('home')} className={styles.navLink}>{text.navHome}</button>
+          <button type="button" onClick={() => scrollToSection('features')} className={styles.navLink}>{text.navFeatures}</button>
+          <button type="button" onClick={() => scrollToSection('impact')} className={styles.navLink}>{text.navImpact}</button>
+          <button type="button" onClick={() => scrollToSection('contact')} className={styles.navLink}>{text.navContact}</button>
         </div>
       </nav>
 
@@ -117,14 +156,14 @@ export default function LandingPage() {
           </div>
           {/* Download Badges */}
           <div className={styles.storeRow}>
-            <a href="#" className={styles.storeBadge}>
+            <a href="#" onClick={(e) => e.preventDefault()} className={styles.storeBadge}>
               <svg viewBox="0 0 24 24" className={styles.storeIcon}><path fill="currentColor" d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
               <div className={styles.storeText}>
                 <span className={styles.storeLabel}>Download on the</span>
                 <span className={styles.storeName}>App Store</span>
               </div>
             </a>
-            <a href="#" className={styles.storeBadge}>
+            <a href="#" onClick={(e) => e.preventDefault()} className={styles.storeBadge}>
                 <svg viewBox="30 336.7 120.9 129.2" className={styles.storeIcon}>
                   <path fill="#4285F4" d="M99.1,401.1l-64.3-64.3c-2.6,0.6-4.8,2.9-4.8,7.6c0,7.5,0,107.5,0,113.8c0,4.3,1.7,7.4,4.9,7.7L99.1,401.1z"/>
                   <path fill="#34A853" d="M99.1,401.1l20.1-20.2c0,0-74.6-40.7-79.1-43.1c-1.7-1-3.6-1.3-5.3-1L99.1,401.1z"/>
@@ -320,8 +359,8 @@ export default function LandingPage() {
               <ul>
                 <li><a href="/chinh-sach-bao-mat">{text.footerPrivacy}</a></li>
                 <li><a href="/xoa-du-lieu">{lang === 'vi' ? 'Xoá dữ liệu' : 'Data deletion'}</a></li>
-                <li><a href="#">{text.footerTerms}</a></li>
-                <li><a href="#">{text.footerCookies}</a></li>
+                <li><a href="#" onClick={(e) => e.preventDefault()}>{text.footerTerms}</a></li>
+                <li><a href="#" onClick={(e) => e.preventDefault()}>{text.footerCookies}</a></li>
               </ul>
             </div>
 
@@ -339,9 +378,9 @@ export default function LandingPage() {
             <div className={styles.footerBottomLinks}>
               <a href="/chinh-sach-bao-mat">{text.footerPrivacy}</a>
               <span>·</span>
-              <a href="#">{text.footerTerms}</a>
+              <a href="#" onClick={(e) => e.preventDefault()}>{text.footerTerms}</a>
               <span>·</span>
-              <a href="#">{text.footerCookies}</a>
+              <a href="#" onClick={(e) => e.preventDefault()}>{text.footerCookies}</a>
             </div>
           </div>
         </div>

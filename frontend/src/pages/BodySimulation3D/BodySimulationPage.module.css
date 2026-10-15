@@ -1,0 +1,541 @@
+/* ========================================================
+   DIA+ 3D HUMAN BODY & GLUCOSE SIMULATION - SCI-FI LAB
+   ======================================================== */
+.container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 30%, #0d1a30 0%, #060b14 70%, #020408 100%);
+  color: #ffffff;
+  font-family: 'Lexend', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  user-select: none;
+}
+
+/* 3D WebGL Canvas Layer */
+.canvasWrapper {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  z-index: 1;
+}
+
+.canvasWrapper:active {
+  cursor: grabbing;
+}
+
+/* Background Cyber Grid & Vignette */
+.ambientGrid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(0, 240, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 2;
+  mask-image: radial-gradient(circle at 50% 50%, black 40%, transparent 80%);
+}
+
+.ambientVignette {
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.85);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── TOP HEADER BAR ── */
+.topBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.topBarLeft,
+.topBarRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  color: #e2e8f0;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.backBtn:hover {
+  background: rgba(0, 240, 255, 0.15);
+  border-color: #00f0ff;
+  color: #00f0ff;
+  transform: translateX(-2px);
+}
+
+.brandPill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  color: #94a3b8;
+}
+
+.brandPill strong {
+  color: #00f0ff;
+  letter-spacing: 0.5px;
+}
+
+.brandBadge {
+  background: #00f0ff;
+  color: #040914;
+  font-size: 10px;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.actionBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.actionBtn:hover {
+  border-color: #00f0ff;
+  color: #00f0ff;
+  background: rgba(0, 240, 255, 0.1);
+}
+
+/* ── HUD BẢNG CHỈ SỐ GÓC TRÁI (THEO YÊU CẦU CỦA USER) ── */
+.leftHud {
+  position: absolute;
+  top: 76px;
+  left: 24px;
+  width: 320px;
+  max-width: calc(100vw - 48px);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: auto;
+  animation: slideInLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.foodHeaderCard {
+  background: rgba(10, 18, 35, 0.82);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.foodHeaderCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(to bottom, #00f0ff, #3b82f6);
+}
+
+.foodTagRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.foodTypeTag {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.foodPhaseTag {
+  font-size: 11px;
+  font-weight: 700;
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.foodName {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 10px 0;
+  line-height: 1.25;
+}
+
+/* Metrics Grid */
+.metricsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.metricCard {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.metricLabel {
+  font-size: 10px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.metricValue {
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.metricUnit {
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748b;
+  margin-left: 2px;
+}
+
+/* CẢNH BÁO TĂNG ĐƯỜNG HUYẾT HAY BÌNH THƯỜNG */
+.warningBanner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.2px;
+  transition: all 0.3s ease;
+}
+
+.warningSpike {
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.25) 0%, rgba(185, 28, 28, 0.15) 100%);
+  border: 1px solid #ef4444;
+  color: #fca5a5;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.25);
+  animation: pulseSpike 2s infinite;
+}
+
+@keyframes pulseSpike {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(239, 68, 68, 0.55);
+  }
+}
+
+.warningNormal {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.15) 100%);
+  border: 1px solid #10b981;
+  color: #6ee7b7;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+}
+
+.warningIconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.warningSpike .warningIconWrap {
+  background: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.warningNormal .warningIconWrap {
+  background: rgba(16, 185, 129, 0.3);
+  color: #6ee7b7;
+}
+
+/* REALTIME BLOOD GLUCOSE GAUGE CARD */
+.glucoseGaugeCard {
+  background: rgba(10, 18, 35, 0.82);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 12px 16px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+}
+
+.gaugeTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.glucoseNumberRow {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.glucoseBigNumber {
+  font-size: 26px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.4s ease;
+}
+
+.glucoseSubMmol {
+  font-size: 13px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+/* Progress Bar for Bloodstream Glucose Level */
+.glucoseTrack {
+  height: 7px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.glucoseFill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease, background 0.4s ease;
+}
+
+.journeyStatusText {
+  font-size: 11.5px;
+  color: #38bdf8;
+  margin-top: 8px;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── HUD GÓC DƯỚI: MENU CHỌN MÓN & CHỤP ẢNH ── */
+.bottomControlTray {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 92vw;
+  pointer-events: auto;
+}
+
+.foodCarousel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(10, 18, 35, 0.85);
+  backdrop-filter: blur(20px);
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  overflow-x: auto;
+  scrollbar-width: none;
+  max-width: 100%;
+}
+
+.foodCarousel::-webkit-scrollbar {
+  display: none;
+}
+
+.foodItemBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #94a3b8;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.25s ease;
+}
+
+.foodItemBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.foodItemBtnActive {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.25) 0%, rgba(59, 130, 246, 0.25) 100%);
+  border-color: #00f0ff;
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(0, 240, 255, 0.35);
+}
+
+.foodEmoji {
+  font-size: 16px;
+}
+
+/* Big Action Bar */
+.actionControlRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.uploadPhotoBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 4px 18px rgba(2, 132, 199, 0.45);
+  transition: all 0.2s ease;
+}
+
+.uploadPhotoBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(2, 132, 199, 0.65);
+}
+
+.replayBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e2e8f0;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.replayBtn:hover {
+  border-color: #00f0ff;
+  color: #00f0ff;
+}
+
+/* 3D View Helper Hint (Bottom Right) */
+.viewHintBadge {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 11px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+@media (max-width: 768px) {
+  .leftHud {
+    top: 64px;
+    left: 14px;
+    width: 270px;
+  }
+  .foodName {
+    font-size: 16px;
+  }
+  .metricValue {
+    font-size: 15px;
+  }
+  .glucoseBigNumber {
+    font-size: 20px;
+  }
+  .bottomControlTray {
+    bottom: 14px;
+  }
+  .viewHintBadge {
+    display: none;
+  }
+}

@@ -554,6 +554,19 @@ export default function BodySimulationPage() {
 
             skinRoot.traverse((c) => {
               if (c.isMesh) {
+                const name = (c.name || '').toLowerCase();
+                // Remove genital, pubic, and anal regions per user request
+                if (
+                  name.includes('urogenital') ||
+                  name.includes('pubic') ||
+                  name.includes('anal') ||
+                  name.includes('perine') ||
+                  name.includes('genital')
+                ) {
+                  c.visible = false;
+                  c.geometry = new THREE.BufferGeometry();
+                  return;
+                }
                 c.material = skinShaderMat;
               }
             });

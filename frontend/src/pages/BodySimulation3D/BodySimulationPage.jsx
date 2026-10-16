@@ -3,31 +3,28 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
-import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
+import {
+  mergeGeometries,
+  mergeVertices,
+} from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import {
   ArrowLeft,
   RotateCcw,
-  Sparkles,
   Layers,
   Heart,
   Wind,
-  Flame,
   User,
-  Activity,
-  Maximize2,
-  Scan,
+  Brain,
+  Eye,
 } from 'lucide-react';
 import styles from './BodySimulationPage.module.css';
 
 // ========================================================
-// GLSL HOLOGRAPHIC SHADERS
+// CLEAN STUDIO MEDICAL SHADERS (NO BLOOM, NO FLASHY GLOW)
+// Matches Reference Images 2 (Back), 3 (Front), and 4 (X-Ray Brain + Skeleton)
 // ========================================================
 
-// 1. Outer Glassy Skin Shader (Dark translucent navy core, glowing cyan Fresnel silhouette)
-const SKIN_HOLO_VERT = /* glsl */ `
+const STUDIO_VERT = /* glsl */ `
   varying vec3 vNormal;
   varying vec3 vViewPosition;
   varying vec3 vWorldPosition;
@@ -42,1041 +39,1085 @@ const SKIN_HOLO_VERT = /* glsl */ `
   }
 `;
 
-const SKIN_HOLO_FRAG = /* glsl */ `
-  uniform float uTime;
+// 1. Outer Body Shader:
+// - When uSurfaceMode = 1.0 (Images 2 & 3): Smooth sculpted matte-satin cobalt blue with soft sky-blue rim.
+// - When uSurfaceMode = 0.0 (Image 4): Crystal-clear X-ray glass silhouette revealing brain, skeleton & vessels inside.
+const SKIN_STUDIO_FRAG = /* glsl */ `
+  uniform vec3 uDeepColor;
+  uniform vec3 uLitColor;
   uniform vec3 uRimColor;
-  uniform vec3 uBaseColor;
-  uniform float uOpacity;
-  uniform float uScanY;
-  uniform float uScanActive;
-
-  varying vec3 vNormal;
-  varying vec3 vViewPosition;
-  varying vec3 vWorldPosition;
-
-  void main() {
-    vec3 normal = normalize(vNormal);
-    vec3 viewDir = normalize(vViewPosition);
-
-    float NdotV = abs(dot(normal, viewDir));
-    float fresnel = pow(1.0 - NdotV, 2.8);
-
-    // Subtle fine holographic scanline
-    float fineLines = sin(vWorldPosition.y * 70.0 - uTime * 2.5) * 0.5 + 0.5;
-    fineLines = pow(fineLines, 8.0) * 0.12;
-
-    // Interactive X-Ray Laser Scanline
-    float scanDist = abs(vWorldPosition.y - uScanY);
-    float scanGlow = uScanActive * smoothstep(0.08, 0.0, scanDist) * 1.5;
-
-    vec3 color = mix(uBaseColor, uRimColor, fresnel * 0.95 + fineLines);
-    color += uRimColor * (pow(fresnel, 4.0) * 2.0 + scanGlow);
-
-    // Translucent core revealing interior organs and skeleton
-    float alpha = mix(0.10, 0.88, pow(fresnel, 2.2)) * uOpacity;
-    alpha += scanGlow * 0.3;
-
-    gl_FragColor = vec4(color, alpha);
-  }
-`;
-
-// 2. Skeleton Shader (Sapphire bone mass with electric cyan ridges)
-const SKELETON_HOLO_VERT = /* glsl */ `
-  varying vec3 vNormal;
-  varying vec3 vViewPosition;
-  varying vec3 vWorldPosition;
-
-  void main() {
-    vNormal = normalize(normalMatrix * normal);
-    vec4 worldPos = modelMatrix * vec4(position, 1.0);
-    vWorldPosition = worldPos.xyz;
-    vec4 mvPosition = viewMatrix * worldPos;
-    vViewPosition = -mvPosition.xyz;
-    gl_Position = projectionMatrix * mvPosition;
-  }
-`;
-
-const SKELETON_HOLO_FRAG = /* glsl */ `
-  uniform float uTime;
-  uniform vec3 uBoneColor;
-  uniform vec3 uGlowColor;
-  uniform float uIntensity;
-  uniform float uScanY;
-  uniform float uScanActive;
-
-  varying vec3 vNormal;
-  varying vec3 vViewPosition;
-  varying vec3 vWorldPosition;
-
-  void main() {
-    vec3 normal = normalize(vNormal);
-    vec3 viewDir = normalize(vViewPosition);
-
-    float NdotV = max(dot(normal, viewDir), 0.0);
-    float rim = pow(1.0 - NdotV, 2.2);
-
-    vec3 lightDir = normalize(vec3(0.2, 0.9, 0.8));
-    float diff = max(dot(normal, lightDir), 0.0);
-    vec3 halfVec = normalize(lightDir + viewDir);
-    float spec = pow(max(dot(normal, halfVec), 0.0), 32.0) * 0.75;
-
-    vec3 bone = mix(uBoneColor, uGlowColor, diff * 0.35 + rim * 0.7);
-    bone += uGlowColor * spec;
-    bone += uGlowColor * pow(rim, 2.8) * 1.6;
-
-    // Scanline laser flare
-    float scanDist = abs(vWorldPosition.y - uScanY);
-    float scanGlow = uScanActive * smoothstep(0.06, 0.0, scanDist) * 1.8;
-    bone += uGlowColor * scanGlow;
-
-    float pulse = sin(uTime * 1.5) * 0.04 + 0.96;
-    bone *= pulse * uIntensity;
-
-    gl_FragColor = vec4(bone, 0.98);
-  }
-`;
-
-// 3. Heart Shader (Dual-beat lub-dub animated cardiac pulse with glowing coral-crimson core)
-const HEART_HOLO_VERT = /* glsl */ `
-  uniform float uTime;
-  varying vec3 vNormal;
-  varying vec3 vViewPosition;
-  varying vec3 vWorldPosition;
-
-  void main() {
-    vNormal = normalize(normalMatrix * normal);
-    
-    // Lub-dub cardiac rhythm: ~72 bpm
-    float beat1 = pow(max(sin(uTime * 4.6), 0.0), 14.0) * 0.045;
-    float beat2 = pow(max(sin(uTime * 4.6 - 0.45), 0.0), 16.0) * 0.025;
-    float pulse = beat1 + beat2;
-
-    vec3 newPos = position + normal * pulse;
-    vec4 worldPos = modelMatrix * vec4(newPos, 1.0);
-    vWorldPosition = worldPos.xyz;
-    vec4 mvPosition = viewMatrix * worldPos;
-    vViewPosition = -mvPosition.xyz;
-    gl_Position = projectionMatrix * mvPosition;
-  }
-`;
-
-const HEART_HOLO_FRAG = /* glsl */ `
-  uniform float uTime;
-  uniform vec3 uBaseColor;
-  uniform vec3 uGlowColor;
+  uniform float uSurfaceMode;
 
   varying vec3 vNormal;
   varying vec3 vViewPosition;
 
   void main() {
     vec3 normal = normalize(vNormal);
+    if (!gl_FrontFacing) normal = -normal;
     vec3 viewDir = normalize(vViewPosition);
-    float NdotV = max(dot(normal, viewDir), 0.0);
-    float fresnel = pow(1.0 - NdotV, 2.2);
 
-    float beat1 = pow(max(sin(uTime * 4.6), 0.0), 10.0) * 0.6;
-    float beat2 = pow(max(sin(uTime * 4.6 - 0.45), 0.0), 12.0) * 0.35;
-    float beatFlash = beat1 + beat2;
-
-    vec3 color = mix(uBaseColor, uGlowColor, fresnel * 0.75 + beatFlash * 0.65);
-    color += uGlowColor * (pow(fresnel, 3.2) * 1.6 + beatFlash * 1.8);
-
-    gl_FragColor = vec4(color, 0.98);
-  }
-`;
-
-// 4. Blood Vessels Shader (Full arterial crimson tree with pulsating cyber blood flow)
-const VESSELS_HOLO_VERT = /* glsl */ `
-  varying vec3 vNormal;
-  varying vec3 vViewPosition;
-  varying vec3 vWorldPosition;
-
-  void main() {
-    vNormal = normalize(normalMatrix * normal);
-    vec4 worldPos = modelMatrix * vec4(position, 1.0);
-    vWorldPosition = worldPos.xyz;
-    vec4 mvPosition = viewMatrix * worldPos;
-    vViewPosition = -mvPosition.xyz;
-    gl_Position = projectionMatrix * mvPosition;
-  }
-`;
-
-const VESSELS_HOLO_FRAG = /* glsl */ `
-  uniform float uTime;
-  uniform vec3 uArteryColor;
-  uniform vec3 uVeinColor;
-
-  varying vec3 vNormal;
-  varying vec3 vViewPosition;
-  varying vec3 vWorldPosition;
-
-  void main() {
-    vec3 normal = normalize(vNormal);
-    vec3 viewDir = normalize(vViewPosition);
-    float NdotV = max(dot(normal, viewDir), 0.0);
-    float fresnel = pow(1.0 - NdotV, 2.0);
-
-    // Traveling cyber pulse through vessels
-    float flow = sin(vWorldPosition.y * 32.0 - uTime * 6.5) * 0.5 + 0.5;
-    flow = pow(flow, 5.0) * 0.65;
-
-    // Distinguish arterial branches (bright crimson) from venous/microcapillaries
-    vec3 base = mix(uArteryColor, uVeinColor, step(0.0, -vNormal.x) * 0.3);
-    vec3 color = mix(base, vec3(1.0, 0.4, 0.6), fresnel * 0.75 + flow);
-    color += vec3(1.0, 0.2, 0.4) * (pow(fresnel, 3.0) * 1.4 + flow * 1.2);
-
-    gl_FragColor = vec4(color, 0.95);
-  }
-`;
-
-// 5. Lungs & Respiratory Shader (Translucent ice-blue with gentle respiratory expansion)
-const LUNGS_HOLO_VERT = /* glsl */ `
-  uniform float uTime;
-  varying vec3 vNormal;
-  varying vec3 vViewPosition;
-  varying vec3 vWorldPosition;
-
-  void main() {
-    vNormal = normalize(normalMatrix * normal);
-    
-    // Gentle respiratory breathing (~14 breaths / min)
-    float breath = sin(uTime * 1.4) * 0.025;
-    vec3 newPos = position + normal * breath;
-
-    vec4 worldPos = modelMatrix * vec4(newPos, 1.0);
-    vWorldPosition = worldPos.xyz;
-    vec4 mvPosition = viewMatrix * worldPos;
-    vViewPosition = -mvPosition.xyz;
-    gl_Position = projectionMatrix * mvPosition;
-  }
-`;
-
-const LUNGS_HOLO_FRAG = /* glsl */ `
-  uniform float uTime;
-  uniform vec3 uBaseColor;
-  uniform vec3 uRimColor;
-
-  varying vec3 vNormal;
-  varying vec3 vViewPosition;
-
-  void main() {
-    vec3 normal = normalize(vNormal);
-    vec3 viewDir = normalize(vViewPosition);
-    float NdotV = abs(dot(normal, viewDir));
-    float fresnel = pow(1.0 - NdotV, 2.2);
-
-    float breathGlow = sin(uTime * 1.4) * 0.15 + 0.85;
-
-    vec3 color = mix(uBaseColor, uRimColor, fresnel * 0.85);
-    color += uRimColor * pow(fresnel, 3.0) * 1.5;
-
-    float alpha = mix(0.18, 0.85, pow(fresnel, 1.8)) * breathGlow;
-    gl_FragColor = vec4(color, alpha);
-  }
-`;
-
-// 6. Liver & Visceral Shader (Translucent amber/gold cyber glow)
-const LIVER_HOLO_VERT = /* glsl */ `
-  varying vec3 vNormal;
-  varying vec3 vViewPosition;
-  varying vec3 vWorldPosition;
-
-  void main() {
-    vNormal = normalize(normalMatrix * normal);
-    vec4 worldPos = modelMatrix * vec4(position, 1.0);
-    vWorldPosition = worldPos.xyz;
-    vec4 mvPosition = viewMatrix * worldPos;
-    vViewPosition = -mvPosition.xyz;
-    gl_Position = projectionMatrix * mvPosition;
-  }
-`;
-
-const LIVER_HOLO_FRAG = /* glsl */ `
-  uniform float uTime;
-  uniform vec3 uBaseColor;
-  uniform vec3 uRimColor;
-
-  varying vec3 vNormal;
-  varying vec3 vViewPosition;
-
-  void main() {
-    vec3 normal = normalize(vNormal);
-    vec3 viewDir = normalize(vViewPosition);
-    float NdotV = abs(dot(normal, viewDir));
+    float NdotV = clamp(dot(normal, viewDir), 0.0, 1.0);
     float fresnel = pow(1.0 - NdotV, 2.4);
 
-    vec3 color = mix(uBaseColor, uRimColor, fresnel * 0.9);
-    color += uRimColor * pow(fresnel, 3.2) * 1.4;
+    // Three-point studio medical lighting
+    vec3 keyDir = normalize(vec3(0.35, 0.65, 0.75));
+    vec3 fillDir = normalize(vec3(-0.55, 0.25, 0.55));
+    vec3 topDir = normalize(vec3(0.0, 1.0, 0.2));
 
-    float alpha = mix(0.35, 0.92, pow(fresnel, 1.6));
+    float keyLight = max(dot(normal, keyDir), 0.0);
+    float fillLight = max(dot(normal, fillDir), 0.0) * 0.45;
+    float topLight = max(dot(normal, topDir), 0.0) * 0.25;
+    float diffuse = clamp(keyLight * 0.75 + fillLight + topLight, 0.0, 1.0);
+
+    // Soft satin highlight for sculpted muscular definition (Images 2 & 3)
+    vec3 halfVec = normalize(keyDir + viewDir);
+    float satinSpec = pow(max(dot(normal, halfVec), 0.0), 18.0) * 0.22;
+
+    vec3 surfaceCol = mix(uDeepColor, uLitColor, diffuse);
+    surfaceCol += uRimColor * (satinSpec + fresnel * 0.52);
+
+    // X-Ray glass silhouette mode (Image 4)
+    vec3 xrayCol = mix(uLitColor * 0.65, uRimColor, pow(fresnel, 1.4));
+    float xrayAlpha = mix(0.07, 0.74, pow(fresnel, 2.0));
+
+    vec3 finalColor = mix(xrayCol, surfaceCol, uSurfaceMode);
+    float finalAlpha = mix(xrayAlpha, 0.98, uSurfaceMode);
+
+    gl_FragColor = vec4(finalColor, finalAlpha);
+  }
+`;
+
+// 2. X-Ray Cobalt Skeleton Shader (Matches Image 4: crisp translucent cobalt-blue bone with clean edges)
+const SKELETON_STUDIO_FRAG = /* glsl */ `
+  uniform vec3 uCoreColor;
+  uniform vec3 uEdgeColor;
+
+  varying vec3 vNormal;
+  varying vec3 vViewPosition;
+
+  void main() {
+    vec3 normal = normalize(vNormal);
+    if (!gl_FrontFacing) normal = -normal;
+    vec3 viewDir = normalize(vViewPosition);
+
+    float NdotV = clamp(dot(normal, viewDir), 0.0, 1.0);
+    float fresnel = pow(1.0 - NdotV, 1.65);
+
+    vec3 keyDir = normalize(vec3(0.3, 0.7, 0.7));
+    float diff = max(dot(normal, keyDir), 0.0) * 0.45;
+
+    vec3 color = mix(uCoreColor, uEdgeColor, fresnel * 0.82 + diff * 0.35);
+    float alpha = mix(0.34, 0.90, fresnel);
+
     gl_FragColor = vec4(color, alpha);
   }
 `;
 
-// 7. Digestive / Intestines Shader (Emerald/lime glow with wave peristalsis)
-const DIGESTIVE_HOLO_VERT = /* glsl */ `
+// 3. Solid Anatomical Studio Shader (For Brain gyri/sulci in Image 4, Blood Vessels, Heart, Liver, Viscera)
+const ORGAN_STUDIO_FRAG = /* glsl */ `
+  uniform vec3 uShadowColor;
+  uniform vec3 uMidColor;
+  uniform vec3 uRimColor;
+  uniform float uOpacity;
+
   varying vec3 vNormal;
   varying vec3 vViewPosition;
-  varying vec3 vWorldPosition;
 
   void main() {
-    vNormal = normalize(normalMatrix * normal);
-    vec4 worldPos = modelMatrix * vec4(position, 1.0);
-    vWorldPosition = worldPos.xyz;
-    vec4 mvPosition = viewMatrix * worldPos;
-    vViewPosition = -mvPosition.xyz;
-    gl_Position = projectionMatrix * mvPosition;
+    vec3 normal = normalize(vNormal);
+    if (!gl_FrontFacing) normal = -normal;
+    vec3 viewDir = normalize(vViewPosition);
+
+    float NdotV = clamp(dot(normal, viewDir), 0.0, 1.0);
+    float fresnel = pow(1.0 - NdotV, 2.2);
+
+    vec3 keyDir = normalize(vec3(0.35, 0.65, 0.75));
+    vec3 fillDir = normalize(vec3(-0.5, 0.3, 0.5));
+    float diff = clamp(max(dot(normal, keyDir), 0.0) * 0.78 + max(dot(normal, fillDir), 0.0) * 0.35, 0.0, 1.0);
+
+    vec3 halfVec = normalize(keyDir + viewDir);
+    float spec = pow(max(dot(normal, halfVec), 0.0), 24.0) * 0.18;
+
+    vec3 color = mix(uShadowColor, uMidColor, diff);
+    color = mix(color, uRimColor, fresnel * 0.48) + uRimColor * spec;
+
+    gl_FragColor = vec4(color, uOpacity);
   }
 `;
 
-const DIGESTIVE_HOLO_FRAG = /* glsl */ `
-  uniform float uTime;
-  uniform vec3 uBaseColor;
+// 4. Translucent Lung Shader (Reveals bronchial tree and heart vessels inside)
+const LUNG_STUDIO_FRAG = /* glsl */ `
+  uniform vec3 uCoreColor;
   uniform vec3 uRimColor;
 
   varying vec3 vNormal;
   varying vec3 vViewPosition;
-  varying vec3 vWorldPosition;
 
   void main() {
     vec3 normal = normalize(vNormal);
+    if (!gl_FrontFacing) normal = -normal;
     vec3 viewDir = normalize(vViewPosition);
-    float NdotV = abs(dot(normal, viewDir));
-    float fresnel = pow(1.0 - NdotV, 2.2);
 
-    // Peristaltic metabolic wave
-    float wave = sin(vWorldPosition.y * 22.0 - uTime * 2.2) * 0.5 + 0.5;
-    wave = pow(wave, 3.0) * 0.35;
+    float NdotV = clamp(dot(normal, viewDir), 0.0, 1.0);
+    float fresnel = pow(1.0 - NdotV, 1.8);
 
-    vec3 color = mix(uBaseColor, uRimColor, fresnel * 0.85 + wave);
-    color += uRimColor * (pow(fresnel, 3.0) * 1.3 + wave * 1.1);
+    vec3 color = mix(uCoreColor, uRimColor, fresnel * 0.85);
+    float alpha = mix(0.20, 0.68, fresnel);
 
-    float alpha = mix(0.28, 0.90, pow(fresnel, 1.8));
     gl_FragColor = vec4(color, alpha);
   }
 `;
 
-// 8. Pedestal Hologram Cone Shader
-const BEAM_VERT = /* glsl */ `
-  varying vec2 vUv;
-  varying vec3 vWorldPosition;
+// ========================================================
+// ANATOMICAL ATLAS CLASSIFICATION & GEOMETRY BAKING
+// ========================================================
 
-  void main() {
-    vUv = uv;
-    vec4 worldPos = modelMatrix * vec4(position, 1.0);
-    vWorldPosition = worldPos.xyz;
-    gl_Position = projectionMatrix * viewMatrix * worldPos;
+function isBrainOrSpinalNode(name) {
+  if (!name) return false;
+  const l = name.toLowerCase();
+  if (
+    l.includes('dura') ||
+    l.includes('falx') ||
+    l.includes('tentorium') ||
+    l.includes('muscle') ||
+    l.includes('eyeball') ||
+    l.includes('cornea') ||
+    l.includes('cochlea') ||
+    l.includes('auditory') ||
+    l.includes('lacrimal')
+  ) {
+    return false;
   }
-`;
+  return (
+    l.includes('gyrus') ||
+    l.includes('gyri') ||
+    l.includes('sulcus') ||
+    l.includes('sulci') ||
+    l.includes('lobe') ||
+    l.includes('lobule') ||
+    l.includes('cereb') ||
+    l.includes('pons') ||
+    l.includes('medulla') ||
+    l.includes('thalamus') ||
+    l.includes('hypothalamus') ||
+    l.includes('corpus callosum') ||
+    l.includes('fornix') ||
+    l.includes('hippocamp') ||
+    l.includes('putamen') ||
+    l.includes('caudate') ||
+    l.includes('globus pallidus') ||
+    l.includes('insula') ||
+    l.includes('cuneus') ||
+    l.includes('precuneus') ||
+    l.includes('vermis') ||
+    l.includes('culmen') ||
+    l.includes('declive') ||
+    l.includes('flocculus') ||
+    l.includes('tonsil of cerebellum') ||
+    l.includes('midbrain') ||
+    l.includes('colliculus') ||
+    l.includes('peduncle') ||
+    l.includes('olive') ||
+    l.includes('pyramid of medulla') ||
+    l.includes('amygdal') ||
+    l.includes('commissure') ||
+    l.includes('septum pellucidum') ||
+    l.includes('ventricle') ||
+    l.includes('spinal cord') ||
+    l.includes('central canal') ||
+    l.includes('cauda equina') ||
+    l.includes('fasciculus') ||
+    l.includes('spinothalamic') ||
+    l.includes('spinocerebellar') ||
+    l.includes('corticospinal') ||
+    l.includes('reticulospinal') ||
+    l.includes('vestibulospinal') ||
+    l.includes('rubrospinal') ||
+    l.includes('tectospinal') ||
+    l.includes('posterolateral tract') ||
+    l.includes('optic chiasm') ||
+    l.includes('optic tract') ||
+    l.includes('mamillary') ||
+    l.includes('geniculate') ||
+    l.includes('habenula') ||
+    l.includes('red nucleus') ||
+    l.includes('lentiform') ||
+    l.includes('septal nuclei') ||
+    l.includes('choroid plexus') ||
+    l.includes('temporal plane') ||
+    l.includes('temporal pole') ||
+    l.includes('occipital pole') ||
+    l.includes('interpeduncular') ||
+    l.includes('stria ') ||
+    l.includes('white matter')
+  );
+}
 
-const BEAM_FRAG = /* glsl */ `
-  uniform float uTime;
-  uniform vec3 uBeamColor;
+/**
+ * Bakes a mesh's world matrix into its geometry, fixes inside-out winding
+ * on mirrored (.l) meshes where determinant < 0, and returns a clean indexed
+ * BufferGeometry with only 'position' attribute ready for merging.
+ */
+function extractCleanWorldGeometry(mesh) {
+  if (!mesh.geometry || !mesh.geometry.attributes.position) return null;
+  const src = mesh.geometry;
+  const posAttr = src.attributes.position.clone();
 
-  varying vec2 vUv;
-  varying vec3 vWorldPosition;
+  const clean = new THREE.BufferGeometry();
+  clean.setAttribute('position', posAttr);
 
-  void main() {
-    float verticalFade = pow(1.0 - vUv.y, 2.2);
-    float angle = atan(vWorldPosition.x, vWorldPosition.z);
-    float rays = sin(angle * 16.0 + uTime * 0.5) * 0.5 + 0.5;
-    rays = pow(rays, 3.0) * 0.35 + 0.65;
-
-    float alpha = verticalFade * rays * 0.18;
-    gl_FragColor = vec4(uBeamColor, alpha);
+  if (src.index) {
+    clean.setIndex(src.index.clone());
+  } else {
+    const count = posAttr.count;
+    const indices = new Uint32Array(count);
+    for (let i = 0; i < count; i++) indices[i] = i;
+    clean.setIndex(new THREE.BufferAttribute(indices, 1));
   }
-`;
+
+  clean.applyMatrix4(mesh.matrixWorld);
+
+  // Reverse triangle winding if world matrix had negative determinant (mirrored left-side meshes)
+  if (mesh.matrixWorld.determinant() < 0 && clean.index) {
+    const arr = clean.index.array;
+    for (let i = 0; i < arr.length; i += 3) {
+      const tmp = arr[i + 1];
+      arr[i + 1] = arr[i + 2];
+      arr[i + 2] = tmp;
+    }
+    clean.index.needsUpdate = true;
+  }
+
+  return clean;
+}
+
+/**
+ * Extracts ONLY the pure outer skin surface from Z-Anatomy's regional_male.glb meshes.
+ * In regional_male.glb, each regional skin patch was thickened with Blender's Solidify modifier
+ * into 3 disjoint index-space components:
+ *   - Component A (first twin): Inner back-surface (offset ~2mm inward with inward normals)
+ *   - Component B (second twin): True Outer Skin Surface (with outward normals)
+ *   - Rim Component(s): 90-degree side walls around the perimeter of the region
+ * Keeping only Component B (or single-sheet ear/toe meshes) eliminates 100% of internal
+ * puzzle-piece border lines in X-ray mode and allows seamless vertex welding across regions.
+ */
+function extractPureOuterSkinGeometry(mesh) {
+  const clean = extractCleanWorldGeometry(mesh);
+  if (!clean || !clean.index) return clean;
+
+  const posAttr = clean.attributes.position;
+  const posArr = posAttr.array;
+  const numPts = posAttr.count;
+  const idxArr = clean.index.array;
+  const numFaces = Math.floor(idxArr.length / 3);
+
+  // Decompose triangle faces into connected components in raw index space
+  const parent = new Int32Array(numPts);
+  for (let i = 0; i < numPts; i++) parent[i] = i;
+  const find = (x) => {
+    let r = x;
+    while (parent[r] !== r) r = parent[r];
+    let c = x;
+    while (c !== r) {
+      const nxt = parent[c];
+      parent[c] = r;
+      c = nxt;
+    }
+    return r;
+  };
+
+  for (let f = 0; f < numFaces; f++) {
+    const a = idxArr[f * 3];
+    const b = idxArr[f * 3 + 1];
+    const c = idxArr[f * 3 + 2];
+    parent[find(a)] = find(b);
+    parent[find(b)] = find(c);
+  }
+
+  const compsMap = new Map();
+  for (let f = 0; f < numFaces; f++) {
+    const a = idxArr[f * 3];
+    const b = idxArr[f * 3 + 1];
+    const c = idxArr[f * 3 + 2];
+    const r = find(a);
+    let comp = compsMap.get(r);
+    if (!comp) {
+      comp = { faces: [], verts: new Set() };
+      compsMap.set(r, comp);
+    }
+    comp.faces.push(a, b, c);
+    comp.verts.add(a);
+    comp.verts.add(b);
+    comp.verts.add(c);
+  }
+
+  const comps = [...compsMap.values()];
+  if (comps.length > 1) {
+    const used = new Set();
+    const keptIndices = [];
+    let maxTwinFaces = 0;
+    for (let i = 0; i < comps.length; i++) {
+      if (used.has(i)) continue;
+      for (let j = i + 1; j < comps.length; j++) {
+        if (used.has(j)) continue;
+        if (
+          comps[i].faces.length === comps[j].faces.length &&
+          comps[i].verts.size === comps[j].verts.size
+        ) {
+          used.add(i);
+          used.add(j);
+          const srcFaces = comps[j].faces;
+          if (srcFaces.length > maxTwinFaces) maxTwinFaces = srcFaces.length;
+          for (let k = 0; k < srcFaces.length; k++) {
+            keptIndices.push(srcFaces[k]);
+          }
+          break;
+        }
+      }
+    }
+    // Also keep any primary unsplit surface component that is larger than the twin pairs (e.g. Dorsal surfaces of digits of hand)
+    for (let i = 0; i < comps.length; i++) {
+      if (!used.has(i) && comps[i].faces.length > maxTwinFaces) {
+        const srcFaces = comps[i].faces;
+        for (let k = 0; k < srcFaces.length; k++) {
+          keptIndices.push(srcFaces[k]);
+        }
+      }
+    }
+    if (keptIndices.length > 0) {
+      clean.setIndex(new THREE.BufferAttribute(new Uint32Array(keptIndices), 1));
+    }
+  }
+
+  // Smoothly flatten any genital bulge in the groin/urogenital region onto the mannequin pelvic plane
+  // while leaving the seam at y >= 0.838 (where z <= 0.0692 < zMax) 100% untouched for watertight welding.
+  for (let i = 0; i < numPts; i++) {
+    const x = posArr[i * 3];
+    const y = posArr[i * 3 + 1];
+    const z = posArr[i * 3 + 2];
+    if (y >= 0.71 && y <= 0.845 && Math.abs(x) < 0.062) {
+      const zMax = 0.058 + (y - 0.82) * 0.75;
+      if (z > zMax) {
+        posArr[i * 3 + 2] = zMax;
+      }
+    }
+  }
+  posAttr.needsUpdate = true;
+
+  return clean;
+}
+
+/**
+ * Merges an array of clean world-space geometries, optionally welds boundary vertices,
+ * computes smooth outward vertex normals, and stores the baseline Male positions
+ * so unified world-space gender deformation keeps 100% of systems aligned.
+ */
+function buildMergedAtlasGeometry(geoms, weldTolerance = 0) {
+  if (!geoms || geoms.length === 0) return null;
+  let merged = mergeGeometries(geoms, false);
+  if (!merged) return null;
+  if (weldTolerance > 0) {
+    merged = mergeVertices(merged, weldTolerance);
+  }
+  merged.computeVertexNormals();
+  merged.userData.malePositions = new Float32Array(merged.attributes.position.array);
+  return merged;
+}
+
+/**
+ * Unified diffeomorphic world-space deformation for Male vs Female anatomy.
+ * Because the exact same smooth coordinate function (x, y, z) -> (x', y', z')
+ * is applied to every vertex across Skin, Skeleton, Brain, Vessels, and Organs,
+ * 100% of anatomical structures remain locked in sub-millimeter alignment.
+ */
+function deformGeometryForGender(geom, isFemale) {
+  if (!geom || !geom.userData.malePositions) return;
+  const src = geom.userData.malePositions;
+  const dst = geom.attributes.position.array;
+
+  if (!isFemale) {
+    dst.set(src);
+  } else {
+    for (let i = 0; i < src.length; i += 3) {
+      const x = src[i];
+      const y = src[i + 1];
+      const z = src[i + 2];
+      const absX = Math.abs(x);
+
+      // Torso radial mask (excludes arms/hands hanging at |x| > 0.17m)
+      const torsoExcess = Math.max(0, absX - 0.155);
+      const torsoMask = Math.exp(-(torsoExcess * torsoExcess) / (2 * 0.035 * 0.035));
+
+      // 1. Gynecoid pelvis / hip expansion centered at y = 0.85m
+      const dyHip = y - 0.85;
+      const wHip = Math.exp(-(dyHip * dyHip) / (2 * 0.095 * 0.095)) * torsoMask;
+
+      // 2. Slender female waist taper centered at y = 1.06m
+      const dyWaist = y - 1.06;
+      const wWaist = Math.exp(-(dyWaist * dyWaist) / (2 * 0.075 * 0.075)) * torsoMask;
+
+      // 3. Narrower female shoulder girdle & thorax centered at y = 1.34m
+      const dyShoulder = y - 1.34;
+      const wShoulder = Math.exp(-(dyShoulder * dyShoulder) / (2 * 0.14 * 0.14));
+
+      const scaleX = 1.0 + 0.125 * wHip - 0.085 * wWaist - 0.085 * wShoulder;
+      const scaleZ = 1.0 + 0.065 * wHip - 0.045 * wWaist - 0.045 * wShoulder;
+      const scaleY = 0.96;
+
+      dst[i] = x * scaleX;
+      dst[i + 1] = y * scaleY;
+      dst[i + 2] = z * scaleZ;
+    }
+  }
+
+  geom.attributes.position.needsUpdate = true;
+  geom.computeVertexNormals();
+}
 
 export default function BodySimulationPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialGender = searchParams.get('gender') === 'female' ? 'female' : 'male';
+  const initialPreset = searchParams.get('preset') || 'vessels_detail';
   const mountRef = useRef(null);
 
-  // UI state
-  const [gender, setGender] = useState(initialGender); // 'male' | 'female'
+  // UI State
+  const [gender, setGender] = useState(initialGender);
   const [loading, setLoading] = useState(true);
   const [loadProgress, setLoadProgress] = useState(10);
-  const [showSkeleton, setShowSkeleton] = useState(true);
-  const [showCardio, setShowCardio] = useState(true);
-  const [showResp, setShowResp] = useState(true);
-  const [showDigest, setShowDigest] = useState(true);
-  const [showSkin, setShowSkin] = useState(true);
-  const [autoRotate, setAutoRotate] = useState(false);
-  const [scanActive, setScanActive] = useState(true);
 
-  // Scene references
-  const sceneRef = useRef(null);
-  const cameraRef = useRef(null);
-  const rendererRef = useRef(null);
-  const composerRef = useRef(null);
+  // Active preset & layers
+  const [activePreset, setActivePreset] = useState(initialPreset);
+  const [showSkin, setShowSkin] = useState(true);
+  const [showSkeleton, setShowSkeleton] = useState(
+    initialPreset !== 'front_surface' && initialPreset !== 'back_surface'
+  );
+  const [showBrain, setShowBrain] = useState(
+    initialPreset !== 'front_surface' && initialPreset !== 'back_surface'
+  );
+  const [showVessels, setShowVessels] = useState(
+    initialPreset === 'vessels_detail' || initialPreset === 'atlas_full'
+  );
+  const [showOrgans, setShowOrgans] = useState(initialPreset === 'atlas_full');
+
+  const initialCam = (() => {
+    if (initialPreset === 'front_surface') {
+      return { rotY: -0.25, rotX: 0.06, distance: 1.55, lookY: 1.22 };
+    }
+    if (initialPreset === 'back_surface') {
+      return { rotY: Math.PI - 0.22, rotX: 0.05, distance: 1.55, lookY: 1.18 };
+    }
+    if (initialPreset === 'brain_skeleton') {
+      return { rotY: -0.32, rotX: 0.06, distance: 1.35, lookY: 1.32 };
+    }
+    if (initialPreset === 'atlas_full') {
+      return { rotY: 0, rotX: 0.04, distance: 2.35, lookY: 0.92 };
+    }
+    return { rotY: 0, rotX: 0.04, distance: 2.3, lookY: 0.92 };
+  })();
+
+  // Scene & Mesh References
   const controlsState = useRef({
     isDragging: false,
     prevX: 0,
     prevY: 0,
-    rotX: 0,
-    rotY: 0,
-    targetRotY: 0,
-    targetRotX: 0,
-    distance: 2.7,
-    targetDistance: 2.7,
+    rotX: initialCam.rotX,
+    rotY: initialCam.rotY,
+    targetRotY: initialCam.rotY,
+    targetRotX: initialCam.rotX,
+    distance: initialCam.distance,
+    targetDistance: initialCam.distance,
+    lookY: initialCam.lookY,
+    targetLookY: initialCam.lookY,
   });
 
-  // Group references
-  const humanModelGroupRef = useRef(null);
-  const skeletonGroupRef = useRef(null);
-  const cardioGroupRef = useRef(null);
-  const respGroupRef = useRef(null);
-  const digestGroupRef = useRef(null);
-  const skinGroupRef = useRef(null);
-  const scanRingRef = useRef(null);
-
-  // Shader Uniform References
-  const timeUniformsRef = useRef([]);
-  const scanUniformsRef = useRef({
-    uScanY: { value: 1.0 },
-    uScanActive: { value: 1.0 },
+  const meshesRef = useRef({
+    skin: null,
+    eyes: null,
+    skeleton: null,
+    brain: null,
+    heart: null,
+    arteries: null,
+    veins: null,
+    lungs: null,
+    bronchi: null,
+    liver: null,
+    digestive: null,
+    kidneys: null,
+  });
+  const skinMatRef = useRef(null);
+  const allGeomsRef = useRef([]);
+  const layerStateRef = useRef({
+    showSkin,
+    showSkeleton,
+    showBrain,
+    showVessels,
+    showOrgans,
   });
 
-  // Morphing bone & skin nodes for female anatomical dimorphism
-  const applyGenderMorph = useCallback((targetGender) => {
-    const isFemale = targetGender === 'female';
+  const syncMeshVisibility = useCallback(() => {
+    const m = meshesRef.current;
+    const {
+      showSkin: sSkin,
+      showSkeleton: sSkel,
+      showBrain: sBrain,
+      showVessels: sVessels,
+      showOrgans: sOrgans,
+    } = layerStateRef.current;
+    const hasInternal = sSkel || sBrain || sVessels || sOrgans;
 
-    // 1. Morph Skeleton Bones
-    if (skeletonGroupRef.current) {
-      skeletonGroupRef.current.traverse((c) => {
-        if (!c.isMesh) return;
-        const name = (c.name || '').toLowerCase();
-
-        // Authentic gynecoid pelvis transformation
-        if (
-          name.includes('ilium') ||
-          name.includes('ischium') ||
-          name.includes('pubis') ||
-          name.includes('sacrum') ||
-          name.includes('coccyx')
-        ) {
-          if (isFemale) {
-            c.scale.set(1.15, 0.96, 1.08); // Flared iliac crests & wider pelvic inlet
-          } else {
-            c.scale.set(1.0, 1.0, 1.0);
-          }
-        }
-        // Narrower female shoulder girdle
-        else if (
-          name.includes('clavicle') ||
-          name.includes('scapula') ||
-          name.includes('acromion')
-        ) {
-          if (isFemale) {
-            c.scale.set(0.90, 0.95, 0.95);
-          } else {
-            c.scale.set(1.0, 1.0, 1.0);
-          }
-        }
-        // Thorax & ribcage
-        else if (name.includes('rib') || name.includes('sternum')) {
-          if (isFemale) {
-            c.scale.set(0.92, 0.97, 0.94);
-          } else {
-            c.scale.set(1.0, 1.0, 1.0);
-          }
-        }
-        // Slender female limbs
-        else if (
-          name.includes('femur') ||
-          name.includes('tibia') ||
-          name.includes('fibula') ||
-          name.includes('humerus') ||
-          name.includes('radius') ||
-          name.includes('ulna')
-        ) {
-          if (isFemale) {
-            c.scale.set(0.92, 0.98, 0.92);
-          } else {
-            c.scale.set(1.0, 1.0, 1.0);
-          }
-        }
-        // Female cranium & mandible
-        else if (name.includes('cranium') || name.includes('mandible')) {
-          if (isFemale) {
-            c.scale.set(0.95, 0.95, 0.95);
-          } else {
-            c.scale.set(1.0, 1.0, 1.0);
-          }
-        }
-      });
+    if (m.skin) {
+      m.skin.visible = sSkin;
+    }
+    if (m.eyes) {
+      m.eyes.visible = sSkin && !hasInternal;
+    }
+    if (skinMatRef.current) {
+      skinMatRef.current.uniforms.uSurfaceMode.value = hasInternal ? 0.0 : 1.0;
+      skinMatRef.current.depthWrite = !hasInternal;
     }
 
-    // 2. Adapt Organs to Female Dimensions
-    if (respGroupRef.current) {
-      respGroupRef.current.scale.set(
-        isFemale ? 0.92 : 1.0,
-        isFemale ? 0.96 : 1.0,
-        isFemale ? 0.94 : 1.0
-      );
-    }
+    if (m.skeleton) m.skeleton.visible = sSkel;
+    if (m.brain) m.brain.visible = sBrain;
 
-    if (cardioGroupRef.current) {
-      cardioGroupRef.current.scale.set(
-        isFemale ? 0.94 : 1.0,
-        isFemale ? 0.97 : 1.0,
-        isFemale ? 0.94 : 1.0
-      );
-    }
+    if (m.heart) m.heart.visible = sVessels || sOrgans;
+    if (m.arteries) m.arteries.visible = sVessels;
+    if (m.veins) m.veins.visible = sVessels;
 
-    if (digestGroupRef.current) {
-      digestGroupRef.current.scale.set(
-        isFemale ? 0.98 : 1.0,
-        isFemale ? 0.96 : 1.0,
-        isFemale ? 1.02 : 1.0
-      );
-    }
+    if (m.lungs) m.lungs.visible = sOrgans;
+    if (m.bronchi) m.bronchi.visible = sOrgans;
+    if (m.liver) m.liver.visible = sOrgans;
+    if (m.digestive) m.digestive.visible = sOrgans;
+    if (m.kidneys) m.kidneys.visible = sOrgans;
+  }, []);
 
-    // 3. Morph Outer Holographic Silhouette
-    if (skinGroupRef.current) {
-      skinGroupRef.current.traverse((c) => {
-        if (!c.isMesh) return;
-        const name = (c.name || '').toLowerCase();
+  // Sync visibility & surface/X-ray mode whenever layer states change
+  useEffect(() => {
+    layerStateRef.current = {
+      showSkin,
+      showSkeleton,
+      showBrain,
+      showVessels,
+      showOrgans,
+    };
+    syncMeshVisibility();
+  }, [showSkin, showSkeleton, showBrain, showVessels, showOrgans, syncMeshVisibility]);
 
-        // Feminine hip curve
-        if (
-          name.includes('hip') ||
-          name.includes('buttock') ||
-          name.includes('gluteal') ||
-          name.includes('pelvi')
-        ) {
-          c.scale.set(isFemale ? 1.10 : 1.0, isFemale ? 0.98 : 1.0, isFemale ? 1.06 : 1.0);
-        }
-        // Slender waist
-        else if (
-          name.includes('umbilic') ||
-          name.includes('abdomen') ||
-          name.includes('flank') ||
-          name.includes('waist')
-        ) {
-          c.scale.set(isFemale ? 0.93 : 1.0, isFemale ? 0.97 : 1.0, isFemale ? 0.94 : 1.0);
-        }
-        // Narrower feminine shoulders
-        else if (
-          name.includes('deltoid') ||
-          name.includes('shoulder') ||
-          name.includes('scapular')
-        ) {
-          c.scale.set(isFemale ? 0.91 : 1.0, isFemale ? 0.96 : 1.0, isFemale ? 0.95 : 1.0);
-        }
-      });
-    }
+  // Apply gender deformation across all geometries simultaneously
+  const handleGenderChange = useCallback(
+    (newGender) => {
+      setGender(newGender);
+      setSearchParams(newGender === 'female' ? { gender: 'female' } : {});
+      const isFemale = newGender === 'female';
+      allGeomsRef.current.forEach((g) => deformGeometryForGender(g, isFemale));
+    },
+    [setSearchParams]
+  );
 
-    // Overall feminine height adjustment (~1.72m vs 1.82m)
-    if (humanModelGroupRef.current) {
-      const targetScale = isFemale ? 0.95 : 1.0;
-      humanModelGroupRef.current.scale.set(targetScale, targetScale, targetScale);
+  // View Presets matching user's uploaded reference images
+  const applyPreset = useCallback((presetId) => {
+    setActivePreset(presetId);
+    const ctrl = controlsState.current;
+
+    if (presetId === 'front_surface') {
+      // Matches Image 3: Sculpted Cobalt-Blue Outer Character (Front View)
+      setShowSkin(true);
+      setShowSkeleton(false);
+      setShowBrain(false);
+      setShowVessels(false);
+      setShowOrgans(false);
+      ctrl.targetRotY = -0.25;
+      ctrl.targetRotX = 0.06;
+      ctrl.targetDistance = 1.55;
+      ctrl.targetLookY = 1.22;
+    } else if (presetId === 'back_surface') {
+      // Matches Image 2: Sculpted Cobalt-Blue Outer Character (Back View)
+      setShowSkin(true);
+      setShowSkeleton(false);
+      setShowBrain(false);
+      setShowVessels(false);
+      setShowOrgans(false);
+      ctrl.targetRotY = Math.PI - 0.22;
+      ctrl.targetRotX = 0.05;
+      ctrl.targetDistance = 1.55;
+      ctrl.targetLookY = 1.18;
+    } else if (presetId === 'brain_skeleton') {
+      // Matches Image 4: Translucent Outer Body + X-Ray Cobalt Skeleton + Brain
+      setShowSkin(true);
+      setShowSkeleton(true);
+      setShowBrain(true);
+      setShowVessels(false);
+      setShowOrgans(false);
+      ctrl.targetRotY = -0.32;
+      ctrl.targetRotX = 0.06;
+      ctrl.targetDistance = 1.35;
+      ctrl.targetLookY = 1.32;
+    } else if (presetId === 'vessels_detail') {
+      // Detailed Blood Vessels + Brain + Skeleton inside Translucent Body
+      setShowSkin(true);
+      setShowSkeleton(true);
+      setShowBrain(true);
+      setShowVessels(true);
+      setShowOrgans(false);
+      ctrl.targetRotY = 0;
+      ctrl.targetRotX = 0.04;
+      ctrl.targetDistance = 2.3;
+      ctrl.targetLookY = 0.92;
+    } else if (presetId === 'atlas_full') {
+      // Complete Anatomical Atlas (All Systems Aligned)
+      setShowSkin(true);
+      setShowSkeleton(true);
+      setShowBrain(true);
+      setShowVessels(true);
+      setShowOrgans(true);
+      ctrl.targetRotY = 0;
+      ctrl.targetRotX = 0.04;
+      ctrl.targetDistance = 2.35;
+      ctrl.targetLookY = 0.92;
     }
   }, []);
 
-  // Update gender change
-  const handleGenderChange = (newGender) => {
-    setGender(newGender);
-    setSearchParams(newGender === 'female' ? { gender: 'female' } : {});
-    applyGenderMorph(newGender);
-  };
+  const resetCamera = useCallback(() => {
+    const ctrl = controlsState.current;
+    ctrl.targetRotY = 0;
+    ctrl.targetRotX = 0.04;
+    ctrl.targetDistance = 2.35;
+    ctrl.targetLookY = 0.92;
+  }, []);
 
   useEffect(() => {
     const container = mountRef.current;
     if (!container) return;
 
-    let width = container.clientWidth || window.innerWidth;
-    let height = container.clientHeight || window.innerHeight;
+    let disposed = false;
+    const width = container.clientWidth || window.innerWidth;
+    const height = container.clientHeight || window.innerHeight;
 
-    // 1. Scene
+    // 1. Clean Studio Scene (transparent background so CSS radial studio gradient shows)
     const scene = new THREE.Scene();
-    sceneRef.current = scene;
-    scene.background = new THREE.Color(0x040814);
-    scene.fog = new THREE.FogExp2(0x040814, 0.045);
 
-    // 2. Camera
-    const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 50);
-    camera.position.set(0, 0.95, 2.7);
-    camera.lookAt(0, 0.95, 0);
-    cameraRef.current = camera;
+    // 2. Perspective Camera
+    const camera = new THREE.PerspectiveCamera(36, width / height, 0.05, 30);
+    camera.position.set(0, 0.92, 2.35);
+    camera.lookAt(0, 0.92, 0);
 
-    // 3. WebGL Renderer
+    // 3. Clean WebGLRenderer (No UnrealBloomPass, No overexposure)
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
+      alpha: true,
       powerPreference: 'high-performance',
     });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.05;
+    renderer.setClearColor(0x000000, 0);
     container.innerHTML = '';
     container.appendChild(renderer.domElement);
-    rendererRef.current = renderer;
 
-    // 4. Post-processing UnrealBloom
-    const renderPass = new RenderPass(scene, camera);
-    const bloomPass = new UnrealBloomPass(
-      new THREE.Vector2(width, height),
-      0.48, // bloom strength
-      0.35, // bloom radius
-      0.70  // bloom threshold
-    );
-    const outputPass = new OutputPass();
-
-    const composer = new EffectComposer(renderer);
-    composer.addPass(renderPass);
-    composer.addPass(bloomPass);
-    composer.addPass(outputPass);
-    composerRef.current = composer;
-
-    // 5. Holographic Stage Lighting
-    const ambientLight = new THREE.AmbientLight(0x071b30, 2.0);
-    scene.add(ambientLight);
-
-    const keyLight = new THREE.DirectionalLight(0x00f0ff, 1.8);
-    keyLight.position.set(1.5, 3.5, 3);
-    scene.add(keyLight);
-
-    const backRimLight = new THREE.DirectionalLight(0x0284c7, 2.2);
-    backRimLight.position.set(-1.5, 2.5, -3);
-    scene.add(backRimLight);
-
-    // 6. Holographic Floor Grid
-    const gridHelper = new THREE.GridHelper(16, 32, 0x0ea5e9, 0x0a1c30);
-    gridHelper.position.y = -0.005;
-    scene.add(gridHelper);
-
-    // ========================================================
-    // HOLOGRAM PEDESTAL
-    // ========================================================
-    const pedestal = new THREE.Group();
-    scene.add(pedestal);
-
-    const discGeo = new THREE.CircleGeometry(0.95, 64);
-    discGeo.rotateX(-Math.PI / 2);
-    const discMat = new THREE.MeshBasicMaterial({
-      color: 0x030e1c,
-      transparent: true,
-      opacity: 0.92,
-    });
-    const discMesh = new THREE.Mesh(discGeo, discMat);
-    discMesh.position.y = 0.001;
-    pedestal.add(discMesh);
-
-    // Concentric glowing rings
-    const ringMat = new THREE.MeshBasicMaterial({
-      color: 0x00f5ff,
-      side: THREE.DoubleSide,
-      transparent: true,
-      opacity: 0.95,
-    });
-
-    const outerRingGeo = new THREE.RingGeometry(0.935, 0.95, 96);
-    outerRingGeo.rotateX(-Math.PI / 2);
-    const outerRing = new THREE.Mesh(outerRingGeo, ringMat);
-    outerRing.position.y = 0.003;
-    pedestal.add(outerRing);
-
-    const midRingGeo = new THREE.RingGeometry(0.505, 0.52, 80);
-    midRingGeo.rotateX(-Math.PI / 2);
-    const midRing = new THREE.Mesh(midRingGeo, ringMat);
-    midRing.position.y = 0.004;
-    pedestal.add(midRing);
-
-    const innerRingGeo = new THREE.RingGeometry(0.20, 0.22, 64);
-    innerRingGeo.rotateX(-Math.PI / 2);
-    const innerRing = new THREE.Mesh(innerRingGeo, ringMat);
-    innerRing.position.y = 0.005;
-    pedestal.add(innerRing);
-
-    // Low hologram projector cone
-    const coneGeo = new THREE.CylinderGeometry(1.08, 0.95, 0.55, 64, 1, true);
-    coneGeo.translate(0, 0.275, 0);
-    const beamMat = new THREE.ShaderMaterial({
-      vertexShader: BEAM_VERT,
-      fragmentShader: BEAM_FRAG,
-      uniforms: {
-        uTime: { value: 0 },
-        uBeamColor: { value: new THREE.Color(0x00d4ff) },
-      },
-      transparent: true,
-      depthWrite: false,
-      side: THREE.DoubleSide,
-      blending: THREE.AdditiveBlending,
-    });
-    const coneMesh = new THREE.Mesh(coneGeo, beamMat);
-    pedestal.add(coneMesh);
-    timeUniformsRef.current.push(beamMat.uniforms.uTime);
-
-    // Sweeping X-Ray Laser Ring
-    const laserRingGeo = new THREE.RingGeometry(0.68, 0.69, 96);
-    laserRingGeo.rotateX(Math.PI / 2);
-    const laserRingMat = new THREE.MeshBasicMaterial({
-      color: 0x00f5ff,
-      side: THREE.DoubleSide,
-      transparent: true,
-      opacity: 0.92,
-    });
-    const scanRing = new THREE.Mesh(laserRingGeo, laserRingMat);
-    scanRing.position.y = 1.0;
-    scene.add(scanRing);
-    scanRingRef.current = scanRing;
-
-    // ========================================================
-    // SHADER MATERIALS FOR ALL INTERNAL SYSTEMS
-    // ========================================================
-
-    // Skeleton Material
-    const skeletonMat = new THREE.ShaderMaterial({
-      vertexShader: SKELETON_HOLO_VERT,
-      fragmentShader: SKELETON_HOLO_FRAG,
-      uniforms: {
-        uTime: { value: 0 },
-        uBoneColor: { value: new THREE.Color(0x002d5a) },
-        uGlowColor: { value: new THREE.Color(0x00f5ff) },
-        uIntensity: { value: 1.15 },
-        uScanY: scanUniformsRef.current.uScanY,
-        uScanActive: scanUniformsRef.current.uScanActive,
-      },
-      transparent: true,
-      depthWrite: true,
-      side: THREE.DoubleSide,
-    });
-    timeUniformsRef.current.push(skeletonMat.uniforms.uTime);
-
-    // Heart Material (Pulsing dual-beat lub-dub)
-    const heartMat = new THREE.ShaderMaterial({
-      vertexShader: HEART_HOLO_VERT,
-      fragmentShader: HEART_HOLO_FRAG,
-      uniforms: {
-        uTime: { value: 0 },
-        uBaseColor: { value: new THREE.Color(0x990022) },
-        uGlowColor: { value: new THREE.Color(0xff2a5f) },
-      },
-      transparent: true,
-      depthWrite: true,
-      side: THREE.DoubleSide,
-    });
-    timeUniformsRef.current.push(heartMat.uniforms.uTime);
-
-    // Vessels Material (Neon red arterial cyber network)
-    const vesselsMat = new THREE.ShaderMaterial({
-      vertexShader: VESSELS_HOLO_VERT,
-      fragmentShader: VESSELS_HOLO_FRAG,
-      uniforms: {
-        uTime: { value: 0 },
-        uArteryColor: { value: new THREE.Color(0xff1e46) },
-        uVeinColor: { value: new THREE.Color(0x00b4d8) },
-      },
-      transparent: true,
-      depthWrite: false,
-      side: THREE.DoubleSide,
-    });
-    timeUniformsRef.current.push(vesselsMat.uniforms.uTime);
-
-    // Lungs Material (Translucent ice-blue / sky cyan with breathing expansion)
-    const lungsMat = new THREE.ShaderMaterial({
-      vertexShader: LUNGS_HOLO_VERT,
-      fragmentShader: LUNGS_HOLO_FRAG,
-      uniforms: {
-        uTime: { value: 0 },
-        uBaseColor: { value: new THREE.Color(0x0369a1) },
-        uRimColor: { value: new THREE.Color(0x38bdf8) },
-      },
-      transparent: true,
-      depthWrite: false,
-      side: THREE.DoubleSide,
-      blending: THREE.NormalBlending,
-    });
-    timeUniformsRef.current.push(lungsMat.uniforms.uTime);
-
-    // Trachea & Bronchi Material (Bright electric teal)
-    const tracheaMat = new THREE.MeshBasicMaterial({
-      color: 0x00f5ff,
-      wireframe: false,
-      transparent: true,
-      opacity: 0.95,
-    });
-
-    // Liver Material (Amber/gold glow)
-    const liverMat = new THREE.ShaderMaterial({
-      vertexShader: LIVER_HOLO_VERT,
-      fragmentShader: LIVER_HOLO_FRAG,
-      uniforms: {
-        uTime: { value: 0 },
-        uBaseColor: { value: new THREE.Color(0x78350f) },
-        uRimColor: { value: new THREE.Color(0xf59e0b) },
-      },
-      transparent: true,
-      depthWrite: false,
-      side: THREE.DoubleSide,
-    });
-    timeUniformsRef.current.push(liverMat.uniforms.uTime);
-
-    // Digestive Tract Material (Emerald/lime glow with wave peristalsis)
-    const digestiveMat = new THREE.ShaderMaterial({
-      vertexShader: DIGESTIVE_HOLO_VERT,
-      fragmentShader: DIGESTIVE_HOLO_FRAG,
-      uniforms: {
-        uTime: { value: 0 },
-        uBaseColor: { value: new THREE.Color(0x064e3b) },
-        uRimColor: { value: new THREE.Color(0x10b981) },
-      },
-      transparent: true,
-      depthWrite: false,
-      side: THREE.DoubleSide,
-    });
-    timeUniformsRef.current.push(digestiveMat.uniforms.uTime);
-
-    // Outer Glassy Skin Material
+    // 4. Studio Materials
     const skinMat = new THREE.ShaderMaterial({
-      vertexShader: SKIN_HOLO_VERT,
-      fragmentShader: SKIN_HOLO_FRAG,
+      vertexShader: STUDIO_VERT,
+      fragmentShader: SKIN_STUDIO_FRAG,
       uniforms: {
-        uTime: { value: 0 },
-        uRimColor: { value: new THREE.Color(0x00f5ff) },
-        uBaseColor: { value: new THREE.Color(0x021025) },
-        uOpacity: { value: 0.85 },
-        uScanY: scanUniformsRef.current.uScanY,
-        uScanActive: scanUniformsRef.current.uScanActive,
+        uDeepColor: { value: new THREE.Color(0x0d3694) },
+        uLitColor: { value: new THREE.Color(0x2468f2) },
+        uRimColor: { value: new THREE.Color(0x88ccff) },
+        uSurfaceMode: { value: 0.0 },
       },
       transparent: true,
       depthWrite: false,
-      side: THREE.DoubleSide,
-      blending: THREE.NormalBlending,
+      side: THREE.FrontSide,
     });
-    timeUniformsRef.current.push(skinMat.uniforms.uTime);
+    skinMatRef.current = skinMat;
 
-    // ========================================================
-    // ROOT MODEL GROUP & LOADERS
-    // ========================================================
-    const humanModelGroup = new THREE.Group();
-    scene.add(humanModelGroup);
-    humanModelGroupRef.current = humanModelGroup;
+    const skeletonMat = new THREE.ShaderMaterial({
+      vertexShader: STUDIO_VERT,
+      fragmentShader: SKELETON_STUDIO_FRAG,
+      uniforms: {
+        uCoreColor: { value: new THREE.Color(0x0a3488) },
+        uEdgeColor: { value: new THREE.Color(0x52adff) },
+      },
+      transparent: true,
+      depthWrite: false,
+      side: THREE.FrontSide,
+    });
 
-    const skeletonGroup = new THREE.Group();
-    humanModelGroup.add(skeletonGroup);
-    skeletonGroupRef.current = skeletonGroup;
+    const brainMat = new THREE.ShaderMaterial({
+      vertexShader: STUDIO_VERT,
+      fragmentShader: ORGAN_STUDIO_FRAG,
+      uniforms: {
+        uShadowColor: { value: new THREE.Color(0x3b5978) },
+        uMidColor: { value: new THREE.Color(0x8cb4d9) },
+        uRimColor: { value: new THREE.Color(0xd2e9ff) },
+        uOpacity: { value: 0.97 },
+      },
+      transparent: true,
+      depthWrite: true,
+      side: THREE.FrontSide,
+    });
 
-    const cardioGroup = new THREE.Group();
-    humanModelGroup.add(cardioGroup);
-    cardioGroupRef.current = cardioGroup;
+    const heartMat = new THREE.ShaderMaterial({
+      vertexShader: STUDIO_VERT,
+      fragmentShader: ORGAN_STUDIO_FRAG,
+      uniforms: {
+        uShadowColor: { value: new THREE.Color(0x7a1228) },
+        uMidColor: { value: new THREE.Color(0xd92b4c) },
+        uRimColor: { value: new THREE.Color(0xff8da1) },
+        uOpacity: { value: 0.98 },
+      },
+      transparent: true,
+      depthWrite: true,
+      side: THREE.FrontSide,
+    });
 
-    const respGroup = new THREE.Group();
-    humanModelGroup.add(respGroup);
-    respGroupRef.current = respGroup;
+    const arteryMat = new THREE.ShaderMaterial({
+      vertexShader: STUDIO_VERT,
+      fragmentShader: ORGAN_STUDIO_FRAG,
+      uniforms: {
+        uShadowColor: { value: new THREE.Color(0x8a142c) },
+        uMidColor: { value: new THREE.Color(0xe62e50) },
+        uRimColor: { value: new THREE.Color(0xff7a90) },
+        uOpacity: { value: 0.96 },
+      },
+      transparent: true,
+      depthWrite: true,
+      side: THREE.FrontSide,
+    });
 
-    const digestGroup = new THREE.Group();
-    humanModelGroup.add(digestGroup);
-    digestGroupRef.current = digestGroup;
+    const veinMat = new THREE.ShaderMaterial({
+      vertexShader: STUDIO_VERT,
+      fragmentShader: ORGAN_STUDIO_FRAG,
+      uniforms: {
+        uShadowColor: { value: new THREE.Color(0x123e8a) },
+        uMidColor: { value: new THREE.Color(0x2979ff) },
+        uRimColor: { value: new THREE.Color(0x82baff) },
+        uOpacity: { value: 0.92 },
+      },
+      transparent: true,
+      depthWrite: true,
+      side: THREE.FrontSide,
+    });
 
-    const skinGroup = new THREE.Group();
-    humanModelGroup.add(skinGroup);
-    skinGroupRef.current = skinGroup;
+    const lungMat = new THREE.ShaderMaterial({
+      vertexShader: STUDIO_VERT,
+      fragmentShader: LUNG_STUDIO_FRAG,
+      uniforms: {
+        uCoreColor: { value: new THREE.Color(0x1656a8) },
+        uRimColor: { value: new THREE.Color(0x69b8ff) },
+      },
+      transparent: true,
+      depthWrite: false,
+      side: THREE.FrontSide,
+    });
+
+    const bronchiMat = new THREE.ShaderMaterial({
+      vertexShader: STUDIO_VERT,
+      fragmentShader: ORGAN_STUDIO_FRAG,
+      uniforms: {
+        uShadowColor: { value: new THREE.Color(0x1e5c8a) },
+        uMidColor: { value: new THREE.Color(0x4db8e8) },
+        uRimColor: { value: new THREE.Color(0xa6e3ff) },
+        uOpacity: { value: 0.95 },
+      },
+      transparent: true,
+      depthWrite: true,
+      side: THREE.FrontSide,
+    });
+
+    const liverMat = new THREE.ShaderMaterial({
+      vertexShader: STUDIO_VERT,
+      fragmentShader: ORGAN_STUDIO_FRAG,
+      uniforms: {
+        uShadowColor: { value: new THREE.Color(0x5c2818) },
+        uMidColor: { value: new THREE.Color(0xb85635) },
+        uRimColor: { value: new THREE.Color(0xf09c78) },
+        uOpacity: { value: 0.95 },
+      },
+      transparent: true,
+      depthWrite: true,
+      side: THREE.FrontSide,
+    });
+
+    const digestiveMat = new THREE.ShaderMaterial({
+      vertexShader: STUDIO_VERT,
+      fragmentShader: ORGAN_STUDIO_FRAG,
+      uniforms: {
+        uShadowColor: { value: new THREE.Color(0x1f5c52) },
+        uMidColor: { value: new THREE.Color(0x3ba38c) },
+        uRimColor: { value: new THREE.Color(0x8ce0cb) },
+        uOpacity: { value: 0.94 },
+      },
+      transparent: true,
+      depthWrite: true,
+      side: THREE.FrontSide,
+    });
+
+    const kidneyMat = new THREE.ShaderMaterial({
+      vertexShader: STUDIO_VERT,
+      fragmentShader: ORGAN_STUDIO_FRAG,
+      uniforms: {
+        uShadowColor: { value: new THREE.Color(0x591c2b) },
+        uMidColor: { value: new THREE.Color(0xa83852) },
+        uRimColor: { value: new THREE.Color(0xf2859b) },
+        uOpacity: { value: 0.96 },
+      },
+      transparent: true,
+      depthWrite: true,
+      side: THREE.FrontSide,
+    });
+
+    // 5. Unified Atlas Group (1:1 world space across all files — guarantees 100% alignment)
+    const atlasGroup = new THREE.Group();
+    scene.add(atlasGroup);
 
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('/draco/');
     const gltfLoader = new GLTFLoader();
     gltfLoader.setDRACOLoader(dracoLoader);
 
-    // Load All Anatomical Systems Concurrently
-    let loadedSystems = 0;
-    const totalSystems = 5;
+    const loadGltf = (url) =>
+      new Promise((resolve, reject) => {
+        gltfLoader.load(url, resolve, undefined, reject);
+      });
 
-    const checkAllLoaded = () => {
-      loadedSystems++;
-      setLoadProgress(Math.round((loadedSystems / totalSystems) * 90) + 10);
-      if (loadedSystems >= totalSystems) {
-        setLoading(false);
-        if (initialGender === 'female') {
-          applyGenderMorph('female');
-        }
+    let completedCount = 0;
+    const totalFiles = 7;
+    const bumpProgress = () => {
+      completedCount++;
+      if (!disposed) {
+        setLoadProgress(Math.min(98, Math.round((completedCount / totalFiles) * 90) + 8));
       }
     };
 
-    // 1. Load Skeleton
-    gltfLoader.load(
-      '/models/skeletal_male.glb',
-      (gltf) => {
-        const root = gltf.scene;
-        root.traverse((c) => {
-          if (c.isMesh) {
-            c.material = skeletonMat;
+    allGeomsRef.current = [];
+    const registerMesh = (key, geom, mat, renderOrder) => {
+      if (!geom) return null;
+      allGeomsRef.current.push(geom);
+      const mesh = new THREE.Mesh(geom, mat);
+      mesh.renderOrder = renderOrder;
+      atlasGroup.add(mesh);
+      meshesRef.current[key] = mesh;
+      syncMeshVisibility();
+      return mesh;
+    };
+
+    Promise.all([
+      // 1. Outer Body Surface (regional_male.glb — pure outer skin shells welded into 1 seamless mesh)
+      loadGltf('/models/regional_male.glb').then((gltf) => {
+        gltf.scene.updateMatrixWorld(true);
+        const geoms = [];
+        gltf.scene.traverse((c) => {
+          if (!c.isMesh) return;
+          const l = (c.name || '').toLowerCase();
+          if (l.includes('hairs') || l.includes('eyelashes') || l.includes('pubic')) {
+            return;
+          }
+          const g = extractPureOuterSkinGeometry(c);
+          if (g) geoms.push(g);
+        });
+        const merged = buildMergedAtlasGeometry(geoms, 2e-4);
+        registerMesh('skin', merged, skinMat, 4);
+        bumpProgress();
+      }),
+
+      // 2. Skeleton (skeletal_male.glb — pure bones, costal cartilages, and discs)
+      loadGltf('/models/skeletal_male.glb').then((gltf) => {
+        gltf.scene.updateMatrixWorld(true);
+        const geoms = [];
+        gltf.scene.traverse((c) => {
+          if (!c.isMesh) return;
+          const l = (c.name || '').toLowerCase();
+          if (
+            l.includes('ligament') ||
+            l.includes('sinus') ||
+            l.includes('cells of ethmoid') ||
+            l.includes('nucleus pulposus') ||
+            l.includes('alar cartilage') ||
+            l.includes('nasal septal') ||
+            l.includes('thyroid cartilage') ||
+            l.includes('cricoid') ||
+            l.includes('arytenoid') ||
+            l.includes('corniculate')
+          ) {
+            return;
+          }
+          const g = extractCleanWorldGeometry(c);
+          if (g) geoms.push(g);
+        });
+        const merged = buildMergedAtlasGeometry(geoms, 0);
+        registerMesh('skeleton', merged, skeletonMat, 3);
+        bumpProgress();
+      }),
+
+      // 3. Brain, Spinal Cord & Sculpted Eyes (nervous_male.glb)
+      loadGltf('/models/nervous_male.glb').then((gltf) => {
+        gltf.scene.updateMatrixWorld(true);
+        const geoms = [];
+        const eyeGeoms = [];
+        gltf.scene.traverse((c) => {
+          if (!c.isMesh) return;
+          const l = (c.name || '').toLowerCase();
+          if (l.startsWith('cornea.') || l.startsWith('sclera.')) {
+            const eg = extractCleanWorldGeometry(c);
+            if (eg) eyeGeoms.push(eg);
+            return;
+          }
+          if (!isBrainOrSpinalNode(c.name)) return;
+          const g = extractCleanWorldGeometry(c);
+          if (g) geoms.push(g);
+        });
+        const merged = buildMergedAtlasGeometry(geoms, 0);
+        registerMesh('brain', merged, brainMat, 1);
+        const mergedEyes = buildMergedAtlasGeometry(eyeGeoms, 1e-4);
+        registerMesh('eyes', mergedEyes, skinMat, 4);
+        bumpProgress();
+      }),
+
+      // 4. Detailed Blood Vessels & Heart (cardiovascular_male.glb)
+      loadGltf('/models/cardiovascular_male.glb').then((gltf) => {
+        gltf.scene.updateMatrixWorld(true);
+        const heartGeoms = [];
+        const arteryGeoms = [];
+        const veinGeoms = [];
+
+        gltf.scene.traverse((c) => {
+          if (!c.isMesh) return;
+          const name = c.name || '';
+          const l = name.toLowerCase();
+          if (
+            name.includes('?') ||
+            l.includes('basilar venous plexus') ||
+            l.includes('cavernous sinus') ||
+            l.includes('intercavernous') ||
+            l.includes('petrosal sinus') ||
+            l.includes('penis') ||
+            l.includes('pudendal') ||
+            l.includes('testicular')
+          ) {
+            return;
+          }
+          const g = extractCleanWorldGeometry(c);
+          if (!g) return;
+
+          if (
+            l.includes('atrium') ||
+            l.includes('ventricle') ||
+            l.includes('heart') ||
+            l.includes('coronary') ||
+            l.includes('cardiac vein') ||
+            l.includes('papillary') ||
+            l.includes('leaflet')
+          ) {
+            heartGeoms.push(g);
+          } else if (l.includes('artery') || l.includes('aorta') || l.includes('trunk') || l.includes('arteri')) {
+            arteryGeoms.push(g);
+          } else {
+            veinGeoms.push(g);
           }
         });
 
-        // Compute alignment box to normalize height and position on floor
-        root.updateMatrixWorld(true);
-        const box = new THREE.Box3().setFromObject(root);
-        const size = new THREE.Vector3();
-        box.getSize(size);
-        const center = new THREE.Vector3();
-        box.getCenter(center);
+        registerMesh('heart', buildMergedAtlasGeometry(heartGeoms, 0), heartMat, 1);
+        registerMesh('arteries', buildMergedAtlasGeometry(arteryGeoms, 0), arteryMat, 1);
+        registerMesh('veins', buildMergedAtlasGeometry(veinGeoms, 0), veinMat, 1);
+        bumpProgress();
+      }),
 
-        const targetHeight = 1.82;
-        const normScale = targetHeight / (size.y || 1);
+      // 5. Lungs & Bronchial Tree (respiratory_male.glb)
+      loadGltf('/models/respiratory_male.glb').then((gltf) => {
+        gltf.scene.updateMatrixWorld(true);
+        const lungGeoms = [];
+        const bronchiGeoms = [];
 
-        // Position parent human group so all shared anatomy aligns perfectly at origin
-        humanModelGroup.position.x = -center.x * normScale;
-        humanModelGroup.position.y = -box.min.y * normScale;
-        humanModelGroup.position.z = -center.z * normScale;
+        gltf.scene.traverse((c) => {
+          if (!c.isMesh) return;
+          const l = (c.name || '').toLowerCase();
+          if (
+            l.includes('pleura') ||
+            l.includes('pharynx') ||
+            l.includes('nasal')
+          ) {
+            return;
+          }
+          const g = extractCleanWorldGeometry(c);
+          if (!g) return;
 
-        // Apply base normalization to skeleton
-        root.scale.set(normScale, normScale, normScale);
-        skeletonGroup.add(root);
-        checkAllLoaded();
-      },
-      undefined,
-      (err) => {
-        console.error('Error loading skeleton:', err);
-        checkAllLoaded();
-      }
-    );
-
-    // 2. Load Cardiovascular & Heart (Mạch máu & Tim)
-    gltfLoader.load(
-      '/models/cardiovascular_male.glb',
-      (gltf) => {
-        const root = gltf.scene;
-        root.traverse((c) => {
-          if (c.isMesh) {
-            const name = (c.name || '').toLowerCase();
-            // Distinguish Heart chamber & coronary vessels from peripheral vessels
-            if (
-              name.includes('heart') ||
-              name.includes('atrium') ||
-              name.includes('ventricle') ||
-              name.includes('card') ||
-              name.includes('coronary') ||
-              name.includes('papillary')
-            ) {
-              c.material = heartMat;
-            } else {
-              c.material = vesselsMat;
-            }
+          if (l.includes('trachea') || l.includes('bronch')) {
+            bronchiGeoms.push(g);
+          } else {
+            lungGeoms.push(g);
           }
         });
 
-        const targetHeight = 1.82;
-        const normScale = targetHeight / 1.65;
-        root.scale.set(normScale, normScale, normScale);
-        cardioGroup.add(root);
-        checkAllLoaded();
-      },
-      undefined,
-      (err) => {
-        console.error('Error loading cardiovascular:', err);
-        checkAllLoaded();
-      }
-    );
+        registerMesh('bronchi', buildMergedAtlasGeometry(bronchiGeoms, 0), bronchiMat, 1);
+        registerMesh('lungs', buildMergedAtlasGeometry(lungGeoms, 0), lungMat, 2);
+        bumpProgress();
+      }),
 
-    // 3. Load Respiratory (Phổi, Khí quản, Phế quản)
-    gltfLoader.load(
-      '/models/respiratory_male.glb',
-      (gltf) => {
-        const root = gltf.scene;
-        root.traverse((c) => {
-          if (c.isMesh) {
-            const name = (c.name || '').toLowerCase();
-            if (name.includes('trachea') || name.includes('bronch')) {
-              c.material = tracheaMat;
-            } else {
-              c.material = lungsMat;
-            }
+      // 6. Liver & Digestive Tract (digestive_male.glb)
+      loadGltf('/models/digestive_male.glb').then((gltf) => {
+        gltf.scene.updateMatrixWorld(true);
+        const liverGeoms = [];
+        const digestGeoms = [];
+
+        gltf.scene.traverse((c) => {
+          if (!c.isMesh) return;
+          const name = c.name || '';
+          const l = name.toLowerCase();
+
+          // Keep unified 'Liver' and 'Gallbladder', skip internal overlapping liver sub-segments
+          if (name === 'Liver' || l.includes('gallbladder') || l.includes('bile duct')) {
+            const g = extractCleanWorldGeometry(c);
+            if (g) liverGeoms.push(g);
+            return;
+          }
+
+          if (
+            name === 'Stomach' ||
+            l.includes('oesophagus') ||
+            l.includes('duodenum') ||
+            l.includes('jejunum') ||
+            l.includes('colon') ||
+            l.includes('appendix') ||
+            l.includes('pancrea')
+          ) {
+            const g = extractCleanWorldGeometry(c);
+            if (g) digestGeoms.push(g);
           }
         });
 
-        const targetHeight = 1.82;
-        const normScale = targetHeight / 1.65;
-        root.scale.set(normScale, normScale, normScale);
-        respGroup.add(root);
-        checkAllLoaded();
-      },
-      undefined,
-      (err) => {
-        console.error('Error loading respiratory:', err);
-        checkAllLoaded();
-      }
-    );
+        registerMesh('liver', buildMergedAtlasGeometry(liverGeoms, 0), liverMat, 1);
+        registerMesh('digestive', buildMergedAtlasGeometry(digestGeoms, 0), digestiveMat, 1);
+        bumpProgress();
+      }),
 
-    // 4. Load Digestive (Gan, Dạ dày, Phèo non & Đại tràng)
-    gltfLoader.load(
-      '/models/digestive_male.glb',
-      (gltf) => {
-        const root = gltf.scene;
-        root.traverse((c) => {
-          if (c.isMesh) {
-            const name = (c.name || '').toLowerCase();
-            // Remove anal sphincter / perineal meshes
-            if (name.includes('anal') || name.includes('sphincter') || name.includes('perine')) {
-              c.visible = false;
-              c.geometry = new THREE.BufferGeometry();
-              return;
-            }
-
-            // Gan (Liver) gets amber glow
-            if (name.includes('liver') || name.includes('gallbladder') || name.includes('bile')) {
-              c.material = liverMat;
-            } else {
-              // Stomach, Duodenum, Jejunum (Phèo non), Colon get emerald peristalsis glow
-              c.material = digestiveMat;
-            }
-          }
+      // 7. Kidneys & Urinary System (renal_male.glb)
+      loadGltf('/models/renal_male.glb').then((gltf) => {
+        gltf.scene.updateMatrixWorld(true);
+        const kidneyGeoms = [];
+        gltf.scene.traverse((c) => {
+          if (!c.isMesh) return;
+          const l = (c.name || '').toLowerCase();
+          if (l.includes('urethra')) return;
+          const g = extractCleanWorldGeometry(c);
+          if (g) kidneyGeoms.push(g);
         });
-
-        const targetHeight = 1.82;
-        const normScale = targetHeight / 1.65;
-        root.scale.set(normScale, normScale, normScale);
-        digestGroup.add(root);
-        checkAllLoaded();
-      },
-      undefined,
-      (err) => {
-        console.error('Error loading digestive:', err);
-        checkAllLoaded();
-      }
-    );
-
-    // 5. Load Outer Holographic Skin Shell
-    gltfLoader.load(
-      '/models/regional_male.glb',
-      (gltf) => {
-        const root = gltf.scene;
-        root.traverse((c) => {
-          if (c.isMesh) {
-            const name = (c.name || '').toLowerCase();
-            // Strictly exclude all genital, pubic, and perineal meshes
-            if (
-              name.includes('urogenital') ||
-              name.includes('pubic') ||
-              name.includes('anal') ||
-              name.includes('perine') ||
-              name.includes('genital')
-            ) {
-              c.visible = false;
-              c.geometry = new THREE.BufferGeometry();
-              return;
-            }
-            c.material = skinMat;
-          }
-        });
-
-        const targetHeight = 1.82;
-        const normScale = targetHeight / 1.65;
-        root.scale.set(normScale, normScale, normScale);
-        skinGroup.add(root);
-        checkAllLoaded();
-      },
-      undefined,
-      (err) => {
-        console.error('Error loading skin:', err);
-        checkAllLoaded();
-      }
-    );
+        registerMesh('kidneys', buildMergedAtlasGeometry(kidneyGeoms, 0), kidneyMat, 1);
+        bumpProgress();
+      }),
+    ])
+      .then(() => {
+        if (disposed) return;
+        if (initialGender === 'female') {
+          allGeomsRef.current.forEach((g) => deformGeometryForGender(g, true));
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Error loading anatomical atlas:', err);
+        if (!disposed) setLoading(false);
+      });
 
     // ========================================================
-    // INTERACTION (ORBIT DRAG & TOUCH)
+    // ORBIT, PAN & ZOOM INTERACTION
     // ========================================================
     const dom = renderer.domElement;
 
@@ -1095,8 +1136,8 @@ export default function BodySimulationPage() {
 
       controlsState.current.targetRotY += dx * 0.007;
       controlsState.current.targetRotX = Math.max(
-        -0.35,
-        Math.min(0.55, controlsState.current.targetRotX + dy * 0.005)
+        -0.45,
+        Math.min(0.65, controlsState.current.targetRotX + dy * 0.005)
       );
     };
 
@@ -1107,8 +1148,8 @@ export default function BodySimulationPage() {
     const onWheel = (e) => {
       e.preventDefault();
       controlsState.current.targetDistance = Math.max(
-        1.6,
-        Math.min(4.5, controlsState.current.targetDistance + e.deltaY * 0.003)
+        0.55,
+        Math.min(3.8, controlsState.current.targetDistance + e.deltaY * 0.002)
       );
     };
 
@@ -1124,7 +1165,6 @@ export default function BodySimulationPage() {
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
-      composer.setSize(w, h);
     };
     window.addEventListener('resize', onResize);
 
@@ -1132,147 +1172,66 @@ export default function BodySimulationPage() {
     // RENDER LOOP
     // ========================================================
     let animId;
-    const clock = new THREE.Clock();
-
     const animate = () => {
       animId = requestAnimationFrame(animate);
 
-      const delta = clock.getDelta();
-      const elapsed = clock.getElapsedTime();
-
-      // Update shader times
-      timeUniformsRef.current.forEach((u) => {
-        if (u) u.value = elapsed;
-      });
-
-      // Update interactive X-Ray Scanline position (sweeping smoothly up and down)
-      const scanCycle = (Math.sin(elapsed * 1.6) * 0.5 + 0.5); // 0 to 1
-      const currentScanY = 0.15 + scanCycle * 1.55; // sweeps from feet (y=0.15) to head (y=1.70)
-      scanUniformsRef.current.uScanY.value = currentScanY;
-
-      if (scanRingRef.current) {
-        scanRingRef.current.position.y = currentScanY;
-        scanRingRef.current.visible = scanActive;
-      }
-
-      // Camera Orbit Smoothing
       const ctrl = controlsState.current;
-      if (autoRotate && !ctrl.isDragging) {
-        ctrl.targetRotY += delta * 0.2;
-      }
+      ctrl.rotY += (ctrl.targetRotY - ctrl.rotY) * 0.1;
+      ctrl.rotX += (ctrl.targetRotX - ctrl.rotX) * 0.1;
+      ctrl.distance += (ctrl.targetDistance - ctrl.distance) * 0.1;
+      ctrl.lookY += (ctrl.targetLookY - ctrl.lookY) * 0.1;
 
-      ctrl.rotY += (ctrl.targetRotY - ctrl.rotY) * 0.08;
-      ctrl.rotX += (ctrl.targetRotX - ctrl.rotX) * 0.08;
-      ctrl.distance += (ctrl.targetDistance - ctrl.distance) * 0.08;
-
-      const lookTarget = new THREE.Vector3(0, 0.95, 0);
-      const camY = 0.95 + Math.sin(ctrl.rotX) * ctrl.distance;
+      const camY = ctrl.lookY + Math.sin(ctrl.rotX) * ctrl.distance;
       const horizDist = Math.cos(ctrl.rotX) * ctrl.distance;
       const camX = Math.sin(ctrl.rotY) * horizDist;
       const camZ = Math.cos(ctrl.rotY) * horizDist;
 
       camera.position.set(camX, camY, camZ);
-      camera.lookAt(lookTarget);
+      camera.lookAt(0, ctrl.lookY, 0);
 
-      composer.render();
+      renderer.render(scene, camera);
     };
 
     animate();
 
     return () => {
+      disposed = true;
       cancelAnimationFrame(animId);
       dom.removeEventListener('pointerdown', onPointerDown);
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);
       dom.removeEventListener('wheel', onWheel);
       window.removeEventListener('resize', onResize);
+      allGeomsRef.current.forEach((g) => g.dispose());
       renderer.dispose();
       dracoLoader.dispose();
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
     };
-  }, [autoRotate, scanActive]);
-
-  // System Layer Toggles
-  const toggleSkeleton = useCallback(() => {
-    setShowSkeleton((prev) => {
-      const next = !prev;
-      if (skeletonGroupRef.current) skeletonGroupRef.current.visible = next;
-      return next;
-    });
-  }, []);
-
-  const toggleCardio = useCallback(() => {
-    setShowCardio((prev) => {
-      const next = !prev;
-      if (cardioGroupRef.current) cardioGroupRef.current.visible = next;
-      return next;
-    });
-  }, []);
-
-  const toggleResp = useCallback(() => {
-    setShowResp((prev) => {
-      const next = !prev;
-      if (respGroupRef.current) respGroupRef.current.visible = next;
-      return next;
-    });
-  }, []);
-
-  const toggleDigest = useCallback(() => {
-    setShowDigest((prev) => {
-      const next = !prev;
-      if (digestGroupRef.current) digestGroupRef.current.visible = next;
-      return next;
-    });
-  }, []);
-
-  const toggleSkin = useCallback(() => {
-    setShowSkin((prev) => {
-      const next = !prev;
-      if (skinGroupRef.current) skinGroupRef.current.visible = next;
-      return next;
-    });
-  }, []);
-
-  const toggleScan = useCallback(() => {
-    setScanActive((prev) => {
-      const next = !prev;
-      scanUniformsRef.current.uScanActive.value = next ? 1.0 : 0.0;
-      return next;
-    });
-  }, []);
-
-  const resetCamera = useCallback(() => {
-    controlsState.current.targetRotY = 0;
-    controlsState.current.targetRotX = 0;
-    controlsState.current.targetDistance = 2.7;
-  }, []);
+  }, [initialGender]);
 
   return (
     <div className={styles.page}>
-      {/* 3D Canvas Viewport */}
+      {/* 3D Viewport */}
       <div ref={mountRef} className={styles.canvasContainer} />
 
-      {/* Loading Overlay */}
+      {/* Loading Screen */}
       {loading && (
         <div className={styles.loadingOverlay}>
           <div className={styles.loadingSpinner} />
-          <h3 className={styles.loadingTitle}>ĐANG KHỞI TẠO MÔ HÌNH HOLOGRAPHIC 3D</h3>
+          <h3 className={styles.loadingTitle}>ĐANG TẢI ATLAS GIẢI PHẨU 3D</h3>
           <p className={styles.loadingDesc}>
-            Tải khung xương, mạch máu & tim, phổi hô hấp, gan & hệ tiêu hóa...
+            Đồng bộ tọa độ cơ thể, khung xương, não bộ, mạch máu và nội tạng...
           </p>
           <div className={styles.progressBar}>
-            <div
-              className={styles.progressFill}
-              style={{ width: `${loadProgress}%` }}
-            />
+            <div className={styles.progressFill} style={{ width: `${loadProgress}%` }} />
           </div>
           <span className={styles.progressText}>{loadProgress}%</span>
         </div>
       )}
 
-      {/* Top Header Bar */}
+      {/* Top Header */}
       <header className={styles.header}>
         <div className={styles.headerLeft}>
           <button
@@ -1281,191 +1240,154 @@ export default function BodySimulationPage() {
             className={styles.backBtn}
             title="Quay lại Trang chủ"
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft size={17} />
             <span>Trang chủ DIA+</span>
           </button>
-
-          <div className={styles.headerTitle}>
-            <div className={styles.titleBadge}>
-              <span className={styles.pulseDot} />
-              <span>DIA+ 3D HOLOGRAPHIC SCAN</span>
-            </div>
-          </div>
         </div>
 
-        {/* Gender Toggle: Nam / Nữ */}
+        {/* Gender Selector: Nam / Nữ */}
         <div className={styles.headerCenter}>
-          <div className={styles.genderSelector}>
+          <div className={styles.pillGroup}>
             <button
               type="button"
               onClick={() => handleGenderChange('male')}
-              className={`${styles.genderBtn} ${gender === 'male' ? styles.genderBtnActive : ''}`}
-              title="Khung xương và giải phẫu Nam"
+              className={`${styles.pillBtn} ${gender === 'male' ? styles.pillBtnActive : ''}`}
             >
               <span>Nam ♂</span>
             </button>
             <button
               type="button"
               onClick={() => handleGenderChange('female')}
-              className={`${styles.genderBtn} ${gender === 'female' ? styles.genderBtnActive : ''}`}
-              title="Khung xương và giải phẫu Nữ"
+              className={`${styles.pillBtn} ${gender === 'female' ? styles.pillBtnActive : ''}`}
             >
               <span>Nữ ♀</span>
             </button>
           </div>
         </div>
 
-        <div className={styles.headerActions}>
+        <div className={styles.headerRight}>
           <button
             type="button"
             onClick={resetCamera}
             className={styles.iconBtn}
-            title="Đặt lại góc nhìn chính diện"
+            title="Đặt lại góc nhìn toàn thân"
           >
-            <RotateCcw size={18} />
+            <RotateCcw size={17} />
           </button>
         </div>
       </header>
 
-      {/* Floating HUD Telemetry Card */}
-      <div className={styles.hudCard}>
-        <div className={styles.hudHeader}>
-          <span className={styles.hudTitle}>Hologram Telemetry</span>
-          <Activity size={14} color="#00f5ff" />
-        </div>
-        <div className={styles.hudVitals}>
-          <div className={styles.vitalRow}>
-            <span className={styles.vitalLabel}>
-              <Heart size={13} color="#ff3366" />
-              <span>Nhịp tim:</span>
-            </span>
-            <span className={`${styles.vitalValue} ${styles.vitalHeart}`}>72 BPM</span>
-          </div>
-
-          <div className={styles.vitalRow}>
-            <span className={styles.vitalLabel}>
-              <Wind size={13} color="#38bdf8" />
-              <span>Nhịp thở:</span>
-            </span>
-            <span className={`${styles.vitalValue} ${styles.vitalResp}`}>14 BR/M</span>
-          </div>
-
-          <div className={styles.vitalRow}>
-            <span className={styles.vitalLabel}>
-              <Flame size={13} color="#f59e0b" />
-              <span>Chuyển hóa:</span>
-            </span>
-            <span className={`${styles.vitalValue} ${styles.vitalLiver}`}>Optimal</span>
-          </div>
-
-          <div className={styles.vitalRow}>
-            <span className={styles.vitalLabel}>
-              <User size={13} color="#00f5ff" />
-              <span>Giới tính:</span>
-            </span>
-            <span className={styles.vitalValue}>
-              {gender === 'male' ? 'Nam (Male)' : 'Nữ (Female)'}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Floating Control Toolbar (Bottom Center) */}
-      <div className={styles.bottomToolbar}>
-        {/* Skeleton toggle */}
+      {/* Left Quick View Presets (Matching Reference Images 2, 3, 4 & Vessels) */}
+      <aside className={styles.sidePanel}>
+        <div className={styles.sidePanelTitle}>Chế độ xem mẫu</div>
         <button
           type="button"
-          onClick={toggleSkeleton}
+          onClick={() => applyPreset('atlas_full')}
+          className={`${styles.presetBtn} ${activePreset === 'atlas_full' ? styles.presetBtnActive : ''}`}
+        >
+          <span>Toàn bộ Giải phẫu</span>
+          <Eye size={14} />
+        </button>
+        <button
+          type="button"
+          onClick={() => applyPreset('brain_skeleton')}
+          className={`${styles.presetBtn} ${activePreset === 'brain_skeleton' ? styles.presetBtnActive : ''}`}
+        >
+          <span>Khung xương & Não (Ảnh 4)</span>
+          <Brain size={14} />
+        </button>
+        <button
+          type="button"
+          onClick={() => applyPreset('vessels_detail')}
+          className={`${styles.presetBtn} ${activePreset === 'vessels_detail' ? styles.presetBtnActive : ''}`}
+        >
+          <span>Mạch máu chi tiết</span>
+          <Heart size={14} />
+        </button>
+        <button
+          type="button"
+          onClick={() => applyPreset('front_surface')}
+          className={`${styles.presetBtn} ${activePreset === 'front_surface' ? styles.presetBtnActive : ''}`}
+        >
+          <span>Nhân vật Mặt trước (Ảnh 3)</span>
+          <User size={14} />
+        </button>
+        <button
+          type="button"
+          onClick={() => applyPreset('back_surface')}
+          className={`${styles.presetBtn} ${activePreset === 'back_surface' ? styles.presetBtnActive : ''}`}
+        >
+          <span>Nhân vật Sau lưng (Ảnh 2)</span>
+          <User size={14} />
+        </button>
+      </aside>
+
+      {/* Bottom Individual Layer Toggles */}
+      <div className={styles.bottomToolbar}>
+        <button
+          type="button"
+          onClick={() => {
+            setActivePreset('custom');
+            setShowSkin((v) => !v);
+          }}
+          className={`${styles.toolBtn} ${showSkin ? styles.toolBtnActive : ''}`}
+        >
+          <User size={15} />
+          <span>Cơ thể</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setActivePreset('custom');
+            setShowSkeleton((v) => !v);
+          }}
           className={`${styles.toolBtn} ${showSkeleton ? styles.toolBtnActive : ''}`}
-          title="Bật/Tắt Khung xương (335 xương giải phẫu)"
         >
           <Layers size={15} />
           <span>Khung xương</span>
         </button>
 
-        {/* Cardio & Heart toggle */}
         <button
           type="button"
-          onClick={toggleCardio}
-          className={`${styles.toolBtn} ${showCardio ? styles.toolBtnHeartActive : ''}`}
-          title="Bật/Tắt Hệ tuần hoàn & Tim"
+          onClick={() => {
+            setActivePreset('custom');
+            setShowBrain((v) => !v);
+          }}
+          className={`${styles.toolBtn} ${showBrain ? styles.toolBtnActive : ''}`}
+        >
+          <Brain size={15} />
+          <span>Não & Tủy sống</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setActivePreset('custom');
+            setShowVessels((v) => !v);
+          }}
+          className={`${styles.toolBtn} ${showVessels ? styles.toolBtnVesselsActive : ''}`}
         >
           <Heart size={15} />
           <span>Mạch máu & Tim</span>
         </button>
 
-        {/* Lungs toggle */}
         <button
           type="button"
-          onClick={toggleResp}
-          className={`${styles.toolBtn} ${showResp ? styles.toolBtnRespActive : ''}`}
-          title="Bật/Tắt Phổi & Khí phế quản"
+          onClick={() => {
+            setActivePreset('custom');
+            setShowOrgans((v) => !v);
+          }}
+          className={`${styles.toolBtn} ${showOrgans ? styles.toolBtnOrgansActive : ''}`}
         >
           <Wind size={15} />
-          <span>Phổi</span>
-        </button>
-
-        {/* Digestive toggle */}
-        <button
-          type="button"
-          onClick={toggleDigest}
-          className={`${styles.toolBtn} ${showDigest ? styles.toolBtnLiverActive : ''}`}
-          title="Bật/Tắt Gan & Hệ tiêu hóa (Phèo)"
-        >
-          <Flame size={15} />
-          <span>Gan & Phèo</span>
-        </button>
-
-        {/* Skin toggle */}
-        <button
-          type="button"
-          onClick={toggleSkin}
-          className={`${styles.toolBtn} ${showSkin ? styles.toolBtnActive : ''}`}
-          title="Bật/Tắt Lớp hình thể Hologram"
-        >
-          <User size={15} />
-          <span>Hình thể</span>
-        </button>
-
-        <div className={styles.toolbarDivider} />
-
-        {/* Scanline laser sweep */}
-        <button
-          type="button"
-          onClick={toggleScan}
-          className={`${styles.toolBtn} ${scanActive ? styles.toolBtnActive : ''}`}
-          title="Bật/Tắt Tia quét X-Ray Hologram"
-        >
-          <Scan size={15} />
-          <span>Quét X-Ray</span>
-        </button>
-
-        {/* Auto rotate 360 */}
-        <button
-          type="button"
-          onClick={() => setAutoRotate((prev) => !prev)}
-          className={`${styles.toolBtn} ${autoRotate ? styles.toolBtnActive : ''}`}
-          title="Tự động xoay 360 độ"
-        >
-          <Sparkles size={15} />
-          <span>{autoRotate ? 'Dừng xoay' : 'Xoay 360°'}</span>
-        </button>
-
-        {/* Reset camera */}
-        <button
-          type="button"
-          onClick={resetCamera}
-          className={styles.toolBtn}
-          title="Đặt lại chính diện"
-        >
-          <Maximize2 size={15} />
-          <span>Chính diện</span>
+          <span>Phổi, Gan & Nội tạng</span>
         </button>
       </div>
 
-      {/* Drag & Rotate Hint */}
+      {/* Interaction Hint */}
       <div className={styles.interactionHint}>
-        <span>Kéo chuột hoặc vuốt để xoay 360° • Cuộn để phóng to / thu nhỏ</span>
+        <span>Kéo chuột để xoay 360° • Cuộn chuột để phóng to / thu nhỏ chi tiết</span>
       </div>
     </div>
   );

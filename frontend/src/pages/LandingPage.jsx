@@ -120,21 +120,6 @@ export default function LandingPage({ section }) {
           <button type="button" onClick={() => scrollToSection('features')} className={styles.navLink}>{text.navFeatures}</button>
           <button type="button" onClick={() => scrollToSection('impact')} className={styles.navLink}>{text.navImpact}</button>
           <button type="button" onClick={() => scrollToSection('contact')} className={styles.navLink}>{text.navContact}</button>
-          <button
-            type="button"
-            onClick={() => navigate('/digital-twin')}
-            className={styles.navLink}
-            style={{
-              color: '#00f0ff',
-              fontWeight: 800,
-              background: 'rgba(0, 240, 255, 0.1)',
-              border: '1px solid rgba(0, 240, 255, 0.4)',
-              borderRadius: '999px',
-              padding: '6px 14px',
-            }}
-          >
-            🫀 Bản Đồ Sinh Học
-          </button>
         </div>
       </nav>
 
@@ -167,18 +152,6 @@ export default function LandingPage({ section }) {
           <div className={styles.heroCtas} style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
             <button onClick={() => navigate('/login')} className={styles.heroBtn}>
               {text.heroBtn} <ArrowRight size={18} />
-            </button>
-            <button
-              onClick={() => navigate('/digital-twin')}
-              className={styles.heroBtn}
-              style={{
-                background: 'linear-gradient(135deg, rgba(0, 240, 255, 0.18) 0%, rgba(59, 130, 246, 0.25) 100%)',
-                border: '1.5px solid #00f0ff',
-                color: '#00f0ff',
-                boxShadow: '0 0 24px rgba(0, 240, 255, 0.35)',
-              }}
-            >
-              <Sparkles size={18} /> <span>Bản Đồ Nhiệt Sinh Học</span>
             </button>
           </div>
           {/* Download Badges */}

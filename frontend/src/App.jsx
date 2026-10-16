@@ -25,7 +25,6 @@ import ProfilePage from './pages/Tabs/ProfilePage';
 import AdminPage from './pages/AdminPage';
 import PrivacyPage from './pages/Legal/PrivacyPage';
 import DataDeletionPage from './pages/Legal/DataDeletionPage';
-import BodySimulationPage from './pages/BodySimulation3D/BodySimulationPage';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuthStore();
@@ -142,12 +141,11 @@ function AppRoutes() {
         <Route path="/features" element={<LandingPage section="features" />} />
         <Route path="/impact" element={<LandingPage section="impact" />} />
         <Route path="/contact" element={<LandingPage section="contact" />} />
-        {/* Bản Đồ Nhiệt Sinh Học 2D & Biến chứng Đái tháo đường */}
-        <Route path="/3d" element={<BodySimulationPage />} />
-        <Route path="/heatmap" element={<BodySimulationPage />} />
-        <Route path="/digital-twin" element={<BodySimulationPage />} />
-        <Route path="/3d-body" element={<Navigate to="/3d" replace />} />
-        <Route path="/body-journey" element={<Navigate to="/3d" replace />} />
+        <Route path="/3d" element={<Navigate to="/" replace />} />
+        <Route path="/heatmap" element={<Navigate to="/" replace />} />
+        <Route path="/digital-twin" element={<Navigate to="/" replace />} />
+        <Route path="/3d-body" element={<Navigate to="/" replace />} />
+        <Route path="/body-journey" element={<Navigate to="/" replace />} />
         {/* Trang pháp lý công khai (Facebook/Google yêu cầu khi phát hành ứng dụng) */}
         <Route path="/chinh-sach-bao-mat" element={<PrivacyPage />} />
         <Route path="/xoa-du-lieu" element={<DataDeletionPage />} />

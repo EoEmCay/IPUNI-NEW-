@@ -16,6 +16,10 @@ import {
   User,
   Brain,
   Eye,
+  Camera,
+  X,
+  Play,
+  Activity,
 } from 'lucide-react';
 import styles from './BodySimulationPage.module.css';
 
@@ -167,6 +171,172 @@ const LUNG_STUDIO_FRAG = /* glsl */ `
     gl_FragColor = vec4(color, alpha);
   }
 `;
+
+// 5. Biochemical Particle Shader (Food Bolus -> Amylase Enzyme -> Glucose Molecules)
+const PARTICLE_VERT = /* glsl */ `
+  attribute float aSize;
+  attribute vec3 aColor;
+  varying vec3 vColor;
+
+  void main() {
+    vColor = aColor;
+    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+    gl_PointSize = clamp(aSize * (220.0 / max(-mvPosition.z, 0.08)), 3.0, 28.0);
+    gl_Position = projectionMatrix * mvPosition;
+  }
+`;
+
+const PARTICLE_FRAG = /* glsl */ `
+  varying vec3 vColor;
+
+  void main() {
+    vec2 uv = gl_PointCoord - vec2(0.5);
+    float dist = length(uv);
+    if (dist > 0.5) discard;
+    float core = smoothstep(0.5, 0.08, dist);
+    gl_FragColor = vec4(vColor, core * 0.92);
+  }
+`;
+
+// ========================================================
+// FOOD & DRINK CATALOG + METABOLIC & OSTEOPOROSIS ENGINE
+// ========================================================
+
+const FOOD_CATALOG = [
+  {
+    id: 'milk_tea',
+    name: 'Trà sữa trân châu đường đen',
+    portion: '1 ly 500ml',
+    carbs: 68,
+    sugar: 54,
+    fiber: 0.5,
+    gi: 78,
+    badge: 'Đường rất cao',
+  },
+  {
+    id: 'com_tam',
+    name: 'Cơm tấm sườn bì chả + Nước ngọt',
+    portion: '1 dĩa + 1 lon 330ml',
+    carbs: 85,
+    sugar: 32,
+    fiber: 2.0,
+    gi: 76,
+    badge: 'Tinh bột & đường cao',
+  },
+  {
+    id: 'pho_bo',
+    name: 'Phở bò tái nạm tiêu chuẩn',
+    portion: '1 tô lớn',
+    carbs: 58,
+    sugar: 4,
+    fiber: 2.5,
+    gi: 65,
+    badge: 'Tinh bột trung bình',
+  },
+  {
+    id: 'banh_mi',
+    name: 'Bánh mì thịt nguội Sài Gòn',
+    portion: '1 ổ 220g',
+    carbs: 52,
+    sugar: 5,
+    fiber: 2.2,
+    gi: 72,
+    badge: 'GI cao',
+  },
+  {
+    id: 'gao_lut',
+    name: 'Cơm gạo lứt cá hồi & Bông cải',
+    portion: '1 phần 350g',
+    carbs: 42,
+    sugar: 2,
+    fiber: 8.5,
+    gi: 48,
+    badge: 'Giàu xơ • Tốt',
+  },
+  {
+    id: 'salad_ga',
+    name: 'Salad ức gà, bơ & hạt óc chó',
+    portion: '1 tô 300g',
+    carbs: 14,
+    sugar: 2,
+    fiber: 7.0,
+    gi: 25,
+    badge: 'An toàn tối ưu',
+  },
+];
+
+/**
+ * Computes post-meal blood glucose peak, HbA1c impact, and Diabetic Bone Disease
+ * (AGEs collagen glycation + urinary calcium loss -> osteoporosis risk %).
+ */
+function calculateMetabolicImpact(food, preGlucoseInput) {
+  const preGlucose =
+    Number.isFinite(parseFloat(preGlucoseInput)) && parseFloat(preGlucoseInput) > 2.5
+      ? parseFloat(preGlucoseInput)
+      : 5.8;
+
+  const netCarbs = Math.max(0, food.carbs - 0.5 * (food.fiber || 0));
+  const glycemicLoad = +((netCarbs * food.gi) / 100).toFixed(1);
+
+  // Fiber slows gastric emptying & brush-border amylase contact
+  const fiberDamping = 1 / (1 + 0.045 * (food.fiber || 0));
+  const deltaGlucose = glycemicLoad * 0.135 * fiberDamping;
+  const peakGlucose = +(preGlucose + deltaGlucose).toFixed(1);
+
+  // Estimated HbA1c if this post-prandial excursion pattern is habitual (ADAG formula)
+  const avgGlucose = preGlucose * 0.45 + peakGlucose * 0.55;
+  const projectedHbA1c = +((avgGlucose + 2.59) / 1.59).toFixed(1);
+
+  // Diabetic Osteopathy / Bone Fragility Calculations:
+  // 1. AGEs (Advanced Glycation End-products) cross-linking on Type I bone collagen
+  const excessGlycemia = Math.max(0, peakGlucose - 6.5);
+  const ageCollagenPct = Math.round(
+    Math.min(48, Math.max(2, Math.pow(excessGlycemia, 1.32) * 3.1))
+  );
+
+  // 2. Osmotic diuresis urinary Calcium & Magnesium loss when approaching/exceeding renal threshold
+  const renalExcess = Math.max(0, peakGlucose - 7.4);
+  const calciumLossPct = Math.round(
+    Math.min(54, Math.max(3, Math.pow(renalExcess, 1.38) * 3.9))
+  );
+
+  // 3. Overall Diabetic Osteoporosis / Fracture acceleration percentage
+  const osteoporosisRiskPct = Math.round(
+    Math.min(65, Math.max(4, ageCollagenPct * 0.65 + calciumLossPct * 0.55))
+  );
+
+  let riskTier = 'low';
+  let riskLabel = 'An toàn';
+  let warningText =
+    'Món ăn giàu chất xơ làm chậm tháo rỗng dạ dày, giữ đường huyết ổn định và bảo vệ khung xương.';
+
+  if (peakGlucose >= 10.0 || glycemicLoad >= 35) {
+    riskTier = 'high';
+    riskLabel = 'Cảnh báo cao';
+    warningText =
+      'CẢNH BÁO: Lượng đường tự do quá cao tràn qua ruột non vào máu, thúc đẩy glycat hóa collagen (AGEs) và đào thải Canxi qua thận. Không nên dùng hoặc cần giảm 1/2 khẩu phần.';
+  } else if (peakGlucose >= 8.2 || glycemicLoad >= 22) {
+    riskTier = 'moderate';
+    riskLabel = 'Cần lưu ý';
+    warningText =
+      'Tinh bột phân giải khá nhanh tại tá tràng. Nên ăn kèm 1 đĩa rau xanh trước khi ăn món này để giảm đỉnh đường huyết và bảo vệ mật độ xương.';
+  }
+
+  return {
+    food,
+    preGlucose,
+    peakGlucose,
+    deltaGlucose: +deltaGlucose.toFixed(1),
+    glycemicLoad,
+    projectedHbA1c,
+    ageCollagenPct,
+    calciumLossPct,
+    osteoporosisRiskPct,
+    riskTier,
+    riskLabel,
+    warningText,
+  };
+}
 
 // ========================================================
 // ANATOMICAL ATLAS CLASSIFICATION & GEOMETRY BAKING
@@ -478,13 +648,38 @@ export default function BodySimulationPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const initialGender = searchParams.get('gender') === 'female' ? 'female' : 'male';
-  const initialPreset = searchParams.get('preset') || 'vessels_detail';
+  const initialMealId =
+    searchParams.get('meal') || (searchParams.get('voyage') === '1' ? 'milk_tea' : null);
+  const initialMode =
+    searchParams.get('mode') || (searchParams.get('voyage') === '1' ? 'voyage' : null); // 'voyage' | 'clinical'
+  const initialPreset =
+    searchParams.get('preset') || (initialMealId ? 'atlas_full' : 'vessels_detail');
   const mountRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   // UI State
   const [gender, setGender] = useState(initialGender);
   const [loading, setLoading] = useState(true);
   const [loadProgress, setLoadProgress] = useState(10);
+
+  // Food Scanner & Metabolic Simulation State
+  const [scannerOpen, setScannerOpen] = useState(searchParams.get('scanner') === '1');
+  const [selectedFoodId, setSelectedFoodId] = useState(initialMealId || 'milk_tea');
+  const [customFoodName, setCustomFoodName] = useState('');
+  const [customCarbs, setCustomCarbs] = useState('');
+  const [preMealGlucose, setPreMealGlucose] = useState('5.8');
+  const [uploadedPhoto, setUploadedPhoto] = useState(null);
+  const [gameModeEnabled, setGameModeEnabled] = useState(initialMode !== 'clinical');
+  const [activeMealImpact, setActiveMealImpact] = useState(() => {
+    if (!initialMealId) return null;
+    const found = FOOD_CATALOG.find((f) => f.id === initialMealId) || FOOD_CATALOG[0];
+    return calculateMetabolicImpact(found, '5.8');
+  });
+  const [voyageRunning, setVoyageRunning] = useState(initialMode === 'voyage');
+  const [voyageSubtitle, setVoyageSubtitle] = useState({
+    stage: 'HỒI 1 • KHOANG MIỆNG & DẠ DÀY',
+    text: 'Thức ăn trượt qua thực quản xuống dạ dày, nhào trộn cùng dịch vị thành vị trấp...',
+  });
 
   // Active preset & layers
   const [activePreset, setActivePreset] = useState(initialPreset);
@@ -544,15 +739,31 @@ export default function BodySimulationPage() {
     liver: null,
     digestive: null,
     kidneys: null,
+    particles: null,
+    boneHotspots: null,
   });
   const skinMatRef = useRef(null);
+  const materialsRef = useRef({
+    arteryMat: null,
+    veinMat: null,
+    skeletonMat: null,
+    hotspotMats: [],
+  });
   const allGeomsRef = useRef([]);
+  const voyageRef = useRef({
+    active: initialMode === 'voyage',
+    startTime: 0,
+    durationMs: 16000,
+    impact: activeMealImpact,
+    lastStageIdx: -1,
+  });
   const layerStateRef = useRef({
     showSkin,
     showSkeleton,
     showBrain,
     showVessels,
     showOrgans,
+    hasMeal: Boolean(activeMealImpact),
   });
 
   const syncMeshVisibility = useCallback(() => {
@@ -563,8 +774,9 @@ export default function BodySimulationPage() {
       showBrain: sBrain,
       showVessels: sVessels,
       showOrgans: sOrgans,
+      hasMeal,
     } = layerStateRef.current;
-    const hasInternal = sSkel || sBrain || sVessels || sOrgans;
+    const hasInternal = sSkel || sBrain || sVessels || sOrgans || hasMeal;
 
     if (m.skin) {
       m.skin.visible = sSkin;
@@ -589,6 +801,9 @@ export default function BodySimulationPage() {
     if (m.liver) m.liver.visible = sOrgans;
     if (m.digestive) m.digestive.visible = sOrgans;
     if (m.kidneys) m.kidneys.visible = sOrgans;
+
+    if (m.particles) m.particles.visible = hasMeal;
+    if (m.boneHotspots) m.boneHotspots.visible = hasMeal && sSkel;
   }, []);
 
   // Sync visibility & surface/X-ray mode whenever layer states change
@@ -599,9 +814,57 @@ export default function BodySimulationPage() {
       showBrain,
       showVessels,
       showOrgans,
+      hasMeal: Boolean(activeMealImpact),
     };
     syncMeshVisibility();
-  }, [showSkin, showSkeleton, showBrain, showVessels, showOrgans, syncMeshVisibility]);
+  }, [
+    showSkin,
+    showSkeleton,
+    showBrain,
+    showVessels,
+    showOrgans,
+    activeMealImpact,
+    syncMeshVisibility,
+  ]);
+
+  // Update vascular & bone shader colors according to meal glycemic impact
+  useEffect(() => {
+    const mats = materialsRef.current;
+    if (!mats.arteryMat || !mats.veinMat || !mats.skeletonMat) return;
+
+    if (!activeMealImpact) {
+      mats.arteryMat.uniforms.uMidColor.value.setHex(0xe62e50);
+      mats.arteryMat.uniforms.uRimColor.value.setHex(0xff7a90);
+      mats.veinMat.uniforms.uMidColor.value.setHex(0x2979ff);
+      mats.veinMat.uniforms.uRimColor.value.setHex(0x82baff);
+      mats.skeletonMat.uniforms.uEdgeColor.value.setHex(0x52adff);
+      return;
+    }
+
+    if (activeMealImpact.riskTier === 'high') {
+      // High blood sugar surge: vessels shift toward bright hyperglycemic crimson-orange, skeleton rims warn in amber
+      mats.arteryMat.uniforms.uMidColor.value.setHex(0xff2a3c);
+      mats.arteryMat.uniforms.uRimColor.value.setHex(0xffb74d);
+      mats.veinMat.uniforms.uMidColor.value.setHex(0xd9385a);
+      mats.veinMat.uniforms.uRimColor.value.setHex(0xff8a80);
+      mats.skeletonMat.uniforms.uEdgeColor.value.setHex(0x7cc4ff);
+      mats.hotspotMats.forEach((hm) => hm.color.setHex(0xff4d4f));
+    } else if (activeMealImpact.riskTier === 'moderate') {
+      mats.arteryMat.uniforms.uMidColor.value.setHex(0xf56c2d);
+      mats.arteryMat.uniforms.uRimColor.value.setHex(0xffe082);
+      mats.veinMat.uniforms.uMidColor.value.setHex(0x3b82f6);
+      mats.veinMat.uniforms.uRimColor.value.setHex(0x93c5fd);
+      mats.skeletonMat.uniforms.uEdgeColor.value.setHex(0x52adff);
+      mats.hotspotMats.forEach((hm) => hm.color.setHex(0xfbbf24));
+    } else {
+      mats.arteryMat.uniforms.uMidColor.value.setHex(0xe62e50);
+      mats.arteryMat.uniforms.uRimColor.value.setHex(0xff7a90);
+      mats.veinMat.uniforms.uMidColor.value.setHex(0x10b981);
+      mats.veinMat.uniforms.uRimColor.value.setHex(0x6ee7b7);
+      mats.skeletonMat.uniforms.uEdgeColor.value.setHex(0x52adff);
+      mats.hotspotMats.forEach((hm) => hm.color.setHex(0x34d399));
+    }
+  }, [activeMealImpact]);
 
   // Apply gender deformation across all geometries simultaneously
   const handleGenderChange = useCallback(
@@ -616,11 +879,12 @@ export default function BodySimulationPage() {
 
   // View Presets matching user's uploaded reference images
   const applyPreset = useCallback((presetId) => {
+    voyageRef.current.active = false;
+    setVoyageRunning(false);
     setActivePreset(presetId);
     const ctrl = controlsState.current;
 
     if (presetId === 'front_surface') {
-      // Matches Image 3: Sculpted Cobalt-Blue Outer Character (Front View)
       setShowSkin(true);
       setShowSkeleton(false);
       setShowBrain(false);
@@ -631,7 +895,6 @@ export default function BodySimulationPage() {
       ctrl.targetDistance = 1.55;
       ctrl.targetLookY = 1.22;
     } else if (presetId === 'back_surface') {
-      // Matches Image 2: Sculpted Cobalt-Blue Outer Character (Back View)
       setShowSkin(true);
       setShowSkeleton(false);
       setShowBrain(false);
@@ -642,7 +905,6 @@ export default function BodySimulationPage() {
       ctrl.targetDistance = 1.55;
       ctrl.targetLookY = 1.18;
     } else if (presetId === 'brain_skeleton') {
-      // Matches Image 4: Translucent Outer Body + X-Ray Cobalt Skeleton + Brain
       setShowSkin(true);
       setShowSkeleton(true);
       setShowBrain(true);
@@ -653,7 +915,6 @@ export default function BodySimulationPage() {
       ctrl.targetDistance = 1.35;
       ctrl.targetLookY = 1.32;
     } else if (presetId === 'vessels_detail') {
-      // Detailed Blood Vessels + Brain + Skeleton inside Translucent Body
       setShowSkin(true);
       setShowSkeleton(true);
       setShowBrain(true);
@@ -664,7 +925,6 @@ export default function BodySimulationPage() {
       ctrl.targetDistance = 2.3;
       ctrl.targetLookY = 0.92;
     } else if (presetId === 'atlas_full') {
-      // Complete Anatomical Atlas (All Systems Aligned)
       setShowSkin(true);
       setShowSkeleton(true);
       setShowBrain(true);
@@ -678,11 +938,97 @@ export default function BodySimulationPage() {
   }, []);
 
   const resetCamera = useCallback(() => {
+    voyageRef.current.active = false;
+    setVoyageRunning(false);
     const ctrl = controlsState.current;
     ctrl.targetRotY = 0;
     ctrl.targetRotX = 0.04;
     ctrl.targetDistance = 2.35;
     ctrl.targetLookY = 0.92;
+  }, []);
+
+  // Photo Upload & AI Dish Recognition Handler
+  const handlePhotoUpload = useCallback((e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    setUploadedPhoto(url);
+
+    const fname = (file.name || '').toLowerCase();
+    if (fname.includes('pho') || fname.includes('bun')) {
+      setSelectedFoodId('pho_bo');
+    } else if (fname.includes('com')) {
+      setSelectedFoodId('com_tam');
+    } else if (fname.includes('banh')) {
+      setSelectedFoodId('banh_mi');
+    } else if (fname.includes('salad') || fname.includes('rau')) {
+      setSelectedFoodId('salad_ga');
+    } else {
+      setSelectedFoodId('milk_tea');
+    }
+  }, []);
+
+  // Launch Metabolic & Bone Simulation (Supports both Cinematic Voyage & Direct Clinical Mode)
+  const handleStartSimulation = useCallback(
+    (overrideGameMode) => {
+      const useGame =
+        typeof overrideGameMode === 'boolean' ? overrideGameMode : gameModeEnabled;
+      const baseFood =
+        FOOD_CATALOG.find((f) => f.id === selectedFoodId) || FOOD_CATALOG[0];
+
+      const effectiveFood = {
+        ...baseFood,
+        name: customFoodName.trim() ? customFoodName.trim() : baseFood.name,
+        carbs:
+          Number.isFinite(parseFloat(customCarbs)) && parseFloat(customCarbs) >= 0
+            ? parseFloat(customCarbs)
+            : baseFood.carbs,
+      };
+
+      const impact = calculateMetabolicImpact(effectiveFood, preMealGlucose);
+      setActiveMealImpact(impact);
+      setScannerOpen(false);
+
+      // Enable anatomical layers so digestive tract, vessels, and skeleton are visible
+      setActivePreset('atlas_full');
+      setShowSkin(true);
+      setShowSkeleton(true);
+      setShowBrain(true);
+      setShowVessels(true);
+      setShowOrgans(true);
+
+      if (useGame) {
+        voyageRef.current = {
+          active: true,
+          startTime: performance.now(),
+          durationMs: 16500,
+          impact,
+          lastStageIdx: -1,
+        };
+        setVoyageRunning(true);
+      } else {
+        voyageRef.current.active = false;
+        setVoyageRunning(false);
+        const ctrl = controlsState.current;
+        ctrl.targetRotY = -0.15;
+        ctrl.targetRotX = 0.05;
+        ctrl.targetDistance = 2.15;
+        ctrl.targetLookY = 1.02;
+      }
+    },
+    [gameModeEnabled, selectedFoodId, customFoodName, customCarbs, preMealGlucose]
+  );
+
+  // Switch off Game Mode immediately into Direct Clinical Heatmap Mode
+  const handleSwitchToClinicalMode = useCallback(() => {
+    voyageRef.current.active = false;
+    setVoyageRunning(false);
+    setGameModeEnabled(false);
+    const ctrl = controlsState.current;
+    ctrl.targetRotY = -0.15;
+    ctrl.targetRotX = 0.05;
+    ctrl.targetDistance = 2.15;
+    ctrl.targetLookY = 1.02;
   }, []);
 
   useEffect(() => {
@@ -869,6 +1215,152 @@ export default function BodySimulationPage() {
     const atlasGroup = new THREE.Group();
     scene.add(atlasGroup);
 
+    // ========================================================
+    // 5B. BIOCHEMICAL PARTICLE FLOW (Food Bolus -> Amylase -> Glucose -> Vessels)
+    // ========================================================
+    const digestiveWaypoints = [
+      new THREE.Vector3(0.0, 1.535, 0.045), // Khoang miệng (Tongue)
+      new THREE.Vector3(0.001, 1.485, 0.015), // Hầu họng & Nắp thanh môn (Pharynx / Epiglottis)
+      new THREE.Vector3(0.002, 1.38, -0.008), // Thực quản trên (Upper Oesophagus)
+      new THREE.Vector3(0.012, 1.25, 0.012), // Tâm vị (Lower Oesophagus)
+      new THREE.Vector3(0.036, 1.172, 0.043), // Dạ dày (Stomach Chyme)
+      new THREE.Vector3(-0.021, 1.105, 0.033), // Tá tràng & Ống tụy (Duodenum & Pancreatic Amylase)
+      new THREE.Vector3(0.007, 1.0, 0.054), // Hỗn tràng (Jejunum SGLT1 Absorption)
+      new THREE.Vector3(-0.045, 1.205, 0.032), // Tĩnh mạch cửa gan (Portal Vein -> Liver)
+      new THREE.Vector3(0.008, 1.285, 0.038), // Tâm thất & Động mạch chủ (Heart / Aorta)
+    ];
+    const digestiveSpline = new THREE.CatmullRomCurve3(digestiveWaypoints);
+
+    const systemicBranches = [
+      // Branch 1: Heart -> Abdominal Aorta -> Lumbar Spine (L1-L5) -> Left Femoral Neck
+      new THREE.CatmullRomCurve3([
+        new THREE.Vector3(0.008, 1.285, 0.038),
+        new THREE.Vector3(0.002, 1.12, -0.01),
+        new THREE.Vector3(0.0, 1.035, -0.025),
+        new THREE.Vector3(0.052, 0.92, -0.005),
+        new THREE.Vector3(0.092, 0.835, 0.008),
+      ]),
+      // Branch 2: Heart -> Abdominal Aorta -> Kidneys -> Right Femoral Neck
+      new THREE.CatmullRomCurve3([
+        new THREE.Vector3(0.008, 1.285, 0.038),
+        new THREE.Vector3(-0.053, 1.095, -0.006),
+        new THREE.Vector3(0.0, 1.035, -0.025),
+        new THREE.Vector3(-0.052, 0.92, -0.005),
+        new THREE.Vector3(-0.092, 0.835, 0.008),
+      ]),
+      // Branch 3: Heart -> Carotid Arteries -> Brain
+      new THREE.CatmullRomCurve3([
+        new THREE.Vector3(0.008, 1.285, 0.038),
+        new THREE.Vector3(0.015, 1.44, 0.01),
+        new THREE.Vector3(0.025, 1.58, 0.015),
+        new THREE.Vector3(0.0, 1.66, -0.01),
+      ]),
+    ];
+
+    const PARTICLE_COUNT = 260;
+    const DIGESTIVE_COUNT = 150;
+    const pPositions = new Float32Array(PARTICLE_COUNT * 3);
+    const pColors = new Float32Array(PARTICLE_COUNT * 3);
+    const pSizes = new Float32Array(PARTICLE_COUNT);
+    const pOffsets = new Float32Array(PARTICLE_COUNT * 3);
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      pOffsets[i * 3] = (Math.random() - 0.5) * 0.018;
+      pOffsets[i * 3 + 1] = (Math.random() - 0.5) * 0.014;
+      pOffsets[i * 3 + 2] = (Math.random() - 0.5) * 0.018;
+      pSizes[i] = i < DIGESTIVE_COUNT ? 0.065 + (i % 5) * 0.012 : 0.052 + (i % 4) * 0.01;
+    }
+
+    const particleGeom = new THREE.BufferGeometry();
+    particleGeom.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
+    particleGeom.setAttribute('aColor', new THREE.BufferAttribute(pColors, 3));
+    particleGeom.setAttribute('aSize', new THREE.BufferAttribute(pSizes, 1));
+
+    const particleMat = new THREE.ShaderMaterial({
+      vertexShader: PARTICLE_VERT,
+      fragmentShader: PARTICLE_FRAG,
+      transparent: true,
+      depthWrite: false,
+      depthTest: false,
+    });
+
+    const metabolicParticles = new THREE.Points(particleGeom, particleMat);
+    metabolicParticles.renderOrder = 8;
+    metabolicParticles.visible = Boolean(layerStateRef.current.hasMeal);
+    atlasGroup.add(metabolicParticles);
+    meshesRef.current.particles = metabolicParticles;
+
+    // ========================================================
+    // 5C. BONE FRAGILITY SPOTLIGHTS (Lumbar Spine L1-L5 & Femoral Necks)
+    // ========================================================
+    const boneHotspots = new THREE.Group();
+    const hotspotLocations = [
+      { pos: [0.0, 1.035, -0.02], radius: 0.055 }, // Cột sống thắt lưng L1-L5
+      { pos: [0.092, 0.835, 0.012], radius: 0.044 }, // Cổ xương đùi phải/trái
+      { pos: [-0.092, 0.835, 0.012], radius: 0.044 }, // Cổ xương đùi đối diện
+    ];
+    const hotspotMats = [];
+
+    hotspotLocations.forEach(({ pos, radius }) => {
+      const ringGeom = new THREE.RingGeometry(radius * 0.84, radius, 48);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: 0xff4d4f,
+        transparent: true,
+        opacity: 0.78,
+        side: THREE.DoubleSide,
+        depthTest: false,
+      });
+      const ringMesh = new THREE.Mesh(ringGeom, ringMat);
+      ringMesh.position.set(pos[0], pos[1], pos[2]);
+      ringMesh.renderOrder = 9;
+
+      const coreGeom = new THREE.CircleGeometry(radius * 0.82, 36);
+      const coreMat = new THREE.MeshBasicMaterial({
+        color: 0xff4d4f,
+        transparent: true,
+        opacity: 0.14,
+        side: THREE.DoubleSide,
+        depthTest: false,
+      });
+      const coreMesh = new THREE.Mesh(coreGeom, coreMat);
+      coreMesh.position.set(pos[0], pos[1], pos[2]);
+      coreMesh.renderOrder = 8;
+
+      hotspotMats.push(ringMat, coreMat);
+      boneHotspots.add(ringMesh, coreMesh);
+    });
+
+    boneHotspots.visible = Boolean(
+      layerStateRef.current.hasMeal && layerStateRef.current.showSkeleton
+    );
+    atlasGroup.add(boneHotspots);
+    meshesRef.current.boneHotspots = boneHotspots;
+
+    materialsRef.current = {
+      arteryMat,
+      veinMat,
+      skeletonMat,
+      hotspotMats,
+    };
+
+    // Apply initial meal colors if initialized with ?meal=...
+    if (voyageRef.current.impact) {
+      const tier = voyageRef.current.impact.riskTier;
+      if (tier === 'high') {
+        arteryMat.uniforms.uMidColor.value.setHex(0xff2a3c);
+        arteryMat.uniforms.uRimColor.value.setHex(0xffb74d);
+        veinMat.uniforms.uMidColor.value.setHex(0xd9385a);
+        veinMat.uniforms.uRimColor.value.setHex(0xff8a80);
+        hotspotMats.forEach((hm) => hm.color.setHex(0xff4d4f));
+      } else if (tier === 'moderate') {
+        arteryMat.uniforms.uMidColor.value.setHex(0xf56c2d);
+        arteryMat.uniforms.uRimColor.value.setHex(0xffe082);
+        hotspotMats.forEach((hm) => hm.color.setHex(0xfbbf24));
+      } else {
+        hotspotMats.forEach((hm) => hm.color.setHex(0x34d399));
+      }
+    }
+
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('/draco/');
     const gltfLoader = new GLTFLoader();
@@ -1052,7 +1544,7 @@ export default function BodySimulationPage() {
         bumpProgress();
       }),
 
-      // 6. Liver & Digestive Tract (digestive_male.glb)
+      // 6. Liver & Digestive Tract (digestive_male.glb — includes Tongue, Pharynx, Esophagus, Stomach, Duodenum, Pancreas, Jejunum, Colon)
       loadGltf('/models/digestive_male.glb').then((gltf) => {
         gltf.scene.updateMatrixWorld(true);
         const liverGeoms = [];
@@ -1071,7 +1563,11 @@ export default function BodySimulationPage() {
           }
 
           if (
+            name === 'Tongue' ||
             name === 'Stomach' ||
+            name === 'Mucosa of stomach' ||
+            l.includes('pharynx') ||
+            l.includes('epiglottis') ||
             l.includes('oesophagus') ||
             l.includes('duodenum') ||
             l.includes('jejunum') ||
@@ -1109,12 +1605,44 @@ export default function BodySimulationPage() {
         if (initialGender === 'female') {
           allGeomsRef.current.forEach((g) => deformGeometryForGender(g, true));
         }
+        if (voyageRef.current.active) {
+          voyageRef.current.startTime = performance.now();
+        }
         setLoading(false);
       })
       .catch((err) => {
         console.error('Error loading anatomical atlas:', err);
         if (!disposed) setLoading(false);
       });
+
+    // ========================================================
+    // 4-ACT CINEMATIC VOYAGE CAMERA CURVES
+    // ========================================================
+    const voyageCamCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0.0, 1.56, 0.44), // Start: Zooming toward the mouth
+      new THREE.Vector3(0.0, 1.51, 0.24), // Hồi 1A: Oral cavity & Pharynx entry
+      new THREE.Vector3(0.015, 1.33, 0.28), // Hồi 1B: Sliding down the Oesophagus
+      new THREE.Vector3(0.045, 1.18, 0.32), // Hồi 1C: Inside Stomach gastric chyme view
+      new THREE.Vector3(-0.025, 1.1, 0.28), // Hồi 2A: Duodenum & Pancreatic duct (Amylase cleavage)
+      new THREE.Vector3(0.015, 1.0, 0.31), // Hồi 2B: Jejunum brush-border glucose release
+      new THREE.Vector3(-0.08, 1.2, 0.48), // Hồi 3A: SGLT1 absorption -> Hepatic Portal Vein
+      new THREE.Vector3(0.05, 1.24, 0.72), // Hồi 3B: Heart & Systemic Blood Vessels surge
+      new THREE.Vector3(-0.14, 0.96, 0.78), // Hồi 4A: Kidneys & Lumbar Spine L1-L5 & Femoral Necks
+      new THREE.Vector3(-0.26, 1.02, 2.12), // Hồi 4B: Full-body Clinical Overview finish
+    ]);
+
+    const voyageLookCurve = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0.0, 1.535, 0.045), // Mouth / Tongue
+      new THREE.Vector3(0.002, 1.44, 0.005), // Pharynx / Throat
+      new THREE.Vector3(0.008, 1.28, 0.005), // Oesophagus
+      new THREE.Vector3(0.036, 1.172, 0.043), // Stomach
+      new THREE.Vector3(-0.018, 1.108, 0.03), // Duodenum & Pancreas
+      new THREE.Vector3(0.007, 1.0, 0.054), // Jejunum
+      new THREE.Vector3(-0.045, 1.205, 0.032), // Portal Vein & Liver
+      new THREE.Vector3(0.0, 1.22, 0.02), // Heart & Systemic Vessels
+      new THREE.Vector3(0.0, 0.93, 0.0), // Lumbar Spine & Femoral Necks
+      new THREE.Vector3(0.0, 1.02, 0.0), // Full-body center
+    ]);
 
     // ========================================================
     // ORBIT, PAN & ZOOM INTERACTION
@@ -1172,22 +1700,149 @@ export default function BodySimulationPage() {
     // RENDER LOOP
     // ========================================================
     let animId;
+    const tempPt = new THREE.Vector3();
+    const camPt = new THREE.Vector3();
+    const lookPt = new THREE.Vector3();
+
     const animate = () => {
       animId = requestAnimationFrame(animate);
+      const now = performance.now();
+      const tSec = now * 0.001;
 
-      const ctrl = controlsState.current;
-      ctrl.rotY += (ctrl.targetRotY - ctrl.rotY) * 0.1;
-      ctrl.rotX += (ctrl.targetRotX - ctrl.rotX) * 0.1;
-      ctrl.distance += (ctrl.targetDistance - ctrl.distance) * 0.1;
-      ctrl.lookY += (ctrl.targetLookY - ctrl.lookY) * 0.1;
+      // 1. Update Biochemical Particles & Bone Fragility Rings when a meal is active
+      if (metabolicParticles.visible) {
+        const posAttr = particleGeom.attributes.position;
+        const colAttr = particleGeom.attributes.aColor;
+        const posArr = posAttr.array;
+        const colArr = colAttr.array;
 
-      const camY = ctrl.lookY + Math.sin(ctrl.rotX) * ctrl.distance;
-      const horizDist = Math.cos(ctrl.rotX) * ctrl.distance;
-      const camX = Math.sin(ctrl.rotY) * horizDist;
-      const camZ = Math.cos(ctrl.rotY) * horizDist;
+        const impact = voyageRef.current.impact;
+        const isHighRisk = !impact || impact.riskTier === 'high';
+        const speedMult = isHighRisk ? 0.14 : 0.085;
 
-      camera.position.set(camX, camY, camZ);
-      camera.lookAt(0, ctrl.lookY, 0);
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+          if (i < DIGESTIVE_COUNT) {
+            const u = (i / DIGESTIVE_COUNT + tSec * speedMult) % 1.0;
+            digestiveSpline.getPointAt(u, tempPt);
+            posArr[i * 3] = tempPt.x + pOffsets[i * 3];
+            posArr[i * 3 + 1] = tempPt.y + pOffsets[i * 3 + 1];
+            posArr[i * 3 + 2] = tempPt.z + pOffsets[i * 3 + 2];
+
+            if (u < 0.42) {
+              // Hồi 1: Food Bolus & Gastric Chyme (Warm Amber Gold)
+              colArr[i * 3] = 0.98;
+              colArr[i * 3 + 1] = 0.75;
+              colArr[i * 3 + 2] = 0.18;
+            } else if (u < 0.66) {
+              // Hồi 2: Pancreatic Amylase & Brush-Border Enzyme Hydrolysis (Biochemical Cyan-Emerald)
+              colArr[i * 3] = 0.22;
+              colArr[i * 3 + 1] = 0.88;
+              colArr[i * 3 + 2] = 0.78;
+            } else {
+              // Hồi 3: Absorbed Glucose Molecules entering Portal Vein (Hyperglycemic Coral-Red / Amber)
+              colArr[i * 3] = isHighRisk ? 1.0 : 0.35;
+              colArr[i * 3 + 1] = isHighRisk ? 0.32 : 0.85;
+              colArr[i * 3 + 2] = isHighRisk ? 0.28 : 0.55;
+            }
+          } else {
+            const branchIdx = (i - DIGESTIVE_COUNT) % systemicBranches.length;
+            const branchCurve = systemicBranches[branchIdx];
+            const u = ((i - DIGESTIVE_COUNT) / (PARTICLE_COUNT - DIGESTIVE_COUNT) + tSec * (speedMult * 1.15)) % 1.0;
+            branchCurve.getPointAt(u, tempPt);
+            posArr[i * 3] = tempPt.x + pOffsets[i * 3] * 0.7;
+            posArr[i * 3 + 1] = tempPt.y + pOffsets[i * 3 + 1] * 0.7;
+            posArr[i * 3 + 2] = tempPt.z + pOffsets[i * 3 + 2] * 0.7;
+
+            // Systemic Glucose & AGEs reaching Kidneys, Lumbar Spine & Femoral Necks
+            colArr[i * 3] = isHighRisk ? 1.0 : 0.96;
+            colArr[i * 3 + 1] = isHighRisk ? 0.38 : 0.72;
+            colArr[i * 3 + 2] = isHighRisk ? 0.32 : 0.25;
+          }
+        }
+        posAttr.needsUpdate = true;
+        colAttr.needsUpdate = true;
+      }
+
+      if (boneHotspots.visible) {
+        const pulse = 1.0 + 0.1 * Math.sin(tSec * 3.2);
+        boneHotspots.children.forEach((child) => {
+          child.scale.set(pulse, pulse, 1);
+          child.quaternion.copy(camera.quaternion);
+        });
+      }
+
+      // 2. Camera Control: Either 4-Act Cinematic Voyage OR Smooth Interactive Orbit
+      if (voyageRef.current.active) {
+        const elapsed = Math.max(0, now - voyageRef.current.startTime);
+        const rawProgress = Math.min(1.0, elapsed / voyageRef.current.durationMs);
+        // Smoothstep easing
+        const u = rawProgress * rawProgress * (3.0 - 2.0 * rawProgress);
+
+        voyageCamCurve.getPointAt(u, camPt);
+        voyageLookCurve.getPointAt(u, lookPt);
+        camera.position.copy(camPt);
+        camera.lookAt(lookPt);
+
+        const imp = voyageRef.current.impact;
+        let stageIdx = 0;
+        if (rawProgress < 0.26) stageIdx = 0;
+        else if (rawProgress < 0.54) stageIdx = 1;
+        else if (rawProgress < 0.8) stageIdx = 2;
+        else stageIdx = 3;
+
+        if (stageIdx !== voyageRef.current.lastStageIdx) {
+          voyageRef.current.lastStageIdx = stageIdx;
+          if (stageIdx === 0) {
+            setVoyageSubtitle({
+              stage: 'HỒI 1 • KHOANG MIỆNG, THỰC QUẢN & DẠ DÀY',
+              text: `${imp ? imp.food.name : 'Thức ăn'} trượt qua thực quản xuống dạ dày, nhào trộn cùng dịch vị thành vị trấp...`,
+            });
+          } else if (stageIdx === 1) {
+            setVoyageSubtitle({
+              stage: 'HỒI 2 • TÁ TRÀNG & ENZYME AMYLASE PHÂN GIẢI',
+              text: 'Tuyến tụy tiết enzyme Amylase vào tá tràng, cắt đứt chuỗi tinh bột thành hàng triệu phân tử đường đơn Glucose...',
+            });
+          } else if (stageIdx === 2) {
+            setVoyageSubtitle({
+              stage: 'HỒI 3 • HẤP THỤ QUA RUỘT NON VÀO HỆ MẠCH MÁU',
+              text: `Kênh SGLT1 bơm Glucose xuyên thành ruột non vào tĩnh mạch cửa gan — Đỉnh đường huyết dự kiến chạm ${imp ? imp.peakGlucose : '10.8'} mmol/L.`,
+            });
+          } else {
+            setVoyageSubtitle({
+              stage: 'HỒI 4 • GLYCAT HÓA COLLAGEN XƯƠNG (AGEs) & THẢI CANXI',
+              text: `Đường máu cao tạo liên kết chéo AGEs làm giòn sợi Collagen xương & mất Canxi qua thận — Nguy cơ loãng xương: ${imp ? imp.osteoporosisRiskPct : '38'}%.`,
+            });
+          }
+        }
+
+        if (rawProgress >= 1.0) {
+          voyageRef.current.active = false;
+          setVoyageRunning(false);
+          const ctrl = controlsState.current;
+          ctrl.rotY = -0.15;
+          ctrl.targetRotY = -0.15;
+          ctrl.rotX = 0.05;
+          ctrl.targetRotX = 0.05;
+          ctrl.distance = 2.15;
+          ctrl.targetDistance = 2.15;
+          ctrl.lookY = 1.02;
+          ctrl.targetLookY = 1.02;
+        }
+      } else {
+        const ctrl = controlsState.current;
+        ctrl.rotY += (ctrl.targetRotY - ctrl.rotY) * 0.1;
+        ctrl.rotX += (ctrl.targetRotX - ctrl.rotX) * 0.1;
+        ctrl.distance += (ctrl.targetDistance - ctrl.distance) * 0.1;
+        ctrl.lookY += (ctrl.targetLookY - ctrl.lookY) * 0.1;
+
+        const camY = ctrl.lookY + Math.sin(ctrl.rotX) * ctrl.distance;
+        const horizDist = Math.cos(ctrl.rotX) * ctrl.distance;
+        const camX = Math.sin(ctrl.rotY) * horizDist;
+        const camZ = Math.cos(ctrl.rotY) * horizDist;
+
+        camera.position.set(camX, camY, camZ);
+        camera.lookAt(0, ctrl.lookY, 0);
+      }
 
       renderer.render(scene, camera);
     };
@@ -1202,6 +1857,8 @@ export default function BodySimulationPage() {
       window.removeEventListener('pointerup', onPointerUp);
       dom.removeEventListener('wheel', onWheel);
       window.removeEventListener('resize', onResize);
+      particleGeom.dispose();
+      particleMat.dispose();
       allGeomsRef.current.forEach((g) => g.dispose());
       renderer.dispose();
       dracoLoader.dispose();
@@ -1209,7 +1866,7 @@ export default function BodySimulationPage() {
         container.removeChild(renderer.domElement);
       }
     };
-  }, [initialGender]);
+  }, [initialGender, syncMeshVisibility]);
 
   return (
     <div className={styles.page}>
@@ -1231,164 +1888,480 @@ export default function BodySimulationPage() {
         </div>
       )}
 
-      {/* Top Header */}
-      <header className={styles.header}>
-        <div className={styles.headerLeft}>
+      {/* ── MODE 1: PURE MINIMAL CINEMATIC VOYAGE (NO CLUTTER, NO BUTTONS ON ACT 1) ── */}
+      {voyageRunning && (
+        <>
           <button
             type="button"
-            onClick={() => navigate('/')}
-            className={styles.backBtn}
-            title="Quay lại Trang chủ"
+            onClick={handleSwitchToClinicalMode}
+            className={styles.voyageQuickSkip}
+            title="Tắt chế độ Game để xem trực tiếp báo cáo Y khoa trên mô hình 3D"
           >
-            <ArrowLeft size={17} />
-            <span>Trang chủ DIA+</span>
+            Tắt chế độ Game • Xem kết quả ngay
           </button>
-        </div>
 
-        {/* Gender Selector: Nam / Nữ */}
-        <div className={styles.headerCenter}>
-          <div className={styles.pillGroup}>
+          <div className={styles.voyageMinimalCaption}>
+            <span className={styles.voyageStageTag}>{voyageSubtitle.stage}</span>
+            <p className={styles.voyageSubtitleText}>{voyageSubtitle.text}</p>
+          </div>
+        </>
+      )}
+
+      {/* ── STANDARD ATLAS CHROME (HIDDEN DURING CINEMATIC VOYAGE) ── */}
+      {!voyageRunning && (
+        <>
+          {/* Top Header */}
+          <header className={styles.header}>
+            <div className={styles.headerLeft}>
+              <button
+                type="button"
+                onClick={() => navigate('/')}
+                className={styles.backBtn}
+                title="Quay lại Trang chủ"
+              >
+                <ArrowLeft size={17} />
+                <span>Trang chủ DIA+</span>
+              </button>
+            </div>
+
+            {/* Gender Selector & Food Scanner Trigger */}
+            <div className={styles.headerCenter}>
+              <div className={styles.pillGroup}>
+                <button
+                  type="button"
+                  onClick={() => handleGenderChange('male')}
+                  className={`${styles.pillBtn} ${gender === 'male' ? styles.pillBtnActive : ''}`}
+                >
+                  <span>Nam ♂</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleGenderChange('female')}
+                  className={`${styles.pillBtn} ${gender === 'female' ? styles.pillBtnActive : ''}`}
+                >
+                  <span>Nữ ♀</span>
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setScannerOpen(true)}
+                className={styles.scannerTriggerBtn}
+              >
+                <Camera size={15} />
+                <span>Chụp Món Ăn • Tính Đường & Loãng Xương</span>
+              </button>
+            </div>
+
+            <div className={styles.headerRight}>
+              <button
+                type="button"
+                onClick={resetCamera}
+                className={styles.iconBtn}
+                title="Đặt lại góc nhìn toàn thân"
+              >
+                <RotateCcw size={17} />
+              </button>
+            </div>
+          </header>
+
+          {/* Left Quick View Presets (Matching Reference Images 2, 3, 4 & Vessels) */}
+          <aside className={styles.sidePanel}>
+            <div className={styles.sidePanelTitle}>Chế độ xem mẫu</div>
             <button
               type="button"
-              onClick={() => handleGenderChange('male')}
-              className={`${styles.pillBtn} ${gender === 'male' ? styles.pillBtnActive : ''}`}
+              onClick={() => applyPreset('atlas_full')}
+              className={`${styles.presetBtn} ${activePreset === 'atlas_full' ? styles.presetBtnActive : ''}`}
             >
-              <span>Nam ♂</span>
+              <span>Toàn bộ Giải phẫu</span>
+              <Eye size={14} />
             </button>
             <button
               type="button"
-              onClick={() => handleGenderChange('female')}
-              className={`${styles.pillBtn} ${gender === 'female' ? styles.pillBtnActive : ''}`}
+              onClick={() => applyPreset('brain_skeleton')}
+              className={`${styles.presetBtn} ${activePreset === 'brain_skeleton' ? styles.presetBtnActive : ''}`}
             >
-              <span>Nữ ♀</span>
+              <span>Khung xương & Não (Ảnh 4)</span>
+              <Brain size={14} />
+            </button>
+            <button
+              type="button"
+              onClick={() => applyPreset('vessels_detail')}
+              className={`${styles.presetBtn} ${activePreset === 'vessels_detail' ? styles.presetBtnActive : ''}`}
+            >
+              <span>Mạch máu chi tiết</span>
+              <Heart size={14} />
+            </button>
+            <button
+              type="button"
+              onClick={() => applyPreset('front_surface')}
+              className={`${styles.presetBtn} ${activePreset === 'front_surface' ? styles.presetBtnActive : ''}`}
+            >
+              <span>Nhân vật Mặt trước (Ảnh 3)</span>
+              <User size={14} />
+            </button>
+            <button
+              type="button"
+              onClick={() => applyPreset('back_surface')}
+              className={`${styles.presetBtn} ${activePreset === 'back_surface' ? styles.presetBtnActive : ''}`}
+            >
+              <span>Nhân vật Sau lưng (Ảnh 2)</span>
+              <User size={14} />
+            </button>
+          </aside>
+
+          {/* Right Clinical Report Card (Visible in Direct Clinical Mode or after Voyage completes) */}
+          {activeMealImpact && (
+            <section className={styles.clinicalCard} aria-label="Báo cáo Chuyển hóa & Xương 3D">
+              <div className={styles.clinicalCardHeader}>
+                <div>
+                  <h4 className={styles.clinicalFoodName}>{activeMealImpact.food.name}</h4>
+                  <p className={styles.clinicalFoodMacros}>
+                    {activeMealImpact.food.portion} • {activeMealImpact.food.carbs}g Carb • GI{' '}
+                    {activeMealImpact.food.gi}
+                  </p>
+                </div>
+                <span
+                  className={`${styles.riskBadge} ${
+                    activeMealImpact.riskTier === 'high'
+                      ? styles.riskHigh
+                      : activeMealImpact.riskTier === 'moderate'
+                        ? styles.riskModerate
+                        : styles.riskLow
+                  }`}
+                >
+                  {activeMealImpact.riskLabel}
+                </span>
+              </div>
+
+              <div className={styles.metricGrid}>
+                <div className={styles.metricBox}>
+                  <span className={styles.metricLabel}>Đỉnh đường huyết sau ăn</span>
+                  <span className={styles.metricValue}>
+                    {activeMealImpact.peakGlucose} <small>mmol/L</small>
+                  </span>
+                </div>
+                <div className={styles.metricBox}>
+                  <span className={styles.metricLabel}>Mức tăng từ trước ăn</span>
+                  <span className={styles.metricValue}>
+                    +{activeMealImpact.deltaGlucose} <small>mmol/L</small>
+                  </span>
+                </div>
+                <div className={styles.metricBox}>
+                  <span className={styles.metricLabel}>Tải đường (GL) & HbA1c</span>
+                  <span className={styles.metricValue}>
+                    GL {activeMealImpact.glycemicLoad} • {activeMealImpact.projectedHbA1c}%
+                  </span>
+                </div>
+                <div className={styles.metricBox}>
+                  <span className={styles.metricLabel}>Nguy cơ Loãng xương</span>
+                  <span
+                    className={styles.metricValue}
+                    style={{
+                      color:
+                        activeMealImpact.riskTier === 'high'
+                          ? '#fda4af'
+                          : activeMealImpact.riskTier === 'moderate'
+                            ? '#fde68a'
+                            : '#6ee7b7',
+                    }}
+                  >
+                    {activeMealImpact.osteoporosisRiskPct}%
+                  </span>
+                </div>
+              </div>
+
+              <div className={styles.boneImpactSection}>
+                <div className={styles.boneImpactTitle}>
+                  <span>Tác động lên Khung xương Đái tháo đường</span>
+                  <span>{activeMealImpact.osteoporosisRiskPct}%</span>
+                </div>
+                <div className={styles.boneBarTrack}>
+                  <div
+                    className={styles.boneBarFill}
+                    style={{
+                      width: `${Math.min(100, activeMealImpact.osteoporosisRiskPct * 1.4)}%`,
+                      background:
+                        activeMealImpact.riskTier === 'high'
+                          ? 'linear-gradient(90deg, #f59e0b, #ef4444)'
+                          : activeMealImpact.riskTier === 'moderate'
+                            ? 'linear-gradient(90deg, #38bdf8, #f59e0b)'
+                            : 'linear-gradient(90deg, #10b981, #38bdf8)',
+                    }}
+                  />
+                </div>
+                <div className={styles.boneDetailRow}>
+                  <span>Glycat hóa sợi Collagen xương (AGEs):</span>
+                  <strong>+{activeMealImpact.ageCollagenPct}% độ giòn</strong>
+                </div>
+                <div className={styles.boneDetailRow}>
+                  <span>Thất thoát Canxi qua thận (Lợi tiểu thẩm thấu):</span>
+                  <strong>+{activeMealImpact.calciumLossPct}%</strong>
+                </div>
+              </div>
+
+              <div
+                className={styles.clinicalWarningBox}
+                style={{
+                  borderLeftColor:
+                    activeMealImpact.riskTier === 'high'
+                      ? '#ef4444'
+                      : activeMealImpact.riskTier === 'moderate'
+                        ? '#f59e0b'
+                        : '#10b981',
+                }}
+              >
+                {activeMealImpact.warningText}
+              </div>
+
+              <div className={styles.clinicalCardActions}>
+                <button
+                  type="button"
+                  onClick={() => handleStartSimulation(true)}
+                  className={styles.cardActionBtn}
+                >
+                  <Play size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+                  Du hành 3D (4 Hồi)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setScannerOpen(true)}
+                  className={styles.cardActionBtn}
+                >
+                  <Camera size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+                  Chụp / Đổi món
+                </button>
+              </div>
+            </section>
+          )}
+
+          {/* Bottom Individual Layer Toggles */}
+          <div className={styles.bottomToolbar}>
+            <button
+              type="button"
+              onClick={() => {
+                setActivePreset('custom');
+                setShowSkin((v) => !v);
+              }}
+              className={`${styles.toolBtn} ${showSkin ? styles.toolBtnActive : ''}`}
+            >
+              <User size={15} />
+              <span>Cơ thể</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setActivePreset('custom');
+                setShowSkeleton((v) => !v);
+              }}
+              className={`${styles.toolBtn} ${showSkeleton ? styles.toolBtnActive : ''}`}
+            >
+              <Layers size={15} />
+              <span>Khung xương</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setActivePreset('custom');
+                setShowBrain((v) => !v);
+              }}
+              className={`${styles.toolBtn} ${showBrain ? styles.toolBtnActive : ''}`}
+            >
+              <Brain size={15} />
+              <span>Não & Tủy sống</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setActivePreset('custom');
+                setShowVessels((v) => !v);
+              }}
+              className={`${styles.toolBtn} ${showVessels ? styles.toolBtnVesselsActive : ''}`}
+            >
+              <Heart size={15} />
+              <span>Mạch máu & Tim</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setActivePreset('custom');
+                setShowOrgans((v) => !v);
+              }}
+              className={`${styles.toolBtn} ${showOrgans ? styles.toolBtnOrgansActive : ''}`}
+            >
+              <Wind size={15} />
+              <span>Phổi, Gan & Nội tạng</span>
+            </button>
+          </div>
+
+          {/* Interaction Hint */}
+          <div className={styles.interactionHint}>
+            <span>Kéo chuột để xoay 360° • Cuộn chuột để phóng to / thu nhỏ chi tiết</span>
+          </div>
+        </>
+      )}
+
+      {/* ── FOOD / DRINK SCANNER & PRE-MEAL GLUCOSE MODAL ── */}
+      {scannerOpen && (
+        <div className={styles.scannerOverlay} onClick={() => setScannerOpen(false)}>
+          <div className={styles.scannerModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.scannerHeader}>
+              <div>
+                <h3 className={styles.scannerTitle}>
+                  Phân tích Món ăn 3D • Đường huyết & Loãng xương
+                </h3>
+                <p className={styles.scannerSub}>
+                  Chụp ảnh đồ ăn/đồ uống hoặc chọn nhanh món ăn để mô phỏng quá trình enzyme Amylase
+                  phân giải tinh bột, hấp thụ Glucose vào máu và tính % nguy cơ loãng xương.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setScannerOpen(false)}
+                className={styles.closeModalBtn}
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Camera / Photo Upload Zone */}
+            <div
+              className={styles.uploadZone}
+              onClick={() => fileInputRef.current?.click()}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click();
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <Camera size={22} color="#60a5fa" />
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#ffffff' }}>
+                    {uploadedPhoto ? 'Đã tải ảnh món ăn lên' : 'Chụp ảnh hoặc Tải ảnh món ăn / đồ uống'}
+                  </div>
+                  <div style={{ fontSize: 11, color: '#93c5fd' }}>
+                    Tự động ước tính lượng đường, tinh bột (Carb) và chỉ số đường huyết (GI)
+                  </div>
+                </div>
+              </div>
+              {uploadedPhoto && (
+                <img
+                  src={uploadedPhoto}
+                  alt="Món ăn đã chụp"
+                  className={styles.uploadPreviewImg}
+                />
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={handlePhotoUpload}
+                style={{ display: 'none' }}
+              />
+            </div>
+
+            {/* Preset Dish Selector */}
+            <div className={styles.foodGridLabel}>Hoặc chọn nhanh món ăn / đồ uống phổ biến</div>
+            <div className={styles.foodGrid}>
+              {FOOD_CATALOG.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedFoodId(item.id);
+                    setCustomFoodName('');
+                    setCustomCarbs('');
+                  }}
+                  className={`${styles.foodItemBtn} ${
+                    selectedFoodId === item.id ? styles.foodItemBtnActive : ''
+                  }`}
+                >
+                  <div className={styles.foodItemTop}>
+                    <span>{item.name}</span>
+                  </div>
+                  <div className={styles.foodItemMeta}>
+                    {item.portion} • {item.carbs}g Carb • {item.badge}
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {/* Pre-Meal Blood Glucose Input (Optional) & Custom Carb Override */}
+            <div className={styles.inputRow}>
+              <div className={styles.inputFieldGroup}>
+                <label className={styles.inputLabel}>
+                  Đường huyết trước ăn (mmol/L - Tùy chọn)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="3.0"
+                  max="25.0"
+                  value={preMealGlucose}
+                  onChange={(e) => setPreMealGlucose(e.target.value)}
+                  placeholder="Mặc định: 5.8 mmol/L"
+                  className={styles.numberInput}
+                />
+              </div>
+              <div className={styles.inputFieldGroup}>
+                <label className={styles.inputLabel}>
+                  Tùy chỉnh lượng Đường/Carb (g - Nếu biết)
+                </label>
+                <input
+                  type="number"
+                  step="1"
+                  min="0"
+                  max="250"
+                  value={customCarbs}
+                  onChange={(e) => setCustomCarbs(e.target.value)}
+                  placeholder="Tự động theo món chọn"
+                  className={styles.numberInput}
+                />
+              </div>
+            </div>
+
+            {/* Game Mode vs Direct Clinical Mode Toggle */}
+            <div className={styles.modeToggleBox}>
+              <div className={styles.modeToggleText}>
+                <span className={styles.modeToggleTitle}>
+                  {gameModeEnabled
+                    ? 'Chế độ Du hành 3D bên trong cơ thể (Đang BẬT)'
+                    : 'Chế độ Xem nhanh Y khoa — Tắt hiệu ứng Game (Đang TẮT)'}
+                </span>
+                <span className={styles.modeToggleSub}>
+                  {gameModeEnabled
+                    ? 'Camera phóng từ miệng trượt qua thực quản, dạ dày, tá tràng, mạch máu đến khung xương'
+                    : 'Giữ nguyên góc nhìn toàn thân, hiển thị ngay mạch máu tăng đường & vị trí xương giòn'}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setGameModeEnabled((v) => !v)}
+                className={`${styles.switchBtn} ${gameModeEnabled ? styles.switchBtnOn : ''}`}
+                aria-label="Bật hoặc tắt chế độ Du hành 3D"
+              >
+                <span className={styles.switchKnob} />
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => handleStartSimulation()}
+              className={styles.startSimBtn}
+            >
+              {gameModeEnabled
+                ? 'Bắt đầu Chuyến xe Du hành 3D & Tính % Loãng xương'
+                : 'Hiển thị Kết quả Y khoa & Bản đồ Xương 3D Ngay'}
             </button>
           </div>
         </div>
-
-        <div className={styles.headerRight}>
-          <button
-            type="button"
-            onClick={resetCamera}
-            className={styles.iconBtn}
-            title="Đặt lại góc nhìn toàn thân"
-          >
-            <RotateCcw size={17} />
-          </button>
-        </div>
-      </header>
-
-      {/* Left Quick View Presets (Matching Reference Images 2, 3, 4 & Vessels) */}
-      <aside className={styles.sidePanel}>
-        <div className={styles.sidePanelTitle}>Chế độ xem mẫu</div>
-        <button
-          type="button"
-          onClick={() => applyPreset('atlas_full')}
-          className={`${styles.presetBtn} ${activePreset === 'atlas_full' ? styles.presetBtnActive : ''}`}
-        >
-          <span>Toàn bộ Giải phẫu</span>
-          <Eye size={14} />
-        </button>
-        <button
-          type="button"
-          onClick={() => applyPreset('brain_skeleton')}
-          className={`${styles.presetBtn} ${activePreset === 'brain_skeleton' ? styles.presetBtnActive : ''}`}
-        >
-          <span>Khung xương & Não (Ảnh 4)</span>
-          <Brain size={14} />
-        </button>
-        <button
-          type="button"
-          onClick={() => applyPreset('vessels_detail')}
-          className={`${styles.presetBtn} ${activePreset === 'vessels_detail' ? styles.presetBtnActive : ''}`}
-        >
-          <span>Mạch máu chi tiết</span>
-          <Heart size={14} />
-        </button>
-        <button
-          type="button"
-          onClick={() => applyPreset('front_surface')}
-          className={`${styles.presetBtn} ${activePreset === 'front_surface' ? styles.presetBtnActive : ''}`}
-        >
-          <span>Nhân vật Mặt trước (Ảnh 3)</span>
-          <User size={14} />
-        </button>
-        <button
-          type="button"
-          onClick={() => applyPreset('back_surface')}
-          className={`${styles.presetBtn} ${activePreset === 'back_surface' ? styles.presetBtnActive : ''}`}
-        >
-          <span>Nhân vật Sau lưng (Ảnh 2)</span>
-          <User size={14} />
-        </button>
-      </aside>
-
-      {/* Bottom Individual Layer Toggles */}
-      <div className={styles.bottomToolbar}>
-        <button
-          type="button"
-          onClick={() => {
-            setActivePreset('custom');
-            setShowSkin((v) => !v);
-          }}
-          className={`${styles.toolBtn} ${showSkin ? styles.toolBtnActive : ''}`}
-        >
-          <User size={15} />
-          <span>Cơ thể</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            setActivePreset('custom');
-            setShowSkeleton((v) => !v);
-          }}
-          className={`${styles.toolBtn} ${showSkeleton ? styles.toolBtnActive : ''}`}
-        >
-          <Layers size={15} />
-          <span>Khung xương</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            setActivePreset('custom');
-            setShowBrain((v) => !v);
-          }}
-          className={`${styles.toolBtn} ${showBrain ? styles.toolBtnActive : ''}`}
-        >
-          <Brain size={15} />
-          <span>Não & Tủy sống</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            setActivePreset('custom');
-            setShowVessels((v) => !v);
-          }}
-          className={`${styles.toolBtn} ${showVessels ? styles.toolBtnVesselsActive : ''}`}
-        >
-          <Heart size={15} />
-          <span>Mạch máu & Tim</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            setActivePreset('custom');
-            setShowOrgans((v) => !v);
-          }}
-          className={`${styles.toolBtn} ${showOrgans ? styles.toolBtnOrgansActive : ''}`}
-        >
-          <Wind size={15} />
-          <span>Phổi, Gan & Nội tạng</span>
-        </button>
-      </div>
-
-      {/* Interaction Hint */}
-      <div className={styles.interactionHint}>
-        <span>Kéo chuột để xoay 360° • Cuộn chuột để phóng to / thu nhỏ chi tiết</span>
-      </div>
+      )}
     </div>
   );
 }

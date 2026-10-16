@@ -340,9 +340,516 @@
   color: #93c5fd;
 }
 
+/* ── FOOD SCANNER TRIGGER & MODAL ── */
+.scannerTriggerBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #2563eb 0%, #0284c7 100%);
+  border: 1px solid rgba(147, 197, 253, 0.65);
+  color: #ffffff;
+  padding: 8px 15px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(2, 132, 199, 0.35);
+}
+
+.scannerTriggerBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+}
+
+.scannerOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 12, 30, 0.72);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 45;
+  padding: 16px;
+}
+
+.scannerModal {
+  width: 100%;
+  max-width: 520px;
+  background: rgba(10, 24, 58, 0.95);
+  border: 1px solid rgba(125, 185, 255, 0.35);
+  border-radius: 20px;
+  padding: 22px;
+  color: #f8fafc;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.scannerHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.scannerTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.scannerSub {
+  font-size: 12px;
+  color: #93c5fd;
+  margin: 4px 0 0;
+  line-height: 1.4;
+}
+
+.closeModalBtn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.uploadZone {
+  border: 1.5px dashed rgba(96, 165, 250, 0.5);
+  background: rgba(15, 35, 80, 0.5);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.uploadZone:hover {
+  border-color: #60a5fa;
+  background: rgba(30, 58, 138, 0.45);
+}
+
+.uploadPreviewImg {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid rgba(147, 197, 253, 0.4);
+}
+
+.foodGridLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #93c5fd;
+  margin-bottom: -6px;
+}
+
+.foodGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.foodItemBtn {
+  background: rgba(15, 32, 72, 0.65);
+  border: 1px solid rgba(125, 185, 255, 0.2);
+  border-radius: 11px;
+  padding: 10px 12px;
+  text-align: left;
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.foodItemBtn:hover {
+  background: rgba(37, 99, 235, 0.3);
+  border-color: rgba(147, 197, 253, 0.45);
+}
+
+.foodItemBtnActive {
+  background: rgba(37, 99, 235, 0.45);
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 1px #60a5fa;
+}
+
+.foodItemTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.foodItemMeta {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.inputRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.inputFieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.inputLabel {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.numberInput {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(125, 185, 255, 0.3);
+  border-radius: 10px;
+  padding: 9px 12px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  outline: none;
+}
+
+.numberInput:focus {
+  border-color: #60a5fa;
+}
+
+.modeToggleBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(15, 32, 72, 0.65);
+  border: 1px solid rgba(125, 185, 255, 0.25);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.modeToggleText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.modeToggleTitle {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.modeToggleSub {
+  font-size: 11px;
+  color: #93c5fd;
+}
+
+.switchBtn {
+  width: 46px;
+  height: 25px;
+  border-radius: 999px;
+  background: rgba(100, 116, 139, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.switchBtnOn {
+  background: #2563eb;
+  border-color: #93c5fd;
+}
+
+.switchKnob {
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: #ffffff;
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  transition: transform 0.2s ease;
+}
+
+.switchBtnOn .switchKnob {
+  transform: translateX(20px);
+}
+
+.startSimBtn {
+  background: linear-gradient(135deg, #2563eb 0%, #0284c7 100%);
+  border: 1px solid rgba(147, 197, 253, 0.6);
+  color: #ffffff;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.startSimBtn:hover {
+  filter: brightness(1.08);
+}
+
+/* ── PURE MINIMAL CINEMATIC VOYAGE CAPTION (NO CLUTTER, NO BUTTONS IN ACT 1) ── */
+.voyageMinimalCaption {
+  position: absolute;
+  bottom: 34px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 35;
+  text-align: center;
+  pointer-events: none;
+  max-width: 680px;
+  width: 92vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.voyageStageTag {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #7dd3fc;
+}
+
+.voyageSubtitleText {
+  font-size: 15px;
+  font-weight: 600;
+  color: #f8fafc;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.85);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.voyageQuickSkip {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  z-index: 36;
+  background: rgba(8, 20, 48, 0.55);
+  border: 1px solid rgba(147, 197, 253, 0.25);
+  color: rgba(226, 232, 240, 0.8);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+
+.voyageQuickSkip:hover {
+  color: #ffffff;
+  background: rgba(37, 99, 235, 0.45);
+}
+
+/* ── CLINICAL REPORT CARD (DIRECT / POST-VOYAGE VIEW) ── */
+.clinicalCard {
+  position: absolute;
+  right: 20px;
+  top: 68px;
+  width: 315px;
+  background: rgba(8, 20, 48, 0.88);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(125, 185, 255, 0.32);
+  border-radius: 16px;
+  padding: 15px;
+  z-index: 25;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  color: #f8fafc;
+}
+
+.clinicalCardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 1px solid rgba(125, 185, 255, 0.16);
+  padding-bottom: 9px;
+}
+
+.clinicalFoodName {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+}
+
+.clinicalFoodMacros {
+  font-size: 11px;
+  color: #93c5fd;
+  margin: 2px 0 0;
+}
+
+.riskBadge {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.riskHigh {
+  background: rgba(225, 29, 72, 0.25);
+  border: 1px solid rgba(251, 113, 133, 0.6);
+  color: #fda4af;
+}
+
+.riskModerate {
+  background: rgba(217, 119, 6, 0.25);
+  border: 1px solid rgba(251, 191, 36, 0.6);
+  color: #fde68a;
+}
+
+.riskLow {
+  background: rgba(16, 185, 129, 0.22);
+  border: 1px solid rgba(52, 211, 153, 0.55);
+  color: #a7f3d0;
+}
+
+.metricGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.metricBox {
+  background: rgba(15, 32, 72, 0.6);
+  border: 1px solid rgba(125, 185, 255, 0.18);
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metricLabel {
+  font-size: 10.5px;
+  color: #94a3b8;
+}
+
+.metricValue {
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.boneImpactSection {
+  background: rgba(30, 41, 82, 0.55);
+  border: 1px solid rgba(251, 191, 36, 0.32);
+  border-radius: 11px;
+  padding: 10px 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.boneImpactTitle {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fde68a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.boneBarTrack {
+  width: 100%;
+  height: 6px;
+  background: rgba(15, 23, 42, 0.8);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.boneBarFill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.35s ease;
+}
+
+.boneDetailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 11px;
+  color: #cbd5e1;
+}
+
+.boneDetailRow strong {
+  white-space: nowrap;
+  color: #f8fafc;
+}
+
+.clinicalWarningBox {
+  font-size: 11.5px;
+  line-height: 1.45;
+  padding: 9px 11px;
+  border-radius: 10px;
+  background: rgba(15, 32, 72, 0.7);
+  border-left: 3px solid #60a5fa;
+  color: #e2e8f0;
+}
+
+.clinicalCardActions {
+  display: flex;
+  gap: 6px;
+}
+
+.cardActionBtn {
+  flex: 1;
+  background: rgba(37, 99, 235, 0.28);
+  border: 1px solid rgba(147, 197, 253, 0.35);
+  color: #e2e8f0;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 7px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.cardActionBtn:hover {
+  background: rgba(37, 99, 235, 0.55);
+  color: #ffffff;
+}
+
 @media (max-width: 820px) {
   .sidePanel {
     display: none;
+  }
+  .clinicalCard {
+    left: 12px;
+    right: 12px;
+    width: auto;
+    top: auto;
+    bottom: 86px;
   }
 }
 
@@ -363,4 +870,8 @@
     padding: 6px 10px;
     font-size: 11px;
   }
+  .foodGrid {
+    grid-template-columns: 1fr;
+  }
 }
+

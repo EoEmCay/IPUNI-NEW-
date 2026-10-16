@@ -38,8 +38,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   z-index: 20;
   pointer-events: none;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .backBtn {
@@ -47,7 +54,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(15, 23, 42, 0.75);
+  background: rgba(15, 23, 42, 0.8);
   backdrop-filter: blur(14px);
   border: 1px solid rgba(0, 240, 255, 0.35);
   color: #e2e8f0;
@@ -78,9 +85,9 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(10, 25, 47, 0.8);
+  background: rgba(10, 25, 47, 0.85);
   backdrop-filter: blur(14px);
-  border: 1px solid rgba(0, 245, 255, 0.4);
+  border: 1px solid rgba(0, 245, 255, 0.45);
   color: #00f5ff;
   font-size: 13px;
   font-weight: 700;
@@ -103,6 +110,52 @@
   0% { transform: scale(0.95); opacity: 0.7; }
   50% { transform: scale(1.35); opacity: 1; }
   100% { transform: scale(0.95); opacity: 0.7; }
+}
+
+/* ── GENDER SELECTOR IN HEADER ── */
+.headerCenter {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+}
+
+.genderSelector {
+  display: flex;
+  align-items: center;
+  background: rgba(10, 20, 38, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 245, 255, 0.4);
+  padding: 4px;
+  border-radius: 999px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), 0 0 12px rgba(0, 245, 255, 0.15);
+}
+
+.genderBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.genderBtn:hover {
+  color: #ffffff;
+}
+
+.genderBtnActive {
+  background: linear-gradient(135deg, rgba(0, 245, 255, 0.3), rgba(2, 132, 199, 0.4));
+  color: #00f5ff;
+  border: 1px solid rgba(0, 245, 255, 0.65);
+  box-shadow: 0 0 14px rgba(0, 245, 255, 0.35);
+  text-shadow: 0 0 8px rgba(0, 245, 255, 0.6);
 }
 
 .headerActions {
@@ -135,37 +188,122 @@
   box-shadow: 0 0 16px rgba(0, 240, 255, 0.35);
 }
 
+/* ── HUD TELEMETRY CARD (TOP-LEFT / DESKTOP) ── */
+.hudCard {
+  position: absolute;
+  top: 76px;
+  left: 24px;
+  background: rgba(8, 18, 36, 0.82);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 245, 255, 0.3);
+  border-radius: 16px;
+  padding: 14px 18px;
+  z-index: 15;
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 16px rgba(0, 245, 255, 0.1);
+  min-width: 200px;
+}
+
+.hudHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(0, 245, 255, 0.18);
+  margin-bottom: 10px;
+}
+
+.hudTitle {
+  font-size: 11px;
+  font-weight: 700;
+  color: #00f5ff;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hudVitals {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vitalRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.vitalLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #94a3b8;
+}
+
+.vitalValue {
+  font-weight: 700;
+  font-family: monospace;
+  letter-spacing: 0.04em;
+}
+
+.vitalHeart {
+  color: #ff3366;
+  text-shadow: 0 0 8px rgba(255, 51, 102, 0.5);
+}
+
+.vitalResp {
+  color: #38bdf8;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+}
+
+.vitalLiver {
+  color: #f59e0b;
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+}
+
 /* ── FLOATING CONTROL TOOLBAR (BOTTOM CENTER) ── */
 .bottomToolbar {
   position: absolute;
-  bottom: 48px;
+  bottom: 44px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: rgba(10, 20, 38, 0.82);
-  backdrop-filter: blur(18px);
-  border: 1px solid rgba(0, 245, 255, 0.35);
-  padding: 8px 14px;
+  gap: 8px;
+  background: rgba(8, 18, 36, 0.88);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 245, 255, 0.4);
+  padding: 8px 12px;
   border-radius: 999px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 24px rgba(0, 245, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.65), 0 0 24px rgba(0, 245, 255, 0.18);
   z-index: 20;
+  max-width: 95vw;
+  overflow-x: auto;
+}
+
+.toolbarDivider {
+  width: 1px;
+  height: 24px;
+  background: rgba(0, 245, 255, 0.25);
+  margin: 0 4px;
 }
 
 .toolBtn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   background: transparent;
   border: 1px solid transparent;
   color: #94a3b8;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  padding: 8px 16px;
+  padding: 7px 14px;
   border-radius: 999px;
   cursor: pointer;
   transition: all 0.25s ease;
+  white-space: nowrap;
 }
 
 .toolBtn:hover {
@@ -175,15 +313,36 @@
 
 .toolBtnActive {
   background: rgba(0, 245, 255, 0.18);
-  border-color: rgba(0, 245, 255, 0.55);
+  border-color: rgba(0, 245, 255, 0.6);
   color: #00f5ff;
   box-shadow: 0 0 14px rgba(0, 245, 255, 0.25);
+}
+
+.toolBtnHeartActive {
+  background: rgba(255, 51, 102, 0.2);
+  border-color: rgba(255, 51, 102, 0.6);
+  color: #ff4d79;
+  box-shadow: 0 0 14px rgba(255, 51, 102, 0.3);
+}
+
+.toolBtnRespActive {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: rgba(56, 189, 248, 0.6);
+  color: #38bdf8;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.3);
+}
+
+.toolBtnLiverActive {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: rgba(245, 158, 11, 0.6);
+  color: #fbbf24;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.3);
 }
 
 /* ── INTERACTION HINT ── */
 .interactionHint {
   position: absolute;
-  bottom: 16px;
+  bottom: 14px;
   left: 50%;
   transform: translateX(-50%);
   color: rgba(148, 163, 184, 0.7);
@@ -264,29 +423,32 @@
 }
 
 /* ── RESPONSIVE MOBILE ADJUSTMENTS ── */
+@media (max-width: 860px) {
+  .hudCard {
+    display: none;
+  }
+}
+
 @media (max-width: 640px) {
   .header {
-    padding: 12px 14px;
+    padding: 10px 14px;
+    flex-wrap: wrap;
   }
   .titleBadge {
-    font-size: 11px;
-    padding: 6px 12px;
+    display: none;
   }
   .backBtn span {
     display: none;
   }
   .bottomToolbar {
-    bottom: 38px;
+    bottom: 34px;
     padding: 6px 10px;
     gap: 6px;
-    max-width: 92vw;
-    overflow-x: auto;
+    max-width: 96vw;
   }
   .toolBtn {
     padding: 6px 10px;
     font-size: 11px;
-  }
-  .toolBtn span {
-    display: inline;
+    gap: 4px;
   }
 }

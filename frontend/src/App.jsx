@@ -142,8 +142,10 @@ function AppRoutes() {
         <Route path="/features" element={<LandingPage section="features" />} />
         <Route path="/impact" element={<LandingPage section="impact" />} />
         <Route path="/contact" element={<LandingPage section="contact" />} />
-        {/* Mô phỏng 3D Cơ thể người & Chuyển hóa đường huyết */}
+        {/* Bản Đồ Nhiệt Sinh Học 2D & Biến chứng Đái tháo đường */}
         <Route path="/3d" element={<BodySimulationPage />} />
+        <Route path="/heatmap" element={<BodySimulationPage />} />
+        <Route path="/digital-twin" element={<BodySimulationPage />} />
         <Route path="/3d-body" element={<Navigate to="/3d" replace />} />
         <Route path="/body-journey" element={<Navigate to="/3d" replace />} />
         {/* Trang pháp lý công khai (Facebook/Google yêu cầu khi phát hành ứng dụng) */}

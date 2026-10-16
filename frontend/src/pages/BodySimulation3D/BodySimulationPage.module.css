@@ -1,80 +1,112 @@
 /* ========================================================
-   DIA+ 3D ANATOMICAL ATLAS — CLEAN MEDICAL STUDIO STYLE
-   (Matches reference images 2, 3, and 4 — zero bloom/clutter)
+   DIA+ 2D DIGITAL TWIN — INTERACTIVE CLINICAL HEATMAP
+   Apple Health & Sci-Fi Medical Studio Aesthetic
+   Zero motion sickness, pure aesthetic luxury, 60fps responsiveness
    ======================================================== */
+
 .page {
   position: relative;
   width: 100vw;
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
-  /* Clean studio royal-blue radial gradient matching magicmine medical illustrations */
-  background: radial-gradient(circle at 50% 42%, #1d4ed8 0%, #102d6e 52%, #071536 100%);
+  background: radial-gradient(circle at 50% 25%, #0d2254 0%, #081432 55%, #030816 100%);
   color: #f8fafc;
   font-family: 'Lexend', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   user-select: none;
+  display: flex;
+  flex-direction: column;
 }
 
-.canvasContainer {
+/* Subtle holographic technical grid */
+.gridOverlay {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  cursor: grab;
+  background-image: 
+    linear-gradient(rgba(56, 189, 248, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.035) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
   z-index: 1;
-  touch-action: none;
 }
 
-.canvasContainer:active {
-  cursor: grabbing;
-}
-
-/* ── TOP BAR ── */
-.header {
+/* Ambient glow accents */
+.ambientGlowTop {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  padding: 16px 24px;
+  top: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 650px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.18) 0%, transparent 70%);
+  filter: blur(50px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── 1. TOP HEADER ── */
+.header {
+  position: relative;
+  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  z-index: 20;
-  pointer-events: none;
+  gap: 16px;
+  padding: 14px 24px;
+  border-bottom: 1px solid rgba(147, 197, 253, 0.12);
+  background: rgba(4, 12, 30, 0.65);
+  backdrop-filter: blur(14px);
+  flex-shrink: 0;
 }
 
 .headerLeft {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .backBtn {
-  pointer-events: auto;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(10, 25, 58, 0.78);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(125, 185, 255, 0.28);
+  background: rgba(15, 32, 72, 0.7);
+  border: 1px solid rgba(147, 197, 253, 0.25);
   color: #e2e8f0;
-  padding: 8px 16px;
+  padding: 7px 14px;
   border-radius: 999px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .backBtn:hover {
-  background: rgba(30, 64, 138, 0.85);
-  border-color: rgba(147, 197, 253, 0.6);
+  background: rgba(37, 99, 235, 0.4);
   color: #ffffff;
+  border-color: #60a5fa;
 }
 
-.headerCenter {
-  pointer-events: auto;
+.appBrand {
+  display: flex;
+  flex-direction: column;
+}
+
+.brandTitle {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  background: linear-gradient(90deg, #ffffff 0%, #93c5fd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brandSub {
+  font-size: 11px;
+  color: #7dd3fc;
+  letter-spacing: 0.02em;
+}
+
+.headerControls {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -82,265 +114,31 @@
 
 .pillGroup {
   display: inline-flex;
-  align-items: center;
-  background: rgba(8, 20, 48, 0.82);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(125, 185, 255, 0.28);
-  padding: 4px;
+  background: rgba(10, 24, 58, 0.85);
+  border: 1px solid rgba(147, 197, 253, 0.25);
   border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
 }
 
 .pillBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border-radius: 999px;
-  border: 1px solid transparent;
   background: transparent;
+  border: none;
   color: #94a3b8;
+  padding: 5px 12px;
+  border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.pillBtn:hover {
-  color: #f1f5f9;
 }
 
 .pillBtnActive {
   background: #2563eb;
-  border-color: rgba(147, 197, 253, 0.55);
   color: #ffffff;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
 }
 
-.headerRight {
-  pointer-events: auto;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.iconBtn {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: rgba(10, 25, 58, 0.78);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(125, 185, 255, 0.28);
-  color: #e2e8f0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.iconBtn:hover {
-  background: #2563eb;
-  border-color: rgba(147, 197, 253, 0.6);
-  color: #ffffff;
-}
-
-/* ── LEFT VIEW PRESETS PANEL ── */
-.sidePanel {
-  position: absolute;
-  top: 76px;
-  left: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: rgba(8, 20, 48, 0.78);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(125, 185, 255, 0.24);
-  border-radius: 14px;
-  padding: 12px;
-  z-index: 15;
-  width: 210px;
-}
-
-.sidePanelTitle {
-  font-size: 11px;
-  font-weight: 700;
-  color: #93c5fd;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 0 4px 4px;
-  border-bottom: 1px solid rgba(125, 185, 255, 0.16);
-}
-
-.presetBtn {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 8px 11px;
-  border-radius: 9px;
-  border: 1px solid transparent;
-  background: rgba(15, 32, 72, 0.55);
-  color: #cbd5e1;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.18s ease;
-}
-
-.presetBtn:hover {
-  background: rgba(37, 99, 235, 0.35);
-  color: #ffffff;
-}
-
-.presetBtnActive {
-  background: #2563eb;
-  border-color: rgba(147, 197, 253, 0.55);
-  color: #ffffff;
-}
-
-/* ── BOTTOM LAYER TOOLBAR ── */
-.bottomToolbar {
-  position: absolute;
-  bottom: 38px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(8, 20, 48, 0.86);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(125, 185, 255, 0.3);
-  padding: 7px 12px;
-  border-radius: 999px;
-  z-index: 20;
-  max-width: 96vw;
-  overflow-x: auto;
-}
-
-.toolbarDivider {
-  width: 1px;
-  height: 22px;
-  background: rgba(125, 185, 255, 0.22);
-  margin: 0 4px;
-}
-
-.toolBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: transparent;
-  border: 1px solid transparent;
-  color: #94a3b8;
-  font-size: 12px;
-  font-weight: 600;
-  padding: 7px 13px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.toolBtn:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.toolBtnActive {
-  background: rgba(37, 99, 235, 0.85);
-  border-color: rgba(147, 197, 253, 0.6);
-  color: #ffffff;
-}
-
-.toolBtnVesselsActive {
-  background: rgba(190, 24, 60, 0.85);
-  border-color: rgba(251, 113, 133, 0.6);
-  color: #ffffff;
-}
-
-.toolBtnOrgansActive {
-  background: rgba(13, 148, 136, 0.85);
-  border-color: rgba(94, 234, 212, 0.6);
-  color: #ffffff;
-}
-
-.interactionHint {
-  position: absolute;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: rgba(186, 214, 255, 0.68);
-  font-size: 11px;
-  font-weight: 500;
-  pointer-events: none;
-  z-index: 10;
-  text-align: center;
-  white-space: nowrap;
-}
-
-/* ── LOADING OVERLAY ── */
-.loadingOverlay {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 50% 45%, #173f8a 0%, #071536 90%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 50;
-  gap: 12px;
-}
-
-.loadingSpinner {
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  border: 3px solid rgba(147, 197, 253, 0.2);
-  border-top-color: #60a5fa;
-  animation: spin 0.85s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.loadingTitle {
-  font-size: 14px;
-  font-weight: 700;
-  color: #e2e8f0;
-  letter-spacing: 0.06em;
-  margin: 0;
-}
-
-.loadingDesc {
-  font-size: 12px;
-  color: #93c5fd;
-  margin: 0;
-}
-
-.progressBar {
-  width: 220px;
-  height: 5px;
-  background: rgba(15, 23, 42, 0.7);
-  border-radius: 999px;
-  overflow: hidden;
-  border: 1px solid rgba(147, 197, 253, 0.25);
-  margin-top: 4px;
-}
-
-.progressFill {
-  height: 100%;
-  background: #3b82f6;
-  transition: width 0.25s ease;
-}
-
-.progressText {
-  font-size: 11px;
-  font-weight: 600;
-  color: #93c5fd;
-}
-
-/* ── FOOD SCANNER TRIGGER & MODAL ── */
 .scannerTriggerBtn {
   display: inline-flex;
   align-items: center;
@@ -348,7 +146,7 @@
   background: linear-gradient(135deg, #2563eb 0%, #0284c7 100%);
   border: 1px solid rgba(147, 197, 253, 0.65);
   color: #ffffff;
-  padding: 8px 15px;
+  padding: 7px 16px;
   border-radius: 999px;
   font-size: 12.5px;
   font-weight: 700;
@@ -362,15 +160,501 @@
   box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
 }
 
-.scannerOverlay {
+/* ── 2. TIME-TRAVEL CONTROL DOCK (SIMULATION BAR) ── */
+.timeControlBar {
+  position: relative;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 24px;
+  background: rgba(10, 22, 50, 0.7);
+  border-bottom: 1px solid rgba(147, 197, 253, 0.1);
+  backdrop-filter: blur(10px);
+  flex-shrink: 0;
+}
+
+.mealQuickInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mealTag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #7dd3fc;
+}
+
+.mealNameText {
+  font-size: 13px;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.timeSliderSection {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.timeSliderLabel {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.timelineButtons {
+  display: flex;
+  background: rgba(15, 30, 68, 0.85);
+  border: 1px solid rgba(147, 197, 253, 0.25);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.timelineBtn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.timelineBtn:hover {
+  color: #f8fafc;
+}
+
+.timelineBtnActive {
+  background: #0284c7;
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(2, 132, 199, 0.5);
+}
+
+.scenarioToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background: rgba(15, 32, 72, 0.65);
+  border: 1px solid rgba(147, 197, 253, 0.2);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.scenarioToggleText {
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.scenarioGood {
+  color: #34d399;
+}
+
+.scenarioPoor {
+  color: #f87171;
+}
+
+/* ── 3. MAIN WORKSPACE LAYOUT (BODY SILHOUETTE + DIAGNOSTIC CARD) ── */
+.workspace {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ── 3A. CENTER BODY VIEWPORT ── */
+.bodyViewport {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.svgBodyContainer {
+  position: relative;
+  height: 94%;
+  max-height: 720px;
+  aspect-ratio: 420 / 760;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bodySvg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 25px rgba(37, 99, 235, 0.22));
+}
+
+/* Pulsing radar nodes */
+.radarNode {
+  cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.radarNode:hover {
+  transform: scale(1.15);
+}
+
+.pulseRing {
+  transform-origin: center;
+  animation: radarPulse 2.4s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+@keyframes radarPulse {
+  0% {
+    r: 12;
+    opacity: 0.85;
+  }
+  70% {
+    r: 32;
+    opacity: 0;
+  }
+  100% {
+    r: 32;
+    opacity: 0;
+  }
+}
+
+/* Node callout badge on SVG */
+.nodeCallout {
+  pointer-events: none;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+/* Biological age floating badge */
+.bioAgeBadge {
   position: absolute;
+  top: 18px;
+  left: 20px;
+  background: rgba(10, 24, 58, 0.82);
+  border: 1px solid rgba(147, 197, 253, 0.3);
+  backdrop-filter: blur(12px);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.bioAgeLabel {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #93c5fd;
+  letter-spacing: 0.05em;
+}
+
+.bioAgeVal {
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.bioAgeDelta {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ── 3B. RIGHT CLINICAL DIAGNOSTIC CARD ── */
+.diagnosticPanel {
+  width: 370px;
+  background: rgba(8, 20, 50, 0.88);
+  backdrop-filter: blur(20px);
+  border-left: 1px solid rgba(147, 197, 253, 0.18);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  box-shadow: -10px 0 35px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid rgba(147, 197, 253, 0.14);
+  padding-bottom: 12px;
+}
+
+.organTitleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.organCategory {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #38bdf8;
+  letter-spacing: 0.08em;
+}
+
+.organName {
+  font-size: 17px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+}
+
+.organLatin {
+  font-size: 11px;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.riskBadgeLarge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.riskHigh {
+  background: rgba(239, 68, 68, 0.22);
+  border: 1px solid rgba(248, 113, 113, 0.65);
+  color: #fca5a5;
+}
+
+.riskModerate {
+  background: rgba(245, 158, 11, 0.22);
+  border: 1px solid rgba(251, 191, 36, 0.65);
+  color: #fde68a;
+}
+
+.riskLow {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(52, 211, 153, 0.6);
+  color: #a7f3d0;
+}
+
+/* Risk score gauge */
+.riskMeterBlock {
+  background: rgba(15, 32, 75, 0.6);
+  border: 1px solid rgba(147, 197, 253, 0.2);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.riskMeterTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.riskMeterLabel {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.riskMeterValue {
+  font-size: 26px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.meterTrack {
+  width: 100%;
+  height: 8px;
+  background: rgba(15, 23, 42, 0.75);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.meterFill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Mechanism section */
+.mechanismCard {
+  background: rgba(15, 30, 68, 0.6);
+  border-left: 3px solid #38bdf8;
+  border-radius: 0 10px 10px 0;
+  padding: 11px 13px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #e2e8f0;
+}
+
+.mechanismTitle {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #7dd3fc;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+/* Detail metrics grid */
+.metricRowList {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.metricRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 11.5px;
+  padding: 7px 10px;
+  background: rgba(15, 30, 68, 0.45);
+  border-radius: 8px;
+  color: #cbd5e1;
+}
+
+.metricRow strong {
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+/* Reversal Action Checklist */
+.reversalSection {
+  background: rgba(10, 36, 70, 0.65);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 12px;
+  padding: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reversalTitle {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.actionItemList {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.actionItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 11.5px;
+  color: #e2e8f0;
+  line-height: 1.4;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.actionItem:hover {
+  background: rgba(56, 189, 248, 0.12);
+}
+
+.checkboxSquare {
+  width: 15px;
+  height: 15px;
+  border-radius: 4px;
+  border: 1.5px solid #60a5fa;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.checkboxChecked {
+  background: #0284c7;
+  border-color: #38bdf8;
+}
+
+/* ── 4. BOTTOM ORGAN QUICK TABS ── */
+.organTabBar {
+  position: relative;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(4, 12, 30, 0.7);
+  border-top: 1px solid rgba(147, 197, 253, 0.12);
+  backdrop-filter: blur(12px);
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+
+.organTabBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(15, 32, 75, 0.7);
+  border: 1px solid rgba(147, 197, 253, 0.22);
+  color: #cbd5e1;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.organTabBtn:hover {
+  background: rgba(37, 99, 235, 0.35);
+  color: #ffffff;
+  border-color: #60a5fa;
+}
+
+.organTabBtnActive {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #93c5fd;
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.45);
+}
+
+/* ── 5. FOOD SCANNER & SIMULATION MODAL ── */
+.scannerOverlay {
+  position: fixed;
   inset: 0;
-  background: rgba(4, 12, 30, 0.72);
+  background: rgba(4, 12, 30, 0.75);
   backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 45;
+  z-index: 50;
   padding: 16px;
 }
 
@@ -532,70 +816,6 @@
   outline: none;
 }
 
-.numberInput:focus {
-  border-color: #60a5fa;
-}
-
-.modeToggleBox {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(15, 32, 72, 0.65);
-  border: 1px solid rgba(125, 185, 255, 0.25);
-  border-radius: 12px;
-  padding: 10px 14px;
-}
-
-.modeToggleText {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.modeToggleTitle {
-  font-size: 12.5px;
-  font-weight: 700;
-  color: #f8fafc;
-}
-
-.modeToggleSub {
-  font-size: 11px;
-  color: #93c5fd;
-}
-
-.switchBtn {
-  width: 46px;
-  height: 25px;
-  border-radius: 999px;
-  background: rgba(100, 116, 139, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  position: relative;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  padding: 0;
-  flex-shrink: 0;
-}
-
-.switchBtnOn {
-  background: #2563eb;
-  border-color: #93c5fd;
-}
-
-.switchKnob {
-  width: 19px;
-  height: 19px;
-  border-radius: 50%;
-  background: #ffffff;
-  position: absolute;
-  top: 2px;
-  left: 3px;
-  transition: transform 0.2s ease;
-}
-
-.switchBtnOn .switchKnob {
-  transform: translateX(20px);
-}
-
 .startSimBtn {
   background: linear-gradient(135deg, #2563eb 0%, #0284c7 100%);
   border: 1px solid rgba(147, 197, 253, 0.6);
@@ -612,266 +832,23 @@
   filter: brightness(1.08);
 }
 
-/* ── PURE MINIMAL CINEMATIC VOYAGE CAPTION (NO CLUTTER, NO BUTTONS IN ACT 1) ── */
-.voyageMinimalCaption {
-  position: absolute;
-  bottom: 34px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 35;
-  text-align: center;
-  pointer-events: none;
-  max-width: 680px;
-  width: 92vw;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-
-.voyageStageTag {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: #7dd3fc;
-}
-
-.voyageSubtitleText {
-  font-size: 15px;
-  font-weight: 600;
-  color: #f8fafc;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.85);
-  line-height: 1.45;
-  margin: 0;
-}
-
-.voyageQuickSkip {
-  position: absolute;
-  top: 18px;
-  right: 22px;
-  z-index: 36;
-  background: rgba(8, 20, 48, 0.55);
-  border: 1px solid rgba(147, 197, 253, 0.25);
-  color: rgba(226, 232, 240, 0.8);
-  font-size: 11px;
-  font-weight: 600;
-  padding: 6px 12px;
-  border-radius: 999px;
-  cursor: pointer;
-  backdrop-filter: blur(8px);
-}
-
-.voyageQuickSkip:hover {
-  color: #ffffff;
-  background: rgba(37, 99, 235, 0.45);
-}
-
-/* ── CLINICAL REPORT CARD (DIRECT / POST-VOYAGE VIEW) ── */
-.clinicalCard {
-  position: absolute;
-  right: 20px;
-  top: 68px;
-  width: 315px;
-  background: rgba(8, 20, 48, 0.88);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(125, 185, 255, 0.32);
-  border-radius: 16px;
-  padding: 15px;
-  z-index: 25;
-  display: flex;
-  flex-direction: column;
-  gap: 11px;
-  color: #f8fafc;
-}
-
-.clinicalCardHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 8px;
-  border-bottom: 1px solid rgba(125, 185, 255, 0.16);
-  padding-bottom: 9px;
-}
-
-.clinicalFoodName {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0;
-}
-
-.clinicalFoodMacros {
-  font-size: 11px;
-  color: #93c5fd;
-  margin: 2px 0 0;
-}
-
-.riskBadge {
-  font-size: 10.5px;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 999px;
-  white-space: nowrap;
-}
-
-.riskHigh {
-  background: rgba(225, 29, 72, 0.25);
-  border: 1px solid rgba(251, 113, 133, 0.6);
-  color: #fda4af;
-}
-
-.riskModerate {
-  background: rgba(217, 119, 6, 0.25);
-  border: 1px solid rgba(251, 191, 36, 0.6);
-  color: #fde68a;
-}
-
-.riskLow {
-  background: rgba(16, 185, 129, 0.22);
-  border: 1px solid rgba(52, 211, 153, 0.55);
-  color: #a7f3d0;
-}
-
-.metricGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.metricBox {
-  background: rgba(15, 32, 72, 0.6);
-  border: 1px solid rgba(125, 185, 255, 0.18);
-  border-radius: 10px;
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.metricLabel {
-  font-size: 10.5px;
-  color: #94a3b8;
-}
-
-.metricValue {
-  font-size: 15px;
-  font-weight: 800;
-  color: #ffffff;
-}
-
-.boneImpactSection {
-  background: rgba(30, 41, 82, 0.55);
-  border: 1px solid rgba(251, 191, 36, 0.32);
-  border-radius: 11px;
-  padding: 10px 11px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.boneImpactTitle {
-  font-size: 11px;
-  font-weight: 700;
-  color: #fde68a;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.boneBarTrack {
-  width: 100%;
-  height: 6px;
-  background: rgba(15, 23, 42, 0.8);
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.boneBarFill {
-  height: 100%;
-  border-radius: 999px;
-  transition: width 0.35s ease;
-}
-
-.boneDetailRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 10px;
-  font-size: 11px;
-  color: #cbd5e1;
-}
-
-.boneDetailRow strong {
-  white-space: nowrap;
-  color: #f8fafc;
-}
-
-.clinicalWarningBox {
-  font-size: 11.5px;
-  line-height: 1.45;
-  padding: 9px 11px;
-  border-radius: 10px;
-  background: rgba(15, 32, 72, 0.7);
-  border-left: 3px solid #60a5fa;
-  color: #e2e8f0;
-}
-
-.clinicalCardActions {
-  display: flex;
-  gap: 6px;
-}
-
-.cardActionBtn {
-  flex: 1;
-  background: rgba(37, 99, 235, 0.28);
-  border: 1px solid rgba(147, 197, 253, 0.35);
-  color: #e2e8f0;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 7px 8px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.18s ease;
-}
-
-.cardActionBtn:hover {
-  background: rgba(37, 99, 235, 0.55);
-  color: #ffffff;
-}
-
-@media (max-width: 820px) {
-  .sidePanel {
-    display: none;
+/* ── RESPONSIVE DESIGN ── */
+@media (max-width: 900px) {
+  .workspace {
+    flex-direction: column;
+    overflow-y: auto;
   }
-  .clinicalCard {
-    left: 12px;
-    right: 12px;
-    width: auto;
-    top: auto;
-    bottom: 86px;
+  .bodyViewport {
+    height: 480px;
+    flex: none;
+  }
+  .diagnosticPanel {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid rgba(147, 197, 253, 0.18);
+  }
+  .timeControlBar {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
-
-@media (max-width: 640px) {
-  .header {
-    padding: 10px 12px;
-    flex-wrap: wrap;
-  }
-  .backBtn span {
-    display: none;
-  }
-  .bottomToolbar {
-    bottom: 32px;
-    padding: 6px 8px;
-    gap: 4px;
-  }
-  .toolBtn {
-    padding: 6px 10px;
-    font-size: 11px;
-  }
-  .foodGrid {
-    grid-template-columns: 1fr;
-  }
-}
-

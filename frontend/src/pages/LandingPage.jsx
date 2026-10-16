@@ -122,7 +122,7 @@ export default function LandingPage({ section }) {
           <button type="button" onClick={() => scrollToSection('contact')} className={styles.navLink}>{text.navContact}</button>
           <button
             type="button"
-            onClick={() => navigate('/3d')}
+            onClick={() => navigate('/digital-twin')}
             className={styles.navLink}
             style={{
               color: '#00f0ff',
@@ -133,7 +133,7 @@ export default function LandingPage({ section }) {
               padding: '6px 14px',
             }}
           >
-            ✨ 3D
+            🫀 Bản Đồ Sinh Học
           </button>
         </div>
       </nav>
@@ -169,7 +169,7 @@ export default function LandingPage({ section }) {
               {text.heroBtn} <ArrowRight size={18} />
             </button>
             <button
-              onClick={() => navigate('/3d')}
+              onClick={() => navigate('/digital-twin')}
               className={styles.heroBtn}
               style={{
                 background: 'linear-gradient(135deg, rgba(0, 240, 255, 0.18) 0%, rgba(59, 130, 246, 0.25) 100%)',
@@ -178,7 +178,7 @@ export default function LandingPage({ section }) {
                 boxShadow: '0 0 24px rgba(0, 240, 255, 0.35)',
               }}
             >
-              <Sparkles size={18} /> <span>Mô phỏng 3D Cơ thể</span>
+              <Sparkles size={18} /> <span>Bản Đồ Nhiệt Sinh Học</span>
             </button>
           </div>
           {/* Download Badges */}

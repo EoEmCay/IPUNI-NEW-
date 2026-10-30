@@ -14,5 +14,5 @@ COPY . .
 
 EXPOSE 3001
 
-# Run migrations, seeds, and start backend server
-CMD ["sh", "-c", "npm run migrate && npm run seed && npm start"]
+# Chạy migrations rồi khởi động. KHÔNG chạy seed: seed chứa tài khoản mẫu và tự báo lỗi khi NODE_ENV=production.
+CMD ["sh", "-c", "npm run migrate && npm start"]

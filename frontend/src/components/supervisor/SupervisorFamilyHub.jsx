@@ -23,6 +23,7 @@ import { triggerFamilyAlarm } from '../common/FamilyAlarmModal';
 import { getNextAlarmPayloadForToday } from '../../store/medicationAdherenceStore';
 import MemberHealthDossier from './MemberHealthDossier';
 import TelegramCard from '../settings/TelegramCard';
+import { voiceAlertService, ALERT_TYPES } from '../../services/voiceAlert.service';
 import styles from './SupervisorFamilyHub.module.css';
 
 export default function SupervisorFamilyHub() {
@@ -42,7 +43,7 @@ export default function SupervisorFamilyHub() {
   const [copiedCode, setCopiedCode] = useState(false);
 
   // ID của thành viên đang được chọn (đối với giao diện PC 2 cột)
-  const [selectedMemberId, setSelectedMemberId] = useState(user?.id || 'primary_patient');
+  const [selectedMemberId, setSelectedMemberId] = useState(null);
 
   // Thành viên đang được xem chi tiết trên Mobile Modal
   const [activeModalMember, setActiveModalMember] = useState(null);
@@ -70,26 +71,8 @@ export default function SupervisorFamilyHub() {
   // Danh mục dưới đây là các BỆNH NHÂN / NGƯỜI THÂN đang được chăm sóc
   const allMembers = useMemo(() => {
     const list = [];
-    // 1. Hồ sơ bệnh nhân chính đang theo dõi (Bố/Mẹ)
-    list.push({
-      id: 'primary_patient',
-      name: 'Bác Nguyễn Văn An',
-      relationship: 'Bố ruột (Đang giám sát chính)',
-      user_code: 'DIABO8829',
-      phone: '0908 123 456',
-      birthYear: 1958,
-      gender: 'Nam',
-      bhyt: 'GD 4 79 1234567890',
-      diagnosis: 'Đái tháo đường Type 2 (E11) · Tăng huyết áp vô căn (I10)',
-      doctor: 'BS. CKI Nguyễn Văn Hoàng (BV ĐHYD TP.HCM)',
-      nextAppointment: 'Thứ Ba, 24/10/2026 · 08:30 sáng',
-      hospital: 'Bệnh viện Đại học Y Dược TP.HCM',
-      isPrimary: true,
-      caregiverName: user?.name || 'Khôi Lê',
-      caregiverCode: user?.user_code || 'DIAE3Q5EA',
-    });
-
-    // 2. Thêm các người thân đã liên kết từ server
+    // Chỉ liệt kê người thân đã liên kết thật qua mã gia đình (dữ liệu từ server).
+    // Thông tin chưa có (BHYT, bác sĩ, lịch tái khám...) để trống, hiển thị "Chưa cập nhật".
     (members || []).forEach((m) => {
       if (m.id !== user?.id) {
         list.push({
@@ -98,15 +81,9 @@ export default function SupervisorFamilyHub() {
           relationship: 'Người thân kết nối',
           user_code: m.user_code,
           phone: m.phone || 'Chưa cập nhật',
-          birthYear: 1962,
-          gender: 'Nữ',
-          bhyt: 'GD 4 79 9876543210',
-          diagnosis: 'Đái tháo đường Type 2 (Giai đoạn ổn định)',
-          doctor: 'BS. CKI Lê Quang Vinh',
-          nextAppointment: 'Thứ Năm, 12/11/2026 · 09:00 sáng',
-          hospital: 'BV Chợ Rẫy TP.HCM',
+          diagnosis: m.diagnosis || null,
           isPrimary: false,
-          caregiverName: user?.name || 'Khôi Lê',
+          caregiverName: user?.name || '',
         });
       }
     });
@@ -116,7 +93,7 @@ export default function SupervisorFamilyHub() {
 
   // Thành viên đang được chọn trên PC
   const currentSelectedMember = useMemo(() => {
-    return allMembers.find((m) => m.id === selectedMemberId) || allMembers[0];
+    return allMembers.find((m) => m.id === selectedMemberId) || allMembers[0] || null;
   }, [allMembers, selectedMemberId]);
 
   const copyMyCode = async () => {
@@ -241,6 +218,11 @@ export default function SupervisorFamilyHub() {
             </div>
 
             <div className={styles.membersList}>
+              {allMembers.length === 0 && (
+                <p style={{ fontSize: 14, color: '#64748b', padding: '8px 4px' }}>
+                  Chưa có người thân nào kết nối. Nhập mã gia đình của người thân để bắt đầu theo dõi.
+                </p>
+              )}
               {allMembers.map((m) => {
                 const isSelected = isPc && selectedMemberId === m.id;
                 const initials = m.name

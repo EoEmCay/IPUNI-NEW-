@@ -5,6 +5,7 @@ const logger = require('../../utils/logger');
 const { sendUrgentAlert } = require('../../services/urgentChannel.service');
 const zns = require('../../services/zns.service');
 const tg = require('../../services/telegram.service');
+const events = require('../../services/careEvents.service');
 
 let transporter = null;
 function getTransporter() {
@@ -44,12 +45,16 @@ async function notifyCaregivers(patientId, alert, { onlyFlag, doseInstant } = {}
     // Người nhà kết nối bằng mã gia đình: chỉ nhắn Zalo vào SĐT của họ khi chính họ đã bật "Nhắc qua Zalo".
     const znsPhone = link.contact_phone || (member && member.zalo_reminders ? member.phone : null);
 
+    // Ngữ cảnh ghi sự kiện "báo người nhà đã gửi" (không lưu nội dung tin / SĐT).
+    const evBase = { userId: patientId, actorId: member ? member.id : null, alertId: alert.id, meta: { alert_type: alert.type } };
+    const logSend = (channel) => (result) => events.recordSend(events.EVENT.CAREGIVER_ALERT_SENT, { ...evBase, channel }, result);
+
     // Telegram: người nhà (kết nối bằng mã gia đình) đã kết nối bot -> nhận mọi cảnh báo, tức thì, miễn phí.
     if (member && member.telegram_chat_id) {
       tg.sendMessage(member.telegram_chat_id,
         `${alert.severity === 'critical' ? '🚨 <b>KHẨN</b>' : '⚠️'} <b>${tg.escapeHtml(alert.title)}</b> — ${tg.escapeHtml(patientName)}\n` +
         `${tg.escapeHtml(alert.detail || '')}\n\nVui lòng liên hệ và nhắc nhở người bệnh. Đây là thông báo tự động, không thay thế tư vấn y tế.`,
-      ).catch(() => {});
+      ).then(logSend('telegram')).catch(() => {});
     }
 
     // Kênh khẩn (SMS/Zalo ZNS...) - gửi SONG SONG với email, không chờ nhau, không để lỗi ở
@@ -66,10 +71,10 @@ async function notifyCaregivers(patientId, alert, { onlyFlag, doseInstant } = {}
           ...zns.doseTimeParams(doseInstant),
         },
         requestId: `cg${link.id}-${alert.dedupe_key}`,
-      }).catch(() => {});
+      }).then(logSend('zns')).catch(() => {});
     } else if (link.contact_phone) {
       const smsText = `[DIA+] ${alert.severity === 'critical' ? 'KHAN CAP' : 'Canh bao'}: ${alert.title} - ${patientName}. ${alert.detail || ''}`.slice(0, 300);
-      sendUrgentAlert({ phone: link.contact_phone, message: smsText }).catch(() => {});
+      sendUrgentAlert({ phone: link.contact_phone, message: smsText }).then(logSend('sms')).catch(() => {});
     }
 
     if (!email || !tx) {
@@ -91,8 +96,10 @@ async function notifyCaregivers(patientId, alert, { onlyFlag, doseInstant } = {}
         `,
       });
       logger.info(`[Caregiver] Đã gửi cảnh báo "${alert.type}" tới ${email}`);
+      await events.recordSend(events.EVENT.CAREGIVER_ALERT_SENT, { ...evBase, channel: 'email' }, { sent: true });
     } catch (e) {
       logger.error(`[Caregiver] Lỗi gửi mail: ${e.message}`);
+      await events.recordSend(events.EVENT.CAREGIVER_ALERT_SENT, { ...evBase, channel: 'email' }, { sent: false, reason: 'send_failed' });
     }
   }
 }

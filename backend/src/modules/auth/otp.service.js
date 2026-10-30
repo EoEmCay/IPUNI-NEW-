@@ -276,7 +276,7 @@ function verifyOtp(target, userOtp) {
 // thành công", bắt buộc phải kèm theo khi gọi /auth/register - đóng lỗ hổng cho
 // phép tạo tài khoản bằng SĐT/email người khác mà không cần nhận mã gì cả.
 // ============================================================================
-const REG_TICKET_SECRET = process.env.REG_TICKET_SECRET || process.env.JWT_SECRET;
+const REG_TICKET_SECRET = process.env.REG_TICKET_SECRET || require('../../config/constants').JWT_SECRET;
 
 function issueRegistrationTicket(target) {
   return jwt.sign({ target, purpose: 'otp_verified_registration' }, REG_TICKET_SECRET, { expiresIn: '5m' });

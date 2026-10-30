@@ -29,3 +29,7 @@ __pycache__/
 # Local agent scratch & dev configs
 .claude/
 .scratch/
+
+# Thu muc cho file cho xoa (scripts/don_dep.ps1) va token ca nhan
+_to_delete/
+/token.txt

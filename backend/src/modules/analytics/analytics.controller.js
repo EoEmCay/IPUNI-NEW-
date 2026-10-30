@@ -97,9 +97,27 @@ async function health(req, res, next) {
   }
 }
 
+// GET /analytics/care-funnel?days=14 (admin) — 4 sự kiện cốt lõi của vòng chăm sóc
+async function careFunnel(req, res, next) {
+  try {
+    const days = Math.min(Math.max(parseInt(req.query.days, 10) || 14, 1), 90);
+    sendSuccess(res, await service.getCareFunnel(days));
+  } catch (err) {
+    next(err);
+  }
+}
+
 // POST /analytics/wipe-data (admin) — xóa sạch toàn bộ dữ liệu tài khoản
+// Ở production mặc định KHÓA: lộ một admin key không được phép đồng nghĩa với mất toàn bộ dữ liệu bệnh nhân.
+// Cần xóa thật thì đặt ALLOW_ADMIN_WIPE=1 trên server, xóa xong gỡ biến đi.
 async function wipeData(req, res, next) {
   try {
+    if (process.env.NODE_ENV === 'production' && process.env.ALLOW_ADMIN_WIPE !== '1') {
+      return sendError(res, 'Chức năng xóa toàn bộ dữ liệu đang bị khóa ở production.', 403);
+    }
+    if ((req.body || {}).confirm !== 'XOA-TOAN-BO') {
+      return sendError(res, 'Thiếu xác nhận: gửi { "confirm": "XOA-TOAN-BO" }.', 400);
+    }
     const result = await service.wipeAllData();
     sendSuccess(res, result, 'Đã xóa trắng toàn bộ dữ liệu tài khoản thành công');
   } catch (err) {
@@ -115,5 +133,6 @@ module.exports = {
   recent, 
   exportSheets, 
   health,
+  careFunnel,
   wipeData 
 };

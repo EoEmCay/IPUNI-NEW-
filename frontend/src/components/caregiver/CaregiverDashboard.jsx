@@ -123,12 +123,12 @@ export default function CaregiverDashboard() {
   const currentShift = currentHour >= 6 && currentHour < 18 ? 'Sáng' : 'Tối';
 
   // Tên Hộ lý không kèm chữ "(Hộ lý)"
-  const rawNurseName = caregiverData?.nurseName || 'Cô Lan';
+  const rawNurseName = caregiverData?.nurseName || 'Hộ lý';
   const cleanNurseName =
     rawNurseName
       .replace(/\s*\([^)]*Hộ\s*lý[^)]*\)/gi, '')
       .replace(/\s*Hộ\s*lý/gi, '')
-      .trim() || 'Cô Lan';
+      .trim() || 'Hộ lý';
 
   return (
     <div className={styles.container}>

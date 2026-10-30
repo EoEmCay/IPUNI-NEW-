@@ -1,6 +1,12 @@
 import React from 'react';
 import styles from './DoctorReportModal.module.css';
 
+const DIAGNOSIS_LABELS = {
+  type2_diabetes: 'Đái tháo đường type 2',
+  type1_diabetes: 'Đái tháo đường type 1',
+  prediabetes: 'Tiền đái tháo đường',
+};
+
 export default function DoctorReportModal({ onClose, reportData }) {
   if (!reportData) return null;
 
@@ -10,9 +16,7 @@ export default function DoctorReportModal({ onClose, reportData }) {
     window.print();
   };
 
-  // Tạo URL xem trực tiếp cho bác sĩ quét QR
-  const liveUrl = `${window.location.origin}/#/doctor-brief?code=${patient?.user_code || ''}`;
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(liveUrl)}`;
+  const diagnosisLabel = DIAGNOSIS_LABELS[patient?.diagnosis] || patient?.diagnosis || 'Chưa cập nhật';
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -32,7 +36,7 @@ export default function DoctorReportModal({ onClose, reportData }) {
             <div className={styles.patientMeta}>
               <div><b>Họ và tên:</b> {patient?.name || '---'}</div>
               <div><b>Mã BN:</b> {patient?.user_code || '---'}</div>
-              <div><b>Chẩn đoán:</b> Đái tháo đường Type 2</div>
+              <div><b>Chẩn đoán:</b> {diagnosisLabel}</div>
               <div><b>Số thẻ BHYT:</b> {patient?.insurance_number || '---'}</div>
             </div>
           </div>
@@ -41,7 +45,7 @@ export default function DoctorReportModal({ onClose, reportData }) {
           <div className={styles.vitalGrid}>
             <div className={styles.vitalCard}>
               <div className={styles.vitalLabel}>ĐỘ TUÂN THỦ TOA</div>
-              <div className={styles.vitalValue}>{adherence?.overall_percent || 100}%</div>
+              <div className={styles.vitalValue}>{adherence?.overall_percent != null ? `${adherence.overall_percent}%` : '—'}</div>
               <div style={{ fontSize: '10px', color: '#6B7280' }}>
                 Uống {adherence?.total_taken || 0}/{adherence?.total_expected || 0} cữ
               </div>
@@ -104,16 +108,6 @@ export default function DoctorReportModal({ onClose, reportData }) {
             <div style={{ fontSize: '12px', color: '#6B7280', marginBottom: '12px' }}>Chưa có đơn thuốc nào đang kích hoạt.</div>
           )}
 
-          {/* Mã QR xem nhanh trên điện thoại (Option 4C) */}
-          <div className={styles.qrCard}>
-            <img src={qrCodeUrl} alt="Mã QR Bác sĩ" className={styles.qrImage} />
-            <div>
-              <div className={styles.qrTextTitle}>Bác sĩ xem nhanh trên điện thoại?</div>
-              <p className={styles.qrTextDesc}>
-                Quét mã QR bằng camera để mở hồ sơ điện tử trực tiếp, xem chi tiết biểu đồ đường huyết 30 ngày mà không cần cài app.
-              </p>
-            </div>
-          </div>
         </div>
 
         <div className={styles.modalFooter}>

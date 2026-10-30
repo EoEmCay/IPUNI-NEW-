@@ -272,7 +272,7 @@ async function getDoctorBriefing(patientId) {
     },
     period: '30 ngày gần nhất',
     adherence: {
-      overall_percent: adherence30d.percent || 100,
+      overall_percent: adherence30d.percent, // null khi chưa có dữ liệu - KHÔNG được mặc định 100%
       total_expected: adherence30d.expected,
       total_taken: adherence30d.taken,
       by_medication: adherencePerMed,

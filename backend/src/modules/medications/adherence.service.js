@@ -3,6 +3,7 @@ const db = require('../../config/database');
 const sched = require('./medicationSchedule');
 const { queue } = require('../alerts/alert.service');
 const logger = require('../../utils/logger');
+const events = require('../../services/careEvents.service');
 
 const POOR_ADHERENCE_THRESHOLD = 0.75; // < 75% = kém (PDC nghiêm hơn dùng 0.80)
 
@@ -70,7 +71,8 @@ async function computeAdherence(userId, windowDays = 30) {
  * Ghi nhận 1 liều. Idempotent theo (medication_id, scheduled_for).
  * Nếu FE không gửi scheduledFor -> suy ra liều theo lịch gần "bây giờ" nhất (±12h).
  */
-async function logDose(userId, medicationId, { status = 'taken', scheduledFor, takenAt, reason } = {}) {
+// ctx (do server đặt, KHÔNG lấy từ body): { channel: 'app'|'telegram'|'caregiver', actorId }
+async function logDose(userId, medicationId, { status = 'taken', scheduledFor, takenAt, reason } = {}, ctx = {}) {
   if (!['taken', 'skipped', 'missed'].includes(status)) {
     throw { status: 400, message: 'Trạng thái không hợp lệ' };
   }
@@ -112,6 +114,10 @@ async function logDose(userId, medicationId, { status = 'taken', scheduledFor, t
     source: 'patient',
   };
 
+  const previous = status === 'taken'
+    ? await db('medication_logs').where({ medication_id: medicationId, scheduled_for: row.scheduled_for }).first()
+    : null;
+
   await db('medication_logs')
     .insert(row)
     .onConflict(['medication_id', 'scheduled_for'])
@@ -122,6 +128,19 @@ async function logDose(userId, medicationId, { status = 'taken', scheduledFor, t
       reason: row.reason,
       source: 'patient',
     });
+
+  // Đo sự kiện "liều đã xác nhận": chỉ lần đầu (bấm lại cùng một cữ không tính thêm).
+  if (status === 'taken' && !(previous && previous.status === 'taken')) {
+    await events.record({
+      type: events.EVENT.DOSE_CONFIRMED,
+      userId,
+      actorId: ctx.actorId && ctx.actorId !== userId ? ctx.actorId : null,
+      medicationId,
+      scheduledFor: row.scheduled_for,
+      channel: ctx.channel || 'app',
+      meta: { delay_minutes: delay, late: Boolean(previous && previous.status === 'missed') },
+    });
+  }
 
   // Bỏ qua cữ -> báo cho người trong gia đình (và email/SMS người nhà như khi quên uống)
   if (status === 'skipped') {

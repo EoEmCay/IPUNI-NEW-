@@ -4,6 +4,7 @@ const sched = require('../modules/medications/medicationSchedule');
 const zns = require('../services/zns.service');
 const tg = require('../services/telegram.service');
 const logger = require('../utils/logger');
+const events = require('../services/careEvents.service');
 
 // Nhắc uống thuốc ngoài app đúng giờ cữ: Telegram (người dùng đã kết nối bot) và Zalo ZNS
 // (đã bật `zalo_reminders` + có SĐT). Nhiều thuốc cùng giờ -> 1 tin. Cữ đã ghi uống sớm thì không nhắc.
@@ -46,18 +47,21 @@ async function runDoseReminder(now = new Date()) {
 
     for (const [iso, dueMeds] of due) {
       const instant = new Date(iso);
+      const base = { userId: user.id, scheduledFor: iso, meta: { meds: dueMeds.length } };
       if (useTg && user.telegram_chat_id) {
-        await tg.sendMessage(user.telegram_chat_id, telegramText(instant, dueMeds), {
+        const result = await tg.sendMessage(user.telegram_chat_id, telegramText(instant, dueMeds), {
           buttons: [{ text: '✅ Đã uống', data: `t:${instant.getTime() / 1000}` }],
         });
+        await events.recordSend(events.EVENT.REMINDER_SENT, { ...base, channel: 'telegram' }, result);
       }
       if (useZns && user.zalo_reminders && user.phone) {
-        await zns.sendZns({
+        const result = await zns.sendZns({
           template: 'doseReminder',
           phone: user.phone,
           data: { ten_khach_hang: user.name || 'Quý khách', ma_khach_hang: user.user_code || String(user.id), ...zns.doseTimeParams(instant) },
           requestId: `dose${user.id}-${iso}`,
         });
+        await events.recordSend(events.EVENT.REMINDER_SENT, { ...base, channel: 'zns' }, result);
       }
     }
   }

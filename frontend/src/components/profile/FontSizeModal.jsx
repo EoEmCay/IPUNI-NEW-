@@ -76,8 +76,8 @@ export default function FontSizeModal({ onClose }) {
               DIA+ · Nhắc nhở uống thuốc đúng giờ
             </p>
             <p className={styles.previewText}>
-              Đường huyết sáng nay của Bác Nguyễn Văn An: <strong>6.2 mmol/L (Bình thường)</strong>.
-              Đã uống cữ thuốc sáng lúc 07:15.
+              Ví dụ hiển thị: đường huyết sáng nay <strong>6.2 mmol/L</strong>.
+              Ví dụ: đã uống cữ thuốc sáng lúc 07:15.
             </p>
           </div>
         </div>

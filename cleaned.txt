@@ -1,2 +1,0 @@
-Cleared 1 stale cells:
-  J7: =IFERROR(IRR('DIA_Hiệu Quả TC'!C62:F62), "Âm")

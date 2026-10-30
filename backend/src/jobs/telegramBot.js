@@ -43,7 +43,7 @@ async function handleTaken(query, epochSec) {
     const hit = sched.enumerateDoses(med, new Date(instant.getTime() - 60000), new Date(instant.getTime() + 60000))
       .some((d) => d.instant.getTime() === instant.getTime());
     if (!hit) continue;
-    const log = await adherence.logDose(user.id, med.id, { status: 'taken', scheduledFor: instant.toISOString() });
+    const log = await adherence.logDose(user.id, med.id, { status: 'taken', scheduledFor: instant.toISOString() }, { channel: 'telegram' });
     publish('patient.medication_logged', { patientId: user.id, log });
     count++;
   }

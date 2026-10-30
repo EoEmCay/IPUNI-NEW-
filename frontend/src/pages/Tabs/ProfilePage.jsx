@@ -37,6 +37,8 @@ export default function ProfilePage() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const roleMode = useRoleModeStore((s) => s.roleMode);
+  const caregiverData = useRoleModeStore((s) => s.caregiverData);
+  const alertPrefs = useRoleModeStore((s) => s.alertPrefs);
 
   const [modal, setModal] = useState(null); // 'profile' | 'theme'
   const [copiedCode, setCopiedCode] = useState(false);
@@ -106,7 +108,7 @@ export default function ProfilePage() {
     {
       icon: User,
       label: 'Thông tin Người Chăm Sóc (Hộ lý)',
-      desc: 'Cô Lan · Đang phụ trách: Cụ Nguyễn Văn An',
+      desc: [caregiverData?.nurseName, caregiverData?.patientName && `Đang phụ trách: ${caregiverData.patientName}`].filter(Boolean).join(' · ') || 'Chưa cập nhật',
       onClick: () => setModal('profile'),
     },
     {
@@ -190,6 +192,13 @@ export default function ProfilePage() {
   const roleBadgeBg = isSupervisor ? '#e0f2fe' : isCaregiver ? '#fef3c7' : '#dcfce7';
   const roleBadgeColor = isSupervisor ? '#0284c7' : isCaregiver ? '#b45309' : '#166534';
 
+  // Chỉ hiển thị thông tin thật của tài khoản; mục nào chưa có thì ghi "Chưa cập nhật".
+  const careName = user?.name || caregiverData?.nurseName || 'Chưa cập nhật';
+  const carePhone = user?.phone || caregiverData?.caregiverPhone || 'Chưa cập nhật';
+  const carePatient = caregiverData?.patientName || 'Chưa liên kết';
+  const careSupervisor = [alertPrefs?.supervisorName, alertPrefs?.supervisorPhone].filter(Boolean).join(' - ') || 'Chưa cập nhật';
+  const carePlan = user?.plan === 'pro' ? 'DIA+ Pro' : 'DIA+ Miễn phí';
+
   // ── KHI Ở CHẾ ĐỘ HỘ LÝ: BỎ HẾT MENU PHỤ, CHỈ HIỆN TẤT CẢ THÔNG TIN ĐĂNG KÝ VỚI APP ──
   if (isCaregiver) {
     return (
@@ -201,10 +210,10 @@ export default function ProfilePage() {
         {/* Thẻ định danh tài khoản Hộ Lý */}
         <div className={`${styles.card} ${styles.profileHead}`} style={{ borderLeft: '4px solid #f59e0b' }}>
           <span className={styles.avatar} style={{ background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', color: '#fff' }}>
-            Lan
+            {initials(careName)}
           </span>
           <div style={{ flex: 1 }}>
-            <p className={styles.name}>Cô Lan</p>
+            <p className={styles.name}>{careName}</p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2, flexWrap: 'wrap' }}>
               <span
                 style={{
@@ -219,7 +228,7 @@ export default function ProfilePage() {
               >
                 👩‍⚕️ Người Chăm Sóc Trực Tiếp
               </span>
-              <span className={styles.meta}>0912 345 678</span>
+              <span className={styles.meta}>{carePhone}</span>
             </div>
           </div>
         </div>
@@ -230,15 +239,12 @@ export default function ProfilePage() {
             <h2 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: '#0f172a' }}>
               📋 Thông Tin Đăng Ký Ứng Dụng DIA+
             </h2>
-            <span style={{ fontSize: 11, fontWeight: 800, color: '#16a34a', background: '#dcfce7', padding: '2px 8px', borderRadius: 999, whiteSpace: 'nowrap' }}>
-              ✓ Đã xác thực
-            </span>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10 }}>
             <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 2 }}>
               <span style={{ fontSize: 11.5, color: '#64748b', fontWeight: 600 }}>Họ và tên người đăng ký:</span>
-              <span style={{ fontSize: 13.5, color: '#0f172a', fontWeight: 700 }}>Cô Lan</span>
+              <span style={{ fontSize: 13.5, color: '#0f172a', fontWeight: 700 }}>{careName}</span>
             </div>
 
             <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -248,32 +254,32 @@ export default function ProfilePage() {
 
             <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 2 }}>
               <span style={{ fontSize: 11.5, color: '#64748b', fontWeight: 600 }}>Số điện thoại đăng ký:</span>
-              <span style={{ fontSize: 13.5, color: '#0f172a', fontWeight: 700 }}>0912 345 678</span>
+              <span style={{ fontSize: 13.5, color: '#0f172a', fontWeight: 700 }}>{carePhone}</span>
             </div>
 
             <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 2 }}>
               <span style={{ fontSize: 11.5, color: '#64748b', fontWeight: 600 }}>Email liên kết:</span>
-              <span style={{ fontSize: 13.5, color: '#0f172a', fontWeight: 700 }}>caregiver.lan@gmail.com</span>
+              <span style={{ fontSize: 13.5, color: '#0f172a', fontWeight: 700 }}>{user?.email || 'Chưa cập nhật'}</span>
             </div>
 
             <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 2 }}>
               <span style={{ fontSize: 11.5, color: '#64748b', fontWeight: 600 }}>Mã định danh DIA+:</span>
-              <span style={{ fontSize: 13.5, color: '#0284c7', fontWeight: 800 }}>DIA-CARE-2026</span>
+              <span style={{ fontSize: 13.5, color: '#0284c7', fontWeight: 800 }}>{user?.user_code || 'Chưa có'}</span>
             </div>
 
             <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 2 }}>
               <span style={{ fontSize: 11.5, color: '#64748b', fontWeight: 600 }}>Người bệnh phụ trách:</span>
-              <span style={{ fontSize: 13.5, color: '#0f172a', fontWeight: 700 }}>Cụ Nguyễn Văn An (72 tuổi - Đái tháo đường Type 2 & Cao huyết áp)</span>
+              <span style={{ fontSize: 13.5, color: '#0f172a', fontWeight: 700 }}>{carePatient}</span>
             </div>
 
             <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 2 }}>
               <span style={{ fontSize: 11.5, color: '#64748b', fontWeight: 600 }}>Người bảo trợ ủy quyền:</span>
-              <span style={{ fontSize: 13.5, color: '#0f172a', fontWeight: 700 }}>Chị Trinh (Con trưởng - 0908 123 456)</span>
+              <span style={{ fontSize: 13.5, color: '#0f172a', fontWeight: 700 }}>{careSupervisor}</span>
             </div>
 
             <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 2 }}>
               <span style={{ fontSize: 11.5, color: '#64748b', fontWeight: 600 }}>Gói dịch vụ kích hoạt:</span>
-              <span style={{ fontSize: 13.5, color: '#0f172a', fontWeight: 700 }}>DIA+ Đồng Hành Gia Đình (Family Care Companion)</span>
+              <span style={{ fontSize: 13.5, color: '#0f172a', fontWeight: 700 }}>{carePlan}</span>
             </div>
 
             <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -334,7 +340,7 @@ export default function ProfilePage() {
         </span>
         <div style={{ flex: 1 }}>
           <p className={styles.name}>
-            {user?.name || (isSupervisor ? 'Con Gái Trinh' : isCaregiver ? 'Cô Lan (Hộ lý)' : 'Cụ Nguyễn Văn An')}
+            {user?.name || 'Tài khoản DIA+'}
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2, flexWrap: 'wrap' }}>
             <span
@@ -391,25 +397,6 @@ export default function ProfilePage() {
       </div>
 
       {/* Nếu là Người Chăm Sóc: Thẻ tóm tắt người thân đang theo dõi */}
-      {isSupervisor && (
-        <div
-          className={styles.card}
-          style={{
-            background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
-            border: '1px solid #bae6fd',
-          }}
-        >
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#0369a1' }}>
-            👨‍👩‍👧 Đang theo dõi sức khỏe:
-          </div>
-          <div style={{ fontSize: 15, fontWeight: 800, color: '#0f172a', marginTop: 4 }}>
-            Bác Nguyễn Văn An (Bố ruột · 68 tuổi)
-          </div>
-          <div style={{ fontSize: 12.5, color: '#475569', marginTop: 2 }}>
-            Chẩn đoán: Đái tháo đường Type 2 · Tăng huyết áp vô căn (Dữ liệu đồng bộ trực tiếp)
-          </div>
-        </div>
-      )}
 
       {/* Danh mục menu chức năng */}
       <nav className={`${styles.card} ${styles.menu}`} aria-label="Hồ sơ">

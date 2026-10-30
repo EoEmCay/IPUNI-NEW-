@@ -4,126 +4,50 @@ const ROLE_STORAGE_KEY = 'diaplus_active_role_mode_v2';
 const DEVICE_STORAGE_KEY = 'diaplus_supervisor_device_mode_v1';
 const CALLER_TITLE_KEY = 'diaplus_family_caller_title_v1';
 const ALERT_PREFS_KEY = 'diaplus_supervisor_alert_prefs_v1';
-const CAREGIVER_DATA_KEY = 'diaplus_caregiver_data_v1';
+// v2: bỏ dữ liệu mẫu cũ (Cô Lan, Cụ Nguyễn Văn An, chỉ số đo mẫu...). Khóa v1 bị xóa khi tải.
+const CAREGIVER_DATA_KEY = 'diaplus_caregiver_data_v2';
+const LEGACY_CAREGIVER_DATA_KEY = 'diaplus_caregiver_data_v1';
 
-const DEFAULT_CALLER_TITLE = 'Con gái Trinh nhắc bố uống thuốc';
+const DEFAULT_CALLER_TITLE = 'Người thân nhắc bạn uống thuốc';
 
 const DEFAULT_ALERT_PREFS = {
   urgentMissedDose: true,
   eveningDigest: true,
   highLowGlucose: true,
-  supervisorName: 'Con gái Trinh',
-  supervisorPhone: '0908 123 456',
+  supervisorName: '',
+  supervisorPhone: '',
 };
 
+// Mặc định TRỐNG: không có tên, số điện thoại, chỉ số đo hay nhật ký mẫu. Các mục việc trong ngày
+// chỉ là mẫu việc chăm sóc chung, tất cả ở trạng thái chưa làm.
+const DEFAULT_TASK_TEMPLATE = [
+  { id: 'task_1', title: 'Cho uống thuốc cữ sáng', time: '08:00', category: 'medication' },
+  { id: 'task_2', title: 'Cho ăn sáng', time: '07:30', category: 'meal' },
+  { id: 'task_3', title: 'Đo đường huyết & huyết áp', time: '07:15', category: 'vital' },
+  { id: 'task_4', title: 'Cho ăn trưa', time: '11:30', category: 'meal' },
+  { id: 'task_5', title: 'Hỗ trợ vận động / đi dạo nhẹ', time: '16:00', category: 'activity' },
+  { id: 'task_6', title: 'Cho uống thuốc cữ chiều / tối', time: '18:30', category: 'medication' },
+  { id: 'task_7', title: 'Cho ăn tối', time: '19:00', category: 'meal' },
+  { id: 'task_8', title: 'Vệ sinh cá nhân & chuẩn bị ngủ', time: '21:00', category: 'activity' },
+];
+
+const buildDefaultTasks = () =>
+  DEFAULT_TASK_TEMPLATE.map((t) => ({ ...t, completed: false, completedAt: null, assignedBy: 'Con cháu' }));
+
 const DEFAULT_CAREGIVER_DATA = {
-  nurseName: 'Cô Lan',
-  patientName: 'Cụ Nguyễn Văn An (72 tuổi)',
-  caregiverPhone: '0912 345 678',
-  checklistLogs: {}, // slotId -> { taken: true, time: '08:05', photo: dataUrl, by: 'Cô Lan' }
-  vitalsLogs: [
-    {
-      id: 'vital_sample_1',
-      type: 'glucose',
-      value: 6.2,
-      time: '07:15',
-      tag: 'Trước ăn sáng',
-      status: 'normal',
-      loggedBy: 'Cô Lan',
-    },
-    {
-      id: 'vital_sample_2',
-      type: 'blood_pressure',
-      systolic: 125,
-      diastolic: 80,
-      heartRate: 74,
-      time: '07:20',
-      tag: 'Nghỉ ngơi 15 phút',
-      status: 'normal',
-      loggedBy: 'Cô Lan',
-    },
-  ],
+  nurseName: '',
+  patientName: '',
+  caregiverPhone: '',
+  checklistLogs: {}, // slotId -> { taken: true, takenAt: '08:05', photoProof, by }
+  vitalsLogs: [],
   dailyNote: {
-    meals: 'Ăn hết 1 bát cháo yến mạch và 1 quả trứng luộc, uống 500ml nước ấm',
-    mood: 'Tinh thần vui vẻ, tỉnh táo, nhớ tên con cháu',
-    sleep: 'Ngủ sâu từ 21:30 đến 06:00, không bị mất ngủ',
-    generalNotes: 'Cụ đi bộ nhẹ nhàng ngoài sân 15 phút, chân bớt tê bì.',
-    lastUpdated: '08:30 sáng nay',
+    meals: '',
+    mood: '',
+    sleep: '',
+    generalNotes: '',
+    lastUpdated: '',
   },
-  dailyTasks: [
-    {
-      id: 'task_1',
-      title: 'Đã cho uống thuốc cử sáng',
-      time: '08:00',
-      category: 'medication',
-      completed: true,
-      completedAt: '08:05',
-      assignedBy: 'Con cháu',
-    },
-    {
-      id: 'task_2',
-      title: 'Đã cho ăn sáng',
-      time: '07:30',
-      category: 'meal',
-      completed: true,
-      completedAt: '07:45',
-      assignedBy: 'Con cháu',
-    },
-    {
-      id: 'task_3',
-      title: 'Đo đường huyết & huyết áp',
-      time: '07:15',
-      category: 'vital',
-      completed: true,
-      completedAt: '07:20',
-      assignedBy: 'Con cháu',
-    },
-    {
-      id: 'task_4',
-      title: 'Đã cho ăn trưa',
-      time: '11:30',
-      category: 'meal',
-      completed: false,
-      completedAt: null,
-      assignedBy: 'Con cháu',
-    },
-    {
-      id: 'task_5',
-      title: 'Hỗ trợ cụ vận động / đi dạo nhẹ',
-      time: '16:00',
-      category: 'activity',
-      completed: false,
-      completedAt: null,
-      assignedBy: 'Con cháu',
-    },
-    {
-      id: 'task_6',
-      title: 'Đã cho uống thuốc cử chiều / tối',
-      time: '18:30',
-      category: 'medication',
-      completed: false,
-      completedAt: null,
-      assignedBy: 'Con cháu',
-    },
-    {
-      id: 'task_7',
-      title: 'Đã cho ăn tối',
-      time: '19:00',
-      category: 'meal',
-      completed: false,
-      completedAt: null,
-      assignedBy: 'Con cháu',
-    },
-    {
-      id: 'task_8',
-      title: 'Vệ sinh cá nhân & chuẩn bị ngủ',
-      time: '21:00',
-      category: 'activity',
-      completed: false,
-      completedAt: null,
-      assignedBy: 'Con cháu',
-    },
-  ],
+  dailyTasks: buildDefaultTasks(),
 };
 
 function loadInitialRole() {
@@ -151,9 +75,16 @@ function loadInitialDeviceMode() {
   }
 }
 
+// Giá trị mẫu cũ có thể đã bị lưu vào máy khi người dùng đổi một công tắc bất kỳ -> coi như chưa đặt.
+const LEGACY_DEMO_CALLER_TITLE = 'Con gái Trinh nhắc bố uống thuốc';
+const LEGACY_DEMO_SUPERVISOR_NAME = 'Con gái Trinh';
+const LEGACY_DEMO_SUPERVISOR_PHONE = '0908 123 456';
+
 export function getSavedCallerTitle() {
   try {
-    return localStorage.getItem(CALLER_TITLE_KEY) || DEFAULT_CALLER_TITLE;
+    const saved = localStorage.getItem(CALLER_TITLE_KEY);
+    if (!saved || saved === LEGACY_DEMO_CALLER_TITLE) return DEFAULT_CALLER_TITLE;
+    return saved;
   } catch {
     return DEFAULT_CALLER_TITLE;
   }
@@ -162,7 +93,11 @@ export function getSavedCallerTitle() {
 function loadAlertPrefs() {
   try {
     const raw = localStorage.getItem(ALERT_PREFS_KEY);
-    return raw ? { ...DEFAULT_ALERT_PREFS, ...JSON.parse(raw) } : DEFAULT_ALERT_PREFS;
+    if (!raw) return DEFAULT_ALERT_PREFS;
+    const prefs = { ...DEFAULT_ALERT_PREFS, ...JSON.parse(raw) };
+    if (prefs.supervisorName === LEGACY_DEMO_SUPERVISOR_NAME) prefs.supervisorName = '';
+    if (prefs.supervisorPhone === LEGACY_DEMO_SUPERVISOR_PHONE) prefs.supervisorPhone = '';
+    return prefs;
   } catch {
     return DEFAULT_ALERT_PREFS;
   }
@@ -170,6 +105,8 @@ function loadAlertPrefs() {
 
 function loadCaregiverData() {
   try {
+    // Xóa dữ liệu mẫu cũ còn lưu trên máy.
+    localStorage.removeItem(LEGACY_CAREGIVER_DATA_KEY);
     const raw = localStorage.getItem(CAREGIVER_DATA_KEY);
     if (!raw) return DEFAULT_CAREGIVER_DATA;
     const parsed = JSON.parse(raw);
@@ -178,7 +115,7 @@ function loadCaregiverData() {
       ...parsed,
       dailyTasks: Array.isArray(parsed.dailyTasks) && parsed.dailyTasks.length > 0
         ? parsed.dailyTasks
-        : DEFAULT_CAREGIVER_DATA.dailyTasks,
+        : buildDefaultTasks(),
     };
   } catch {
     return DEFAULT_CAREGIVER_DATA;
@@ -399,7 +336,7 @@ const useRoleModeStore = create((set, get) => ({
   // Hộ lý tick hoàn thành hoặc hoàn tác nhiệm vụ trong ngày
   toggleCaregiverTask: (taskId) => {
     const prev = get().caregiverData;
-    const currentTasks = prev.dailyTasks || DEFAULT_CAREGIVER_DATA.dailyTasks;
+    const currentTasks = prev.dailyTasks || buildDefaultTasks();
     const nowStr = new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
     const nextTasks = currentTasks.map((t) => {
       if (t.id === taskId) {
@@ -429,7 +366,7 @@ const useRoleModeStore = create((set, get) => ({
   // Con cháu thêm nhiệm vụ mới giao cho Hộ lý
   addCaregiverTask: (newTask) => {
     const prev = get().caregiverData;
-    const currentTasks = prev.dailyTasks || DEFAULT_CAREGIVER_DATA.dailyTasks;
+    const currentTasks = prev.dailyTasks || buildDefaultTasks();
     const item = {
       id: `task_${Date.now()}`,
       title: (newTask.title || '').trim() || 'Nhiệm vụ mới',
@@ -457,7 +394,7 @@ const useRoleModeStore = create((set, get) => ({
   // Con cháu xóa nhiệm vụ
   removeCaregiverTask: (taskId) => {
     const prev = get().caregiverData;
-    const currentTasks = prev.dailyTasks || DEFAULT_CAREGIVER_DATA.dailyTasks;
+    const currentTasks = prev.dailyTasks || buildDefaultTasks();
     const nextTasks = currentTasks.filter((t) => t.id !== taskId);
     const nextData = { ...prev, dailyTasks: nextTasks };
     try {
@@ -476,7 +413,7 @@ const useRoleModeStore = create((set, get) => ({
   // Con cháu chỉnh sửa nhiệm vụ
   updateCaregiverTask: (taskId, patch) => {
     const prev = get().caregiverData;
-    const currentTasks = prev.dailyTasks || DEFAULT_CAREGIVER_DATA.dailyTasks;
+    const currentTasks = prev.dailyTasks || buildDefaultTasks();
     const nextTasks = currentTasks.map((t) => (t.id === taskId ? { ...t, ...patch } : t));
     const nextData = { ...prev, dailyTasks: nextTasks };
     try {

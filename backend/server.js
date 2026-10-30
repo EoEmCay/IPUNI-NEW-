@@ -39,12 +39,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// 2. Siết chặt CORS (Chỉ cho phép các domain được chỉ định)
-// LƯU Ý: trước đây origin.endsWith('.vercel.app') chấp nhận BẤT KỲ dự án Vercel miễn phí
-// nào (ai cũng deploy được 1 domain *.vercel.app) làm origin hợp lệ kèm credentials:true.
-// Chỉ liệt kê đúng các domain thật cần dùng - thêm domain preview cụ thể qua biến môi
-// trường thay vì mở toàn bộ TLD phụ .vercel.app.
-const allowedOrigins = [
+// 2. CORS: chỉ cho phép đúng các domain của DIA+ (danh sách trắng).
+// Origin lạ KHÔNG bị lỗi 500 mà đơn giản là không được cấp header CORS, trình duyệt sẽ tự chặn.
+// Domain preview cụ thể (vd bản Vercel preview) thêm qua biến môi trường PREVIEW_FRONTEND_URL,
+// KHÔNG mở cả đuôi *.vercel.app hay *.web.vn vì ai cũng đăng ký được subdomain của chúng.
+const allowedOrigins = new Set([
   'http://localhost:5180',
   'http://localhost:5173',
   'http://localhost:3000',
@@ -57,28 +56,34 @@ const allowedOrigins = [
   'https://web.vn',
   'https://www.web.vn',
   process.env.FRONTEND_URL,
-  process.env.PREVIEW_FRONTEND_URL
-].filter(Boolean);
+  process.env.PREVIEW_FRONTEND_URL,
+].filter(Boolean));
+
+function isAllowedOrigin(origin) {
+  if (!origin) return true; // app native, cron, curl: không có header Origin
+  if (allowedOrigins.has(origin)) return true;
+  try {
+    const { protocol, hostname } = new URL(origin);
+    return protocol === 'https:' && hostname.endsWith('.diaplus.vn'); // subdomain của chính DIA+
+  } catch {
+    return false;
+  }
+}
 
 app.use(cors({
-  origin: function (origin, callback) {
-    if (
-      !origin || 
-      allowedOrigins.indexOf(origin) !== -1 || 
-      origin.endsWith('.vercel.app') || 
-      origin.endsWith('.diaplus.vn') || 
-      origin.endsWith('.web.vn')
-    ) {
-      callback(null, true);
-    } else {
-      callback(null, true);
-    }
+  origin(origin, callback) {
+    if (isAllowedOrigin(origin)) return callback(null, true);
+    logger.warn(`[CORS] Chặn origin không nằm trong danh sách: ${origin}`);
+    return callback(null, false);
   },
-  credentials: true
+  credentials: true,
 }));
 
-app.use(express.json({ limit: '25mb' }));
-app.use(express.urlencoded({ limit: '25mb', extended: true }));
+// Body JSON mặc định 1MB. Chỉ endpoint phân tích bữa ăn (ảnh base64, tối đa ~10MB) được nới.
+// Quét đơn thuốc dùng multipart/multer nên không đi qua đây.
+app.use('/api/v1/advice/analyze-meal', express.json({ limit: '15mb' }));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ limit: '1mb', extended: true }));
 
 // Request logger middleware
 app.use((req, res, next) => {
@@ -86,10 +91,16 @@ app.use((req, res, next) => {
   next();
 });
 
-// 3. Nới lỏng Rate Limiting (Đang trong giai đoạn khảo sát người dùng)
+// 3. Rate limiting. Mặc định đặt vừa phải cho dùng thật; chỉnh bằng biến môi trường trên Render
+// nếu một mạng chung IP (vd wifi bệnh viện, 4G dùng chung) bị chặn nhầm - không cần sửa code.
+const envInt = (name, fallback) => {
+  const n = parseInt(process.env[name], 10);
+  return Number.isFinite(n) && n > 0 ? n : fallback;
+};
+
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 phút
-  max: 5000, // Thả cửa 5000 request/15 phút để người dùng test thoải mái
+  max: envInt('RATE_LIMIT_API_MAX', 600), // 600 request / 15 phút / IP (~40 mỗi phút)
   message: { message: 'Too many requests from this IP, please try again after 15 minutes' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -97,7 +108,7 @@ const apiLimiter = rateLimit({
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 phút
-  max: 1000, // Nới rất rộng để không chặn nhầm người dùng thật - vẫn còn 1 trần chặn bot dò mật khẩu hàng loạt
+  max: envInt('RATE_LIMIT_AUTH_MAX', 100), // 100 lần gọi /auth / 15 phút / IP; dò mật khẩu từng tài khoản còn bị loginAccountLimiter chặn riêng
   message: { message: 'Thao tác quá nhiều lần. Vui lòng thử lại sau 15 phút.' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -139,6 +150,15 @@ const adminLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// /analytics/track là endpoint công khai ghi vào DB nên cần trần riêng để không bị spam đầy bảng.
+const trackLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: envInt('RATE_LIMIT_TRACK_MAX', 120),
+  message: { message: 'Quá nhiều sự kiện từ địa chỉ này.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Giới hạn cho các endpoint gọi AI (Gemini Bữa ăn / Quét đơn) để bảo vệ quota & chi phí
 const aiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -148,10 +168,11 @@ const aiLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Phía sau proxy của Render: lấy IP thật của client (phải đặt trước các limiter).
+app.set('trust proxy', 1);
+
 // Áp dụng giới hạn chung cho toàn bộ API
 app.use('/api/', apiLimiter);
-
-app.set('trust proxy', 1);
 
 const dashboardRoutes = require('./src/modules/dashboard/dashboard.routes');
 
@@ -170,6 +191,7 @@ app.use('/api/v1/advice', adviceRoutes);
 app.use('/api/v1/users', usersRoutes);
 app.use('/api/v1/care-links', careLinksRoutes);
 app.use('/api/v1/scan', scanRoutes);
+app.use('/api/v1/analytics/track', trackLimiter);
 app.use('/api/v1/analytics', adminLimiter, analyticsRoutes);
 app.use('/api/v1/tts', ttsRoutes);
 app.use('/api/v1/jobs', jobsRoutes);

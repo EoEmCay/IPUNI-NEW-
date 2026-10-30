@@ -12,6 +12,7 @@ router.get('/users', adminAuth, controller.getUsers);
 router.get('/charts', adminAuth, controller.charts);
 router.get('/recent', adminAuth, controller.recent);
 router.get('/health', adminAuth, controller.health);
+router.get('/care-funnel', adminAuth, controller.careFunnel);
 router.post('/export-sheets', adminAuth, controller.exportSheets);
 router.post('/wipe-data', adminAuth, controller.wipeData);
 

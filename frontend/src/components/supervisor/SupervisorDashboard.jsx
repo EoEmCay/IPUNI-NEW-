@@ -242,7 +242,7 @@ export default function SupervisorDashboard() {
         const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
         await voiceAlertService.saveVoice(ALERT_TYPES.MED_ALL, blob);
         setHasCustomVoice(true);
-        setVoiceToast('Đã lưu giọng nhắc của con! Chuông bên máy Bố/Mẹ đã đồng bộ.');
+        setVoiceToast('Đã lưu giọng nhắc trên thiết bị này.');
         setTimeout(() => setVoiceToast(null), 3200);
       };
       mediaRecorderRef.current = mr;
@@ -629,12 +629,12 @@ export default function SupervisorDashboard() {
     </div>
   );
 
-  // Thẻ Theo Dõi & Giao Nhiệm Vụ Cho Hộ Lý (Cô Lan)
+  // Thẻ Theo Dõi & Giao Nhiệm Vụ Cho Hộ Lý
   const cleanNurseName =
     caregiverData?.nurseName
       ?.replace(/\s*\([^)]*Hộ\s*lý[^)]*\)/gi, '')
       ?.replace(/\s*Hộ\s*lý/gi, '')
-      ?.trim() || 'Cô Lan';
+      ?.trim() || 'Hộ lý';
 
   const caregiverSection = (
     <section className={styles.sectionCard} style={{ borderLeft: '4px solid #f59e0b' }}>
@@ -877,7 +877,7 @@ export default function SupervisorDashboard() {
               className={styles.callerInput}
               value={callerInput}
               onChange={(e) => setCallerInput(e.target.value)}
-              placeholder="VD: Con gái Trinh nhắc bố uống thuốc"
+              placeholder="VD: Con gái nhắc bố uống thuốc"
             />
             <button
               type="button"
@@ -1150,7 +1150,7 @@ export default function SupervisorDashboard() {
               }}
             />
             <p style={{ margin: 0, fontSize: 13, color: '#475569', textAlign: 'center', fontWeight: 600 }}>
-              Ảnh chụp khay thuốc / quá trình cho cụ uống thuốc bởi Hộ lý ({caregiverData?.nurseName || 'Cô Lan'})
+              Ảnh chụp khay thuốc / quá trình cho cụ uống thuốc bởi Hộ lý ({caregiverData?.nurseName || 'Hộ lý'})
             </p>
             <button
               type="button"

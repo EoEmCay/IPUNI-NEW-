@@ -72,7 +72,7 @@ async function logCaregiverDose(req, res, next) {
       scheduledFor: scheduled_for,
       takenAt: taken_at || new Date().toISOString(),
       reason: note || reason,
-    });
+    }, { channel: Number(req.user.id) === Number(patientId) ? 'app' : 'caregiver', actorId: req.user.id });
 
     return sendSuccess(res, log, 'Đã ghi nhận cữ thuốc thành công', 201);
   } catch (err) {

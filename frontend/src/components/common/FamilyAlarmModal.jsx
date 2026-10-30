@@ -114,7 +114,7 @@ export default function FamilyAlarmModal() {
 
   const [slotTime, setSlotTime] = useState('07:00');
   const [slotPeriod, setSlotPeriod] = useState('morning');
-  const [callerTitle, setCallerTitle] = useState('Con gái Trinh nhắc bố uống thuốc');
+  const [callerTitle, setCallerTitle] = useState('Người thân nhắc bạn uống thuốc');
   const [snoozeCount, setSnoozeCount] = useState(0);
   const [confirmedDone, setConfirmedDone] = useState(false);
   const [speakingPrompt, setSpeakingPrompt] = useState(false);
@@ -665,13 +665,13 @@ export default function FamilyAlarmModal() {
               </div>
             </div>
 
-            <h2 className={styles.doneTitle}>Tuyệt vời bố ơi!</h2>
+            <h2 className={styles.doneTitle}>Tuyệt vời!</h2>
             <p className={styles.doneDesc}>
-              Đã ghi nhận bố uống đủ <strong>{meds.length} loại thuốc</strong> ({getSlotLabel(slotTime)}).
+              Đã ghi nhận uống đủ <strong>{meds.length} loại thuốc</strong> ({getSlotLabel(slotTime)}).
             </p>
             <div className={styles.zaloSentBadge}>
               <MessageCircle size={18} />
-              Đã báo tin vui về cho con gái Trinh yên tâm ❤️
+              Đã ghi vào nhật ký uống thuốc ✅
             </div>
           </div>
         ) : (

@@ -61,89 +61,126 @@ async function recordEvent({ event_type, path, session_id, user_id, referrer, us
 }
 
 /* ───────────────────────── Tổng quan (KPI) ───────────────────────── */
+// Mọi số liệu dưới đây đọc từ DB thật. Trước đây hàm này trả về các con số gõ cứng và biểu đồ
+// dùng Math.random() - tuyệt đối không dùng số đó để báo cáo hay pitch.
+
+const VN_OFFSET_MS = 7 * 3600000;
+const toSqlUtc = (d) => d.toISOString().slice(0, 19).replace('T', ' ');
+
+// 00:00 hôm nay theo giờ Việt Nam, đổi sang UTC (DB lưu UTC)
+function vnMidnightUtc(daysBack = 0) {
+  const vn = new Date(Date.now() + VN_OFFSET_MS);
+  return new Date(Date.UTC(vn.getUTCFullYear(), vn.getUTCMonth(), vn.getUTCDate() - daysBack) - VN_OFFSET_MS);
+}
+
+// Giá trị cột thời gian (Date của pg hoặc chuỗi 'YYYY-MM-DD HH:MM:SS' của SQLite, đều là UTC) -> 'YYYY-MM-DD' giờ VN
+function vnDayKey(value) {
+  if (!value) return null;
+  const d = value instanceof Date ? value : new Date(/[zZ]|[+-]\d\d:?\d\d$/.test(String(value)) ? String(value) : `${String(value).replace(' ', 'T')}Z`);
+  if (isNaN(d.getTime())) return null;
+  return new Date(d.getTime() + VN_OFFSET_MS).toISOString().slice(0, 10);
+}
+
+async function groupCount(table, column, builder) {
+  const q = db(table).select(`${column} as name`).count('* as value').groupBy(column);
+  if (builder) builder(q);
+  const rows = await q;
+  return rows.map((r) => ({ name: r.name == null || r.name === '' ? 'Chưa rõ' : String(r.name), value: Number(r.value) || 0 }));
+}
 
 async function getOverview() {
+  const todayStart = toSqlUtc(vnMidnightUtc(0));
+  const d30 = toSqlUtc(vnMidnightUtc(30));
+  const monthStart = (() => {
+    const vn = new Date(Date.now() + VN_OFFSET_MS);
+    return toSqlUtc(new Date(Date.UTC(vn.getUTCFullYear(), vn.getUTCMonth(), 1) - VN_OFFSET_MS));
+  })();
+
+  const [pageViews, pageViewsToday, visitorRow, totalUsers, realUsers, demoUsers, proUsers, newUsersToday,
+    activeUsers30d, totalScans, scansThisMonth, totalMedications, totalAppointments, totalMetrics] = await Promise.all([
+    countWhere('analytics_events', (q) => q.where('event_type', 'page_view')),
+    countWhere('analytics_events', (q) => q.where('event_type', 'page_view').andWhere('created_at', '>=', todayStart)),
+    db('analytics_events').where('event_type', 'page_view').whereNotNull('session_id').countDistinct('session_id as c').first(),
+    countWhere('users'),
+    countWhere('users', notDemo),
+    countWhere('users', isDemo),
+    countWhere('users', (q) => { notDemo(q); q.andWhere('plan', 'pro'); }),
+    countWhere('users', (q) => { notDemo(q); q.andWhere('created_at', '>=', todayStart); }),
+    countWhere('users', (q) => { notDemo(q); q.andWhere('last_active_at', '>=', d30); }),
+    countWhere('scan_usages'),
+    countWhere('scan_usages', (q) => q.where('scanned_at', '>=', monthStart)),
+    countWhere('medications'),
+    countWhere('appointments'),
+    countWhere('metrics'),
+  ]);
+
   return {
-    pageViews: 215,
-    pageViewsToday: 24,
-    uniqueVisitors: 0, // Bỏ theo yêu cầu (nhưng không xoá được ô giao diện)
-    totalUsers: 23,
-    realUsers: 23,
-    demoUsers: 95,
-    proUsers: 3,
-    newUsersToday: 2,
-    activeUsers30d: 0, // Bỏ theo yêu cầu (nhưng không xoá được ô giao diện)
-    totalScans: 85,
-    scansThisMonth: 12,
-    totalMedications: 124,
-    totalAppointments: 18,
-    totalMetrics: 110,
+    pageViews,
+    pageViewsToday,
+    uniqueVisitors: Number(visitorRow && visitorRow.c) || 0,
+    totalUsers,
+    realUsers,
+    demoUsers,
+    proUsers,
+    newUsersToday,
+    activeUsers30d,
+    totalScans,
+    scansThisMonth,
+    totalMedications,
+    totalAppointments,
+    totalMetrics,
     generatedAt: new Date().toISOString(),
   };
 }
 
 /* ───────────────────────── Dữ liệu biểu đồ ───────────────────────── */
 
-// Gộp một mảng {day, count} thành map để fill đủ ngày
-function fillSeries(rows, days) {
-  const map = {};
-  rows.forEach((r) => { map[r.day] = Number(r.count) || 0; });
+// Đếm số dòng theo ngày VN trong `days` ngày gần nhất, đủ ngày (ngày không có dữ liệu = 0)
+async function dailySeries(table, column, days, builder) {
+  const q = db(table).where(column, '>=', toSqlUtc(vnMidnightUtc(days - 1))).select(column).limit(200000);
+  if (builder) builder(q);
+  const rows = await q;
+  const counts = {};
+  rows.forEach((r) => { const k = vnDayKey(r[column]); if (k) counts[k] = (counts[k] || 0) + 1; });
   const out = [];
   for (let i = days - 1; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const key = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-    out.push({ day: key, label: `${pad(d.getDate())}/${pad(d.getMonth() + 1)}`, count: map[key] || 0 });
+    const key = vnMidnightUtc(i);
+    const vn = new Date(key.getTime() + VN_OFFSET_MS);
+    const day = vn.toISOString().slice(0, 10);
+    out.push({ day, label: `${pad(vn.getUTCDate())}/${pad(vn.getUTCMonth() + 1)}`, count: counts[day] || 0 });
   }
   return out;
 }
 
 async function getCharts(days = 14) {
-  const views = [];
-  const registrations = [];
-  const scans = [];
-  
-  for (let i = days - 1; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const key = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-    const label = `${pad(d.getDate())}/${pad(d.getMonth() + 1)}`;
-    views.push({ day: key, label, count: Math.floor(Math.random() * 25) + 5 });
-    registrations.push({ day: key, label, count: Math.floor(Math.random() * 3) });
-    scans.push({ day: key, label, count: Math.floor(Math.random() * 10) + 2 });
-  }
-
-  const eventBreakdown = [
-    { name: 'Lượt truy cập', value: 215 },
-    { name: 'Đăng ký', value: 23 },
-    { name: 'Dùng demo', value: 95 },
-    { name: 'Quét ảnh', value: 85 },
-  ];
+  const [views, registrations, scans, plans, diagnoses, topPageRows, eventRows, realUsers, demoUsers] = await Promise.all([
+    dailySeries('analytics_events', 'created_at', days, (q) => q.andWhere('event_type', 'page_view')),
+    dailySeries('users', 'created_at', days, notDemo),
+    dailySeries('scan_usages', 'scanned_at', days),
+    groupCount('users', 'plan', notDemo),
+    groupCount('users', 'diagnosis', notDemo),
+    groupCount('analytics_events', 'path', (q) => q.where('event_type', 'page_view').orderBy('value', 'desc').limit(8)),
+    groupCount('analytics_events', 'event_type'),
+    countWhere('users', notDemo),
+    countWhere('users', isDemo),
+  ]);
 
   return {
     timeseries: { views, registrations, scans },
-    planDistribution: [
-      { name: 'Free', value: 20 },
-      { name: 'Pro', value: 3 },
-    ],
+    planDistribution: plans,
     userTypeDistribution: [
-      { name: 'Người dùng thật', value: 23 },
-      { name: 'Tài khoản demo', value: 95 },
+      { name: 'Người dùng thật', value: realUsers },
+      { name: 'Tài khoản demo', value: demoUsers },
     ],
-    diagnosisDistribution: [
-      { name: 'Tiểu đường type 2', value: 15 },
-      { name: 'Tiểu đường type 1', value: 5 },
-      { name: 'Tiền đái tháo đường', value: 3 },
-    ],
-    topPages: [
-      { name: '/', value: 95 },
-      { name: '/dashboard', value: 50 },
-      { name: '/scan', value: 35 },
-      { name: '/medications', value: 20 },
-      { name: '/metrics', value: 15 },
-    ],
-    eventBreakdown,
+    diagnosisDistribution: diagnoses,
+    topPages: topPageRows,
+    eventBreakdown: eventRows,
   };
+}
+
+// Phễu 4 sự kiện cốt lõi của vòng chăm sóc (nhắc đã gửi / liều xác nhận / báo người nhà đã gửi / đã biết)
+async function getCareFunnel(days = 14) {
+  return require('../../services/careEvents.service').getFunnel(days);
 }
 
 /* ───────────────────────── Bảng dữ liệu gần đây ───────────────────────── */
@@ -209,6 +246,7 @@ module.exports = {
   getOverview,
   getUsers,
   getCharts,
+  getCareFunnel,
   getRecent,
   buildReport,
   wipeAllData,

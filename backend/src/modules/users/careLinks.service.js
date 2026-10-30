@@ -1,6 +1,7 @@
 'use strict';
 const db = require('../../config/database');
 const { queue } = require('../alerts/alert.service');
+const events = require('../../services/careEvents.service');
 
 /** Lấy danh sách người thân (relation='family') đang theo dõi bệnh nhân hiện tại. */
 async function getFamilyLinks(patientId) {
@@ -107,9 +108,13 @@ async function ackFamilyAlert(userId, alertId) {
   const alert = await db('clinical_alerts as a')
     .join('care_links as l', 'l.patient_id', 'a.patient_id')
     .where({ 'a.id': alertId, 'l.member_id': userId, 'l.relation': FAMILY, 'l.status': 'active' })
-    .first('a.id');
+    .first('a.id', 'a.patient_id');
   if (!alert) throw { status: 404, message: 'Không tìm thấy cảnh báo' };
+  const already = await db('alert_acks').where({ alert_id: alert.id, member_id: userId }).first('id');
   await db('alert_acks').insert({ alert_id: alert.id, member_id: userId }).onConflict(['alert_id', 'member_id']).ignore();
+  if (!already) {
+    await events.record({ type: events.EVENT.CAREGIVER_ALERT_ACKED, userId: alert.patient_id, actorId: userId, alertId: alert.id });
+  }
 }
 
 // Người bệnh bấm SOS -> báo ngay mọi người nhà đang liên kết (Telegram/SMS/email qua queue +

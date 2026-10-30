@@ -17,7 +17,8 @@ import {
   Printer,
 } from 'lucide-react';
 import SecretPillBoxModal from '../../components/common/SecretPillBoxModal';
-import DoctorA4ReportModal from '../../components/common/DoctorA4ReportModal';
+import DoctorReportModal from '../../components/care/DoctorReportModal';
+import careService from '../../services/care.service';
 import { triggerFamilyAlarm } from '../../components/common/FamilyAlarmModal';
 import { useAuth } from '../../hooks/useAuth';
 import { useMedications } from '../../hooks/useMedications';
@@ -108,6 +109,22 @@ export default function DashboardPage() {
   const [showCustomize, setShowCustomize] = useState(false);
   const [showSecretBox, setShowSecretBox] = useState(false);
   const [showDoctorReport, setShowDoctorReport] = useState(false);
+  const [doctorReportData, setDoctorReportData] = useState(null);
+  const [doctorReportLoading, setDoctorReportLoading] = useState(false);
+
+  // Phiếu gửi bác sĩ lấy số liệu THẬT 30 ngày gần nhất từ server (không còn mẫu cố định).
+  const openDoctorReport = async () => {
+    if (doctorReportLoading) return;
+    setDoctorReportLoading(true);
+    try {
+      setDoctorReportData(await careService.getDoctorReport());
+      setShowDoctorReport(true);
+    } catch {
+      window.alert('Chưa tải được báo cáo. Vui lòng kiểm tra mạng và thử lại.');
+    } finally {
+      setDoctorReportLoading(false);
+    }
+  };
   const [addedKeys, setAddedKeys] = useState(() => loadAddedUtilityKeys());
   const { metrics, fetchMetrics, addMetric } = useMetrics();
   const unit = getGlucoseUnit();
@@ -479,7 +496,7 @@ export default function DashboardPage() {
       {/* TỜ A4 BÁO CÁO Y KHOA GỬI BÁC SĨ (ĐẶT NGAY PHÍA DƯỚI HỘP THUỐC TRỰC QUAN) */}
       <button
         type="button"
-        onClick={() => setShowDoctorReport(true)}
+        onClick={openDoctorReport}
         style={{
           width: '100%',
           marginTop: '10px',
@@ -684,11 +701,9 @@ export default function DashboardPage() {
             />
           )}
           {showDoctorReport && (
-            <DoctorA4ReportModal
-              isOpen={showDoctorReport}
+            <DoctorReportModal
+              reportData={doctorReportData}
               onClose={() => setShowDoctorReport(false)}
-              user={user}
-              medications={medications}
             />
           )}
         </>,

@@ -24,6 +24,12 @@ import { calculateAdherenceStats, getMedicationDayProgress } from '../../store/m
 import { useT } from '../../hooks/useT';
 import styles from './MemberHealthDossier.module.css';
 
+const DIAGNOSIS_LABELS = {
+  type2_diabetes: 'Đái tháo đường type 2',
+  type1_diabetes: 'Đái tháo đường type 1',
+  prediabetes: 'Tiền đái tháo đường',
+};
+
 export default function MemberHealthDossier({
   member,
   medications = [],
@@ -96,7 +102,7 @@ export default function MemberHealthDossier({
               {member?.gender || 'Chưa cập nhật'} · Mã DIA: <strong>{member?.user_code || '---'}</strong>
             </p>
             <p className={styles.patientMeta}>
-              BHYT: <strong>{member?.bhyt || 'GD 4 79 1234567890'}</strong> · ĐT: {member?.phone || 'Chưa cập nhật'}
+              BHYT: <strong>{member?.bhyt || 'Chưa cập nhật'}</strong> · ĐT: {member?.phone || 'Chưa cập nhật'}
             </p>
             <div className={styles.liveBadge}>
               <span className={styles.liveDot} />
@@ -232,48 +238,41 @@ export default function MemberHealthDossier({
 
         <div className={styles.diagnosisBox}>
           <div className={styles.diagTitle}>
-            {member?.diagnosis && member.diagnosis !== 'type2_diabetes'
-              ? member.diagnosis
-              : 'Đái tháo đường Type 2 (E11) · Tăng huyết áp vô căn (I10)'}
+            {DIAGNOSIS_LABELS[member?.diagnosis] || member?.diagnosis || 'Chưa cập nhật'}
           </div>
-          <p className={styles.diagDesc}>
-            Phát hiện năm 2018 (8 năm điều trị). Kiểm soát ổn định bằng thuốc uống kết hợp chế độ ăn ít tinh bột nhanh. Không ghi nhận biến chứng bàn chân hay suy thận.
-          </p>
         </div>
 
         <div className={styles.doctorRow}>
           <div className={styles.infoItem}>
             <span className={styles.infoItemLabel}>Bác sĩ điều trị phụ trách:</span>
             <span className={styles.infoItemValue}>
-              {member?.doctor || 'BS. CKI Nguyễn Văn Hoàng'}
+              {member?.doctor || 'Chưa cập nhật'}
             </span>
           </div>
           <div className={styles.infoItem}>
             <span className={styles.infoItemLabel}>Cơ sở khám chữa bệnh:</span>
             <span className={styles.infoItemValue}>
-              {member?.hospital || 'Bệnh viện Đại học Y Dược TP.HCM'}
+              {member?.hospital || 'Chưa cập nhật'}
             </span>
           </div>
         </div>
 
-        <div className={styles.doctorNoteBox}>
-          <strong>🩺 Lời dặn của Bác sĩ:</strong> Duy trì uống thuốc hạ đường huyết đúng giờ sau ăn sáng và chiều. Đo đường huyết đói 2 lần/tuần khi tái khám ngày 24/10/2026.
-        </div>
       </section>
 
       {/* 4. Tủ Thuốc Đang Điều Trị (Chi tiết các loại thuốc) */}
       <section className={styles.sectionCard}>
         <div className={styles.sectionHeader}>
           <h3 className={styles.sectionTitle}>
-            <Pill size={17} color="#0284c7" /> Tủ Thuốc Hiện Tại Đang Điều Trị ({activeMeds.length || 3} loại)
+            <Pill size={17} color="#0284c7" /> Tủ Thuốc Hiện Tại Đang Điều Trị ({activeMeds.length} loại)
           </h3>
         </div>
 
         <div className={styles.medList}>
           {activeMeds.length > 0 ? (
             activeMeds.map((med) => {
-              const stock = med.stock_count ?? 18;
-              const isLowStock = stock <= 6;
+              const stock = med.stock_count;
+              const hasStock = stock != null;
+              const isLowStock = hasStock && stock <= 6;
               return (
                 <div key={med.id || med.name} className={styles.medItem}>
                   <div className={styles.medMain}>
@@ -287,65 +286,22 @@ export default function MemberHealthDossier({
                       </p>
                     </div>
                   </div>
-                  <div className={styles.medPillsCount}>
-                    <span
-                      className={`${styles.stockBadge} ${
-                        isLowStock ? styles.stockBadgeWarning : ''
-                      }`}
-                    >
-                      {isLowStock ? `⚠️ Còn ${stock} viên` : `Còn ${stock} viên`}
-                    </span>
-                  </div>
+                  {hasStock && (
+                    <div className={styles.medPillsCount}>
+                      <span
+                        className={`${styles.stockBadge} ${
+                          isLowStock ? styles.stockBadgeWarning : ''
+                        }`}
+                      >
+                        {isLowStock ? `⚠️ Còn ${stock} viên` : `Còn ${stock} viên`}
+                      </span>
+                    </div>
+                  )}
                 </div>
               );
             })
           ) : (
-            <>
-              <div className={styles.medItem}>
-                <div className={styles.medMain}>
-                  <div className={styles.medIconWrap}>
-                    <Pill size={20} />
-                  </div>
-                  <div className={styles.medDetails}>
-                    <p className={styles.medName}>Diamicron MR 60mg</p>
-                    <p className={styles.medDosage}>Uống sau bữa ăn sáng 15 phút · 1 viên/ngày</p>
-                  </div>
-                </div>
-                <div className={styles.medPillsCount}>
-                  <span className={styles.stockBadge}>Còn 24 viên</span>
-                </div>
-              </div>
-
-              <div className={styles.medItem}>
-                <div className={styles.medMain}>
-                  <div className={styles.medIconWrap}>
-                    <Pill size={20} />
-                  </div>
-                  <div className={styles.medDetails}>
-                    <p className={styles.medName}>Glucophage XR 500mg</p>
-                    <p className={styles.medDosage}>Uống cùng bữa ăn tối · 1 viên/ngày</p>
-                  </div>
-                </div>
-                <div className={styles.medPillsCount}>
-                  <span className={styles.stockBadge}>Còn 18 viên</span>
-                </div>
-              </div>
-
-              <div className={styles.medItem}>
-                <div className={styles.medMain}>
-                  <div className={styles.medIconWrap}>
-                    <Pill size={20} />
-                  </div>
-                  <div className={styles.medDetails}>
-                    <p className={styles.medName}>Nicorandil 5mg</p>
-                    <p className={styles.medDosage}>Uống cách 12 giờ: Cử sáng 09:00 & Cử chiều 16:00</p>
-                  </div>
-                </div>
-                <div className={styles.medPillsCount}>
-                  <span className={styles.stockBadge}>Còn 12 viên</span>
-                </div>
-              </div>
-            </>
+            <p style={{ fontSize: 13, color: '#64748b' }}>Chưa có thuốc nào được ghi nhận.</p>
           )}
         </div>
       </section>

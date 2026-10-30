@@ -48,7 +48,7 @@ async function deleteMedication(req, res, next) {
 
 async function logDose(req, res, next) {
   try {
-    const log = await adherence.logDose(req.user.id, Number(req.params.id), req.validatedBody || req.body || {});
+    const log = await adherence.logDose(req.user.id, Number(req.params.id), req.validatedBody || req.body || {}, { channel: 'app' });
     publish('patient.medication_logged', { patientId: req.user.id, log });
     sendSuccess(res, log, 'Đã ghi nhận', 201);
   } catch (err) {

@@ -46,15 +46,6 @@ function isDiabetesDrug(name) {
   return DIABETES_KEYWORDS.some(k => lower.includes(k));
 }
 
-function isDiabetesDiagnosis(diagnosis) {
-  const lower = (diagnosis || '').toLowerCase().trim();
-  return lower.includes('đái tháo đường') ||
-         lower.includes('tiểu đường') ||
-         /\bđtđ\b/.test(lower) ||
-         lower.includes('diabetes') ||
-         lower.includes('sugar');
-}
-
 // Khoảng cách chỉnh sửa Levenshtein quy về độ tương đồng 0..1.
 function levenshteinRatio(a, b) {
   if (!a.length || !b.length) return 0;
@@ -118,7 +109,7 @@ function getPrompt(lang = 'vi') {
 
   return `You are an expert medical assistant. Analyze the medical prescription (either from the image directly or from the OCR text provided) and convert it into a structured JSON object.
 All string values returned MUST be directly translated into ${targetLang}. They must be direct, short, and contain no filler words.
-If isDiabetesPrescription is false, you should still attempt to parse the medications in the prescription.
+DIA+ accepts prescriptions for ANY condition (diabetes, hypertension, heart, cholesterol, gout, antibiotics, pain relief, vitamins...). The doctor already prescribed them; the app only builds the schedule. NEVER reject or set isPrescription to false because the prescription is not for diabetes - extract every medication exactly the same way.
 
 CRITICAL INSTRUCTIONS:
 - A valid medical prescription MUST contain a list of prescribed medications (drugs with names and dosages/frequencies).
@@ -149,7 +140,7 @@ A number that is part of a brand name and has no unit next to it (e.g. "Coveram 
    - Decimal points are tiny and easy to miss: "0.5mg"/"0,5mg" must NOT become "5mg". Glimepiride 1mg/2mg/4mg, Gliclazide MR 30mg/60mg, Metformin 500/750/850/1000mg are real strengths - prefer the reading that is a real strength.
    - Insulin "U" written after a number looks like "0": "10U" is 10 units, NOT 100. Insulin is dosed in units (IU), never in mg; a single dose above 50 units is almost always a misreading.
 4. Drug names: a hurried scribble is still a real drug. Decode it to the closest real drug name that is consistent with the strength and the diagnosis (e.g. "Glimpirid" -> Glimepiride, "Glicazid" -> Gliclazide, "Metfornin" -> Metformin). Keep the brand name if a brand is written (e.g. "Diamicron MR"), never invent a drug that is not on the paper.
-5. Diabetes context (DIA+ users are diabetes patients - check these brands first): Glucophage/Panfor/Glumeform = metformin; Diamicron MR = gliclazide; Amaryl = glimepiride; Daonil = glibenclamide; Januvia = sitagliptin; Galvus = vildagliptin; Trajenta = linagliptin; Jardiance = empagliflozin; Forxiga = dapagliflozin; NovoNorm = repaglinide; Glucobay = acarbose; Actos = pioglitazone; Lantus/Toujeo = insulin glargine; Levemir = insulin detemir; NovoMix 30 = insulin aspart 30/70; Mixtard 30 = human insulin 30/70; NovoRapid/Humalog = rapid insulin; Ozempic/Rybelsus = semaglutide; Trulicity = dulaglutide.
+5. Diabetes context (many DIA+ users are diabetic, so check these brands when strokes are ambiguous - but prescriptions for other diseases are just as valid): Glucophage/Panfor/Glumeform = metformin; Diamicron MR = gliclazide; Amaryl = glimepiride; Daonil = glibenclamide; Januvia = sitagliptin; Galvus = vildagliptin; Trajenta = linagliptin; Jardiance = empagliflozin; Forxiga = dapagliflozin; NovoNorm = repaglinide; Glucobay = acarbose; Actos = pioglitazone; Lantus/Toujeo = insulin glargine; Levemir = insulin detemir; NovoMix 30 = insulin aspart 30/70; Mixtard 30 = human insulin 30/70; NovoRapid/Humalog = rapid insulin; Ozempic/Rybelsus = semaglutide; Trulicity = dulaglutide.
 6. Worked examples (what the scribble looks like -> correct decoding):
    - "Trajenta 5mg  SL: 28v / 1v s u.t.a 30p" -> name "Trajenta", dosage "5mg", quantity "28 viên", amountPerDose "1 viên", timesPerDay 1, instructions "Uống 1 viên buổi sáng, trước ăn 30 phút", times ["07:00"].
    - "Galvus Met 50/1000mg  SL: 56v / 1v x 2l/ng s-c u.s.a" -> dosage "50/1000mg", quantity "56 viên", timesPerDay 2, instructions "Uống 1 viên x 2 lần/ngày, sáng - chiều, sau ăn", times ["07:00","15:00"].
@@ -164,7 +155,7 @@ JSON Schema:
   "isLabReport": true/false (true if the document is a laboratory test result / phiếu kết quả xét nghiệm),
   "hospitalName": "Name of the hospital/clinic on the document" or null,
   "labCondition": "good" or "severe" (Evaluate the metrics: if Glucose, HbA1c, Cholesterol, etc. are significantly high or abnormal, output "severe", else "good"),
-  "rejectionReason": "Detailed reason in ${targetLang} why this is not a prescription or not related to diabetes" or null,
+  "rejectionReason": "Detailed reason in ${targetLang} why this is not a prescription (never because it is not for diabetes)" or null,
   "doctorName": "Doctor name" or null,
   "prescriptionDate": "Prescription date in YYYY-MM-DD format" or null,
   "nextAppointmentDate": "Next appointment date in YYYY-MM-DD format" or null,
@@ -326,8 +317,10 @@ function shapeResult(parsed) {
     };
   });
 
-  const isPrescription = parsed.isPrescription !== false && medications.length > 0;
   const isLabReport = parsed.isLabReport === true;
+  // Mọi đơn có thuốc đều được nhận (không riêng tiểu đường): chỉ bỏ khi AI vừa bảo "không phải đơn" vừa là phiếu xét nghiệm,
+  // để AI có lỡ từ chối đơn bệnh khác thì thuốc đọc được vẫn lên lịch.
+  const isPrescription = medications.length > 0 && !(parsed.isPrescription === false && isLabReport);
   const hospitalName = parsed.hospitalName || 'bệnh viện';
   const labCondition = parsed.labCondition || 'good';
 
@@ -340,13 +333,8 @@ function shapeResult(parsed) {
     }
   }
 
-  const keywordDiabetes = medications.some(m => isDiabetesDrug(m.name));
-  const isDiabetesPrescription = isPrescription && (
-    parsed.isDiabetesPrescription === true ||
-    isDiabetesDiagnosis(parsed.diagnosis) ||
-    keywordDiabetes ||
-    true // Trích xuất đầy đủ tất cả thuốc trong đơn khám bệnh
-  );
+  // Giữ tên trường cho client cũ (app đã cài dùng nó để mở bước lên lịch) - mọi đơn thuốc đều được nhận.
+  const isDiabetesPrescription = isPrescription;
 
   const diabetesDrugs = medications
     .filter(m => m.isDiabetesDrug === true || isDiabetesDrug(m.name))
@@ -360,7 +348,7 @@ function shapeResult(parsed) {
     hospitalName,
     rejectionReason: (!isPrescription && !isLabReport)
       ? (parsed.rejectionReason || 'Không tìm thấy thông tin thuốc được kê trong tài liệu này (ví dụ: đây là kết quả xét nghiệm hoặc ảnh chụp quá mờ).')
-      : (parsed.rejectionReason || null),
+      : null,
     medications: isPrescription ? medications : [],
     hasDiabetesDrugs: diabetesDrugs.length > 0,
     diabetesDrugs,

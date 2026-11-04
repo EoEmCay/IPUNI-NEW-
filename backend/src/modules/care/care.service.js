@@ -229,7 +229,7 @@ async function getDoctorBriefing(patientId) {
   // 1. Danh sách thuốc hiện tại
   const meds = await db('medications')
     .where({ user_id: patientId, is_active: 1 })
-    .select('name', 'dosage', 'frequency', 'instructions', 'doctor_name', 'prescribed_at');
+    .select('id', 'name', 'dosage', 'frequency', 'instructions', 'doctor_name', 'prescribed_at', 'times', 'slots');
 
   // 2. Lịch sử tuân thủ 30 ngày
   const logs = await db('medication_logs as l')
@@ -253,22 +253,50 @@ async function getDoctorBriefing(patientId) {
   const adherencePerMed = adherenceByMed(doses30d);
   const missPatterns = findMissPatterns(doses30d, { minMissed: 2, minRatio: 0.5 });
 
-  // 3. Chỉ số đường huyết 30 ngày
+  // 3. Chỉ số đo 30 ngày (Đường huyết & Huyết áp)
   const metrics = await db('metrics')
     .where({ user_id: patientId })
     .where('measured_at', '>=', thirtyDaysAgo.toISOString())
     .orderBy('measured_at', 'asc');
 
-  const gStats = glucoseStats(metrics);
+  const glucoseMetrics = metrics.filter((m) =>
+    (m.measurement_category || '').includes('glucose') ||
+    (m.measurement_type || '').includes('glucose')
+  );
+
+  const bpMetrics = metrics.filter((m) =>
+    (m.measurement_category || '').includes('blood_pressure') ||
+    (m.measurement_type || '').includes('blood_pressure')
+  );
+
+  const gStats = glucoseStats(glucoseMetrics);
+
+  let bpProfile = null;
+  if (bpMetrics.length > 0) {
+    const sysVals = bpMetrics.map((m) => Number(m.value)).filter(Number.isFinite);
+    const diaVals = bpMetrics.map((m) => Number(m.value_diastolic)).filter(Number.isFinite);
+    const avgSys = sysVals.length ? Math.round(sysVals.reduce((a, b) => a + b, 0) / sysVals.length) : null;
+    const avgDia = diaVals.length ? Math.round(diaVals.reduce((a, b) => a + b, 0) / diaVals.length) : null;
+    bpProfile = {
+      readings_count: bpMetrics.length,
+      average_systolic: avgSys,
+      average_diastolic: avgDia,
+      target_met: avgSys ? (avgSys < 130 && avgDia < 80) : null,
+      recent_readings: bpMetrics.slice(-5),
+    };
+  }
 
   return {
     patient: {
       name: patient.name || 'Bệnh nhân',
       user_code: patient.user_code,
       date_of_birth: patient.date_of_birth,
+      birth_year: patient.birth_year || (patient.date_of_birth ? new Date(patient.date_of_birth).getFullYear() : null),
       diagnosis: patient.diagnosis,
       blood_type: patient.blood_type,
       insurance_number: patient.insurance_number,
+      phone: patient.phone,
+      gender: patient.gender,
     },
     period: '30 ngày gần nhất',
     adherence: {
@@ -284,8 +312,9 @@ async function getDoctorBriefing(patientId) {
       time_in_range_percent: gStats.timeInRangePercent,
       hypoglycemia_count: gStats.lows.length,
       severe_hyperglycemia_count: gStats.highs.length,
-      recent_readings: metrics.slice(-10),
+      recent_readings: glucoseMetrics.slice(-10),
     },
+    bp_profile: bpProfile,
     active_medications: meds,
   };
 }

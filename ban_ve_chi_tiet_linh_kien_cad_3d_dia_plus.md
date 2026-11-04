@@ -152,21 +152,16 @@ Dựa trên mẫu thực tế trong ảnh tham chiếu (tháp thuốc màu trắ
 Bản vẽ kỹ thuật bóc tách chi tiết (Exploded Isometric Blueprint) khớp 100% với các chi tiết từ Part [1] đến Part [8] đã được xuất xưởng:
 👉 Xem bản vẽ CAD khổ lớn tại: [dia_plus_pill_dispenser_cad_blueprint_1793796246688.jpg](file:///C:/Users/lekho/.gemini/antigravity/brain/7889f6e3-4f32-4008-8369-c493d1ab694b/dia_plus_pill_dispenser_cad_blueprint_1793796246688.jpg)
 
-```
-========================================================================================
- DIA+ MINI SMART PILL DISPENSER - EXPLODED ASSEMBLY BLUEPRINT (DWG-DIA-V2.5)
- Kích thước: 70mm (W) x 180mm (H) x 48mm (D) • Tiết diện Oval • Khay trượt 35mm
-========================================================================================
- [1] Nắp chụp tai gấu (Top Cap with Ergonomic Bear Ears - Bayonet / Snap-fit)
- [2] Vỏ thân ngoài (Main Outer Casing Shell with Dual Windows & Dovetail Rails)
- [3] Khung chia ô thuốc (Internal Pill Grid Core - 2 Columns x 6/7 Tiers)
- [4] Cửa sổ cong mặt trước (Curved Front Window Lens - R38mm Smoked Tint)
- [5] Mặt nạ đồng hồ LED 12:00 (LED Digital Clock Bezel & Smoke Filter Bracket)
- [6] Khay trượt lấy thuốc đáy (Bottom Slide-out Drawer with Magnet & Stopper)
- [7] Cụm lẫy lò xo Touch-Push & Bánh răng giảm chấn (Push-Push Spring Damper)
- [8] Khung đế điện tử & Pin Li-Po 700mAh (Electronics Chassis Base with Type-C)
-========================================================================================
-```
+| Mã chi tiết | Tên chi tiết linh kiện | Kích thước kỹ thuật chính | Cơ chế & Vai trò lắp ráp |
+| :---: | :--- | :--- | :--- |
+| **[1]** | **Nắp chụp tai gấu** *(Top Cap)* | Elip 70 mm × 48 mm × 14 mm (Tai cao 18 mm) | Khóa ren 1/4 vòng (Bayonet) + Gioăng cao su chống ẩm |
+| **[2]** | **Vỏ thân ngoài** *(Main Shell)* | Elip 68.0 mm × 44.0 mm × 152.0 mm (Dày 2.0 mm) | Cửa sổ đôi, ray trượt âm dài 52 mm, 4 trụ ren ốc M2 |
+| **[3]** | **Khung chia ô thuốc** *(Pill Grid Core)* | 63.6 mm × 39.6 mm × 83.5 mm (12–14 ngăn) | Đáy ô dốc 12°–15°, trượt lọt lòng vào trong Part 2 |
+| **[4]** | **Thấu kính cửa sổ** *(Front Window Lens)* | Rộng 48.6 mm × Cao 86.6 mm (Uốn cong R = 38 mm) | Mica/PC khói, gờ bậc 1.3 mm dán phẳng mặt vỏ Part 2 |
+| **[5]** | **Mặt nạ LED 12:00** *(Clock Bezel)* | Kính khói 44.0 mm × 20.0 mm × 1.5 mm | Lọc quang học đen bóng, giữ module LED 7 đoạn TM1637 |
+| **[6]** | **Khay trượt lấy thuốc** *(Drawer)* | Rộng 47.4 mm × Dài 58.0 mm × Cao 23.0 mm | Ray dương 3.0×1.8 mm, hốc nam châm N52, chứa cả gói nước |
+| **[7]** | **Cụm lò xo & Giảm chấn** *(Damper Assembly)* | 2 lò xo nén Inox Ø 4.0×40 mm + Lẫy tim Push-Push | Bánh răng dầu giảm chấn xoay, khay búng êm 35 mm |
+| **[8]** | **Khung đế & Pin sạc** *(Chassis Base Plate)* | Elip 67.6 mm × 43.6 mm × 16.0 mm | Hốc pin Li-Po 700 mAh, ESP32-C3, khe Type-C chịu lực > 50N |
 
 ---
 
@@ -174,16 +169,11 @@ Bản vẽ kỹ thuật bóc tách chi tiết (Exploded Isometric Blueprint) kh�
 
 Để lắp ráp thành một chiếc hộp thuốc hoàn chỉnh như trong ảnh bàn làm việc:
 
-```mermaid
-flowchart TD
-    A["Bước 1: Lắp Khoang Đáy (Part 8)"] --> B["Bước 2: Cố Định Pin & Bo Mạch ESP32"]
-    B --> C["Bước 3: Lắp Module LED Đồng Hồ (Part 5)"]
-    C --> D["Bước 4: Lắp Cụm Cơ Cấu Trượt & Lò Xo (Part 6 + 7)"]
-    D --> E["Bước 5: Lồng Lõi Lưới Ô Thuốc (Part 3) & Cửa Sổ (Part 4)"]
-    E --> F["Bước 6: Chụp Vỏ Thân Ngoài (Part 2) & Bắt 4 Ốc M2"]
-    F --> G["Bước 7: Đậy Nắp Tai Gấu Trên Cùng (Part 1)"]
-    G --> H["HOÀN THÀNH: Kiểm Tra Trượt Búng & Hiển Thị LED 12:00"]
-```
+* **Tiến trình lắp ráp tuần tự (Assembly Flow):**
+  * **Bước 1:** Khung Đế Part 8 → **Bước 2:** Cố Định Pin & ESP32-C3 → **Bước 3:** Lắp Module LED Đồng Hồ Part 5
+  * → **Bước 4:** Lắp Cụm Cơ Cấu Trượt & Lò Xo Part 6 + 7 → **Bước 5:** Lồng Lõi Lưới Part 3 & Cửa Sổ Part 4
+  * → **Bước 6:** Chụp Vỏ Thân Part 2 & Siết 4 Ốc M2 → **Bước 7:** Đậy Nắp Tai Gấu Part 1
+  * → **HOÀN THÀNH:** Kiểm Tra Trượt Búng & Hiển Thị LED 12:00
 
 1. **Bước 1 (Cụm đế điện tử):** Dán cell pin Li-Po 700 mAh vào khoang Part 8 bằng băng keo 3M chuyên dụng. Hàn dây nguồn pin vào module sạc Type-C và bo mạch ESP32-C3. Cố định cảm biến từ tính (Hall/Reed switch) vào hốc đọc đuôi khay.
 2. **Bước 2 (Cụm hiển thị LED 12:00):** Gắn module màn hình LED vào khung Part 5, kết nối cáp tín hiệu 3.3V (CLK, DIO, VCC, GND) về ESP32.

@@ -104,6 +104,11 @@ Cơ chế hoạt động hoàn toàn bằng **cơ học thuần túy (Mechanical
 
 ### PART [2]: 28 Ngăn Kéo Kín Khít Tích Hợp Rãnh Tim Push-to-Open (Sealed Drawers)
 
+#### Bản Vẽ 3D & Sơ Đồ Kích Thước Bóc Tách 1 Ngăn Kéo & Hốc Thuốc:
+![Bản vẽ 3D 1 Ngăn kéo và Hốc thuốc](ban_ve_3d_1_ngan_keo_hoc_thuoc_cad.jpg)
+![Bản vẽ kỹ thuật bóc tách kích thước 1 Ngăn kéo và Hốc thuốc](ban_ve_kich_thuoc_1_ngan_keo_hoc_thuoc.png)
+*(Bản vẽ bóc tách độc lập 1 ngăn: Chiều Rộng 26.0 mm, Chiều Cao 20.0 mm, Chiều Dài 48.0 mm; Hốc lọt lòng: 26.5 × 20.5 × 50.0 mm)*
+
 * **Số lượng:** 28 chiếc giống nhau.
 * **Kích thước phủ bì:** Rộng 26.0 mm × Cao 20.0 mm × Dài (Sâu) 48.0 mm.
 * **Kích thước lọt lòng khoang thuốc:** Rộng 22.4 mm × Dài 42.0 mm × Sâu 16.5 mm (thể tích $15.5\text{ cm}^3$, chứa thoải mái 6-8 viên nang lớn cỡ 00).

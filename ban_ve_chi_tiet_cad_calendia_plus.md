@@ -69,19 +69,23 @@
 
 ---
 
-### PART [2]: Hệ Thống 28 Ngăn Kéo Mini Lấy Thuốc (28x Miniature Pill Drawers)
+### PART [2]: Hệ Thống 28 Ngăn Kéo Mini Lấy Thuốc (28x Miniature Pill Drawers) — Thiết Kế Kín Khít Chống Ẩm & Bụi
 
-* **Chức năng:** Chứa các viên thuốc cữ uống cho từng buổi; người dùng kéo rút ra để lấy thuốc; tích hợp rãnh truyền sáng giúp toàn bộ hốc phát sáng ấm khi đến giờ uống.
-* **Số lượng:** 28 chiếc giống nhau (hoặc in đồng loạt trên 1 bàn in).
+* **Chức năng:** Chứa các viên thuốc cữ uống độc lập cho từng buổi; người dùng kéo rút ra để lấy thuốc; thiết kế phẳng lì (flush) kín khít 100% để ngăn không khí, hơi ẩm và bụi bẩn làm giảm chất lượng thuốc.
+* **Số lượng:** 28 chiếc giống nhau (hoặc in đồng loạt trên bàn in 3D).
 * **Kích thước phủ bì mỗi ngăn kéo:** Rộng 26.0 mm × Cao 20.0 mm × Dài (Sâu) 48.0 mm.
 * **Kích thước lọt lòng khoang chứa thuốc:** Rộng 22.4 mm × Sâu 42.0 mm × Cao 16.5 mm (thể tích ~15.5 cm³, chứa vừa 6-8 viên nang cỡ 00 hoặc viên nén lớn).
-* **Kết cấu cơ khí trên từng ngăn kéo:**
-  * **Mặt trước (Mặt bích tay nắm):** Kích thước 26.0 mm × 20.0 mm, bo viền R = 2.0 mm. Giữa mặt có hốc lõm công thái học hình viên thuốc (Pill-shaped finger pocket) rộng 16.0 mm × cao 7.0 mm × sâu 2.5 mm giúp đầu ngón tay tì kéo êm ái mà không cần núm vặn rườm rà.
+* **Kết cấu cơ khí kín khít & thẩm mỹ sang trọng:**
+  * **Mặt trước phẳng kín đặc 100% (Solid Flush Faceplate):** Kích thước 26.0 mm × 20.0 mm. Tuyệt đối **KHÔNG có khe hở, lỗ khoét hay vết cắt rãnh hở miệng chữ U** (như các hộp nhựa đựng ốc vít/linh kiện thông thường).
+  * **Hốc tì tay dập chìm kín đáy (Blind Recessed Ergonomic Pocket):** Ở chính giữa mặt trước có một vết lõm công thái học hình viên thuốc (Pill-shaped finger pocket) rộng 16.0 mm × cao 7.0 mm × sâu 2.5 mm, đáy liền khối dày 2.0 mm kín tuyệt đối. Người dùng dùng đầu ngón tay tì nhẹ kéo khay ra dễ dàng mà không phá vỡ độ kín của hộp.
+  * **Gờ chắn bụi mê cung kép (Labyrinth Overlap Dust Seal):** Chu vi mặt bích trước được thiết kế giật cấp rộng hơn thân khay 1.0 mm mỗi phía (Flange Lip). Khi khay đóng hết hành trình, gờ này sẽ áp sát phẳng lì vào gờ giật cấp của khung Part 1, che kín toàn bộ khe hở cơ khí trượt (hairline seam Δ = 0.35 mm), tạo thành lớp đệm kín chống ẩm và chống bụi xâm nhập vào viên thuốc.
   * **Hai bên sườn hông:** Đúc liền gân trượt nổi (Slide Guide Rib) dày 1.2 mm, cao 2.0 mm chạy dọc 40 mm chiều dài.
   * **Đuôi ngăn kéo (Chống tuột & Khóa hành trình):**
     * Có 2 vấu ngàm móc chống tuột (Pull-out Stopper Lugs) nhô lên 1.2 mm ở cạnh trên đuôi khay. Khi kéo ra tới 32 mm, vấu chạm vào gờ chặn của Part 3 ngăn không cho khay rơi xuống đất, nhưng khi cần rửa hộp thì bóp nhẹ khay có thể rút rời ra ngoài.
     * Đáy đuôi có hốc dẹt đón ánh sáng từ đèn LED WS2812B chiếu thẳng vào lòng khay.
-* **Vật liệu:** Nhựa PETG màu trắng đục hoặc xám đục (an toàn tiếp xúc thực phẩm, không mùi, chịu cọ xát cơ học cao).
+* **Vật liệu & Xử lý bề mặt sang trọng:**
+  * Nhựa PETG Food-grade màu trắng ngọc trai (Warm Pearl White) hoặc xám sứ mờ.
+  * In mặt trước úp xuống bàn in PEI tấm phẳng mịn mờ (Satin/Textured Sheet) để bề mặt ngoài cùng lỳ mịn như sản phẩm đúc khuôn công nghiệp cao cấp của Apple hoặc Braun, loại bỏ hoàn toàn các vết sọc in 3D thô.
 
 ---
 

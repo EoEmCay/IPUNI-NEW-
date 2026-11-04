@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bản Thiết Kế Hộp Thuốc Thông Minh DIA+ (Candy-Box Dispenser)</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.9; filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.8)); }
+      50% { opacity: 0.3; filter: drop-shadow(0 0 3px rgba(16, 185, 129, 0.2)); }
+    }
+    .glow-active {
+      animation: pulse-glow 1.5s infinite ease-in-out;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.4);
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-6 font-sans antialiased selection:bg-emerald-500 selection:text-white">
+
+  <!-- Header Banner -->
+  <div class="max-w-6xl mx-auto mb-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-2xl backdrop-blur-md">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-slate-950 font-black text-xl tracking-wider">
+          DIA+
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl md:text-2xl font-bold tracking-tight text-white">DIA+ Smart Candy-Box Pill Dispenser</h1>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">Concept v1.2</span>
+          </div>
+          <p class="text-xs md:text-sm text-slate-400 mt-0.5">Bản thiết kế hộp thuốc thông minh dạng đứng hình viên kẹo • Nắp thông minh IoT kết nối App DIA+</p>
+        </div>
+      </div>
+
+      <!-- Live Sync Status -->
+      <div class="flex items-center gap-3 self-end md:self-auto bg-slate-950/60 border border-slate-800 px-3.5 py-2 rounded-xl">
+        <div class="relative flex h-3 w-3">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+        </div>
+        <div class="text-xs">
+          <span class="text-slate-400">Trạng thái BLE:</span>
+          <span id="bleStatus" class="font-semibold text-emerald-400 ml-1">Đã kết nối App DIA+</span>
+        </div>
+        <span class="text-slate-600">|</span>
+        <div class="text-xs text-slate-300">
+          Pin: <span id="batteryDisplay" class="font-bold text-teal-300">88%</span> ⚡
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="flex flex-wrap items-center gap-2 mt-4">
+      <button onclick="switchTab('exploded_cad')" id="tabBtnExplodedCad" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20">
+        📐 Bóc Tách 8 Linh Kiện Vẽ 3D (Theo Ảnh Bàn Làm Việc)
+      </button>
+      <button onclick="switchTab('v2_cad')" id="tabBtnV2Cad" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-900 text-slate-300 hover:text-white border border-slate-800">
+        🏆 Bản Vẽ Kỹ Thuật CAD Tổng Quan
+      </button>
+      <button onclick="switchTab('prototype')" id="tabBtnPrototype" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-900 text-slate-300 hover:text-white border border-slate-800">
+        🧪 Dự Toán PoC In 3D & COGS Đại Trà
+      </button>
+      <button onclick="switchTab('clock_led')" id="tabBtnClockLed" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-900 text-slate-300 hover:text-white border border-slate-800">
+        ⏰ Đồng Hồ LED & Lẫy Cơ Bỏ Balo
+      </button>
+      <button onclick="switchTab('slender')" id="tabBtnSlender" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-900 text-slate-300 hover:text-white border border-slate-800">
+        🌟 Bản Thon Dài 72x183mm
+      </button>
+      <button onclick="switchTab('spring')" id="tabBtnSpring" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-900 text-slate-300 hover:text-white border border-slate-800">
+        🔘 Nắp Búng Lò Xo (Tiếng "CÁCH")
+      </button>
+      <button onclick="switchTab('palm')" id="tabBtnPalm" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-900 text-slate-300 hover:text-white border border-slate-800">
+        🖐️ Cầm Tay & Đẩy Gói
+      </button>
+      <button onclick="switchTab('sim')" id="tabBtnSim" class="px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-900 text-slate-300 hover:text-white border border-slate-800">
+        🎮 Mô Phỏng Tương Tác 2.5D
+      </button>
+    </div>
+  </div>
+
+  <!-- TAB EXPLODED CAD: PART-BY-PART 3D MODELING & ASSEMBLY GUIDE -->
+  <div id="viewExplodedCad" class="max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <h2 class="text-lg font-bold text-white">Bản Vẽ Bóc Tách 8 Linh Kiện Chi Tiết Để Dựng 3D & Lắp Ráp</h2>
+          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/10 text-sky-400 border border-sky-500/30">CAD Assembly Guide</span>
+        </div>
+        <p class="text-xs text-slate-400">Chuẩn hóa theo ảnh chụp bàn làm việc • Nắp tai gấu • Lõi chia ô thuốc • Khay trượt đáy chứa cả vỉ/gói • Đồng hồ LED 12:00 • Dung sai lắp ghép 0.25mm</p>
+      </div>
+      <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold">Bản Mới Nhất</span>
+    </div>
+
+    <!-- 2 Column Showcase: Reference Photo vs CAD Exploded Blueprint -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-5xl mb-4">
+      <div class="rounded-xl overflow-hidden border border-slate-800 shadow-xl bg-slate-950/60 p-2 flex flex-col items-center">
+        <img src=".user_uploaded/media_1793796165414_6313a61a.jpg" alt="DIA+ Office Desk Reference Photo" class="w-full h-auto rounded-lg object-cover" />
+        <span class="text-xs text-amber-400 font-semibold mt-2">1. Ảnh thực tế bàn làm việc: Tháp trắng tai gấu, LED 12:00, khay trượt đáy</span>
+      </div>
+      <div class="rounded-xl overflow-hidden border border-slate-800 shadow-xl bg-[#0B1D33] p-2 flex flex-col items-center">
+        <img src="dia_plus_pill_dispenser_cad_blueprint_1793796246688.jpg" alt="DIA+ Exploded CAD Blueprint" class="w-full h-auto rounded-lg object-contain" />
+        <span class="text-xs text-sky-400 font-semibold mt-2">2. Bản vẽ kỹ thuật CAD bóc tách 8 Part [1]-[8] & kích thước 70x180x48mm</span>
+      </div>
+    </div>
+
+    <!-- Wide Knolling Studio Teardown Showcase: Real Components Laid Out -->
+    <div class="w-full max-w-5xl rounded-xl overflow-hidden border border-emerald-500/30 shadow-2xl bg-slate-950 p-3 mb-6 flex flex-col items-center">
+      <div class="w-full flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <b class="text-sm text-white font-bold">3. Ảnh Chụp Thực Tế Từng Linh Kiện Xếp Ngăn Nắp (Knolling Teardown Studio Shot)</b>
+        </div>
+        <span class="text-[11px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 font-semibold">Tất cả linh kiện thật trước lắp ráp</span>
+      </div>
+      <img src="dia_plus_knolling_teardown_1793797266670.jpg" alt="DIA+ Real Components Knolling Teardown" class="w-full h-auto rounded-lg object-contain shadow-inner" />
+      <div class="w-full flex flex-wrap items-center justify-between text-xs text-slate-400 mt-2 px-1">
+        <span>✅ Vỏ tai gấu, thân Oval, lõi lưới chia ô, cửa sổ Mica cong mờ</span>
+        <span>✅ 2 Lò xo Inox 304, lẫy tim Touch-Push, bánh răng giảm chấn, nam châm N52</span>
+        <span>✅ Bo ESP32-C3 SuperMini, Pin Li-Po 700mAh, module sạc Type-C, LED TM1637</span>
+      </div>
+    </div>
+
+    <!-- 8 Detailed Parts Specification Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 w-full max-w-5xl text-xs mb-4">
+      <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-emerald-400 block mb-1">Part [1]: Nắp Tai Gấu</b>
+        Elip 70x48mm. 2 tai gấu cao 18mm bo R6mm. Rãnh lồng gioăng silicon O-ring, ngàm xoay 1/4 vòng.
+      </div>
+      <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-sky-400 block mb-1">Part [2]: Vỏ Thân Ngoài</b>
+        Ống Oval 68x44x152mm, dày 2mm. Khoét cửa sổ trên 46x84mm, cửa sổ LED 42x18mm, ray trượt âm.
+      </div>
+      <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-amber-400 block mb-1">Part [3]: Lõi Lưới Ô Thuốc</b>
+        Khung 64x40x84mm chia 2 cột x 6/7 tầng. Mỗi ô 28x18.5x14mm, đáy dốc 12° chứa vừa viên nang cỡ 00.
+      </div>
+      <div class="bg-slate-950/70 p-3 rounded-xl border border-purple-400 block mb-1">
+        <b class="text-purple-400 block mb-1">Part [4]: Cửa Sổ Cong Mờ</b>
+        Tấm cong R38mm, dày 1.8mm. Nhựa Mica/PC mờ khói, có gờ bậc 1.3mm dán khít vào vỏ thân.
+      </div>
+      <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-teal-400 block mb-1">Part [5]: Mặt Nạ LED 12:00</b>
+        Kính lọc Acrylic đen khói 44x20x1.5mm. Khung giữ module LED 7 đoạn TM1637 / OLED 0.91" I2C.
+      </div>
+      <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-rose-400 block mb-1">Part [6]: Khay Trượt Đáy</b>
+        Lòng khay 43.4x54x19mm chứa cả viên và gói stick pack. Ray trượt dương, hốc nam châm N52, vấu hãm 35mm.
+      </div>
+      <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-lime-400 block mb-1">Part [7]: Lò Xo & Lẫy "CÁCH"</b>
+        Lẫy tim cơ khí Push-Push + 2 lò xo nén Inox Ø4x40mm + Bánh răng hãm dầu trượt êm ái.
+      </div>
+      <div class="bg-slate-950/70 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-indigo-400 block mb-1">Part [8]: Khung Đế & Pin</b>
+        Đế elip 67.6x43.6mm. Hốc pin Li-Po 700mAh, hốc mạch ESP32-C3, khe cắm cổng Type-C âm chân đế.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB V2 CAD: REVISED TECHNICAL CAD BLUEPRINT V2.0 FOR COMPETITION -->
+  <div id="viewV2Cad" class="hidden max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <h2 class="text-lg font-bold text-white">Bản Vẽ Kỹ Thuật CAD DIA+ V2.0 (Bản Hiệu Chỉnh Đi Thi Toàn Diện)</h2>
+          <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">Chuẩn Y Khoa & BGK</span>
+        </div>
+        <p class="text-xs text-slate-400">Định vị 7-14 ngày • Khóa an toàn trẻ em ISO 8317 • Cửa sổ mờ cản UV 99.9% • Cảm biến Hall & IR • Pin Li-Po PCM chuẩn IEC 62133</p>
+      </div>
+      <span class="px-3 py-1 bg-sky-500/10 text-sky-400 border border-sky-500/30 rounded-lg text-xs font-semibold">CAD Blueprint V2.0</span>
+    </div>
+
+    <!-- Official CAD Blueprint V2.0 Image Showcase -->
+    <div class="w-full max-w-5xl rounded-xl overflow-hidden border border-slate-800 shadow-2xl bg-[#0A192F] p-1 mb-6">
+      <img src="dia_plus_v2_cad_blueprint_1793755186942.jpg" alt="DIA+ V2.0 Revised Technical CAD Blueprint" class="w-full h-auto object-contain" />
+    </div>
+
+    <!-- 6 Core Architectural Changes (Card Grid) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-5xl text-xs mb-4">
+      <div class="bg-slate-950/70 p-4 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-emerald-400 block mb-1.5 flex items-center gap-1.5">
+          <span>📅</span> 1. Chuẩn Hóa 14 Ô Độc Lập
+        </b>
+        Khớp hoàn hảo với phác đồ 14 ngày x 1 cữ hoặc 7 ngày x 2 cữ. Kích thước mỗi ô 26x20x18mm, chứa vừa 3-5 viên nang cỡ 00 (dài 23.3mm). Thuốc nước để ngoài, tự xác nhận trên App.
+      </div>
+
+      <div class="bg-slate-950/70 p-4 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-sky-400 block mb-1.5 flex items-center gap-1.5">
+          <span>💡</span> 2. Cơ Học Thông Minh & Hệ Nguồn 3.3V
+        </b>
+        Bỏ servo và IR (tránh sụt áp pin). Dùng cảm biến từ tính điện áp thấp TI DRV5032 / Reed Switch 3.3V nhận diện nắp từng ô. Ghi nhận nhật ký chính xác: "Đã mở nắp ô số X".
+      </div>
+
+      <div class="bg-slate-950/70 p-4 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-amber-400 block mb-1.5 flex items-center gap-1.5">
+          <span>🎒</span> 3. Tiết Diện Oval 68x44mm (Vừa Balo Ø75mm)
+        </b>
+        Mặt cắt chữ nhật cũ (72x52mm) có đường chéo 88.8mm không vừa túi. Chuyển sang tiết diện Oval 68x44mm (bo góc R≥20mm), đường chéo ~72mm, trượt lọt thỏm túi lưới Ø75mm.
+      </div>
+
+      <div class="bg-slate-950/70 p-4 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-purple-400 block mb-1.5 flex items-center gap-1.5">
+          <span>🛡️</span> 4. Mica Khói Laser & Sơn Phủ Mờ PU
+        </b>
+        Dùng Mica (Acrylic) mờ khói cắt laser sạch đẹp (không cháy xém như PC). Sơn phủ mờ gốc PU/Acrylic sấy nguội chuyên dụng cho nhựa in SLA (không dùng sơn tĩnh điện 180°C).
+      </div>
+
+      <div class="bg-slate-950/70 p-4 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-teal-400 block mb-1.5 flex items-center gap-1.5">
+          <span>👶</span> 5. Khóa Kép Hướng Tới ISO 8317
+        </b>
+        Bỏ tai gấu trẻ con, thay bằng quai xách silicone công thái học. Cơ cấu khóa trượt 2 bước an toàn (Push-and-Slide) thiết kế định hướng theo nguyên lý an toàn trẻ em ISO 8317.
+      </div>
+
+      <div class="bg-slate-950/70 p-4 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-rose-400 block mb-1.5 flex items-center gap-1.5">
+          <span>💼</span> 6. Tài Chính Thực Tế & Mô Hình SaaS
+        </b>
+        Tính đủ khấu hao khuôn 300 triệu (60k/chiếc), SMT, kiểm tra và bảo hành 12T. COGS thực tế 234k-294k. Giá niêm yết 590k, giá KM 469k. Kết hợp thuê bao app chăm sóc sức khỏe.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB PROTOTYPE: VIETNAM FAST PROTOTYPING & WEB BLUETOOTH -->
+  <div id="viewPrototype" class="hidden max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-white">Dự Toán Chi Phí Làm Mẫu PoC In 3D Cầm Tay Đi Thi (~2 Triệu VNĐ) & Web BLE</h2>
+        <p class="text-xs text-slate-400">Linh kiện thô ~500.000đ • Bản mẫu PoC hoàn thiện cao cấp cầm tay đi thi ~2.000.000 - 2.500.000đ • Kết nối Web Bluetooth không cần App</p>
+      </div>
+      <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold">PoC Prototype 72h</span>
+    </div>
+
+    <!-- Web Bluetooth Interactive Demo Simulator -->
+    <div class="w-full max-w-4xl bg-slate-950/80 border border-slate-800 rounded-2xl p-6 mb-6">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4 pb-4 border-b border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-sky-500/20 border border-sky-500/30 flex items-center justify-center text-sky-400 text-lg">
+            🌐
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Mô Phỏng Trình Duyệt Web Bluetooth (Chrome / Edge)</h3>
+            <p class="text-xs text-slate-400">Kết nối trực tiếp Web App xuống ESP32-C3 qua navigator.bluetooth</p>
+          </div>
+        </div>
+        <button id="webBleBtn" onclick="simulateWebBleConnect()" class="px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-sky-500/20">
+          <span>⚡ Bấm Kết Nối Web BLE</span>
+        </button>
+      </div>
+
+      <div id="webBleStatusBox" class="mt-4 p-4 rounded-xl bg-slate-900/90 border border-slate-800 text-xs flex flex-col gap-2">
+        <div class="flex items-center justify-between">
+          <span class="text-slate-400">Trạng thái Web Bluetooth:</span>
+          <span id="webBleStateText" class="text-amber-400 font-semibold">Chờ bấm kết nối...</span>
+        </div>
+        <div id="webBleLogs" class="font-mono text-[11px] text-slate-400 h-20 overflow-y-auto bg-black/40 p-2 rounded-lg border border-slate-800/80">
+          > Sẵn sàng quét thiết bị DIA-Plus qua Web Bluetooth API...
+        </div>
+      </div>
+    </div>
+
+    <!-- Three-Tier Cost Breakdown Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-5xl text-xs mb-6">
+      <div class="bg-slate-950/80 p-4 rounded-xl border border-slate-800 text-slate-300">
+        <div class="flex items-center justify-between mb-2">
+          <b class="text-emerald-400 text-sm">🧪 Mức 1: In FDM Thử Khớp Nối</b>
+          <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 font-mono font-bold">100k - 300k</span>
+        </div>
+        <p class="text-slate-400 mb-2">In nhựa PLA/PETG thử nghiệm 2-3 vòng lặp:</p>
+        <ul class="space-y-1 text-slate-300 list-disc list-inside">
+          <li>Thử viên nang thật cỡ 00 (dài 23.3mm)</li>
+          <li>Cắm mạch test dây trên breadboard</li>
+          <li>Cân chỉnh khe trượt 0.2 - 0.3mm</li>
+          <li>Kiểm tra kích thước đút vừa túi balo</li>
+          <li>Tiết kiệm 80% chi phí R&D ban đầu</li>
+        </ul>
+      </div>
+
+      <div class="bg-slate-950/80 p-4 rounded-xl border border-sky-500/30 text-slate-300 relative overflow-hidden">
+        <div class="absolute -right-6 -top-6 w-16 h-16 bg-sky-500/10 rounded-full blur-xl"></div>
+        <div class="flex items-center justify-between mb-2">
+          <b class="text-sky-400 text-sm">🏆 Mức 2: Mẫu PoC SLA Đi Thi</b>
+          <span class="px-2 py-0.5 rounded bg-sky-950 text-sky-400 font-mono font-bold">1.8M - 2.6M (2.607k)</span>
+        </div>
+        <p class="text-slate-400 mb-2">Bản hoàn thiện cao cấp bấm chạy thật cho BGK:</p>
+        <ul class="space-y-1 text-slate-300 list-disc list-inside">
+          <li>In Tough Resin SLA + sơn phủ mờ PU: ~750.000đ</li>
+          <li>Cửa sổ Mica (Acrylic) mờ khói: ~180.000đ</li>
+          <li>Quai xách Silicone + Gioăng làm kín: ~220.000đ</li>
+          <li>Mạch in PCB 2 lớp + Hall 3.3V DRV5032: ~395.000đ</li>
+          <li>Pin Li-Po 700mAh + Mạch Type-C + Công thợ: ~1.062.000đ</li>
+        </ul>
+      </div>
+
+      <div class="bg-slate-950/80 p-4 rounded-xl border border-amber-500/30 text-slate-300 relative overflow-hidden">
+        <div class="absolute -right-6 -top-6 w-16 h-16 bg-amber-500/10 rounded-full blur-xl"></div>
+        <div class="flex items-center justify-between mb-2">
+          <b class="text-amber-400 text-sm">🛒 Mức 3: Sản Xuất Đại Trà (5.000 Chiếc)</b>
+          <span class="px-2 py-0.5 rounded bg-amber-950 text-amber-400 font-mono font-bold">Bán 469.000đ</span>
+        </div>
+        <p class="text-slate-400 mb-2">Đã tính đủ khuôn thép 300 triệu và bảo hành:</p>
+        <ul class="space-y-1 text-slate-300 list-disc list-inside">
+          <li>Khấu hao khuôn ép phun (300M / 5.000): <b>60.000đ</b></li>
+          <li>Nhựa ABS/PC + Module ESP32 SMT + Pin: <b>130.000đ</b></li>
+          <li>Bảo hành 12T, QC, đóng gói bao bì: <b>65.000đ</b></li>
+          <li><b>COGS xuất xưởng thực tế: ~255.000đ</b></li>
+          <li>Giá bán đề xuất: <b>469.000đ</b> (Lợi nhuận ròng 17%)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB CLOCK LED & SMART MECHANICAL LATCH -->
+  <div id="viewClockLed" class="hidden max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-white">DIA+ Smart Tower 72x183mm: Mặt Đồng Hồ LED 12:00 & Lẫy Cơ Thông Minh Tiếng "CÁCH"</h2>
+        <p class="text-xs text-slate-400">Đồng hồ LED 12:00 ở đáy • Lẫy cơ học thuần túy 100% không sợ kẹt điện tử • Cài túi hông balo & để bàn công ty/tại nhà • Pin y tế Panasonic/Samsung SDI chống cháy nổ</p>
+      </div>
+      <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold">Bản Hoàn Chỉnh Mới Nhất</span>
+    </div>
+
+    <!-- 3D Render: Office Desk & Backpack Pocket -->
+    <div class="rounded-xl overflow-hidden border border-slate-800 shadow-2xl max-w-4xl w-full mb-6">
+      <img src="dia_plus_office_commuter_workspace_1793751792007.jpg" alt="DIA+ Office & Backpack Render" class="w-full h-auto object-cover" />
+    </div>
+
+    <!-- CAD Blueprint: LED Clock Drawer & Battery Safety -->
+    <div class="w-full max-w-4xl rounded-xl overflow-hidden border border-slate-800 shadow-2xl bg-[#0b1d33] p-1 mb-6">
+      <img src="dia_plus_smart_tower_cad_blueprint_1793751812813.jpg" alt="DIA+ CAD Blueprint Safety & Mechanism" class="w-full h-auto object-contain" />
+    </div>
+
+    <!-- Key Highlights -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 w-full max-w-4xl text-xs">
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-emerald-400 block mb-1">⏰ Đồng Hồ LED 12:00</b>
+        Mặt trước khay đáy hiển thị đồng hồ LED số xanh ngọc sắc nét, sang trọng trên bàn làm việc và tab đầu giường.
+      </div>
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-sky-400 block mb-1">⚙️ Lẫy Cơ Khí Thuần Túy</b>
+        Bỏ nút điện tử phức tạp, dùng lẫy cơ học Touch-Push búng 35mm. Hết pin vẫn mở được thuốc 100%, đẩy vào kêu "CÁCH".
+      </div>
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-amber-400 block mb-1">🛡️ Pin Y Tế Chống Cháy Nổ</b>
+        Cell pin Panasonic/Samsung SDI đạt chuẩn IEC 62133 & UL1642, mạch PCM Seiko/TI, cảm biến nhiệt NTC ngắt tức thì.
+      </div>
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-teal-400 block mb-1">🎒 Nhét Vừa Ngăn Balo</b>
+        Kích thước chuẩn 72x183mm, trượt êm ái vào túi lưới hông balo đi làm hàng ngày.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB SLENDER: TRUE 72mm x 183mm RATIO (2.54:1) -->
+  <div id="viewSlender" class="hidden max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-white">DIA+ Slender Edition: Chuẩn Kích Thước Rộng 72mm x Cao 183mm</h2>
+        <p class="text-xs text-slate-400">Tỷ lệ thon dài 2.54:1 (Cao gấp 2.5 lần rộng) • Bề ngang bằng đúng iPhone 16 • Nhét lọt thỏm túi hông balo • Nắp búng nút tròn sáng tiếng "CÁCH"</p>
+      </div>
+      <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold">Tỷ Lệ Chuẩn Tuyệt Đối</span>
+    </div>
+
+    <!-- 3D Render & Backpack Fitment -->
+    <div class="rounded-xl overflow-hidden border border-slate-800 shadow-2xl max-w-4xl w-full mb-6">
+      <img src="dia_plus_slender_tower_scale_render_1793729560364.jpg" alt="DIA+ Slender 72x183mm Render" class="w-full h-auto object-cover" />
+    </div>
+
+    <!-- CAD Blueprint with exact dimensions -->
+    <div class="w-full max-w-4xl rounded-xl overflow-hidden border border-slate-800 shadow-2xl bg-[#0b1d33] p-1 mb-6">
+      <img src="dia_plus_cad_blueprint_dimensions_1793729558049.jpg" alt="DIA+ CAD Blueprint 72x183mm" class="w-full h-auto object-contain" />
+    </div>
+
+    <!-- Highlights -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 w-full max-w-4xl text-xs">
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-emerald-400 block mb-1">📏 Rộng 72mm x Cao 183mm</b>
+        Tỷ lệ thon dài 2.54:1, dáng bình giữ nhiệt mini thanh thoát, hoàn toàn không bị bè ngang.
+      </div>
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-sky-400 block mb-1">🎒 Nhét Vừa 100% Ngăn Balo</b>
+        Thân elip 72x62mm trượt êm vào túi lưới hông balo Ø75mm hoặc túi đeo chéo EDC.
+      </div>
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-amber-400 block mb-1">💡 Nút Tròn Sáng Liên Tục</b>
+        Khi thuốc viên & que đã rơi đủ vào buồng, nút tròn viền LED xanh ngọc bật sáng báo hiệu.
+      </div>
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-teal-400 block mb-1">🔊 Đẩy Vào Tiếng "CÁCH"</b>
+        Nhấn nút búng khay ra 35mm vừa phải. Lấy xong đẩy vào nghe tiếng "CÁCH" giòn tan khóa chặt.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB SPRING: PUSH-BUTTON POP-OUT RETRIEVAL LID -->
+  <div id="viewSpring" class="hidden max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-white">Nắp Khay Thuốc Búng Lò Xo Kèm Nút Tròn Phát Sáng (Tiếng "CÁCH")</h2>
+        <p class="text-xs text-slate-400">Nắp đậy kín gioăng IP54 • Đèn nút tròn sáng liên tục khi đã rơi đủ thuốc • Bấm nút búng lẫy ra 35mm • Đẩy vào nghe tiếng "CÁCH"</p>
+      </div>
+      <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold">Cơ Cấu Búng Thủ Công Trợ Lực</span>
+    </div>
+
+    <!-- 2 Column Image Showcase: Full Context & Macro Detail -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-5xl mb-6">
+      <div class="rounded-xl overflow-hidden border border-slate-800 shadow-xl bg-slate-950/60 p-2 flex flex-col items-center">
+        <img src="dia_plus_popout_button_lid_render_1793729158429.jpg" alt="DIA+ Push Button Pop-out Render" class="w-full h-auto rounded-lg object-cover" />
+        <span class="text-xs text-emerald-400 font-semibold mt-2">Nút tròn phát sáng LED khi đủ thuốc • Khay búng nhẹ 35mm</span>
+      </div>
+      <div class="rounded-xl overflow-hidden border border-slate-800 shadow-xl bg-slate-950/60 p-2 flex flex-col items-center">
+        <img src="dia_plus_popout_button_lid_macro_1793729184129.jpg" alt="DIA+ Macro Mechanism Render" class="w-full h-auto rounded-lg object-cover" />
+        <span class="text-xs text-sky-400 font-semibold mt-2">Cận cảnh ray trượt lò xo & ngàm khóa phát tiếng "CÁCH"</span>
+      </div>
+    </div>
+
+    <!-- CAD Spring Mechanism Blueprint -->
+    <div class="w-full max-w-5xl rounded-xl overflow-hidden border border-slate-800 shadow-2xl bg-[#0b1d33] p-1 mb-4">
+      <img src="dia_push_button_spring_mechanism_schematic_1793729162912.jpg" alt="DIA+ Spring Mechanism CAD" class="w-full h-auto object-contain" />
+    </div>
+
+    <!-- 3 Steps -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 w-full max-w-5xl text-xs">
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-emerald-400 block mb-1">1. Đèn Nút Tròn Bật Sáng</b>
+        Cảm biến IR xác nhận thuốc viên & gói đã rơi đủ $\rightarrow$ Vòng LED tròn xanh ngọc bật sáng liên tục báo hiệu.
+      </div>
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-sky-400 block mb-1">2. Bấm Nút Búng Lẫy Ra 35mm</b>
+        Người dùng ấn vào nút tròn $\rightarrow$ Lẫy tim Push-Push nhả chốt, bánh răng giảm chấn cho khay búng êm ra 35mm.
+      </div>
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-teal-400 block mb-1">3. Đẩy Vào Nghe Tiếng "CÁCH"</b>
+        Lấy thuốc xong, đẩy nhẹ nắp vào $\rightarrow$ Lẫy thép đóng sập phát ra tiếng "CÁCH" đanh giòn, khóa chặt an toàn.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB PALM: PALM-HELD SCALE & MECHANISM CAD -->
+  <div id="viewPalm" class="hidden max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-white">Minh Chứng Tỷ Lệ Cầm Tay 1:1 & Cơ Chế Nạp / Đẩy Gói Thuốc</h2>
+        <p class="text-xs text-slate-400">Cầm trọn vẹn trong lòng bàn tay (152x72x68mm) • Bề ngang đúng bằng iPhone 16 • Cơ chế thanh gạt đáy con thoi đẩy gói thuốc</p>
+      </div>
+      <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold">Tỷ Lệ Thực Tế</span>
+    </div>
+
+    <!-- 2 Column Image Showcase: Hand Scale & Backpack Pocket -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-5xl mb-6">
+      <div class="rounded-xl overflow-hidden border border-slate-800 shadow-xl bg-slate-950/60 p-2 flex flex-col items-center">
+        <img src="dia_plus_compact_scale_comparison_1793727834647.jpg" alt="DIA+ Palm-held Scale Comparison" class="w-full h-auto rounded-lg object-cover" />
+        <span class="text-xs text-emerald-400 font-semibold mt-2">Bàn tay cầm trọn tháp thuốc cạnh iPhone 16 (Bề ngang 72mm)</span>
+      </div>
+      <div class="rounded-xl overflow-hidden border border-slate-800 shadow-xl bg-slate-950/60 p-2 flex flex-col items-center">
+        <img src="dia_plus_backpack_pocket_scale_1793727869515.jpg" alt="DIA+ Backpack Side Pocket Scale" class="w-full h-auto rounded-lg object-cover" />
+        <span class="text-xs text-sky-400 font-semibold mt-2">Cài vừa khít ngăn đựng chai nước hông balo</span>
+      </div>
+    </div>
+
+    <!-- CAD Mechanism Infographic -->
+    <div class="w-full max-w-5xl rounded-xl overflow-hidden border border-slate-800 shadow-2xl bg-[#0b1d33] p-1 mb-4">
+      <img src="dia_plus_cad_blueprint_mechanism_1793727836261.jpg" alt="DIA+ Mechanism CAD Infographic" class="w-full h-auto object-contain" />
+    </div>
+
+    <!-- Mechanism Key Points -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 w-full max-w-5xl text-xs">
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-emerald-400 block mb-1">1. Bỏ vào làm sao? (Nắp Đỉnh)</b>
+        Nắp tai gấu mở 110°, lộ 4 rãnh tiếp đạn. Thả gói thuốc thẳng đứng vào rãnh. Hộp tiếp đạn nhấc rời vệ sinh tiện lợi.
+      </div>
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-sky-400 block mb-1">2. Cơ chế đẩy ra là gì? (Thanh Gạt Đáy)</b>
+        Thanh gạt con thoi (micro-pusher) đẩy đúng 1 gói dưới cùng qua khe hở 4.5mm trượt máng Teflon xuống khay đồng hồ LED.
+      </div>
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-teal-400 block mb-1">3. Kích thước bỏ balo thực tế</b>
+        Cao 152mm (thấp hơn chai nước 500ml), rộng 72mm (bằng iPhone). Nhét vừa túi lưới hông balo hoặc túi xách mini.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB BACKPACK: ULTRA-COMPACT BACKPACK-PORTABLE (BACK-TO-BACK) -->
+  <div id="viewBackpack" class="hidden max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-white">DIA+ Ultra-Compact Backpack-Portable (Bản Tháp Thuốc Dáng Bình Mini Bỏ Vừa Balo)</h2>
+        <p class="text-xs text-slate-400">Kiến trúc Lưng-áp-Lưng (152 x 72 x 68mm) • Vừa khít ngăn bình nước balo • Đầy đủ 4 ngăn gói + 12 ô thuốc viên • Khay đồng hồ LED trượt</p>
+      </div>
+      <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold">Tối Ưu Đi Làm Hàng Ngày (EDC)</span>
+    </div>
+    <div class="rounded-xl overflow-hidden border border-slate-800 shadow-2xl max-w-4xl w-full">
+      <img src="dia_plus_portable_tower_hand_scale_1793723944293.jpg" alt="DIA+ Backpack Portable 3D Render Hand Scale" class="w-full h-auto object-cover" />
+    </div>
+    
+    <!-- Backpack Highlights -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 w-full max-w-4xl mt-4 text-xs">
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-emerald-400 block mb-1">🎒 Vừa Khít Ngăn Hông Balo</b>
+        Kích thước chỉ 152 x 72 x 68mm, tương đương bình giữ nhiệt mini 350ml hoặc chiếc iPhone đứng. Cài vừa túi lưới hông balo.
+      </div>
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-sky-400 block mb-1">🔄 Kiến Trúc Lưng-Áp-Lưng</b>
+        Mặt trước: 4 tầng x 3 ô = 12 ngăn thuốc viên. Mặt sau: 4 ngăn thuốc gói (2 que dài + 2 gói ngắn). Tiết kiệm 47% bề ngang!
+      </div>
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-amber-400 block mb-1">🔒 Khóa Balo Travel Lock</b>
+        Chốt gạt cơ học ngắt điện ray trượt, chống việc khay đồng hồ bị va đập tự bung ra khi nằm trong balo di chuyển.
+      </div>
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-teal-400 block mb-1">⏰ Dâng Trọn Gói & Viên</b>
+        Khay đồng hồ LED 12:00 chìa ra đưa cùng lúc cả gói stick pack và viên nén. Chạm tai gấu là khay tự thu gọn.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB BACKPACK CAD: ISOMETRIC EXPLODED CAD BLUEPRINT -->
+  <div id="viewBackpackCad" class="hidden max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-white">Bản Vẽ CAD Bóc Tách Kỹ Thuật Bản Bỏ Balo (Back-to-Back Layout)</h2>
+        <p class="text-xs text-slate-400">Sơ đồ cơ điện tử bóc tách: 152mm x 72mm x 68mm, 12 ô viên trước, 4 khe gói sau, chốt khóa Travel Lock và gioăng IP54</p>
+      </div>
+      <span class="px-3 py-1 bg-sky-500/10 text-sky-400 border border-sky-500/30 rounded-lg text-xs font-semibold">CAD Balo DWG V2.4</span>
+    </div>
+    <div class="rounded-xl overflow-hidden border border-slate-800 shadow-2xl max-w-4xl w-full bg-[#0b1d33] p-1">
+      <img src="dia_plus_hybrid_cad_blueprint_1793723924322.jpg" alt="DIA+ Backpack Portable CAD Blueprint" class="w-full h-auto object-contain" />
+    </div>
+  </div>
+
+  <!-- TAB HERO: 4 SACHETS (2 LONG + 2 SHORT) & 4 TIERS X 3 PILLS (12 COMPARTMENTS) -->
+  <div id="viewHero" class="hidden max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-white">DIA+ Dual-Dispense Hybrid Tower (4 Ngăn Thuốc Gói + 4 Tầng x 3 Khay = 12 Ngăn Thuốc Viên)</h2>
+        <p class="text-xs text-slate-400">Thiết kế hoàn chỉnh: 2 khe gói dài + 2 khe gói ngắn | 12 ô thuốc viên | Tai gấu cute | Khay đồng hồ LED 12:00 trượt dâng trọn bộ thuốc</p>
+      </div>
+      <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold">Bản Thiết Kế Chuẩn Xác 100%</span>
+    </div>
+    <div class="rounded-xl overflow-hidden border border-slate-800 shadow-2xl max-w-4xl w-full">
+      <img src="dia_plus_hero_render_v2_1793719537207.jpg" alt="DIA+ 4-Sachet & 12-Pill Smart Tower KeyShot Render" class="w-full h-auto object-cover" />
+    </div>
+    
+    <!-- Hero Highlights -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 w-full max-w-4xl mt-4 text-xs">
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-emerald-400 block mb-1">📦 4 Ngăn Thuốc Gói</b>
+        2 khe gói dài (stick pack gel dạ dày, sâm que) + 2 khe vuông ngắn (gói bột Oresol, Hapacol, men vi sinh).
+      </div>
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-sky-400 block mb-1">💊 4 Tầng x 3 = 12 Ngăn Viên</b>
+        12 ô độc lập chứa các viên thuốc màu sắc, van xả điện từ riêng biệt xả so le 250ms chống kẹt.
+      </div>
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-amber-400 block mb-1">🐻 Tai Gấu Cute & Chạm Cảm Ứng</b>
+        Chất liệu silicon y tế Nordic Kawaii, chạm nhẹ tai gấu để xác nhận uống và tự thu khay về.
+      </div>
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-teal-400 block mb-1">⏰ Khay Đồng Hồ LED 12:00 Chìa Ra</b>
+        Đến giờ uống, mặt đồng hồ LED tự động trượt ra 45mm đưa cùng lúc cả gói thuốc và viên nén!
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB HERO CAD: ISOMETRIC EXPLODED CAD BLUEPRINT -->
+  <div id="viewHeroCad" class="hidden max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-white">Bản Vẽ Bóc Tách Kỹ Thuật CAD Chi Tiết (4 Ngăn Gói & 12 Ngăn Viên)</h2>
+        <p class="text-xs text-slate-400">Sơ đồ cơ điện tử bóc tách: Micro-pusher đẩy gói, van xả micro-solenoid 12 ô viên, ray trượt rack-and-pinion và pin Li-ion 2600mAh</p>
+      </div>
+      <span class="px-3 py-1 bg-sky-500/10 text-sky-400 border border-sky-500/30 rounded-lg text-xs font-semibold">Bản Vẽ Kỹ Thuật CAD Độc Quyền</span>
+    </div>
+    <div class="rounded-xl overflow-hidden border border-slate-800 shadow-2xl max-w-4xl w-full bg-[#0b1d33] p-1">
+      <img src="dia_plus_exploded_cad_schematic_1793719513415.jpg" alt="DIA+ 4-Sachet & 12-Pill Exploded CAD Blueprint" class="w-full h-auto object-contain" />
+    </div>
+  </div>
+
+  <!-- TAB SACHET: HYBRID SACHET & PILL DISPENSER -->
+  <div id="viewSachet" class="hidden max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-white">DIA+ Hybrid Sachet & Pill Dispenser (Bản Cấp Phát Thuốc Gói & Thuốc Viên)</h2>
+        <p class="text-xs text-slate-400">Khay chứa gói thuốc bột & stick pack lỏng song song với khoang thuốc viên • Khay đồng hồ LED 12:00 chìa ra đưa trọn bộ thuốc</p>
+      </div>
+      <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold">Giải Pháp Cho Thuốc Gói</span>
+    </div>
+    <div class="rounded-xl overflow-hidden border border-slate-800 shadow-2xl max-w-4xl w-full">
+      <img src="dia_hybrid_smart_dispenser_1793709183826.jpg" alt="DIA+ Hybrid Sachet & Pill Smart Dispenser" class="w-full h-auto object-cover" />
+    </div>
+    
+    <!-- Sachet Highlights -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 w-full max-w-4xl mt-4 text-xs">
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-emerald-400 block mb-1">📦 Cấp Phát Đa Dạng Gói Thuốc</b>
+        Hỗ trợ gói bột men vi sinh, chất xơ tiểu đường, gel dạ dày stick pack và túi chia liều tự động bệnh viện.
+      </div>
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-sky-400 block mb-1">⚙️ Thanh Gạt Cơ Khí Siêu Bền</b>
+        Thanh gạt micro-servo đẩy ngang gói dưới cùng trượt vào khay, cọc gói phía trên tụt xuống 1 nấc tự nhiên.
+      </div>
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-teal-400 block mb-1">🔄 Lõi Hoán Đổi Plug & Play</b>
+        Người dùng dễ dàng đổi giữa Lõi Viên Trần và Lõi Băng Đạn Gói chỉ bằng 1 thao tác vặn ngàm tháo lắp.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB SACHET CAD: CAD BLUEPRINT FOR SACHET MECHANISM -->
+  <div id="viewSachetCad" class="hidden max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-white">Bản Vẽ Bóc Tách Kỹ Thuật Cơ Chế Đẩy Gói & Lõi Module Hoán Đổi (CAD)</h2>
+        <p class="text-xs text-slate-400">Hộp tiếp đạn gói lò xo nén, thanh gạt đáy micro-servo, con lăn cao su kẹp mép và ray trượt đồng hồ LED</p>
+      </div>
+      <span class="px-3 py-1 bg-sky-500/10 text-sky-400 border border-sky-500/30 rounded-lg text-xs font-semibold">CAD Sachet DWG v3.0</span>
+    </div>
+    <div class="rounded-xl overflow-hidden border border-slate-800 shadow-2xl max-w-4xl w-full bg-[#0b1d33] p-1">
+      <img src="dia_plus_sachet_mechanism_blueprint_1793709206766.jpg" alt="DIA+ Sachet Mechanism CAD Blueprint" class="w-full h-auto object-contain" />
+    </div>
+  </div>
+
+  <!-- TAB BEAR: CUTE BEAR-EAR WITH HUMIDITY & ANTI-JAM -->
+  <div id="viewBear" class="hidden max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-white">DIA+ Cute Bear-Ear Mini Pill Tower (Bản Tai Gấu Chống Ẩm & Chống Kẹt)</h2>
+        <p class="text-xs text-slate-400">Tai gấu silicon chống sốc kiêm quai xách • Hạt hút ẩm Silicagel đổi màu • Ron cao su IP54 • Lẫy nằm ngang chống kẹt thuốc</p>
+      </div>
+      <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold">Theo Đề Xuất Nâng Cấp Của Bạn</span>
+    </div>
+    
+    <div class="rounded-xl overflow-hidden border border-slate-800 shadow-2xl max-w-4xl w-full">
+      <img src="dia_cute_bear_ear_pill_tower_1793708689109.jpg" alt="DIA+ Cute Bear Ear Pill Tower" class="w-full h-auto object-cover" />
+    </div>
+    
+    <!-- Highlights Card -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 w-full max-w-4xl mt-4 text-xs">
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-emerald-400 block mb-1">🐻 Tai Gấu Cute Công Năng Kép</b>
+        Silicon y tế êm ái: Tai trái cảm ứng chạm tắt chuông, tai phải làm quai móc ngón tay xách đi làm.
+      </div>
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-sky-400 block mb-1">💧 Chống Ẩm Y Tế Kép (IP54)</b>
+        Khoang hạt hút ẩm Silicagel đổi màu (Cam $\rightarrow$ Xanh) kết hợp gioăng cao su viền teal khép kín.
+      </div>
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-teal-400 block mb-1">⚙️ Lẫy Nằm Ngang Chống Kẹt</b>
+        Thuốc xả so le cách 250ms rơi vào lẫy nằm ngang xếp thành hàng 1 trước khi trượt ra khay đồng hồ.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB BEAR CAD: CAD BLUEPRINT FOR BEAR-EAR & ANTI-JAM -->
+  <div id="viewBearCad" class="hidden max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-white">Bản Vẽ Bóc Tách Kỹ Thuật CAD DIA+ Bear-Ear (135mm x 68mm)</h2>
+        <p class="text-xs text-slate-400">Chi tiết tai gấu cảm ứng, lõi hạt hút ẩm Silicagel, gioăng cao su IP54, lẫy đệm trung gian nằm ngang và motor rung 120Hz</p>
+      </div>
+      <span class="px-3 py-1 bg-sky-500/10 text-sky-400 border border-sky-500/30 rounded-lg text-xs font-semibold">CAD ISO Metric v2.4</span>
+    </div>
+    <div class="rounded-xl overflow-hidden border border-slate-800 shadow-2xl max-w-4xl w-full bg-[#0b1d33] p-1">
+      <img src="dia_plus_pill_tower_blueprint_1793708687444.jpg" alt="DIA+ Bear Ear CAD Blueprint" class="w-full h-auto object-contain" />
+    </div>
+  </div>
+
+  <!-- TAB CLOCK: TOWER WITH MOTORIZED CLOCK-DRAWER -->
+  <div id="viewClock" class="hidden max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-white">Tháp Thuốc Thông Minh DIA+ Đồng Hồ LED 12:00 Kiêm Ngăn Kéo Chìa Ra</h2>
+        <p class="text-xs text-slate-400">Các tầng trên chia ô nạp theo đơn thuốc quét trên App • Tới giờ thuốc tự chảy xuống và mặt đồng hồ LED 12:00 chìa ra trước mặt</p>
+      </div>
+      <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold">Theo Bản Vẽ Tay Của Bạn</span>
+    </div>
+    
+    <!-- Hero Image Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-5xl">
+      <div class="rounded-xl overflow-hidden border border-slate-800 shadow-xl flex flex-col">
+        <img src="dia_plus_smart_pill_tower_concept_1793690974319.jpg" alt="DIA+ Smart Pill Tower With Motorized Clock Drawer" class="w-full h-auto object-cover" />
+        <div class="p-3 bg-slate-950/80 text-xs text-slate-300 border-t border-slate-800">
+          <b class="text-emerald-400">Cơ chế nhả thuốc:</b> Mặt đồng hồ LED 12:00 trượt chìa ra phía trước đưa thuốc.
+        </div>
+      </div>
+      <div class="rounded-xl overflow-hidden border border-slate-800 shadow-xl flex flex-col">
+        <img src="dia_mini_portable_pill_tower_1793691615768.jpg" alt="DIA+ Mini Portable Tumbler Scale with Backpack and iPhone" class="w-full h-auto object-cover" />
+        <div class="p-3 bg-slate-950/80 text-xs text-slate-300 border-t border-slate-800">
+          <b class="text-teal-400">Tỉ lệ thực tế bỏ túi/balo:</b> Cao chỉ 13.5cm (thấp hơn iPhone), có quai xách silicon mang đi làm nhẹ nhàng.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB CLOCK CAD: EXPLODED CAD BLUEPRINT -->
+  <div id="viewClockCad" class="hidden max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-white">Bản Vẽ Bóc Tách Kỹ Thuật Cơ Khí & Kiến Trúc Di Động (CAD Isometric)</h2>
+        <p class="text-xs text-slate-400">Khay chứa ma trận 3 tầng, van xả điện từ, ống xả trọng lực, cảm biến hồng ngoại, pin 2600mAh và khóa an toàn di chuyển</p>
+      </div>
+      <span class="px-3 py-1 bg-sky-500/10 text-sky-400 border border-sky-500/30 rounded-lg text-xs font-semibold">Mechanical CAD Blueprint</span>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-5xl">
+      <div class="rounded-xl overflow-hidden border border-slate-800 shadow-xl bg-[#0b1d33] p-1">
+        <img src="dia_plus_exploded_schematic_cad_1793690974821.jpg" alt="DIA+ Clock Drawer CAD Schematic" class="w-full h-auto object-contain" />
+      </div>
+      <div class="rounded-xl overflow-hidden border border-slate-800 shadow-xl bg-[#0b1d33] p-1">
+        <img src="dia_plus_portable_cad_schematic_png_1793691616068.jpg" alt="DIA+ Portable 135mm CAD Schematic" class="w-full h-auto object-contain" />
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB FOLD: HYBRID FLEX-FOLD VIEW -->
+  <div id="viewFold" class="hidden max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-white">DIA+ Flex-Fold: Bản Gấp Gọn Bỏ Túi & Mở Dựng Để Bàn (2-in-1)</h2>
+        <p class="text-xs text-slate-400">Ở nhà/công ty mở ra làm chân đế để bàn 75° • Đi đường gập lại thành thỏi kẹo dẹt khóa nam châm bỏ túi</p>
+      </div>
+      <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold">Khuyên Dùng Cho Người Di Chuyển</span>
+    </div>
+    <div class="rounded-xl overflow-hidden border border-slate-800 shadow-2xl max-w-4xl w-full">
+      <img src="dia_flex_fold_smart_pillbox_1793690163620.jpg" alt="DIA+ Flex-Fold Dual State Hero Render" class="w-full h-auto object-cover" />
+    </div>
+  </div>
+
+  <!-- TAB FOLD CAD: KINEMATICS CAD BLUEPRINT -->
+  <div id="viewFoldCad" class="hidden max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-white">Sơ Đồ Động Học Bản Lề Biến Hình (Kinematic CAD Blueprint)</h2>
+        <p class="text-xs text-slate-400">Giai đoạn 1 (Gập bỏ túi 110x46x25mm) $\rightarrow$ Giai đoạn 2 (Bản lề ma sát xoay) $\rightarrow$ Giai đoạn 3 (Dựng 75° để bàn nhả thuốc)</p>
+      </div>
+      <span class="px-3 py-1 bg-sky-500/10 text-sky-400 border border-sky-500/30 rounded-lg text-xs font-semibold">Kinematics 0°-75°</span>
+    </div>
+    <div class="rounded-xl overflow-hidden border border-slate-800 shadow-2xl max-w-4xl w-full bg-[#0b1d33] p-1">
+      <img src="dia_plus_folding_kinematics_blueprint_1793690162828.jpg" alt="DIA+ Kinematic Folding Blueprint" class="w-full h-auto object-contain" />
+    </div>
+  </div>
+
+  <!-- TAB POCKET: COMPACT MULTI-TRAY VIEW -->
+  <div id="viewPocket" class="hidden max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-white">Phiên Bản DIA+ Pocket Multi-Tray (105mm x 52mm x 22mm)</h2>
+        <p class="text-xs text-slate-400">Thiết kế nhỏ gọn vừa trọn lòng bàn tay • 7 khay xếp tầng (Thứ 2 đến CN) • Nắp bật lò xo đẩy thuốc vào tay</p>
+      </div>
+      <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold">Theo Yêu Cầu Của Bạn</span>
+    </div>
+    <div class="rounded-xl overflow-hidden border border-slate-800 shadow-2xl max-w-2xl w-full">
+      <img src="dia_plus_pocket_multitray_render_1793689281933.jpg" alt="DIA+ Pocket Multi-Tray 3D Hero Render" class="w-full h-auto object-cover" />
+    </div>
+  </div>
+
+  <!-- TAB POCKET CAD: EXPLODED CAD 7 TRAYS -->
+  <div id="viewPocketCad" class="hidden max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-white">Bản Vẽ Bóc Tách Kỹ Thuật 7 Khay (CAD Blueprint 105mm x 52mm x 22mm)</h2>
+        <p class="text-xs text-slate-400">Cụm vi cơ điện tử: Bo mạch nRF52840 BLE, dải 7 chốt lẫy điện tử, cartridge 7 ngăn, lò xo xoắn và cửa từ tính</p>
+      </div>
+      <span class="px-3 py-1 bg-sky-500/10 text-sky-400 border border-sky-500/30 rounded-lg text-xs font-semibold">CAD Drawing 1:2</span>
+    </div>
+    <div class="rounded-xl overflow-hidden border border-slate-800 shadow-2xl max-w-3xl w-full bg-[#0b1d33] p-1">
+      <img src="dia_plus_7tray_cad_schematic_1793689284348.jpg" alt="DIA+ Pocket 7-Tray CAD Schematic" class="w-full h-auto object-contain" />
+    </div>
+  </div>
+
+  <!-- TAB OFFICE: DESKTOP WORKSPACE VIEW -->
+  <div id="viewOffice" class="hidden max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-white">Phiên Bản Để Bàn Làm Việc Văn Phòng (DIA+ Office Station ~400ml)</h2>
+        <p class="text-xs text-slate-400">Thiết kế để bàn vững chãi cạnh laptop • Chứa thuốc 1 tháng (180-220ml khoang thuốc) • Màn hình OLED 1.3" sắc nét</p>
+      </div>
+      <span class="px-3 py-1 bg-teal-500/10 text-teal-300 border border-teal-500/30 rounded-lg text-xs font-semibold">Khuyên Dùng Cho Bàn Làm Việc</span>
+    </div>
+    <div class="rounded-xl overflow-hidden border border-slate-800 shadow-2xl max-w-4xl w-full">
+      <img src="dia_desktop_dispenser_office_1793688381662.jpg" alt="DIA+ Office Station Desk Render" class="w-full h-auto object-cover" />
+    </div>
+  </div>
+
+  <!-- TAB 1: SIMULATOR VIEW -->
+  <div id="viewSim" class="hidden max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- LEFT COLUMN: Interactive Visual Model & Simulator (7 cols) -->
+    <div class="lg:col-span-7 flex flex-col gap-4">
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl relative overflow-hidden flex flex-col items-center">
+        
+        <!-- Controls Bar -->
+        <div class="w-full flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+            <span class="text-xs font-semibold tracking-wider text-slate-300 uppercase">Mặt cắt cơ khí & nắp bật từng ngăn</span>
+          </div>
+          <div class="text-xs text-slate-400 bg-slate-800/60 px-3 py-1 rounded-lg border border-slate-700/50">
+            Giờ hệ thống: <span id="clockDisplay" class="font-mono text-emerald-400 font-bold">07:00</span>
+          </div>
+        </div>
+
+        <!-- SVG 2.5D Dispenser Graphic -->
+        <div class="relative w-full max-w-[380px] h-[460px] flex items-center justify-center">
+          <svg viewBox="0 0 320 460" class="w-full h-full drop-shadow-2xl select-none">
+            <defs>
+              <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#1e293b" stop-opacity="0.95" />
+                <stop offset="100%" stop-color="#0f172a" stop-opacity="0.98" />
+              </linearGradient>
+              <linearGradient id="acrylicGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.18" />
+                <stop offset="100%" stop-color="#0284c7" stop-opacity="0.05" />
+              </linearGradient>
+              <linearGradient id="capGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#334155" />
+                <stop offset="50%" stop-color="#1e293b" />
+                <stop offset="100%" stop-color="#0f172a" />
+              </linearGradient>
+              <filter id="emeraldGlow">
+                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                <feMerge>
+                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+
+            <!-- Outer Body Shell (Sleek Upright Candy Box) -->
+            <rect x="40" y="80" width="240" height="320" rx="24" fill="url(#bodyGrad)" stroke="#475569" stroke-width="2.5" />
+            
+            <!-- Acrylic Window (Shows internal columns) -->
+            <rect x="52" y="95" width="216" height="235" rx="14" fill="url(#acrylicGrad)" stroke="#38bdf8" stroke-opacity="0.3" stroke-width="1.5" />
+
+            <!-- Vertical Separator Ribs (4 Compartments: Sáng, Trưa, Chiều, Tối) -->
+            <line x1="106" y1="95" x2="106" y2="330" stroke="#334155" stroke-width="2" stroke-dasharray="4,2" />
+            <line x1="160" y1="95" x2="160" y2="330" stroke="#334155" stroke-width="2" stroke-dasharray="4,2" />
+            <line x1="214" y1="95" x2="214" y2="330" stroke="#334155" stroke-width="2" stroke-dasharray="4,2" />
+
+            <!-- Compartment Labels on Body -->
+            <text x="79" y="112" fill="#94a3b8" font-size="11" font-weight="bold" text-anchor="middle">SÁNG</text>
+            <text x="133" y="112" fill="#94a3b8" font-size="11" font-weight="bold" text-anchor="middle">TRƯA</text>
+            <text x="187" y="112" fill="#94a3b8" font-size="11" font-weight="bold" text-anchor="middle">CHIỀU</text>
+            <text x="241" y="112" fill="#94a3b8" font-size="11" font-weight="bold" text-anchor="middle">TỐI</text>
+
+            <!-- PILLS INSIDE COMPARTMENTS -->
+            <!-- Col 1: Sáng -->
+            <g id="pillsCol0">
+              <ellipse cx="79" cy="140" rx="14" ry="7" fill="#fbbf24" stroke="#d97706" transform="rotate(-15 79 140)" />
+              <ellipse cx="79" cy="170" rx="15" ry="8" fill="#f87171" stroke="#dc2626" transform="rotate(10 79 170)" />
+              <ellipse cx="79" cy="205" rx="13" ry="6.5" fill="#38bdf8" stroke="#0284c7" />
+              <ellipse id="activePill0" cx="79" cy="245" rx="15" ry="7.5" fill="#34d399" stroke="#059669" />
+            </g>
+
+            <!-- Col 2: Trưa -->
+            <g id="pillsCol1">
+              <ellipse cx="133" cy="150" rx="14" ry="7" fill="#c084fc" stroke="#9333ea" transform="rotate(20 133 150)" />
+              <ellipse cx="133" cy="185" rx="13" ry="7" fill="#f43f5e" stroke="#e11d48" />
+              <ellipse id="activePill1" cx="133" cy="245" rx="15" ry="7.5" fill="#fbbf24" stroke="#d97706" />
+            </g>
+
+            <!-- Col 3: Chiều -->
+            <g id="pillsCol2">
+              <ellipse cx="187" cy="160" rx="14" ry="7.5" fill="#38bdf8" stroke="#0284c7" transform="rotate(-25 187 160)" />
+              <ellipse id="activePill2" cx="187" cy="245" rx="14" ry="7" fill="#a78bfa" stroke="#7c3aed" />
+            </g>
+
+            <!-- Col 4: Tối -->
+            <g id="pillsCol3">
+              <ellipse cx="241" cy="140" rx="13" ry="6.5" fill="#fbbf24" stroke="#d97706" />
+              <ellipse cx="241" cy="175" rx="15" ry="7.5" fill="#f87171" stroke="#dc2626" transform="rotate(15 241 175)" />
+              <ellipse id="activePill3" cx="241" cy="245" rx="14" ry="7" fill="#6ee7b7" stroke="#10b981" />
+            </g>
+
+            <!-- MECHANICAL POP-OUT HATCHES (Bottom of each column) -->
+            <g id="flapGroup0" class="transition-transform duration-500 origin-[65px_328px]">
+              <path id="flap0" d="M 60 328 L 98 328 L 96 335 L 62 335 Z" fill="#0ea5e9" stroke="#38bdf8" stroke-width="1.5" />
+            </g>
+            <g id="flapGroup1" class="transition-transform duration-500 origin-[119px_328px]">
+              <path id="flap1" d="M 114 328 L 152 328 L 150 335 L 116 335 Z" fill="#64748b" stroke="#94a3b8" stroke-width="1.5" />
+            </g>
+            <g id="flapGroup2" class="transition-transform duration-500 origin-[173px_328px]">
+              <path id="flap2" d="M 168 328 L 206 328 L 204 335 L 170 335 Z" fill="#64748b" stroke="#94a3b8" stroke-width="1.5" />
+            </g>
+            <g id="flapGroup3" class="transition-transform duration-500 origin-[227px_328px]">
+              <path id="flap3" d="M 222 328 L 260 328 L 258 335 L 224 335 Z" fill="#64748b" stroke="#94a3b8" stroke-width="1.5" />
+            </g>
+
+            <!-- Slanted Dispensing Chute -->
+            <path d="M 52 342 L 130 365 L 190 365 L 268 342 L 260 354 L 180 376 L 140 376 L 60 354 Z" fill="#1e293b" stroke="#475569" stroke-width="1" />
+            
+            <!-- Bottom Output Tray / Pull-out Cup -->
+            <rect x="90" y="380" width="140" height="32" rx="8" fill="#0f172a" stroke="#10b981" stroke-width="2" />
+            <text x="160" y="401" fill="#10b981" font-size="11" font-weight="bold" text-anchor="middle">MÁNG NHẬN THUỐC</text>
+
+            <!-- Dropping Pill Animation Object -->
+            <ellipse id="droppedPill" cx="160" cy="385" rx="14" ry="7" fill="#34d399" stroke="#059669" class="opacity-0 transition-opacity" />
+
+            <!-- ================= TOP SMART CAP ================= -->
+            <path d="M 36 78 C 36 50, 60 38, 90 38 L 230 38 C 260 38, 284 50, 284 78 L 284 84 L 36 84 Z" fill="url(#capGrad)" stroke="#64748b" stroke-width="2.5" />
+            
+            <!-- Smart LED Ring Bar -->
+            <rect id="smartLedRing" x="50" y="74" width="220" height="6" rx="3" fill="#10b981" class="glow-active" filter="url(#emeraldGlow)" />
+
+            <!-- Smart OLED Screen on Top Cap -->
+            <rect x="95" y="46" width="130" height="22" rx="4" fill="#020617" stroke="#10b981" stroke-width="1" />
+            <text id="capScreenText" x="160" y="61" fill="#34d399" font-size="10.5" font-family="monospace" font-weight="bold" text-anchor="middle">DIA+ • 07:00 AM</text>
+
+            <!-- BLE Status Icon -->
+            <circle cx="70" cy="57" r="8" fill="#0f172a" stroke="#38bdf8" stroke-width="1" />
+            <path d="M 68 53 L 72 57 L 68 61 M 70 51 L 70 63" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" fill="none" />
+            
+            <!-- Battery Icon -->
+            <rect x="242" y="52" width="16" height="9" rx="2" fill="none" stroke="#94a3b8" stroke-width="1" />
+            <rect x="259" y="55" width="2" height="3" fill="#94a3b8" />
+            <rect x="244" y="54" width="11" height="5" fill="#34d399" />
+          </svg>
+        </div>
+
+        <!-- Simulation Control Buttons -->
+        <div class="w-full mt-4 bg-slate-950/70 p-4 rounded-xl border border-slate-800 flex flex-col gap-3">
+          <div class="text-xs font-semibold text-slate-300 flex items-center justify-between">
+            <span>BẢNG ĐIỀU KHIỂN MÔ PHỎNG GIỜ UỐNG THUỐC TỪ APP DIA+</span>
+            <span class="text-emerald-400 font-mono text-[11px]">Click cữ để kích hoạt mở nắp</span>
+          </div>
+          
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <button onclick="triggerDose(0, '07:00', 'SÁNG (Metformin 500mg)')" class="px-3 py-2.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-semibold text-xs transition flex flex-col items-center">
+              <span>07:00 SÁNG</span>
+              <span class="text-[10px] text-slate-400">Ngăn 1 (Pop-out)</span>
+            </button>
+            <button onclick="triggerDose(1, '12:30', 'TRƯA (Gliclazide 30mg)')" class="px-3 py-2.5 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-400 font-semibold text-xs transition flex flex-col items-center">
+              <span>12:30 TRƯA</span>
+              <span class="text-[10px] text-slate-400">Ngăn 2 (Pop-out)</span>
+            </button>
+            <button onclick="triggerDose(2, '17:30', 'CHIỀU (Bổ sung Omega 3)')" class="px-3 py-2.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-400 font-semibold text-xs transition flex flex-col items-center">
+              <span>17:30 CHIỀU</span>
+              <span class="text-[10px] text-slate-400">Ngăn 3 (Pop-out)</span>
+            </button>
+            <button onclick="triggerDose(3, '21:00', 'TỐI (Statin + Vitamin)')" class="px-3 py-2.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-400 font-semibold text-xs transition flex flex-col items-center">
+              <span>21:00 TỐI</span>
+              <span class="text-[10px] text-slate-400">Ngăn 4 (Pop-out)</span>
+            </button>
+          </div>
+
+          <!-- Reset Button -->
+          <div class="flex justify-end pt-1">
+            <button onclick="resetDispenser()" class="text-xs text-slate-400 hover:text-slate-200 underline">
+              🔄 Đặt lại hộp thuốc về trạng thái đóng
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Engineering Specs & App Connection (5 cols) -->
+    <div class="lg:col-span-5 flex flex-col gap-4">
+      
+      <!-- Event Log & Mechanism Realtime Feed -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-bold text-slate-200 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-teal-400"></span>
+            Nhật Ký Tác Vụ Thông Minh
+          </h3>
+          <span class="text-[11px] text-slate-500">Live Telemetry</span>
+        </div>
+        <div id="logBox" class="bg-slate-950/80 rounded-xl p-3 h-36 overflow-y-auto custom-scrollbar font-mono text-xs text-slate-300 space-y-1.5 border border-slate-800/80">
+          <div class="text-emerald-400">[07:00:00] Khởi động BLE DIA+ Gateway thành công.</div>
+          <div class="text-slate-400">[07:00:01] Đồng bộ phác đồ điều trị từ app DIA+. Sẵn sàng 4 cữ thuốc.</div>
+          <div class="text-slate-500">[07:00:05] Chờ lệnh phát thuốc hoặc lịch hẹn từ điện thoại...</div>
+        </div>
+      </div>
+
+      <!-- Core Technical Specifications -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col gap-4">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <span>⚙️</span> Cấu Trúc Cơ Khí & Linh Kiện Cốt Lõi
+        </h3>
+
+        <!-- Cards -->
+        <div class="space-y-3 text-xs">
+          <div class="bg-slate-950/50 p-3 rounded-xl border border-slate-800">
+            <div class="font-semibold text-emerald-400 flex items-center justify-between">
+              <span>1. Nắp điện tử thông minh (Smart Lid Unit)</span>
+              <span class="text-[10px] bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded">IoT Core</span>
+            </div>
+            <p class="text-slate-400 mt-1 leading-relaxed">
+              Tích hợp vi điều khiển <b>ESP32-C3 BLE 5.3</b>, bộ nhớ lưu trữ lịch uống ngoại tuyến, cổng sạc Type-C, pin Li-po 400mAh (dùng 25-30 ngày), loa piezo báo chuông và dải LED RGB đổi màu.
+            </p>
+          </div>
+
+          <div class="bg-slate-950/50 p-3 rounded-xl border border-slate-800">
+            <div class="font-semibold text-sky-400 flex items-center justify-between">
+              <span>2. Cơ chế bật nắp chọn lọc (Pop-out Actuator)</span>
+              <span class="text-[10px] bg-sky-950 text-sky-300 px-2 py-0.5 rounded">Micro-Mechanical</span>
+            </div>
+            <p class="text-slate-400 mt-1 leading-relaxed">
+              Mỗi ngăn có một chốt chặn cơ khí liên kết với <b>Micro-Solenoid</b> hoặc <b>trục Cam xoay</b> từ nắp. Tới đúng giờ, chỉ ngăn tương ứng mới được kích hoạt đẩy nắp bật ra, các ngăn khác vẫn khóa chặt an toàn.
+            </p>
+          </div>
+
+          <div class="bg-slate-950/50 p-3 rounded-xl border border-slate-800">
+            <div class="font-semibold text-amber-400 flex items-center justify-between">
+              <span>3. Cảm biến xác nhận rơi thuốc (Drop IR Sensor)</span>
+              <span class="text-[10px] bg-amber-950 text-amber-300 px-2 py-0.5 rounded">Safety & Compliance</span>
+            </div>
+            <p class="text-slate-400 mt-1 leading-relaxed">
+              Chùm tia hồng ngoại tại máng trượt nhận diện khi viên thuốc đã rơi xuống khay hứng. Tự động gửi tín hiệu "Đã uống thuốc" về máy chủ <b>DIA+</b> để người thân hoặc bác sĩ theo dõi.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- TAB 2: 3D CONCEPT RENDER VIEW -->
+  <div id="viewRender" class="hidden max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-white">Ảnh Phối Cảnh 3D Công Nghiệp (KeyShot 3D Render)</h2>
+        <p class="text-xs text-slate-400">Hình dạng viên kẹo đứng (Candy-box Form Factor) • Nắp thông minh với màn hình OLED và vòng LED Aura</p>
+      </div>
+      <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-lg text-xs font-semibold">Độ phân giải cao</span>
+    </div>
+    <div class="rounded-xl overflow-hidden border border-slate-800 shadow-2xl max-w-3xl w-full">
+      <img src="dia_smart_pillbox_render_1793687417514.jpg" alt="3D Concept Render DIA+ Smart Pillbox" class="w-full h-auto object-cover" />
+    </div>
+    <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3 w-full max-w-3xl text-xs">
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-emerald-400 block mb-1">Nắp thông minh DIA+</b>
+        Tích hợp màn hình OLED hiển thị giờ, pin, trạng thái kết nối và vòng LED đổi màu.
+      </div>
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-sky-400 block mb-1">Thân ngăn đứng trong suốt</b>
+        Nhựa Acrylic/Tritan chuẩn y tế chia nhiều cột dọc, nhìn rõ số lượng thuốc.
+      </div>
+      <div class="bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-slate-300">
+        <b class="text-teal-400 block mb-1">Khay nhả thuốc tự động</b>
+        Khay trượt đáy mở tự động khi thuốc rơi, hiển thị thông báo "DOSE READY".
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: EXPLODED CAD BLUEPRINT VIEW -->
+  <div id="viewCad" class="hidden max-w-6xl mx-auto bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center">
+    <div class="w-full flex items-center justify-between mb-4">
+      <div>
+        <h2 class="text-lg font-bold text-white">Bản Vẽ Bóc Tách Kỹ Thuật Cơ Khí & Linh Kiện (Isometric CAD)</h2>
+        <p class="text-xs text-slate-400">Sơ đồ 6 tầng cấu trúc từ nắp thông minh, cụm lẫy solenoid, cartridge phân ngăn, đến máng trượt và cảm biến hồng ngoại</p>
+      </div>
+      <span class="px-3 py-1 bg-sky-500/10 text-sky-400 border border-sky-500/30 rounded-lg text-xs font-semibold">Patent CAD Blueprint</span>
+    </div>
+    <div class="rounded-xl overflow-hidden border border-slate-800 shadow-2xl max-w-2xl w-full bg-white p-2">
+      <img src="dia_plus_exploded_schematic_1793687413609.jpg" alt="Exploded CAD Schematic DIA+ Smart Pillbox" class="w-full h-auto object-contain" />
+    </div>
+  </div>
+
+  <script>
+    function simulateWebBleConnect() {
+      const btn = document.getElementById('webBleBtn');
+      const state = document.getElementById('webBleStateText');
+      const logs = document.getElementById('webBleLogs');
+
+      state.innerText = "Đang quét thiết bị (Web Bluetooth Request)...";
+      state.className = "text-sky-400 font-semibold animate-pulse";
+      logs.innerHTML += "<br>> navigator.bluetooth.requestDevice({ filters: [{ namePrefix: 'DIA-Plus' }] })";
+      
+      setTimeout(() => {
+        logs.innerHTML += "<br>> Phát hiện: DIA-Plus-Tower (RSSI: -52dBm, ESP32-C3)";
+        logs.innerHTML += "<br>> Đang kết nối GATT Server...";
+        logs.scrollTop = logs.scrollHeight;
+      }, 700);
+
+      setTimeout(() => {
+        state.innerText = "ĐÃ KẾT NỐI THÀNH CÔNG (BLE 5.0)!";
+        state.className = "text-emerald-400 font-bold";
+        btn.innerHTML = "<span>✅ Đã Kết Nối Web BLE</span>";
+        btn.className = "px-5 py-2.5 rounded-xl bg-emerald-500 text-slate-950 text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-emerald-500/20";
+        logs.innerHTML += "<br>> GATT Service '0000ffe0' kết nối thành công!";
+        logs.innerHTML += "<br>> Đồng bộ thời gian: 12:00:00 -> Đồng hồ LED cập nhật.";
+        logs.innerHTML += "<br>> [THÀNH CÔNG] Web App đã sẵn sàng ra lệnh hộp thuốc!";
+        logs.scrollTop = logs.scrollHeight;
+      }, 1600);
+    }
+
+    function switchTab(tabId) {
+      const views = ['viewExplodedCad', 'viewV2Cad', 'viewPrototype', 'viewClockLed', 'viewSlender', 'viewSpring', 'viewPalm', 'viewBackpack', 'viewHero', 'viewSim'];
+      const btns = ['tabBtnExplodedCad', 'tabBtnV2Cad', 'tabBtnPrototype', 'tabBtnClockLed', 'tabBtnSlender', 'tabBtnSpring', 'tabBtnPalm', 'tabBtnBackpack', 'tabBtnHero', 'tabBtnSim'];
+
+      views.forEach(v => {
+        const el = document.getElementById(v);
+        if (el) el.classList.add('hidden');
+      });
+
+      const inactiveClass = "px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-900 text-slate-300 hover:text-white border border-slate-800";
+      const activeClass = "px-4 py-2 rounded-xl text-xs font-bold transition bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20";
+
+      btns.forEach(b => {
+        const el = document.getElementById(b);
+        if (el) el.className = inactiveClass;
+      });
+
+      if (tabId === 'exploded_cad') {
+        document.getElementById('viewExplodedCad').classList.remove('hidden');
+        document.getElementById('tabBtnExplodedCad').className = activeClass;
+      } else if (tabId === 'v2_cad') {
+        document.getElementById('viewV2Cad').classList.remove('hidden');
+        document.getElementById('tabBtnV2Cad').className = activeClass;
+      } else if (tabId === 'prototype') {
+        document.getElementById('viewPrototype').classList.remove('hidden');
+        document.getElementById('tabBtnPrototype').className = activeClass;
+      } else if (tabId === 'clock_led') {
+        document.getElementById('viewClockLed').classList.remove('hidden');
+        document.getElementById('tabBtnClockLed').className = activeClass;
+      } else if (tabId === 'slender') {
+        document.getElementById('viewSlender').classList.remove('hidden');
+        document.getElementById('tabBtnSlender').className = activeClass;
+      } else if (tabId === 'spring') {
+        document.getElementById('viewSpring').classList.remove('hidden');
+        document.getElementById('tabBtnSpring').className = activeClass;
+      } else if (tabId === 'palm') {
+        document.getElementById('viewPalm').classList.remove('hidden');
+        document.getElementById('tabBtnPalm').className = activeClass;
+      } else if (tabId === 'backpack') {
+        document.getElementById('viewBackpack').classList.remove('hidden');
+        document.getElementById('tabBtnBackpack').className = activeClass;
+      } else if (tabId === 'backpack_cad') {
+        document.getElementById('viewBackpackCad').classList.remove('hidden');
+        document.getElementById('tabBtnBackpackCad').className = activeClass;
+      } else if (tabId === 'hero') {
+        document.getElementById('viewHero').classList.remove('hidden');
+        document.getElementById('tabBtnHero').className = activeClass;
+      } else if (tabId === 'hero_cad') {
+        document.getElementById('viewHeroCad').classList.remove('hidden');
+        document.getElementById('tabBtnHeroCad').className = activeClass;
+      } else if (tabId === 'sachet') {
+        document.getElementById('viewSachet').classList.remove('hidden');
+        document.getElementById('tabBtnSachet').className = activeClass;
+      } else if (tabId === 'sachet_cad') {
+        document.getElementById('viewSachetCad').classList.remove('hidden');
+        document.getElementById('tabBtnSachetCad').className = activeClass;
+      } else if (tabId === 'bear') {
+        document.getElementById('viewBear').classList.remove('hidden');
+        document.getElementById('tabBtnBear').className = activeClass;
+      } else if (tabId === 'clock') {
+        document.getElementById('viewClock').classList.remove('hidden');
+        document.getElementById('tabBtnClock').className = activeClass;
+      } else if (tabId === 'sim') {
+        document.getElementById('viewSim').classList.remove('hidden');
+        document.getElementById('tabBtnSim').className = activeClass;
+      }
+    }
+
+    let activeIndex = -1;
+
+    function addLog(text, colorClass = "text-slate-300") {
+      const box = document.getElementById("logBox");
+      const time = new Date().toLocaleTimeString();
+      const div = document.createElement("div");
+      div.className = colorClass;
+      div.innerHTML = `<span>[${time}]</span> ${text}`;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function triggerDose(colIndex, timeStr, label) {
+      resetDispenser();
+
+      activeIndex = colIndex;
+      document.getElementById("clockDisplay").innerText = timeStr;
+      document.getElementById("capScreenText").innerText = `DIA+ • ${timeStr}`;
+
+      const led = document.getElementById("smartLedRing");
+      led.setAttribute("fill", "#38bdf8");
+      led.classList.add("glow-active");
+
+      addLog(`⏰ BÁO THỨC APP DIA+: Đã đến giờ uống cữ ${label}`, "text-amber-400 font-bold");
+      addLog(`⚡ Lệnh BLE kích hoạt: Nắp mở khóa cho Ngăn số ${colIndex + 1}`, "text-sky-400");
+
+      setTimeout(() => {
+        const flapGroup = document.getElementById(`flapGroup${colIndex}`);
+        flapGroup.style.transform = "rotate(65deg)";
+        
+        const flap = document.getElementById(`flap${colIndex}`);
+        flap.setAttribute("fill", "#10b981");
+
+        addLog(`🔓 Nắp cơ khí ngăn ${colIndex + 1} bật mở (Pop-out)!`, "text-emerald-400 font-bold");
+
+        const droppedPill = document.getElementById("droppedPill");
+        droppedPill.style.transition = "none";
+        droppedPill.style.opacity = "1";
+        droppedPill.style.transform = `translate(${(colIndex - 1.5) * 54}px, -120px) scale(0.9)`;
+
+        setTimeout(() => {
+          droppedPill.style.transition = "transform 0.65s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s";
+          droppedPill.style.transform = "translate(0px, 0px) scale(1)";
+          
+          setTimeout(() => {
+            addLog(`✅ Cảm biến hồng ngoại phát hiện thuốc đã rơi xuống khay hứng!`, "text-emerald-300");
+            addLog(`📲 Đã gửi trạng thái 'ĐÃ UỐNG' về cơ sở dữ liệu ứng dụng DIA+`, "text-teal-300 font-bold");
+            led.setAttribute("fill", "#10b981");
+          }, 700);
+        }, 50);
+
+      }, 300);
+    }
+
+    function resetDispenser() {
+      for (let i = 0; i < 4; i++) {
+        const fg = document.getElementById(`flapGroup${i}`);
+        if (fg) fg.style.transform = "rotate(0deg)";
+        const f = document.getElementById(`flap${i}`);
+        if (f) f.setAttribute("fill", i === 0 ? "#0ea5e9" : "#64748b");
+      }
+      const droppedPill = document.getElementById("droppedPill");
+      droppedPill.style.opacity = "0";
+      droppedPill.style.transform = "translate(0px, 0px)";
+      document.getElementById("smartLedRing").setAttribute("fill", "#10b981");
+    }
+  </script>
+</body>
+</html>

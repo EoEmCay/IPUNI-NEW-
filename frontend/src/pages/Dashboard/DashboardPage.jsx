@@ -7,19 +7,15 @@ import {
   Settings2,
   Droplet,
   ChevronRight,
-  PhoneCall,
   Plus,
   Minus,
   RotateCcw,
   Check,
   ShieldCheck,
-  Sparkles,
   Printer,
 } from 'lucide-react';
-import SecretPillBoxModal from '../../components/common/SecretPillBoxModal';
 import DoctorReportModal from '../../components/care/DoctorReportModal';
 import careService from '../../services/care.service';
-import { triggerFamilyAlarm } from '../../components/common/FamilyAlarmModal';
 import { useAuth } from '../../hooks/useAuth';
 import { useMedications } from '../../hooks/useMedications';
 import useMedicationsStore from '../../store/medicationsStore';
@@ -28,7 +24,6 @@ import SupervisorDashboard from '../../components/supervisor/SupervisorDashboard
 import CaregiverDashboard from '../../components/caregiver/CaregiverDashboard';
 import {
   calculateAdherenceStats,
-  getNextAlarmPayloadForToday,
 } from '../../store/medicationAdherenceStore';
 import { useT } from '../../hooks/useT';
 import MedicationCard from '../../components/medications/MedicationCard';
@@ -107,7 +102,6 @@ export default function DashboardPage() {
   const [showMeds, setShowMeds] = useState(false);
   const [showGlucose, setShowGlucose] = useState(false);
   const [showCustomize, setShowCustomize] = useState(false);
-  const [showSecretBox, setShowSecretBox] = useState(false);
   const [showDoctorReport, setShowDoctorReport] = useState(false);
   const [doctorReportData, setDoctorReportData] = useState(null);
   const [doctorReportLoading, setDoctorReportLoading] = useState(false);
@@ -357,149 +351,13 @@ export default function DashboardPage() {
         </button>
       </div>
 
-      {/* Nút trải nghiệm nhanh Chuông gọi nhắc thuốc của con cháu (Tầng 1) */}
-      <button
-        type="button"
-        onClick={() =>
-          triggerFamilyAlarm(
-            getNextAlarmPayloadForToday(todayMedications.length ? todayMedications : medications)
-          )
-        }
-        style={{
-          width: '100%',
-          marginTop: '12px',
-          padding: '13px 14px',
-          background: 'linear-gradient(135deg, #0f766e 0%, #059669 100%)',
-          color: '#ffffff',
-          border: 'none',
-          borderRadius: '18px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '10px',
-          cursor: 'pointer',
-          boxShadow: '0 6px 18px rgba(15, 118, 110, 0.25)',
-          textAlign: 'left',
-        }}
-      >
-        <span style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
-          <span
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '12px',
-              background: 'rgba(255,255,255,0.2)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >
-            <PhoneCall size={20} />
-          </span>
-          <span style={{ minWidth: 0, flex: 1 }}>
-            <strong
-              style={{
-                display: 'block',
-                fontSize: '15.5px',
-                fontWeight: 800,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
-              Chuông con cháu nhắc uống thuốc
-            </strong>
-            <span
-              style={{
-                display: 'block',
-                fontSize: '12.5px',
-                opacity: 0.94,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
-              Mở báo thức giọng nói gia đình (Tầng 1)
-            </span>
-          </span>
-        </span>
-        <ChevronRight size={20} style={{ flexShrink: 0 }} />
-      </button>
-
-      {/* Hộp thuốc tương tác trực quan cho Cụ */}
-      <button
-        type="button"
-        onClick={() => setShowSecretBox(true)}
-        style={{
-          width: '100%',
-          marginTop: '10px',
-          padding: '13px 14px',
-          background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-          color: '#ffffff',
-          border: 'none',
-          borderRadius: '18px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '10px',
-          cursor: 'pointer',
-          boxShadow: '0 6px 18px rgba(2, 132, 199, 0.22)',
-          textAlign: 'left',
-        }}
-      >
-        <span style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
-          <span
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '12px',
-              background: 'rgba(255,255,255,0.22)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >
-            <Sparkles size={20} />
-          </span>
-          <span style={{ minWidth: 0, flex: 1 }}>
-            <strong
-              style={{
-                display: 'block',
-                fontSize: '15px',
-                fontWeight: 800,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
-              Hộp thuốc trực quan cho Cụ
-            </strong>
-            <span
-              style={{
-                display: 'block',
-                fontSize: '12px',
-                opacity: 0.95,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
-              Giao diện tương tác 1-chạm xác nhận cữ thuốc kèm âm thanh hướng dẫn
-            </span>
-          </span>
-        </span>
-        <ChevronRight size={20} style={{ flexShrink: 0 }} />
-      </button>
-
-      {/* TỜ A4 BÁO CÁO Y KHOA GỬI BÁC SĨ (ĐẶT NGAY PHÍA DƯỚI HỘP THUỐC TRỰC QUAN) */}
+      {/* BÁO CÁO Y KHOA GỬI BÁC SĨ */}
       <button
         type="button"
         onClick={openDoctorReport}
         style={{
           width: '100%',
-          marginTop: '10px',
+          marginTop: '12px',
           padding: '13px 14px',
           background: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)',
           color: '#ffffff',
@@ -692,14 +550,6 @@ export default function DashboardPage() {
             </Modal>
           )}
           {showGlucose && <GlucoseQuickModal onClose={() => setShowGlucose(false)} onSave={saveGlucose} />}
-          {showSecretBox && (
-            <SecretPillBoxModal
-              isOpen={showSecretBox}
-              onClose={() => setShowSecretBox(false)}
-              medications={todayMedications.length ? todayMedications : medications}
-              slotTitle="Cữ Thuốc Của Cụ (12:00)"
-            />
-          )}
           {showDoctorReport && (
             <DoctorReportModal
               reportData={doctorReportData}

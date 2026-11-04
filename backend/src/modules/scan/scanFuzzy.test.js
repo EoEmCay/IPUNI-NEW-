@@ -78,3 +78,22 @@ it('lời dặn luôn có chữ tay: dòng in + dòng chữ tay + thuốc viết
 });
 
 console.log(`\n${pass} passed`);
+
+it('đơn bệnh khác (không phải tiểu đường) vẫn được nhận để lên lịch', () => {
+  // AI lỡ từ chối vì "không liên quan tiểu đường" nhưng vẫn đọc ra thuốc -> vẫn nhận.
+  const r = shapeResult({
+    isPrescription: false, isDiabetesPrescription: false, diagnosis: 'Tăng huyết áp',
+    rejectionReason: 'Không liên quan tiểu đường',
+    medications: [{ name: 'Amlodipine', dosage: '5mg', times: ['07:00'] }],
+  });
+  assert.strictEqual(r.isPrescription, true);
+  assert.strictEqual(r.isDiabetesPrescription, true); // client cũ dựa vào cờ này để mở bước lên lịch
+  assert.strictEqual(r.medications.length, 1);
+  assert.strictEqual(r.rejectionReason, null);
+});
+
+it('phiếu xét nghiệm (không phải đơn) vẫn bị loại', () => {
+  const r = shapeResult({ isPrescription: false, isLabReport: true, medications: [{ name: 'HbA1c', dosage: '7.2%' }] });
+  assert.strictEqual(r.isPrescription, false);
+  assert.strictEqual(r.medications.length, 0);
+});

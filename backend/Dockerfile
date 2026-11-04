@@ -14,6 +14,5 @@ COPY . .
 
 EXPOSE 3001
 
-# Chạy migration rồi khởi động server. KHÔNG chạy seed: seed chỉ dành cho dev/test,
-# trong production các file seed chủ động báo lỗi để không ghi dữ liệu mẫu vào DB thật.
+# Chạy migrations rồi khởi động. KHÔNG chạy seed: seed chứa tài khoản mẫu và tự báo lỗi khi NODE_ENV=production.
 CMD ["sh", "-c", "npm run migrate && npm start"]

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ShieldCheck,
@@ -7,10 +7,6 @@ import {
   RefreshCw,
   Pill,
   Droplet,
-  Mic,
-  Square,
-  Volume2,
-  BellRing,
   CheckCircle2,
   AlertTriangle,
   MessageSquare,
@@ -34,10 +30,7 @@ import {
   getMedicationDayProgress,
   recordMedicationIntake,
   calculateAdherenceStats,
-  getNextAlarmPayloadForToday,
 } from '../../store/medicationAdherenceStore';
-import { triggerFamilyAlarm } from '../common/FamilyAlarmModal';
-import { voiceAlertService, ALERT_TYPES } from '../../services/voiceAlert.service';
 import { getSavedDrugVisual, fetchAndCacheDrugVisual } from '../../utils/drugVisuals';
 import { getMetricStatus, getStatusLabel, STATUS_COLORS } from '../../constants/metrics';
 import { getGlucoseUnit, formatGlucose } from '../../utils/glucoseUnit';
@@ -64,18 +57,10 @@ export default function SupervisorDashboard() {
   const caregiverData = useRoleModeStore((s) => s.caregiverData);
   const addCaregiverTask = useRoleModeStore((s) => s.addCaregiverTask);
   const removeCaregiverTask = useRoleModeStore((s) => s.removeCaregiverTask);
-  const callerTitle = useRoleModeStore((s) => s.callerTitle);
-  const setCallerTitle = useRoleModeStore((s) => s.setCallerTitle);
   const alertPrefs = useRoleModeStore((s) => s.alertPrefs);
   const updateAlertPrefs = useRoleModeStore((s) => s.updateAlertPrefs);
 
-  const [callerInput, setCallerInput] = useState(callerTitle);
-  const [savedCallerToast, setSavedCallerToast] = useState(false);
-  const [recording, setRecording] = useState(false);
-  const [recordSec, setRecordSec] = useState(0);
-  const [hasCustomVoice, setHasCustomVoice] = useState(false);
   const [viewingPhoto, setViewingPhoto] = useState(null);
-  const [voiceToast, setVoiceToast] = useState(null);
   const [showZaloPreview, setShowZaloPreview] = useState(false);
   const [showWeekDetailModal, setShowWeekDetailModal] = useState(false);
   const [dismissedOverdueAlert, setDismissedOverdueAlert] = useState(false);
@@ -101,19 +86,12 @@ export default function SupervisorDashboard() {
     setShowAddTaskModal(false);
   };
 
-  const mediaRecorderRef = useRef(null);
-  const chunksRef = useRef([]);
-  const recordIntervalRef = useRef(null);
-
   const [syncTick, setSyncTick] = useState(0);
 
   useEffect(() => {
     fetchToday();
     fetchMedications().catch(() => {});
     fetchMetrics(undefined, 30).catch(() => {});
-    voiceAlertService.getAllSettings().then((data) => {
-      setHasCustomVoice(Boolean(data?.[ALERT_TYPES.MED_ALL]?.audioBase64));
-    });
     const timer = setInterval(() => setCurrentTime(new Date()), 30000);
 
     const handleSync = () => {
@@ -214,12 +192,6 @@ export default function SupervisorDashboard() {
   const latestGlucoseStatus =
     latestGlucose && getMetricStatus(latestGlucose.measurement_type, latestGlucose.value, user?.diagnosis);
 
-  const handleSaveCallerTitle = () => {
-    setCallerTitle(callerInput);
-    setSavedCallerToast(true);
-    setTimeout(() => setSavedCallerToast(false), 2500);
-  };
-
   const handleToggleSlotStatus = (item) => {
     const isDone = item.slot.status === 'taken' || item.slot.status === 'skipped';
     if (isDone) {
@@ -227,67 +199,6 @@ export default function SupervisorDashboard() {
     } else {
       recordMedicationIntake(item.med, 'taken', new Date(), null, item.slot.key);
     }
-  };
-
-  const startRecordingVoice = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      chunksRef.current = [];
-      const mr = new MediaRecorder(stream);
-      mr.ondataavailable = (e) => {
-        if (e.data && e.data.size > 0) chunksRef.current.push(e.data);
-      };
-      mr.onstop = async () => {
-        stream.getTracks().forEach((tr) => tr.stop());
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        await voiceAlertService.saveVoice(ALERT_TYPES.MED_ALL, blob);
-        setHasCustomVoice(true);
-        setVoiceToast('Đã lưu giọng nhắc trên thiết bị này.');
-        setTimeout(() => setVoiceToast(null), 3200);
-      };
-      mediaRecorderRef.current = mr;
-      mr.start();
-      setRecording(true);
-      setRecordSec(1);
-      recordIntervalRef.current = setInterval(() => {
-        setRecordSec((s) => {
-          if (s >= 10) {
-            stopRecordingVoice();
-            return 10;
-          }
-          return s + 1;
-        });
-      }, 1000);
-    } catch {
-      setVoiceToast('Vui lòng cấp quyền Micro trên trình duyệt để thu âm giọng nhắc.');
-      setTimeout(() => setVoiceToast(null), 3200);
-    }
-  };
-
-  const stopRecordingVoice = () => {
-    if (recordIntervalRef.current) {
-      clearInterval(recordIntervalRef.current);
-      recordIntervalRef.current = null;
-    }
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      mediaRecorderRef.current.stop();
-    }
-    setRecording(false);
-  };
-
-  const handlePlaySampleVoice = () => {
-    voiceAlertService.playAlert(
-      ALERT_TYPES.MED_ALL,
-      'Bố ơi, đến giờ uống thuốc cử sáng rồi ạ!'
-    );
-  };
-
-  const handleTriggerRemoteAlarm = () => {
-    const payload = getNextAlarmPayloadForToday(activeMeds);
-    triggerFamilyAlarm({
-      ...payload,
-      callerName: callerTitle,
-    });
   };
 
   const isPc = deviceMode === 'pc';
@@ -838,118 +749,6 @@ export default function SupervisorDashboard() {
 
       {/* Ở chế độ PC: Thẻ Nhiệm vụ & Ghi chép Hộ lý chuyển sang bên phải để 2 cột cân đối */}
       {caregiverSection}
-
-      {/* Phòng điều khiển Chuông gọi Gia đình & Thu âm giọng con từ xa */}
-      <section className={styles.voiceBox}>
-        <div className={styles.voiceHead}>
-          <h3 className={styles.voiceTitle}>
-            Điều khiển Chuông Con Cháu Nhắc Thuốc Bố/Mẹ
-          </h3>
-          <span
-            style={{
-              fontSize: 11.5,
-              fontWeight: 700,
-              padding: '3px 8px',
-              borderRadius: 999,
-              background: 'rgba(16,185,129,0.25)',
-              color: '#a7f3d0',
-            }}
-          >
-            {hasCustomVoice ? 'Đã có giọng thu âm' : 'Giọng đọc tự động'}
-          </span>
-        </div>
-
-        <div>
-          <label
-            style={{
-              display: 'block',
-              fontSize: 12,
-              fontWeight: 700,
-              color: '#a7f3d0',
-              marginBottom: 5,
-            }}
-          >
-            Tên người thân hiển thị trên màn hình báo thức của Bố/Mẹ:
-          </label>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <input
-              type="text"
-              className={styles.callerInput}
-              value={callerInput}
-              onChange={(e) => setCallerInput(e.target.value)}
-              placeholder="VD: Con gái nhắc bố uống thuốc"
-            />
-            <button
-              type="button"
-              onClick={handleSaveCallerTitle}
-              style={{
-                padding: '0 14px',
-                borderRadius: 10,
-                border: 'none',
-                background: '#10b981',
-                color: '#ffffff',
-                fontWeight: 700,
-                fontSize: 13,
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {savedCallerToast ? '✓ Đã lưu' : 'Lưu tên'}
-            </button>
-          </div>
-        </div>
-
-        <div className={styles.voiceActionsRow}>
-          {!recording ? (
-            <button
-              type="button"
-              className={`${styles.voiceBtn} ${styles.voiceRecordBtn}`}
-              onClick={startRecordingVoice}
-            >
-              <Mic size={15} /> Thu âm giọng con (5-10s)
-            </button>
-          ) : (
-            <button
-              type="button"
-              className={`${styles.voiceBtn} ${styles.voiceRecordBtn}`}
-              onClick={stopRecordingVoice}
-            >
-              <Square size={15} /> Dừng thu ({recordSec}s/10s)
-            </button>
-          )}
-
-          <button
-            type="button"
-            className={`${styles.voiceBtn} ${styles.voicePlayBtn}`}
-            onClick={handlePlaySampleVoice}
-          >
-            <Volume2 size={15} /> Nghe thử giọng nhắc
-          </button>
-
-          <button
-            type="button"
-            className={`${styles.voiceBtn} ${styles.voiceAlarmBtn}`}
-            onClick={handleTriggerRemoteAlarm}
-          >
-            <BellRing size={15} /> Thử chuông sang máy Bố
-          </button>
-        </div>
-
-        {voiceToast && (
-          <div
-            style={{
-              fontSize: 12.5,
-              fontWeight: 700,
-              color: '#fde047',
-              background: 'rgba(0,0,0,0.28)',
-              padding: '6px 10px',
-              borderRadius: 8,
-            }}
-          >
-            {voiceToast}
-          </div>
-        )}
-      </section>
     </div>
   );
 

@@ -129,42 +129,44 @@ Cơ chế hoạt động hoàn toàn bằng **cơ học thuần túy (Mechanical
 
 ---
 
-### PART [2]: 28 Ngăn Kéo Đựng Thuốc Kín Khít (Pill Drawers & Cavity Dimensions)
+### PART [2]: 28 Ngăn Kéo Đựng Thuốc Kín Khít (Đã Hiệu Chỉnh Chiều Cao Chuẩn 30.0 mm Theo Ảnh)
 
-#### Bản Vẽ Mô Hình 3D CAD & Bản Vẽ Kỹ Thuật Bóc Tách Chi Tiết Độ Sâu:
-![Bản vẽ 3D Cận cảnh ngăn kéo thò ra ngoài CalenDIA+](calendia_medicine_drawer_depth_cad_render.jpg)
-*(Mô hình 3D CAD Cận cảnh 1 ngăn kéo CalenDIA+ thò ra ngoài 25.0 mm chứa đầy viên nang thuốc, rãnh trượt bên hông, hốc tì ngón tay và các đường kích thước độ sâu chuẩn xác)*
+#### Bản Vẽ Mô Hình 3D CAD & Bản Vẽ Kỹ Thuật Bóc Tách Chi Tiết Chiều Cao Chuẩn:
+![Bản vẽ 3D Ngăn kéo hiệu chỉnh chiều cao 30mm CalenDIA+](calendia_medicine_drawer_corrected_30mm_cad_render.jpg)
+*(Mô hình 3D CAD Cận cảnh ngăn kéo CalenDIA+ đã được hiệu chỉnh chiều cao chuẩn 30.0 mm hình chữ nhật đứng 1:1.15 theo đúng ảnh mẫu, lòng sâu 26.5 mm chứa 12-15 viên thuốc)*
 
-![Bản vẽ kỹ thuật chi tiết độ sâu hộc thuốc](ban_ve_chi_tiet_chieu_sau_hoc_thuoc_cad.png)
-*(Bản vẽ bóc tách mặt cắt dọc theo chiều sâu trượt, mặt cắt ngang, hành trình thò ra 25mm và bảng giải thích chi tiết 4 thông số độ sâu của hộc thuốc)*
-
----
-
-### Giải Thích Rõ Ràng 4 Khái Niệm "Độ Sâu" Của Hộc Thuốc Trên Ảnh
-
-Để sản xuất hoặc đi in 3D chuẩn xác 100% theo đúng ảnh mẫu, hộc thuốc bao gồm 4 thông số độ sâu hình học tách biệt:
-
-1. **Chiều sâu / Chiều dài trượt phủ bì của ngăn kéo:** **$L = 48.0	ext{ mm}$**
-   * Đây là tổng chiều dài toàn bộ khay tính từ mặt trước phẳng đến thành đuôi sau.
-   * Khay dài $48.0	ext{ mm}$ trượt lọt trọn vẹn trong hộc tổ ong sâu $50.0	ext{ mm}$ của thân máy (chừa $2.0	ext{ mm}$ khe hở đáy cho lò xo nén hoặc ánh sáng LED).
-2. **Chiều sâu / Chiều dài lọt lòng khoang chứa thuốc (từ trước ra sau):** **$L_{	ext{lòng}} = 42.0	ext{ mm}$**
-   * Trừ đi thành nhựa mặt trước dày $2.5	ext{ mm}$ và thành đuôi dày $2.0	ext{ mm}$, lòng chứa thuốc dài $42.0	ext{ mm}$, đủ xếp vừa 2 hàng viên nang dài $20	ext{ mm}$ nối đuôi nhau.
-3. **Chiều sâu lòng khay tính từ trên miệng xuống đáy:** **$H_{	ext{lòng}} = 16.5	ext{ mm}$**
-   * Chiều cao phủ bì khay là $20.0	ext{ mm}$, đáy khay dày $2.0	ext{ mm}$ và mép miệng vát $1.5	ext{ mm}$.
-   * Độ sâu lòng $16.5	ext{ mm}$ kết hợp chiều rộng lòng $22.4	ext{ mm}$ tạo thể tích chứa **$15.5	ext{ cm}^3$**, chứa thoải mái **6 – 8 viên thuốc nang lớn cỡ 00** (đủ liều thuốc 1 buổi cho bệnh nhân cao huyết áp, tiểu đường).
-4. **Chiều sâu của hốc tì ngón tay (Finger Scoop) ở mặt trước:** **Sâu $1.8	ext{ mm}$ (Âm mặt)**
-   * Kích thước hốc: Dài $14.0	ext{ mm} 	imes$ Rộng $6.0	ext{ mm} 	imes$ **sâu $1.8	ext{ mm}$** hình viên thuốc con nhộng.
-   * Tạo điểm tì êm ái, bám vân tay chắc chắn giúp người cao tuổi rút khay ra nhẹ nhàng mà không cần dùng móng tay.
+![Bản vẽ kỹ thuật hiệu chỉnh chiều cao hộc thuốc](ban_ve_hieu_chinh_chieu_cao_hoc_thuoc_cad.png)
+*(Bản vẽ bóc tách so sánh bản cũ 20mm bị lùn vs bản chuẩn 30mm, chứng minh toán học khớp 4 hàng trên khung 180mm và mặt cắt sâu lòng 26.5mm)*
 
 ---
 
-### Thông Số Hành Trình Kéo Mở Trên Ảnh
+### Phân Tích & Hiệu Chỉnh: Khắc Phục Lỗi "Hộc Bị Thấp / Lùn" So Với Ảnh Mẫu
 
-* **Khoảng cách thò ra ngoài khi mở (như trên ảnh người dùng cung cấp):** **$25.0	ext{ mm}$**
-  * Khi người dùng kéo hoặc ấn búng mở, ngăn kéo thò ra ngoài đúng **$25.0	ext{ mm}$** (khoảng $52\%$ chiều dài khay), vừa vặn lộ toàn bộ khoang chứa thuốc để ngón tay nhón lấy viên thuốc dễ dàng nhất.
-  * Phần còn lại nằm trong hộc: **$23.0	ext{ mm}$** ngậm chặt trong ray dẫn hướng, giữ khay thăng bằng ngang, không bị xệ chúc đầu xuống dưới.
-* **Hành trình kéo tối đa (Max Pull-out Stroke):** **$32.0	ext{ mm}$**
-  * Đuôi khay có **vấu cản nhô cao $1.2	ext{ mm}$** chạm gờ chặn của khung tổ ong Part 3, **chống tuột rơi khay thuốc ra sàn nhà** nếu người dùng lỡ tay kéo quá mạnh.
+Nhận xét của bạn hoàn toàn chính xác! Trong các bản phác thảo sơ bộ trước đây, hộc thuốc được gán chiều cao $20.0	ext{ mm}$ và chiều rộng $26.0	ext{ mm}$ (khiến khay trở thành hình chữ nhật nằm ngang dẹt, tỷ lệ $H/W = 0.77$ nên nhìn bị lùn và thấp hơn nhiều so với ảnh thực tế).
+
+Khi phân tích tỷ lệ giải phẫu trên ảnh console CalenDIA+ kích thước **Rộng 230 mm × Cao 180 mm**:
+* **Tổng chiều cao vỏ máy:** $180.0	ext{ mm}$.
+* Trừ cụm màn hình đỉnh & hàng chữ thứ: $\sim 38.0	ext{ mm}$.
+* Trừ phần chân đế vát logo D+ ở đáy: $\sim 14.5	ext{ mm}$.
+* Trừ 3 gân ngăn cách giữa 4 hàng ($3 	imes 2.5	ext{ mm}$): $7.5	ext{ mm}$.
+* **Khoảng chiều cao thực tế dành cho 4 hàng hộc thuốc:** $180 - 38 - 14.5 - 7.5 = 120.0	ext{ mm}$!
+* **Do đó, chiều cao chuẩn xác của mỗi hộc thuốc bắt buộc phải là:** **$120.0	ext{ mm} / 4	ext{ hàng} = 30.0	ext{ mm}$**!
+
+---
+
+### Bảng Kích Thước Hình Học Đã Hiệu Chỉnh Chuẩn Xác 100% Theo Ảnh
+
+| Thông số hình học | Bản cũ (Bị thấp) | **BẢN HIỆU CHỈNH CHUẨN MỚI** | Ý nghĩa công thái học & Thẩm mỹ |
+| :--- | :---: | :---: | :--- |
+| **1. Chiều Cao phủ bì khay (H)** | $20.0	ext{ mm}$ | **$H = 30.0	ext{ mm}$** *(Tăng $+10	ext{ mm}$)* | **Đúng chuẩn hình chữ nhật đứng $1:1.15$ y hệt ảnh mẫu.** |
+| **2. Chiều Sâu lòng từ miệng xuống đáy** | $16.5	ext{ mm}$ | **$H_{	ext{lòng}} = 26.5	ext{ mm}$** *(Tăng $+10	ext{ mm}$)* | **Khoang thuốc cực sâu, chứa được 2 tầng thuốc (12-15 viên lớn).** |
+| **3. Chiều Rộng phủ bì khay (W)** | $26.0	ext{ mm}$ | **$W = 26.0	ext{ mm}$** *(Giữ nguyên)* | Khớp hoàn hảo với 7 cột (Thứ Hai – Chủ Nhật) trên chiều rộng 230mm. |
+| **4. Chiều Rộng lọt lòng trong (W_in)** | $22.4	ext{ mm}$ | **$W_{	ext{lòng}} = 22.0	ext{ mm}$** | Thành khay dày $2.0	ext{ mm}$ cứng cáp, chịu va đập tốt. |
+| **5. Chiều Dài / Sâu trượt phủ bì (L)** | $48.0	ext{ mm}$ | **$L = 48.0	ext{ mm}$** *(Giữ nguyên)* | Trượt trọn vẹn trong hộc tổ ong sâu $50.0	ext{ mm}$. |
+| **6. Chiều Dài lọt lòng trong (L_in)** | $42.0	ext{ mm}$ | **$L_{	ext{lòng}} = 43.0	ext{ mm}$** | Xếp vừa 2 hàng viên nang dài $21	ext{ mm}$ nối đuôi nhau. |
+| **7. Hốc tì ngón tay mặt trước** | Sâu $1.8	ext{ mm}$ | **$14.0 	imes 6.0	ext{ mm} 	imes$ sâu $1.8	ext{ mm}$** | Hốc lõm hình con nhộng âm mặt, tì ngón tay rút khay nhẹ nhàng. |
+| **8. Khoảng cách thò ra khi mở (Ảnh)** | $25.0	ext{ mm}$ | **$25.0	ext{ mm}$** *(~52% chiều dài)* | Thò ra $25	ext{ mm}$, ngậm lại trong hộc $23	ext{ mm}$ chống xệ khay. |
+| **9. Thể tích lòng chứa thuốc thực tế** | $15.5	ext{ cm}^3$ | **$25.0	ext{ cm}^3$ (Tăng +61%)** | Chứa thoải mái cả viên sủi C hoặc vỉ thuốc cắt nhỏ. |
 
 ---
 

@@ -28,8 +28,8 @@ draw.rectangle([(30, 30), (W-30, H-30)], outline='#1E3A8A', width=2)
 
 # ==================== HEADER CARD ====================
 draw.rectangle([(50, 45), (W-50, 145)], fill='#152238', outline='#38BDF8', width=2)
-draw.text((80, 56), 'BẢN VẼ THIẾT KẾ CHI TIẾT CAD: KHUNG VỎ MẶT TRƯỚC (FRONT BEZEL - PART [1])', fill='#FFFFFF', font=font_title)
-draw.text((80, 108), 'DỰ ÁN: CalenDIA+ (DIAPLUS) • 230.0 × 180.0 × 18.0 mm • 28 CỬA SỔ KHỞI TẠO • NHẬN DIỆN THƯƠNG HIỆU CHÂN ĐẾ', fill='#38BDF8', font=font_subtitle)
+draw.text((80, 56), 'BẢN VẼ CHI TIẾT CAD: KHUNG VỎ MẶT TRƯỚC VUÔNG VỨC 90° (FRONT BEZEL - PART [1])', fill='#FFFFFF', font=font_title)
+draw.text((80, 108), 'DỰ ÁN: CalenDIA+ (DIAPLUS) • KHỐI CHỮ NHẬT NGUYÊN BẢN 230.0 × 180.0 mm • KHÔNG CẮT VÁT GÓC • BO GÓC VI MÔ R = 2.0 mm', fill='#FBBF24', font=font_subtitle)
 
 # Helper function to draw dimension lines
 def draw_dim_h(x1, x2, y, text, offset_text=14, color='#38BDF8'):
@@ -50,20 +50,12 @@ def draw_dim_v(x, y1, y2, text, offset_text=15, color='#38BDF8'):
     draw.line([(x-10, y2), (x+10, y2)], fill=color, width=1)
     draw.text((x + offset_text, (y1 + y2)//2 - 12), text, fill='#FFFFFF', font=font_dim)
 
-# ==================== PANEL 1: HÌNH CHIẾU MẶT TRƯỚC (FRONT VIEW) ====================
+# ==================== PANEL 1: HÌNH CHIẾU MẶT TRƯỚC VUÔNG VỨC ====================
 p1_x, p1_y, p1_w, p1_h = 60, 165, 1260, 830
 draw.rectangle([(p1_x, p1_y), (p1_x+p1_w, p1_y+p1_h)], fill='#101C36', outline='#2563EB', width=2)
 draw.rectangle([(p1_x, p1_y), (p1_x+p1_w, p1_y+55)], fill='#1E3A8A')
-draw.text((p1_x+25, p1_y+14), '1. HÌNH CHIẾU MẶT TRƯỚC (FRONT ELEVATION VIEW - 230 × 180 mm)', fill='#FFFFFF', font=font_heading)
+draw.text((p1_x+25, p1_y+14), '1. HÌNH CHIẾU MẶT TRƯỚC: KHỐI CHỮ NHẬT VUÔNG VỨC 90° (230 × 180 mm)', fill='#FFFFFF', font=font_heading)
 
-# Scale: 4.8 px per mm
-scale = 4.8
-b_w_px = 230.0 * scale # 1104 px
-b_h_px = 180.0 * scale # 864 px (fits tightly with padding, let's use scale = 4.3 for comfort)
-scale = 4.3
-b_w_px = 230.0 * scale # 989 px
-b_h_px = 180.0 * scale # 774 px (wait, panel height is 830, top header is 55, available is 775)
-# Let's use scale = 3.8
 scale = 3.8
 b_w_px = 230.0 * scale # 874 px
 b_h_px = 180.0 * scale # 684 px
@@ -71,25 +63,31 @@ b_h_px = 180.0 * scale # 684 px
 bx0 = p1_x + (p1_w - b_w_px) // 2 + 30
 by0 = p1_y + 90
 
-# Outer Main Shell (Front Bezel with R=8mm corners)
-draw.rounded_rectangle([(bx0, by0), (bx0 + b_w_px, by0 + b_h_px)], radius=18, fill='#1E293B', outline='#93C5FD', width=3)
+# Outer Main Shell: Crisp Rectangular with tiny radius R=4px (~2mm) - STRICTLY VUÔNG VỨC
+draw.rounded_rectangle([(bx0, by0), (bx0 + b_w_px, by0 + b_h_px)], radius=4, fill='#1E293B', outline='#93C5FD', width=3)
+
+# Highlight Callout for Square Corners
+draw.line([(bx0 + 2, by0 + 2), (bx0 - 30, by0 - 25)], fill='#FBBF24', width=2)
+draw.line([(bx0 - 30, by0 - 25), (bx0 - 90, by0 - 25)], fill='#FBBF24', width=2)
+draw.text((bx0 - 100, by0 - 55), 'GÓC VUÔNG 90°', fill='#FDE047', font=font_bold)
+draw.text((bx0 - 100, by0 - 30), '(R = 2.0 mm vi mô)', fill='#CBD5E1', font=font_dim_small)
 
 # Top Display Window (Smoked Acrylic Bezel: ~190mm x 25mm)
 top_w_px = 190.0 * scale # 722 px
 top_h_px = 24.0 * scale  # 91 px
 top_x0 = bx0 + (b_w_px - top_w_px) // 2
 top_y0 = by0 + 20 * scale # 76 px down from top
-draw.rounded_rectangle([(top_x0, top_y0), (top_x0 + top_w_px, top_y0 + top_h_px)], radius=10, fill='#090D16', outline='#475569', width=2)
+draw.rounded_rectangle([(top_x0, top_y0), (top_x0 + top_w_px, top_y0 + top_h_px)], radius=8, fill='#090D16', outline='#475569', width=2)
 draw.text((top_x0 + 40, top_y0 + 28), 'CỬA SỔ HIỂN THỊ MICA ĐEN KHÓI (190.0 × 24.0 mm)', fill='#64748B', font=font_bold)
 
 # Column Headers (Mon -> Sun)
 days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-pw_px = 26.8 * scale # 101.8 px (opening width)
-ph_px = 20.8 * scale # 79.0 px  (opening height)
+pw_px = 26.8 * scale # 101.8 px
+ph_px = 20.8 * scale # 79.0 px
 rib_px = 3.5 * scale # 13.3 px
 
 mat_w_px = 7 * pw_px + 6 * rib_px
-mat_x0 = bx0 + (b_w_px - mat_w_px) // 2 + 15 * scale # shift right for row labels
+mat_x0 = bx0 + (b_w_px - mat_w_px) // 2 + 15 * scale
 mat_y0 = top_y0 + top_h_px + 14 * scale
 
 # Draw Day Labels above matrix
@@ -103,7 +101,7 @@ for r, t in enumerate(times):
     cy = mat_y0 + r * (ph_px + rib_px)
     draw.text((mat_x0 - 75, cy + ph_px//2 - 12), t, fill='#94A3B8', font=font_dim_small)
 
-# Draw 28 Window Cutouts
+# Draw 28 Window Cutouts (Vuông vức, sắc cạnh)
 for r in range(4):
     for c in range(7):
         cx = mat_x0 + c * (pw_px + rib_px)
@@ -111,7 +109,7 @@ for r in range(4):
         
         # Step recess border (1.0mm)
         draw.rectangle([(cx - 2, cy - 2), (cx + pw_px + 2, cy + ph_px + 2)], fill='#0F172A', outline='#334155', width=1)
-        # Main cutout opening
+        # Main cutout opening - Square corners
         draw.rectangle([(cx, cy), (cx + pw_px, cy + ph_px)], fill='#030712', outline='#60A5FA', width=2)
         # Inner guide shadow
         draw.rectangle([(cx + 3, cy + 3), (cx + pw_px - 3, cy + ph_px - 3)], outline='#1E3A8A', width=1)
@@ -134,26 +132,24 @@ draw.text((chin_x0, chin_y0 + 7), 'CalenDIA+', fill='#FFFFFF', font=font_brand)
 draw.text((chin_x0 + 160, chin_y0 + 14), 'by DIAPLUS', fill='#38BDF8', font=font_dim_small)
 
 # Overall Dimensions
-draw_dim_h(bx0, bx0 + b_w_px, by0 - 45, 'TỔNG CHIỀU RỘNG W = 230.0 mm (R = 8.0 mm)')
+draw_dim_h(bx0, bx0 + b_w_px, by0 - 45, 'CHIỀU RỘNG W = 230.0 mm (VUÔNG VỨC 90°, R_góc = 2.0 mm)')
 draw_dim_v(bx0 - 110, by0, by0 + b_h_px, 'CHIỀU CAO H = 180.0 mm')
 
-# ==================== PANEL 2: MẶT SAU & 8 TRỤ REN M3 (REAR VIEW) ====================
+# ==================== PANEL 2: MẶT SAU & 8 TRỤ REN M3 ====================
 p2_x, p2_y, p2_w, p2_h = 1350, 165, 990, 830
 draw.rectangle([(p2_x, p2_y), (p2_x+p2_w, p2_y+p2_h)], fill='#101C36', outline='#2563EB', width=2)
 draw.rectangle([(p2_x, p2_y), (p2_x+p2_w, p2_y+55)], fill='#1E3A8A')
 draw.text((p2_x+25, p2_y+14), '2. HÌNH CHIẾU MẶT SAU: 8 TRỤ BẮT ỐC REN M3 & GỜ ĐỊNH VỊ', fill='#FFFFFF', font=font_heading)
 
-# Scaled down rear representation
 r_scale = 3.2
 rb_w_px = 230.0 * r_scale # 736 px
 rb_h_px = 180.0 * r_scale # 576 px
 rx0 = p2_x + (p2_w - rb_w_px) // 2
 ry0 = p2_y + 90
 
-# Rear hollow cavity border
-draw.rounded_rectangle([(rx0, ry0), (rx0 + rb_w_px, ry0 + rb_h_px)], radius=15, fill='#152238', outline='#60A5FA', width=3)
-# Inner pocket boundary (Thành viền dày 2.5mm)
-draw.rounded_rectangle([(rx0 + 10, ry0 + 10), (rx0 + rb_w_px - 10, ry0 + rb_h_px - 10)], radius=12, fill='#0B132B', outline='#334155', width=2)
+# Rear hollow cavity border (Square boxy frame)
+draw.rounded_rectangle([(rx0, ry0), (rx0 + rb_w_px, ry0 + rb_h_px)], radius=4, fill='#152238', outline='#60A5FA', width=3)
+draw.rounded_rectangle([(rx0 + 10, ry0 + 10), (rx0 + rb_w_px - 10, ry0 + rb_h_px - 10)], radius=3, fill='#0B132B', outline='#334155', width=2)
 
 # Central Matrix opening for Part 3 Honeycomb frame (202.5 x 93.0 mm)
 c_w = 202.5 * r_scale
@@ -172,9 +168,7 @@ boss_coords = [
 ]
 
 for bx, by in boss_coords:
-    # Outer boss circle
     draw.ellipse([(bx - 12, by - 12), (bx + 12, by + 12)], fill='#1E40AF', outline='#60A5FA', width=2)
-    # Inner brass insert hole
     draw.ellipse([(bx - 6, by - 6), (bx + 6, by + 6)], fill='#F59E0B')
 
 # Callout for Boss
@@ -191,31 +185,29 @@ draw.rectangle([(rx0 + 4, ry0 + rb_h_px//2 - 25), (rx0 + 10, ry0 + rb_h_px//2 + 
 draw.rectangle([(rx0 + rb_w_px - 10, ry0 + rb_h_px//2 - 25), (rx0 + rb_w_px - 4, ry0 + rb_h_px//2 + 25)], fill='#34D399')
 draw.text((rx0 + rb_w_px//2 - 80, ry0 + rb_h_px + 20), '4× NGÀM SẬP SNAP-FIT GẮN NẮP LƯNG', fill='#34D399', font=font_bold)
 
-# Depth indicator
 draw.text((rx0 + 30, ry0 + rb_h_px + 50), 'CHIỀU DÀY THÀNH VỎ: t = 2.5 mm • ĐỘ SÂU GỜ VIỀN: D = 18.0 mm', fill='#38BDF8', font=font_bold)
 
 # ==================== PANEL 3: BẢNG THÔNG SỐ KỸ THUẬT & DUNG SAI PART [1] ====================
 p3_x, p3_y, p3_w, p3_h = 60, 1020, W - 120, 460
 draw.rectangle([(p3_x, p3_y), (p3_x+p3_w, p3_y+p3_h)], fill='#101C36', outline='#2563EB', width=2)
 draw.rectangle([(p3_x, p3_y), (p3_x+p3_w, p3_y+55)], fill='#1E3A8A')
-draw.text((p3_x+25, p3_y+14), '3. BẢNG THÔNG SỐ HÌNH HỌC, DUNG SAI LẮP GHÉP & CHỈ DẪN IN 3D / ĐÚC PHUN CHO PART [1]', fill='#FFFFFF', font=font_heading)
+draw.text((p3_x+25, p3_y+14), '3. BẢNG THÔNG SỐ HÌNH HỌC, DUNG SAI & YÊU CẦU THIẾT KẾ VUÔNG VỨC 90°', fill='#FFFFFF', font=font_heading)
 
-# Table headers
 t_cols = [p3_x+30, p3_x+480, p3_x+950, p3_x+1450, p3_x+1850]
 t_y = p3_y + 75
 draw.rectangle([(p3_x+20, t_y), (p3_x+p3_w-20, t_y+45)], fill='#1E293B')
 draw.text((t_cols[0], t_y+10), 'HẠNG MỤC CƠ KHÍ', fill='#38BDF8', font=font_bold)
 draw.text((t_cols[1], t_y+10), 'KÍCH THƯỚC TIÊU CHUẨN', fill='#38BDF8', font=font_bold)
 draw.text((t_cols[2], t_y+10), 'DUNG SAI YÊU CẦU', fill='#38BDF8', font=font_bold)
-draw.text((t_cols[3], t_y+10), 'CHỨC NĂNG LẮP GHÉP', fill='#38BDF8', font=font_bold)
+draw.text((t_cols[3], t_y+10), 'CHỨC NĂNG LẮP GHÉP & THẨM MỸ', fill='#38BDF8', font=font_bold)
 
 table_data = [
-    ('Kích thước bao ngoài phủ bì', 'Rộng 230.0 × Cao 180.0 × Sâu 18.0 mm', '± 0.25 mm', 'Định hình mặt diện thiết bị, vừa vặn bàn in 235×235 mm'),
-    ('28 Cửa sổ lọt lòng ngăn kéo', 'Rộng 26.8 × Cao 20.8 mm (Gân 3.5 mm)', '+ 0.20 / - 0.00 mm', 'Đảm bảo ngăn kéo 26×20mm trượt qua êm, có gờ đón viền khít'),
+    ('Khối bao ngoài vuông vức', '230.0 × 180.0 × 18.0 mm (Vuông 90°)', '± 0.20 mm', 'Khối chữ nhật sắc sảo nguyên bản theo ảnh mẫu, KHÔNG VÁT GÓC XÉO'),
+    ('Bán kính bo góc ngoài (Fillet)', 'R = 2.0 mm (Vi mô khử bavia sắc)', '± 0.20 mm', 'Đảm bảo an toàn không bén đứt tay, duy trì phom vuông vức 100%'),
+    ('28 Cửa sổ lọt lòng ngăn kéo', 'Rộng 26.8 × Cao 20.8 mm (Gân 3.5 mm)', '+ 0.20 / - 0.00 mm', 'Cắt góc vuông sắc cạnh, gờ bậc chìm 1.0mm ép khít mép ngăn kéo'),
     ('Cửa sổ hiển thị đỉnh máy', '190.0 × 24.0 mm (Bo góc R=6mm)', '± 0.15 mm', 'Gắn tấm mica đen khói bảo vệ màn hình OLED và đèn trạng thái'),
     ('8 Trụ ren liên kết mặt sau', 'Ø Ngoài 6.0 mm, Lỗ trong Ø 4.1 × sâu 5.5 mm', '± 0.05 mm', 'Cấy tán nhiệt đồng M3 để bắt vít siết khung tổ ong và nắp lưng'),
-    ('Mặt vát chân đế & Nhận diện', 'In lụa / Khắc laser Logo D+ & CalenDIA+', 'Vị trí cân đối', 'Biểu tượng nhận diện DIAPLUS duy nhất, thanh lịch và trang nhã'),
-    ('Vật liệu khuyên dùng', 'In 3D mẫu: PETG Trắng sứ | Đúc khuôn: Nhựa ABS trắng sứ', 'Độ phẳng bề mặt < 0.3mm', 'Chống cong vênh cạnh dài 230mm, bề mặt láng mịn sang trọng'),
+    ('Vật liệu khuyên dùng', 'In 3D mẫu: PETG Trắng sứ | Đúc khuôn: Nhựa ABS trắng sứ', 'Độ phẳng bề mặt < 0.3mm', 'Chống co ngót cong vênh cạnh dài 230mm, giữ phom vuông vức tuyệt đối'),
     ('Hướng dẫn Slicer in 3D FDM', 'Mặt trước úp bàn in PEI nhám | Layer 0.20mm | Wall 4 | Infill 25%', 'Không cần Support', 'Mặt trước đạt độ mịn satin đồng nhất 100%, không lộ vân sợi')
 ]
 

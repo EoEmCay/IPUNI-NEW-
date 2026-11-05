@@ -1,3 +1,4 @@
+// DIA+ Clinical A4 Doctor Briefing - Build: 2026-11-05T05:13:26.116Z
 import React, { useMemo } from 'react';
 import { Printer, X, CheckCircle2, AlertTriangle, Heart, Pill, Activity, ShieldCheck, Stethoscope } from 'lucide-react';
 import styles from './DoctorReportModal.module.css';

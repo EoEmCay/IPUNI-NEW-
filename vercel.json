@@ -24,5 +24,6 @@
         }
       ]
     }
-  ]
+  ],
+  "outputDirectory": "frontend/dist"
 }

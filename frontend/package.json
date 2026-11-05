@@ -1,7 +1,7 @@
 {
   "name": "frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.1",
   "type": "module",
   "scripts": {
     "test": "node src/constants/metrics.test.js && node src/utils/chartPath.test.js && node src/utils/medicationTime.test.js && node src/utils/medForm.test.js && node src/utils/glucoseUnit.test.js && node src/utils/prescription.test.js && node src/utils/date.test.js",

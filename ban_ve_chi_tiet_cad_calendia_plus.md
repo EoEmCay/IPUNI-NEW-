@@ -267,3 +267,58 @@ Toàn bộ 11 linh kiện trong danh mục bạn mua được đấu nối theo 
 6. **Bước 6 (Cụm điện tử):** Cố định bo mạch ESP32-C3, RTC DS3231, MAX98357A và dán kín loa $8\Omega$ vào buồng cộng hưởng trên vỏ lưng Part 6. Cắm toàn bộ dây Dupont theo bảng pinout Mục 6.
 7. **Bước 7 (Đóng vỏ máy):** Áp vỏ lưng Part 6 vào mặt trước Part 1, siết 8 ốc lục giác chìm M3×12 mm.
 8. **Bước 8 (Lắp chân đế):** Bắt 4 ốc M3 gắn chân đế Part 7 vào đáy máy, dán 6 đệm cao su chống trượt. Cắm nguồn sạc Type-C kiểm tra đèn LED và âm thanh nhắc nhở.
+
+---
+
+## 8. Phiên Bản Tối Ưu Hóa Dòng Tiền BOM Đúc Phun Hàng Loạt (CalenDIA+ DFM Cost-Down Edition)
+
+Dựa trên bảng phân tích tối ưu hóa chi phí sản xuất hàng loạt (Design for Manufacturing - DFM) và cắt giảm dòng tiền BOM, CalenDIA+ được tinh chỉnh kiến trúc cơ khí và điện tử để đạt mức **giá vốn COGS chỉ từ 146.000đ - 178.000đ**, cho phép định giá bán lẻ thương mại trên Shopee từ **299.000đ - 399.000đ** với **biên lợi nhuận gộp đạt 51% - 55%**.
+
+### 8.1. Bản Vẽ Mô Hình 3D Thực Tế Tối Ưu Hóa DFM (CalenDIA+ Cost-Down Edition):
+![CalenDIA+ Phiên bản Tối ưu hóa DFM Đúc Phun](calendia_plus_dfm_render.jpg)
+*(Mô hình CalenDIA+ DFM: 28 ngăn kéo nhựa PP mờ công thái học có rãnh tì ngón tay, ánh sáng LED xuyên sáng dịu mắt, khung tổ ong nguyên khối, vát chân đế duy nhất 1 logo D+ và chữ CalenDIA+ thanh lịch)*
+
+### 8.2. Bản Vẽ Bóc Tách Kỹ Thuật & Cấu Trúc Giá Vốn 3 Tầng:
+![Bản Vẽ Bóc Tách Tối Ưu Hóa BOM CalenDIA+](ban_ve_toi_uu_bom_calen_dia.png)
+*(Bản vẽ phân rã 4 chi tiết cơ khí đúc phun ~61.000đ, tối ưu cắt giảm mạch điện tử và ma trận giá vốn 3 phân khúc)*
+
+---
+
+### 8.3. Bóc Tách 4 Cụm Cơ Khí Đúc Phun Nguyên Khối (Tổng ~61.000đ)
+
+Thay vì in 3D nhiều mảnh rời và lắp 28 bộ lò xo/que chốt phức tạp, phiên bản đúc phun hàng loạt chuyển sang giải pháp cơ khí tinh gọn thông minh:
+
+| STT | Chi tiết khuôn ép nhựa | Vật liệu | Đơn giá ước tính | Giải pháp kỹ thuật tối ưu chi phí |
+| :---: | :--- | :--- | :---: | :--- |
+| **1** | **28 Ngăn kéo độc lập** | **Nhựa PP trong mờ (Frosted PP)** | **~20.000đ** *(~714đ/khay)* | • Nhựa PP thực phẩm (Food-grade) tiếp xúc thuốc an toàn tuyệt đối.<br>• Bề mặt làm mờ nhám cát giúp tán xạ ánh sáng LED dịu mắt, **loại bỏ thấu kính gom sáng rời**.<br>• Mặt trước dập lõm **rãnh công thái học (Finger Scoop)** giúp rút khay êm ái, **loại bỏ 28 bộ lò xo và lẫy bấm tốn kém** (~14.000đ phụ kiện). |
+| **2** | **Khung xương tổ ong (Core Honeycomb Grid)** | **Nhựa ABS/HIPS gia cường** | **~12.000đ** | • Đúc liền 1 khối ma trận $7 \times 4 = 28$ hộc dẫn hướng.<br>• Thay thế hoàn toàn 28 vỏ bọc độc lập, **giảm 90% thời gian nhân công lắp ráp**.<br>• Tích hợp sẵn vách ngăn quang học triệt tiêu 100% hiện tượng lem sáng giữa các ngăn. |
+| **3** | **Mặt trước + Nắp lưng + Chân đứng** | **Nhựa ABS màu trắng sứ** | **~25.000đ** | • Thiết kế vỏ Unibody ngàm sập (Snap-fit) thông minh kết hợp 4 ốc vít M3 cố định.<br>• Chân đế tích hợp góc nghiêng công thái học $75^\circ$.<br>• Vát chân đế in lụa / khắc laser duy nhất logo `D+` và thương hiệu `CalenDIA+` sang trọng. |
+| **4** | **Cửa sổ hiển thị + Vách chắn sáng** | **Mica/PMMA đen khói (Smoked Acrylic)** | **~4.000đ** | • Mặt nạ đen bóng giấu mạch LED hiển thị trạng thái.<br>• Tích hợp khe chắn bụi và vách gom luồng ánh sáng. |
+| **TỔNG** | **Toàn bộ cơ khí đúc phun (4 cụm)** | — | **~61.000đ** | **Rẻ hơn 68% so với phương pháp in 3D gia công thủ công.** |
+
+---
+
+### 8.4. Chiến Lược Tối Ưu Hóa Mạch Điện Tử (Electronics Cost-Down)
+
+1. **Cắt giảm DAC âm thanh rời & Loa ngoài (Tiết kiệm ~45.000đ):**
+   * Trong phiên bản tiêu chuẩn giá rẻ, còi báo và giọng nói nhắc nhở được chuyển giao hoàn toàn sang **App di động CalenDIA+ trên điện thoại** (thông báo đẩy Push Notification + giọng đọc tiếng Việt qua loa điện thoại).
+   * Vừa giảm chi phí phần cứng, vừa tuân thủ triết lý **"Zero-Noise Office"** (không gây ồn ào bất ngờ khi đặt thiết bị ở văn phòng làm việc hay phòng khách).
+2. **Cắt giảm mạch pin thời gian thực RTC DS3231 (Tiết kiệm ~20.000đ):**
+   * Vi điều khiển **ESP32-C3** có sẵn Wi-Fi và Bluetooth LE. Thiết bị tự động đồng bộ giờ nguyên tử (NTP Clock Sync) qua mạng Wi-Fi gia đình hoặc qua kết nối Bluetooth mỗi khi điện thoại người dùng lại gần.
+3. **Mảng LED WS2812B thông minh tối giản:**
+   * Sử dụng 28 bóng LED RGB SMD dán trực tiếp trên 1 dải FPC uốn dẻo, chỉ cần 1 chân dữ liệu GPIO điều khiển toàn bộ ma trận.
+
+---
+
+### 8.5. Ma Trận Giá Vốn (COGS) & Kịch Bản Kinh Doanh Thương Mại
+
+| Thành phần cấu thành chi phí | Bản Cơ Bản (App Sync) | Bản + Giọng Nói & Màn Số | Bản Full Box (+ Sạc 5V) |
+| :--- | :---: | :---: | :---: |
+| **Linh kiện điện tử + Cơ khí + Bao bì (8k) + Cáp (5k)** | 119.000đ | 136.000đ | 147.000đ |
+| **Nhân công lắp ráp dây chuyền (~10 phút)** | 10.000đ | 10.000đ | 10.000đ |
+| **Chi phí vận chuyển lưu kho / Đại lý phân phối (10%)** | 12.000đ | 14.000đ | 15.000đ |
+| **Dự phòng rủi ro / Hao hụt bảo hành (4%)** | 5.000đ | 6.000đ | 6.000đ |
+| **TỔNG GIÁ VỐN HÀNG BÁN (COGS)** | **~146.000đ** | **~165.000đ** | **~178.000đ** |
+| **GIÁ BÁN LẺ DỰ KIẾN (SHOPEE / TIKTOK SHOP)** | **299.000đ** | **349.000đ** | **399.000đ** |
+| **LỢI NHUẬN GỘP / MỖI SẢN PHẨM** | **153.000đ (51.2%)** | **184.000đ (52.7%)** | **221.000đ (55.4%)** |
+

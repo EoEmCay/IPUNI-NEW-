@@ -96,18 +96,34 @@ Cơ chế hoạt động hoàn toàn bằng **cơ học thuần túy (Mechanical
 
 ---
 
-### PART [1]: Mặt Trước & Khung Bezel Ma Trận (Front Faceplate & Matrix Frame)
+### PART [1]: Khung Vỏ Mặt Trước & Ma Trận Cửa Sổ (Front Bezel & Matrix Faceplate)
 
-* **Chức năng:** Định vị cửa sổ OLED, tạo 28 khoang lọt lòng phẳng khít cho 28 mặt ngăn kéo, khắc nhãn Thứ và Buổi trong ngày.
-* **Kích thước ngoài:** Rộng 230.0 mm × Cao 175.0 mm × Dày 18.0 mm.
-* **Ma trận 28 cửa sổ:**
-  * 7 cột × 4 hàng. Kích thước lọt lòng mỗi cửa sổ: **Rộng 26.8 mm × Cao 20.8 mm**.
-  * Bề dày gân ngăn cách giữa các ô: **3.5 mm**.
-  * Chu vi mép cửa sổ có **gờ bậc chìm (Recess Step)** sâu 1.2 mm, rộng 1.0 mm để đón mép bích chắn bụi của ngăn kéo Part 2 ép khít vào khi đóng.
-* **Chữ khắc sắc nét:**
-  * Dòng tiêu đề ngày: `T.HAI`, `T.BA`, `T.TƯ`, `T.NĂM`, `T.SÁU`, `T.BẢY`, `CN` (chiều cao 3.8 mm, khắc sâu 0.6 mm).
-  * Cột buổi: `SÁNG`, `TRƯA`, `CHIỀU`, `TỐI` (chiều cao 3.8 mm, khắc sâu 0.6 mm).
-* **Mặt sau:** Có 8 trụ ren M3 (Ø ngoài 6.0 mm, lỗ trong cấy tán nhiệt đồng Ø 4.1 mm × sâu 5.5 mm).
+#### Bản Vẽ Mô Hình 3D CAD & Bản Vẽ Kỹ Thuật Bóc Tách Chi Tiết:
+![Bản vẽ 3D Khung vỏ mặt trước CalenDIA+](calendia_front_bezel_cad_render.jpg)
+*(Mô hình 3D CAD Khung vỏ mặt trước CalenDIA+: Kích thước 230 × 180 × 18 mm, cửa sổ hiển thị OLED đỉnh, 28 cửa sổ ma trận 7×4, mặt vát chân đế in logo D+ CalenDIA+, mặt sau có 8 trụ ren M3)*
+
+![Bản vẽ kỹ thuật chi tiết Khung vỏ mặt trước](ban_ve_khung_vo_mat_truoc_cad.png)
+*(Bản vẽ bóc tách hình chiếu đứng, hình chiếu mặt sau với 8 trụ ren M3 và bảng thông số dung sai gia công cho Part 1)*
+
+* **Chức năng:** Định hình diện mạo mặt trước thiết bị, định vị cửa sổ hiển thị OLED/dải đèn trạng thái đỉnh máy, tạo 28 cửa sổ bao bọc phẳng khít cho 28 ngăn kéo thuốc, khắc nhãn ngày/buổi công thái học, hiển thị nhận diện thương hiệu DIAPLUS duy nhất ở chân đế và liên kết toàn bộ khung máy.
+* **Kích thước ngoài phủ bì:** **Rộng 230.0 mm × Cao 180.0 mm × Dày 18.0 mm** (Bo viền 4 góc ngoài bán kính cong mềm mại $R = 8.0	ext{ mm}$, vừa khít bàn in 3D FDM phổ thông $235 	imes 235	ext{ mm}$).
+* **Kết cấu chi tiết:**
+  * **Cửa sổ hiển thị đỉnh máy:** Kích thước lọt lòng **$190.0	ext{ mm} 	imes 24.0	ext{ mm}$** (bo góc $R = 6.0	ext{ mm}$), có gờ bậc chìm đón vừa tấm mica/PMMA đen khói bảo vệ màn hình OLED và đèn báo.
+  * **Ma trận 28 cửa sổ ngăn kéo:**
+    * 7 cột × 4 hàng. Kích thước lọt lòng mỗi cửa sổ: **Rộng 26.8 mm × Cao 20.8 mm** (khe hở $0.4	ext{ mm}$ mỗi chiều so với ngăn kéo $26.0 	imes 20.0	ext{ mm}$ giúp khay trượt qua nhẹ nhàng).
+    * Bề dày gân ngăn cách giữa các ô: **$3.5	ext{ mm}$** cứng vững.
+    * Chu vi mép trong từng cửa sổ có **gờ bậc chìm (Recess Step)** sâu $1.2	ext{ mm}$, rộng $1.0	ext{ mm}$ để đón mép bích chắn bụi của ngăn kéo Part 2 ép khít vào khi đóng, che kín 100% bụi bẩn.
+  * **Chữ dập nổi / khắc chìm sắc nét:**
+    * Tiêu đề thứ trong tuần: `Mon`, `Tue`, `Wed`, `Thu`, `Fri`, `Sat`, `Sun` (hoặc `T.HAI` ... `CN`) dập sâu $0.6	ext{ mm}$.
+    * Cột buổi trong ngày: `MORN`, `NOON`, `EVE`, `NIGHT` (hoặc `SÁNG`, `TRƯA`, `CHIỀU`, `TỐI`) dập sâu $0.6	ext{ mm}$.
+  * **Mặt vát chân đế (Front Stand Chin):** Mặt phẳng nghiêng $75^\circ$ đặt duy nhất biểu tượng Logo `D+` màu Royal Blue với dải lượn sóng Cyan và tên sản phẩm `CalenDIA+` sang trọng, trang nhã.
+  * **Kết cấu liên kết mặt sau (Rear Architecture):**
+    * Khoang rỗng âm đón vừa vặn cụm Khung tổ ong Part 3 kích thước $202.5 	imes 93.0	ext{ mm}$.
+    * **8 Trụ ren M3 đúc nổi:** Đường kính ngoài $arnothing 6.0	ext{ mm}$, lỗ trong $arnothing 4.1	ext{ mm} 	imes$ sâu $5.5	ext{ mm}$ cấy tán nhiệt đồng ren trong M3 để bắt vít siết chặt khung tổ ong và nắp lưng.
+    * **4 Ngàm sập định vị (Snap-fit tabs):** Phân bố ở 4 cạnh để gài khớp nhanh với nắp lưng trước khi siết ốc.
+* **Vật liệu & Hướng dẫn gia công:**
+  * **In 3D FDM:** Nhựa **PETG màu Trắng sứ (Porcelain White)**. Đặt **mặt trước úp trực tiếp xuống bàn in PEI nhám mờ (Textured PEI)** để sau khi bóc ra, bề mặt đạt độ mịn satin mờ sang trọng, không lộ vân sợi, độ phẳng $<0.3	ext{ mm}$.
+  * **Đúc phun hàng loạt:** Nhựa **ABS màu trắng ngọc trai** bóng nhẹ hoặc mờ mịn.
 
 ---
 

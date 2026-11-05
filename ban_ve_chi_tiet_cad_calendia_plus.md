@@ -197,6 +197,43 @@ Khi phân tích tỷ lệ giải phẫu trên ảnh console CalenDIA+ kích thư
 
 ---
 
+### Phương Án Nâng Cấp: Hộc Thuốc Chia 2 Ngăn (Dual-Compartment Medicine Drawer)
+*(Tối ưu công thái học, phân chia thuốc Trước ăn / Sau ăn hoặc Sáng / Tối, vách ngăn t = 1.2 mm)*
+
+#### Bản Vẽ Mô Hình 3D CAD & Bản Vẽ Kỹ Thuật Bóc Tách Hộc Thuốc Chia 2 Ngăn:
+![Phối cảnh 3D CAD Hộc thuốc chia 2 ngăn CalenDIA+](calendia_dual_compartment_drawer_cad.png)
+*(Phối cảnh 3D CAD Photorealistic Hộc thuốc CalenDIA+ chia 2 ngăn: Vách ngăn trung tâm t = 1.2 mm chia đều 2 khoang 22.0 × 20.8 mm, phân tách thuốc Sáng / Tối hoặc Trước / Sau ăn rõ ràng, chiều cao chuẩn H = 30.0 mm, thành bên phẳng lì liền mạch không bậc giật cấp)*
+
+![Bản vẽ kỹ thuật CAD chi tiết Hộc thuốc chia 2 ngăn](ban_ve_hoc_thuoc_chia_2_ngan_cad.png)
+*(Bản vẽ bóc tách kỹ thuật chi tiết: Hình chiếu bằng bố cục 2 khoang, mặt cắt dọc A-A lòng sâu 26.5 mm, so sánh 2 giải pháp công nghệ Option 1 đúc liền vs Option 2 rãnh trượt tháo rời, bảng thông số kích thước và dung sai gia công)*
+
+#### Phân Tích Kỹ Thuật & Lý Do Lựa Chọn Bố Cục Chia TRƯỚC - SAU:
+1. **Khẳng định tính khả thi & Ý nghĩa y tế:**
+   * **Hoàn toàn khả thi và cực kỳ hữu ích:** Đối với bệnh nhân tiểu đường hoặc người cao tuổi sử dụng CalenDIA+, việc uống thuốc thường chia làm 2 nhóm: **Thuốc Trước ăn (Pre-meal)** và **Thuốc Sau ăn (Post-meal)**, hoặc **Cữ Sáng** và **Cữ Tối**. Việc chia 2 ngăn ngăn cách vật lý độc lập giúp triệt tiêu 100% rủi ro uống nhầm thuốc.
+2. **Tại sao bố cục TRƯỚC - SAU là tối ưu tuyệt đối (thay vì Trái - Phải):**
+   * Khoang lọt lòng nguyên bản: **Rộng {\\text{lòng}} = 22.0\\text{ mm} \\times$ Dài {\\text{lòng}} = 43.0\\text{ mm} \\times$ Sâu {\\text{lòng}} = 26.5\\text{ mm}$**.
+   * **Nếu chia Trái - Phải:** Mỗi ngăn chỉ rộng vỏn vẹn $\\sim 10.4\\text{ mm}$. Bề rộng này quá hẹp, ngón tay người lớn (bề rộng đầu ngón tay $\\sim 14 - 18\\text{ mm}$) không thể đưa vào để nhón viên thuốc, gây ức chế khi sử dụng.
+   * **Chia Trước - Sau:** Mỗi ngăn có kích thước **Rộng 22.0 mm × Dài 20.8 mm × Sâu 26.5 mm**. Miệng mở vuông vức  \\times 21\\text{ mm}$ tương đương một chén thuốc mini, ngón trỏ và ngón cái thò vào nhón thuốc cực kỳ thoải mái và dễ dàng.
+   * **Khớp hoàn hảo với hành trình bấm nảy lò xo ( = 25.0\\text{ mm}$):** Khi bấm nút mở, khay nảy ra đúng .0\\text{ mm}$. Toàn bộ **Ngăn 1 (Trước, dài .8\\text{ mm}$) được lộ ra ngoài \%$**, người dùng nhón ngay cữ thuốc sáng/trước ăn mà không cần phải dùng tay kéo thêm khay ra ngoài. Nếu cần lấy tiếp Ngăn 2 (Sau), chỉ cần kéo nhẹ thêm \\text{ mm}$ nữa.
+3. **Hai Phương Án Chế Tạo Linh Hoạt:**
+   * **Option 1 (Đúc liền nguyên khối - Monolithic Fixed Wall):** Vách ngăn đúc liền khối cùng thân khay nhựa ABS/PP y tế, bề dày  = 1.2\\text{ mm}$, bo góc đáy  = 1.5\\text{ mm}$ giúp thuốc không bị kẹt ở mép cạnh và cực kỳ dễ vệ sinh lau chùi. Thích hợp cho sản xuất hàng loạt độ bền cao.
+   * **Option 2 (Rãnh trượt tháo rời mô-đun - Modular Removable Partition):** Hai bên thành trong khay được đúc sẵn 2 rãnh trượt âm rộng .4\\text{ mm} \\times$ sâu .8\\text{ mm}$. Đi kèm tấm vách nhựa trượt rời  = 1.2\\text{ mm}$. Người dùng có thể cắm vách ngăn vào khi cần chia 2 cữ thuốc/ngày, hoặc rút tấm vách ra cất đi để biến thành 1 khoang dài .0\\text{ mm}$ nguyên bản khi cần đựng vỉ thuốc lớn hoặc viên sủi C.
+
+#### Bảng Thông Số Hình Học & Sức Chứa Hộc Thuốc Chia 2 Ngăn
+
+| Hạng mục thông số | Ngăn 1 (Trước) | Vách ngăn trung tâm | Ngăn 2 (Sau) | Toàn hộc khay |
+| :--- | :---: | :---: | :---: | :---: |
+| **Chiều dài lọt lòng ({\\text{in}}$)** | **.8\\text{ mm}$** | Bề dày  = 1.2\\text{ mm}$ | **.8\\text{ mm}$** | .0\\text{ mm}$ |
+| **Chiều rộng lọt lòng ({\\text{in}}$)** | **.0\\text{ mm}$** | Rộng .0\\text{ mm}$ | **.0\\text{ mm}$** | .0\\text{ mm}$ |
+| **Chiều sâu lọt lòng ({\\text{in}}$)** | **.5\\text{ mm}$** | Cao .5\\text{ mm}$ | **.5\\text{ mm}$** | .5\\text{ mm}$ |
+| **Kích thước phủ bì ngoài** | — | — | — | **.0 \\times 48.0 \\times 30.0\\text{ mm}$** |
+| **Thể tích khoang chứa** | **$\\sim 12.1\\text{ cm}^3$** | — | **$\\sim 12.1\\text{ cm}^3$** | **.2\\text{ cm}^3$** |
+| **Sức chứa mỗi khoang** | **6 - 8 viên nang chuẩn** | — | **6 - 8 viên nang chuẩn** | **12 - 16 viên thuốc** |
+| **Mục đích sử dụng khuyến nghị** | **Cữ Sáng / Trước ăn** | Cách ly vật lý | **Cữ Tối / Sau ăn** | 1 ngày hoàn chỉnh |
+| **Độ lộ thiên khi bấm nảy 25mm** | **Lộ \%$ ngoài vỏ** | Ngay mép cửa sổ | Nằm trong hộc dẫn | Trượt êm trên ray |
+
+---
+
 ### PART [3]: Khung Xương Tổ Ong Dẫn Hướng Nguyên Khối (Monolithic Honeycomb Core Guide Grid)
 
 #### Bản Vẽ Mô Hình 3D CAD & Bản Vẽ Kỹ Thuật Bóc Tách Chi Tiết:

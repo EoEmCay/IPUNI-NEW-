@@ -28,6 +28,7 @@ import {
 import { useT } from '../../hooks/useT';
 import MedicationCard from '../../components/medications/MedicationCard';
 import MedicationHistoryModal from '../../components/medications/MedicationHistoryModal';
+import SmartPillMatrixModal from '../../components/medications/SmartPillMatrixModal';
 import SosSheet from '../../components/sos/SosSheet';
 import Modal from '../../components/common/Modal';
 import GlucoseQuickModal from '../../components/metrics/GlucoseQuickModal';
@@ -47,6 +48,7 @@ const BELL_CSS = { btn: styles.bellBtn, hasBadge: styles.bellHasBadge, active: s
 // - Các tiện ích chưa ra mắt (launched: false) mặc định được đưa vào "Tùy chỉnh" (hàng trên: "Chưa thêm vào").
 const ALL_UTILITIES = [
   { key: 'scan', label: 'Quét đơn AI', sub: 'Đọc đơn & ảnh thuốc', badge: 'MỚI', to: '/scan', launched: true },
+  { key: 'smart_matrix', label: 'Hộp thuốc 7x4', sub: 'Ma trận CalenDIA+', badge: 'MỚI', modal: true, launched: true },
   { key: 'schedule', label: 'Lịch uống thuốc', sub: 'Sổ tay & giờ cử', to: '/medications', launched: true },
   { key: 'adherence', label: 'Mức tuân thủ', sub: 'Tỷ lệ đúng giờ', modal: true, launched: true },
   { key: 'diary', label: 'Sổ sức khỏe', sub: 'Đường huyết & HA', to: '/glucose', launched: true },
@@ -98,6 +100,7 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const { medications, todayMedications, fetchToday, fetchMedications } = useMedications();
   const [showAdherence, setShowAdherence] = useState(false);
+  const [showSmartMatrix, setShowSmartMatrix] = useState(false);
   const [showSos, setShowSos] = useState(false);
   const [showMeds, setShowMeds] = useState(false);
   const [showGlucose, setShowGlucose] = useState(false);
@@ -201,6 +204,7 @@ export default function DashboardPage() {
   const open = (item) => {
     if (item.to) return navigate(item.to);
     if (item.key === 'sos') return setShowSos(true);
+    if (item.key === 'smart_matrix') { fetchMedications().catch(() => {}); return setShowSmartMatrix(true); }
     if (item.modal) { fetchMedications().catch(() => {}); return setShowAdherence(true); }
     return setSoon(`${item.label} sắp ra mắt`);
   };
@@ -528,6 +532,16 @@ export default function DashboardPage() {
                 </div>
               </div>
             </Modal>
+          )}
+          {showSmartMatrix && (
+            <SmartPillMatrixModal
+              medications={medications || []}
+              onClose={() => setShowSmartMatrix(false)}
+              onUpdateMedications={() => {
+                fetchMedications();
+                fetchToday();
+              }}
+            />
           )}
           {showAdherence && (
             <MedicationHistoryModal medications={medications || []} onClose={() => setShowAdherence(false)} />

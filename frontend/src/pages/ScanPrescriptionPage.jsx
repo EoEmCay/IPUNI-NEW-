@@ -539,7 +539,7 @@ export default function ScanPrescriptionPage() {
                     ) : (
                       <>
                         <Clock size={18} className={styles.wizardTitleIcon} />
-                        Thời gian uống thuốc
+                        Lịch hộp thuốc 7x4 CalenDIA+
                       </>
                     )}
                   </h3>
@@ -643,6 +643,7 @@ export default function ScanPrescriptionPage() {
                       <SmartScheduleStep
                         medications={editableMeds}
                         onUpdateMedications={setEditableMeds}
+                        onConfirm={handleSaveAll}
                       />
 
                       {requiresInsulinConfirm && (

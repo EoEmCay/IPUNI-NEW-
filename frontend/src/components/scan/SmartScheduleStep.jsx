@@ -307,7 +307,6 @@ export default function SmartScheduleStep({
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 20 }}>{group.icon}</span>
               <div>
                 <strong style={{ fontSize: 14, color: '#0F172A' }}>{group.label}</strong>
                 <span style={{ fontSize: 12, color: '#64748B', marginLeft: 8 }}>

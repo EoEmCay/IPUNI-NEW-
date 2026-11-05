@@ -127,42 +127,32 @@
 .introCard {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 14px 18px;
+  border-radius: 14px;
+  padding: 10px 16px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.introCardText {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 13.5px;
-  color: #334155;
+  justify-content: flex-start;
 }
 
 .introDot {
-  width: 10px;
-  height: 10px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   background: #16a34a;
-  box-shadow: 0 0 8px rgba(22, 163, 74, 0.5);
+  box-shadow: 0 0 8px rgba(22, 163, 74, 0.6);
   flex-shrink: 0;
 }
 
 .hardwarePillBadge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   background: #eff6ff;
   border: 1px solid #bfdbfe;
   color: #1d4ed8;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
-  padding: 4px 12px;
+  padding: 5px 14px;
   border-radius: 999px;
 }
 

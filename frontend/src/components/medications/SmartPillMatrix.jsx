@@ -196,12 +196,9 @@ export default function SmartPillMatrix({
           <Layers size={14} color="#F59E0B" />
           <span>Mô hình CalenDIA+ 28 ngăn (7 ngày x 4 buổi)</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#64748B' }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-            <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#F59E0B' }} />
-            Lia chuột sáng vàng dịu mắt
-          </span>
-          <span>• Chạm ô để sửa</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: '#475569' }}>
+          <Edit3 size={14} color="#F59E0B" />
+          <span>Chạm vào ô để chỉnh sửa/thêm thuốc vào ô</span>
         </div>
       </div>
 
@@ -235,9 +232,6 @@ export default function SmartPillMatrix({
             <div key={`row-${period.key}`} style={{ display: 'contents' }}>
               {/* Cột tiêu đề hàng (Buổi) */}
               <div className={styles.periodHeaderCell}>
-                <div className={styles.periodIconWrap} style={{ background: period.badgeBg }}>
-                  <span>{period.icon}</span>
-                </div>
                 <div className={styles.periodName}>{period.label}</div>
                 <div className={styles.periodTimeBadge}>{periodTimes[period.key]}</div>
               </div>
@@ -328,7 +322,6 @@ export default function SmartPillMatrix({
           <div className={styles.popoverContent} onClick={(e) => e.stopPropagation()}>
             <div className={styles.popoverHeader}>
               <h4 className={styles.popoverTitle}>
-                <span>{activeCellMeta.period?.icon}</span>
                 <span>
                   Ngăn {activeCellMeta.day?.label} · Buổi {activeCellMeta.period?.label}
                 </span>

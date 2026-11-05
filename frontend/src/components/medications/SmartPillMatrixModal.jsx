@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Layers, Sparkles, CheckCircle2 } from 'lucide-react';
+import { X, Bluetooth } from 'lucide-react';
 import SmartPillMatrix from './SmartPillMatrix';
 import styles from './SmartPillMatrixModal.module.css';
 
@@ -32,10 +32,10 @@ export default function SmartPillMatrixModal({
         <div className={styles.header}>
           <div className={styles.headerLeft}>
             <div className={styles.iconPod}>
-              <Layers size={24} />
+              <Bluetooth size={24} />
             </div>
             <div>
-              <h2 className={styles.title}>Hộp thuốc thông minh 7x4 CalenDIA+</h2>
+              <h2 className={styles.title}>CalenDIA+ Bluetooth</h2>
               <p className={styles.subtitle}>
                 28 ngăn kéo phân bổ theo 7 ngày trong tuần và 4 buổi trong ngày
               </p>
@@ -54,14 +54,10 @@ export default function SmartPillMatrixModal({
         {/* Body */}
         <div className={styles.body}>
           <div className={styles.introCard}>
-            <div className={styles.introCardText}>
-              <span className={styles.introDot} />
-              <span>
-                Mỗi khi lia chuột hoặc chạm vào ô bất kỳ, ô đó sẽ <strong>sáng vàng dịu mắt</strong>. Chạm vào ô để xem chi tiết thuốc hoặc điều chỉnh lịch uống.
-              </span>
-            </div>
             <span className={styles.hardwarePillBadge}>
-              Thiết bị: CalenDIA+ Model v2
+              <span className={styles.introDot} />
+              <Bluetooth size={14} />
+              Thiết bị kết nối: CalenDIA+ Bluetooth
             </span>
           </div>
 

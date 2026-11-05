@@ -192,32 +192,52 @@ Cơ chế hoạt động hoàn toàn bằng **cơ học thuần túy (Mechanical
 
 ---
 
-### PART [6]: Vỏ Ốp Lưng Khoang Điện Tử (Rear Housing Chassis)
+### PART [6]: Vỏ Ốp Lưng Khoang Điện Tử (Rear Housing Chassis) & PART [7]: Chân Đế Nghiêng 75° Chống Lật (75° Desktop Stand)
 
-#### Bản Vẽ Bóc Tách 3 Tầng & Vị Trí Gắn Chip ESP32-C3 Chi Tiết:
-![Bản vẽ 3D bóc tách vị trí gắn ESP32](ban_ve_boc_tach_esp32_calendia_plus.jpg)
-![Sơ đồ kỹ thuật định vị ESP32 và các module](ban_ve_boc_tach_vi_tri_esp32_chi_tiet.png)
-*(Sơ đồ bóc tách 3 tầng: Tầng 1 mặt trước có logo D+ & CalenDIA+; Tầng 2 khung LED; Tầng 3 khoang gắn chip ESP32-C3 với 4 trụ ốc M2 và cổng Type-C)*
+#### Bản Vẽ Mô Hình 3D CAD & Bản Vẽ Kỹ Thuật Bóc Tách Chi Tiết:
+![Bản vẽ 3D Vỏ lưng và Chân đế nghiêng 75 độ CalenDIA+](calendia_rear_housing_base_cad_render.jpg)
+*(Mô hình 3D CAD Vỏ lưng khoang máy và Chân đế nghiêng 75° CalenDIA+: Góc nhìn mặt sau và sườn máy, góc nghiêng 75°, footprint sâu 120 mm, cổng sạc Type-C, khe thoát âm loa, logo D+ dập chìm và 8 lỗ ốc bắt chìm M3)*
 
-* **Chức năng:** Đóng kín mặt sau, chứa toàn bộ cụm mạch điện tử và khoang cộng hưởng loa.
-* **Kích thước ngoài:** Rộng 228.0 mm × Cao 173.0 mm × Sâu 28.0 mm.
-* **Bố trí khoang bên trong & Vị trí gắn Chip ESP32-C3:**
-  * **Hốc gá vi điều khiển ESP32-C3-DevKitM-1:**
-    * Vị trí: Đặt ở góc trên bên trái của vỏ lưng (ngay dưới màn hình OLED, cách mép trên 15 mm).
-    * Kết cấu gá: **4 Trụ bắt ốc M2 (Screw Bosses)** có tâm lỗ cách nhau **$44.0\text{ mm} \times 20.0\text{ mm}$**. Đường kính trụ Ø 4.2 mm, lỗ lõi Ø 1.8 mm (dùng vít tự ren M2 hoặc cấy tán nhiệt đồng M2).
-    * Cổng nạp/cấp nguồn **USB Type-C**: Khoét lỗ oval $10.0\text{ mm} \times 4.5\text{ mm}$ ở mép trên hoặc sườn vỏ lưng để cắm cáp sạc 5V 2A từ củ sạc.
-  * **Hốc gá module RTC DS3231:** Nằm ngay dưới bo mạch ESP32-C3 ($40 \times 24\text{ mm}$), có 2 vấu ngàm bấm giữ chặt pin cúc áo CR2032.
-  * **Hốc gá mạch giải mã âm thanh MAX98357A:** Kích thước $22 \times 20\text{ mm}$ nằm cạnh RTC.
-  * **Buồng cộng hưởng âm thanh độc lập cho Loa:** Hốc tròn Ø 30.0 mm × sâu 8.0 mm cho loa mini $8\Omega$ 1W-2W, dán viền kín khí và có nan hoa thoát âm mặt sau.
-  * Lỗ nút bấm xác nhận/tắt chuông Ø 12.5 mm ở đỉnh máy.
+![Bản vẽ kỹ thuật chi tiết Vỏ lưng và Chân đế 75 độ](ban_ve_vo_lung_va_chan_de_75do_cad.png)
+*(Bản vẽ bóc tách hình chiếu cạnh góc nghiêng 75°, hình chiếu mặt ngoài vỏ lưng, hình chiếu mặt trong khoang gá ESP32-C3 và bảng dung sai gia công)*
 
 ---
 
-### PART [7]: Chân Đế Để Bàn Nghiêng 75° Chống Lật (Desktop Base Stand)
+### Chi Tiết Kỹ Thuật PART [6]: Vỏ Ốp Lưng Khoang Điện Tử (Rear Housing)
 
-* **Chức năng:** Giá đỡ chịu lực toàn bộ máy, tạo góc nghiêng $75^\circ$ cố định vững chắc, giúp máy không bị trượt lùi khi người dùng ấn mở khay.
-* **Kích thước phủ bì:** Rộng 210.0 mm × Sâu 120.0 mm × Dày 12.0 mm (chân đế mở rộng về sau).
-* **Mặt đáy:** Có 6 hốc tròn Ø 10.0 mm × sâu 1.2 mm để dán chân đệm cao su silicon hoặc giác hút chống trượt.
+* **Chức năng:** Đóng kín mặt sau toàn bộ thiết bị, che chắn an toàn cụm mạch điện tử vi điều khiển, tạo buồng âm cộng hưởng cho loa thông báo và liên kết chặt chẽ với Khung mặt trước Part 1 bằng 8 vít M3.
+* **Kích thước ngoài phủ bì:** **Rộng 230.0 mm × Cao 180.0 mm × Sâu 28.0 mm** (Phom vuông vức 90° đồng bộ tuyệt đối với mặt trước Part 1, bo góc vi mô $R = 2.0	ext{ mm}$).
+* **Kết cấu mặt ngoài (Exterior Features):**
+  * **8 Lỗ vít bắt chìm M3 (Countersunk Holes):** Phân bố dọc theo chu vi mép vỏ (3 lỗ trên, 3 lỗ dưới, 2 lỗ hông). Lỗ xuyên $arnothing 3.5	ext{ mm}$, vát miệng chìm $arnothing 6.5	ext{ mm} 	imes 90^\circ$ để đầu ốc M3 nằm phẳng lì ngang mặt vỏ, không cấn tay.
+  * **Cổng sạc nguồn USB Type-C:** Khoét lỗ Oval $10.5	ext{ mm} 	imes 5.0	ext{ mm}$ ở mép dưới bên phải, có vát côn dẫn hướng giúp cắm cáp sạc 5V 2A trơn tru.
+  * **Khe thoát âm & Tản nhiệt:** 5 rãnh ngang kích thước $30.0	ext{ mm} 	imes 2.0	ext{ mm}$ đối diện trực tiếp buồng loa, vừa khuếch đại âm thanh nhắc nhở, vừa thoát nhiệt đối lưu tự nhiên cho chip ESP32.
+  * **Logo nhận diện DIAPLUS mặt sau:** Biểu tượng `D+` và dòng chữ `CalenDIA+` được dập chìm sâu $0.8	ext{ mm}$ (Debossed) tinh xảo vào thân nhựa.
+  * **4 Lỗ định vị gá chân đế:** 4 lỗ ren M3 bố trí ở nửa dưới để bắt cố định Chân đế Part 7 (hoặc đúc liền khối ngàm trượt).
+* **Bố trí khoang gá linh kiện mặt trong (Internal Architecture):**
+  * **Hốc gá vi điều khiển ESP32-C3-DevKitM-1:**
+    * Vị trí: Góc trên bên trái, gần cổng Type-C và màn hình đỉnh.
+    * Kết cấu gá: **4 Trụ bắt ốc M2** có khoảng cách tâm lỗ **$44.0	ext{ mm} 	imes 20.0	ext{ mm}$**, đường kính trụ $arnothing 4.2	ext{ mm}$, lỗ lõi $arnothing 1.8	ext{ mm}$ (bắt vít tự ren M2 dài 6mm).
+  * **Buồng cộng hưởng âm thanh độc lập cho Loa:**
+    * Hốc tròn $arnothing 30.0	ext{ mm} 	imes$ sâu $8.0	ext{ mm}$ chứa vừa vặn loa mini $8\Omega$ 1W-2W.
+    * Thành buồng loa có gờ chặn $1.2	ext{ mm}$ để dán băng dính mút xốp EVA kín khí, giúp âm thanh dội ra ngoài trong trẻo, không bị rè hay vọng vào lòng máy.
+  * **Rãnh kẹp giữ dây dẫn (Cable Clips):** Tích hợp sẵn các vấu kẹp dây nguồn 5V và cáp tín hiệu dải LED WS2812B, giữ hệ thống dây Dupont gọn gàng, chống kẹt khi đóng nắp máy.
+
+---
+
+### Chi Tiết Kỹ Thuật PART [7]: Chân Đế Để Bàn Nghiêng 75° Chống Lật (75° Desktop Stand)
+
+* **Chức năng:** Giá đỡ chịu lực toàn bộ máy, định hình **góc nghiêng công thái học $75^\circ$ cố định**, triệt tiêu mô-men lật đổ khi người dùng dùng ngón tay ấn mở 28 khay thuốc.
+* **Kích thước phủ bì:** **Rộng 210.0 mm × Sâu (Dài đáy) 120.0 mm × Dày 12.0 mm** (vuốt thon nhẹ về sau $6.0	ext{ mm}$).
+* **Phân tích cơ học chống lật (Anti-tipping Mechanical Stability):**
+  * **Góc nghiêng $75^\circ$:** Góc nhìn lý tưởng nhất cho mắt người khi ngồi bàn làm việc ($70^\circ - 75^\circ$) hoặc nằm trên giường nhìn nghiêng lên kệ đầu giường.
+  * **Chiều sâu chân đế $D = 120.0	ext{ mm}$:** Trọng tâm toàn bộ thiết bị ($m pprox 450	ext{g}$) rơi vào tọa độ $X = 42	ext{ mm}$ tính từ mũi chân trước. Khi người dùng dùng lực ấn tay $F_{	ext{push}} pprox 10 - 20	ext{ N}$ vào bất kỳ ngăn kéo nào ở tầng trên cùng, vectơ hợp lực luôn nằm trọn trong khoảng đáy $0 - 120	ext{ mm}$, **hoàn toàn không thể xảy ra hiện tượng bập bênh hay lật ngửa thiết bị ra sau**.
+* **Mặt đáy tiếp xúc bàn (Under-base Grip):**
+  * Gia công sẵn **6 hốc tròn $arnothing 10.0	ext{ mm} 	imes$ sâu $1.5	ext{ mm}$** (4 hốc 4 góc và 2 hốc ở sống giữa).
+  * Dán 6 đệm cao su silicon chống trượt chuẩn 3M (hoặc giác hút chân không), giúp máy bám chặt trên mọi mặt phẳng nhẵn như kính, gỗ ép, đá hoa cương.
+* **Vật liệu & Thông số in 3D FDM:**
+  * Vật liệu: **Nhựa PETG màu Trắng sứ** đồng bộ màu vỏ.
+  * Mật độ ruột (*Infill*): **$40\%$ Gyroid** (khuyến khích in dày để tăng trọng lượng đầm chắc cho chân đế).
+  * Số lớp thành (*Walls*): **5 lớp** ($2.0	ext{ mm}$).
 
 ---
 

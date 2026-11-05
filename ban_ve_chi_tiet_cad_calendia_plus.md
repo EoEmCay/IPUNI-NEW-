@@ -174,7 +174,10 @@ Khi phân tích tỷ lệ giải phẫu trên ảnh console CalenDIA+ kích thư
 *(Khắc phục triệt để lỗi bậc thang giật cấp ở thành bên và đuôi sau theo yêu cầu người dùng)*
 
 #### Bản Vẽ Kỹ Thuật & Phối Cảnh 3D CAD Hộc Thuốc Liền Mạch:
-![Phối cảnh 3D CAD Hộc thuốc nguyên khối liền mạch](calendia_seamless_drawer_render.png)
+![Phối cảnh 3D CAD Photorealistic Hộc thuốc liền mạch nguyên khối](calendia_seamless_photoreal_drawer_cad.png)
+*(Phối cảnh 3D CAD Photorealistic Render (KeyShot Style) hộc thuốc CalenDIA+ liền mạch nguyên khối: Thành bên phẳng lì 100%, gân trượt đúc liền chạy thẳng suốt chiều dài, đáy phẳng tắp loại bỏ hoàn toàn các bậc giật cấp lồi lõm, tỷ lệ chuẩn H=30mm, W=26mm, L=48mm, lòng sâu 26.5mm)*
+
+![Phối cảnh 3D CAD Đồ họa Hộc thuốc nguyên khối liền mạch](calendia_seamless_drawer_render.png)
 *(Mô hình 3D CAD Hộc thuốc liền mạch nguyên khối CalenDIA+: Khắc phục triệt để lỗi giật cấp đuôi sau, thành bên phẳng lì 100% bằng phẳng, đáy phẳng suốt 48mm, gân trượt dẫn hướng đúc liền chạy thẳng tắp, vách sau vuông vức 90° tích hợp vấu cản 1.2mm)*
 
 ![Bản vẽ kỹ thuật chi tiết hộc thuốc nguyên khối liền mạch](ban_ve_hoc_thuoc_lien_mach_cad.png)

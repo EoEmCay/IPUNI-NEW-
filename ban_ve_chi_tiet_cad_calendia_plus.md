@@ -162,14 +162,22 @@ Cơ chế hoạt động hoàn toàn bằng **cơ học thuần túy (Mechanical
 
 ### PART [6]: Vỏ Ốp Lưng Khoang Điện Tử (Rear Housing Chassis)
 
+#### Bản Vẽ Bóc Tách 3 Tầng & Vị Trí Gắn Chip ESP32-C3 Chi Tiết:
+![Bản vẽ 3D bóc tách vị trí gắn ESP32](ban_ve_boc_tach_esp32_calendia_plus.jpg)
+![Sơ đồ kỹ thuật định vị ESP32 và các module](ban_ve_boc_tach_vi_tri_esp32_chi_tiet.png)
+*(Sơ đồ bóc tách 3 tầng: Tầng 1 mặt trước có logo D+ & CalenDIA+; Tầng 2 khung LED; Tầng 3 khoang gắn chip ESP32-C3 với 4 trụ ốc M2 và cổng Type-C)*
+
 * **Chức năng:** Đóng kín mặt sau, chứa toàn bộ cụm mạch điện tử và khoang cộng hưởng loa.
 * **Kích thước ngoài:** Rộng 228.0 mm × Cao 173.0 mm × Sâu 28.0 mm.
-* **Bố trí khoang bên trong:**
-  * Hốc gá vi điều khiển **ESP32-C3-DevKitM-1** ($54 \times 28\text{ mm}$).
-  * Hốc gá mạch giải mã âm thanh **MAX98357A** ($22 \times 20\text{ mm}$).
-  * Hốc gá module đồng hồ thời gian thực **RTC DS3231** ($40 \times 24\text{ mm}$).
-  * **Buồng cộng hưởng âm thanh độc lập:** Hốc tròn Ø 30.0 mm × sâu 8.0 mm cho loa mini $8\Omega$ 1W-2W, có nan hoa thoát âm mặt sau.
-  * Lỗ nút bấm xác nhận/tắt chuông Ø 12.5 mm ở đỉnh và khe cắm sạc Type-C ở góc đáy.
+* **Bố trí khoang bên trong & Vị trí gắn Chip ESP32-C3:**
+  * **Hốc gá vi điều khiển ESP32-C3-DevKitM-1:**
+    * Vị trí: Đặt ở góc trên bên trái của vỏ lưng (ngay dưới màn hình OLED, cách mép trên 15 mm).
+    * Kết cấu gá: **4 Trụ bắt ốc M2 (Screw Bosses)** có tâm lỗ cách nhau **$44.0\text{ mm} \times 20.0\text{ mm}$**. Đường kính trụ Ø 4.2 mm, lỗ lõi Ø 1.8 mm (dùng vít tự ren M2 hoặc cấy tán nhiệt đồng M2).
+    * Cổng nạp/cấp nguồn **USB Type-C**: Khoét lỗ oval $10.0\text{ mm} \times 4.5\text{ mm}$ ở mép trên hoặc sườn vỏ lưng để cắm cáp sạc 5V 2A từ củ sạc.
+  * **Hốc gá module RTC DS3231:** Nằm ngay dưới bo mạch ESP32-C3 ($40 \times 24\text{ mm}$), có 2 vấu ngàm bấm giữ chặt pin cúc áo CR2032.
+  * **Hốc gá mạch giải mã âm thanh MAX98357A:** Kích thước $22 \times 20\text{ mm}$ nằm cạnh RTC.
+  * **Buồng cộng hưởng âm thanh độc lập cho Loa:** Hốc tròn Ø 30.0 mm × sâu 8.0 mm cho loa mini $8\Omega$ 1W-2W, dán viền kín khí và có nan hoa thoát âm mặt sau.
+  * Lỗ nút bấm xác nhận/tắt chuông Ø 12.5 mm ở đỉnh máy.
 
 ---
 

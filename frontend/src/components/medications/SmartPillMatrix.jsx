@@ -14,7 +14,15 @@ import {
   Edit3
 } from 'lucide-react';
 import { INSULIN_PATTERN } from '../../utils/medForm';
-import { DAYS, PERIODS, inferPeriodsForMed, inferDaysForMed } from '../../utils/smartMatrix';
+import {
+  DAYS,
+  PERIODS,
+  inferPeriodsForMed,
+  inferDaysForMed,
+  syncMedicationsFromMatrix,
+  saveMatrixToStorage,
+  loadMatrixFromStorage
+} from '../../utils/smartMatrix';
 import styles from './SmartPillMatrix.module.css';
 
 export { DAYS, PERIODS, inferPeriodsForMed, inferDaysForMed };
@@ -29,6 +37,11 @@ export default function SmartPillMatrix({
   // Trạng thái lưu trữ thuốc trong 28 ngăn: { [cellKey]: [medIndex1, medIndex2, ...] }
   // cellKey dạng "mon_morning", "tue_evening", etc.
   const [matrixData, setMatrixData] = useState(() => {
+    if (!isScanReview) {
+      const saved = loadMatrixFromStorage(medications);
+      if (saved) return saved;
+    }
+
     const initial = {};
     DAYS.forEach((d) => {
       PERIODS.forEach((p) => {
@@ -64,8 +77,16 @@ export default function SmartPillMatrix({
   const [activeCellKey, setActiveCellKey] = useState(null);
   const [editingMedIndices, setEditingMedIndices] = useState([]);
 
-  // Tự động phân bổ lại khi `medications` thay đổi từ bên ngoài
+  // Tự động đồng bộ lại khi `medications` thay đổi nếu chưa có dữ liệu lưu
   useEffect(() => {
+    if (!isScanReview) {
+      const saved = loadMatrixFromStorage(medications);
+      if (saved) {
+        setMatrixData(saved);
+        return;
+      }
+    }
+
     const updated = {};
     DAYS.forEach((d) => {
       PERIODS.forEach((p) => {
@@ -87,7 +108,7 @@ export default function SmartPillMatrix({
     });
 
     setMatrixData(updated);
-  }, [medications]);
+  }, [medications, isScanReview]);
 
   // Xác định ngày hôm nay để highlight cột
   const todayDayKey = useMemo(() => {
@@ -109,6 +130,7 @@ export default function SmartPillMatrix({
     );
   };
 
+  // Lưu thuốc vào ô này
   const handleSaveCell = () => {
     if (!activeCellKey) return;
     const nextMatrix = {
@@ -118,39 +140,30 @@ export default function SmartPillMatrix({
     setMatrixData(nextMatrix);
     setActiveCellKey(null);
 
+    // Lưu ngay vào localStorage nếu không phải chế độ xem thử đơn quét
+    if (!isScanReview) {
+      saveMatrixToStorage(nextMatrix, medications);
+    }
+
+    const syncedMeds = syncMedicationsFromMatrix(medications, nextMatrix, periodTimes);
+
     if (onChange) {
-      onChange(nextMatrix);
+      onChange(nextMatrix, syncedMeds);
     }
   };
 
   // Xác nhận chấp thuận (Bấm "Ok")
   const handleConfirmAll = useCallback(() => {
-    // Đồng bộ lại mảng `times` cho từng thuốc dựa trên ma trận đã chọn
-    const syncedMeds = (medications || []).map((med, medIndex) => {
-      const activePeriods = new Set();
-      DAYS.forEach((d) => {
-        PERIODS.forEach((p) => {
-          const key = `${d.key}_${p.key}`;
-          if (matrixData[key] && matrixData[key].includes(medIndex)) {
-            activePeriods.add(p.key);
-          }
-        });
-      });
+    const syncedMeds = syncMedicationsFromMatrix(medications, matrixData, periodTimes);
 
-      const nextTimes = Array.from(activePeriods)
-        .sort((a, b) => PERIODS.findIndex((p) => p.key === a) - PERIODS.findIndex((p) => p.key === b))
-        .map((p) => periodTimes[p]);
-
-      return {
-        ...med,
-        times: nextTimes.length > 0 ? nextTimes : [periodTimes.morning],
-      };
-    });
+    if (!isScanReview) {
+      saveMatrixToStorage(matrixData, medications);
+    }
 
     if (onConfirm) {
       onConfirm(syncedMeds, matrixData, periodTimes);
     }
-  }, [medications, matrixData, periodTimes, onConfirm]);
+  }, [medications, matrixData, periodTimes, onConfirm, isScanReview]);
 
   const activeCellMeta = useMemo(() => {
     if (!activeCellKey) return null;

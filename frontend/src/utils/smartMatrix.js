@@ -56,6 +56,8 @@ export const PERIODS = [
   },
 ];
 
+export const MATRIX_STORAGE_KEY = 'diaplus_smart_matrix_v1';
+
 // Hàm suy luận cữ uống (Sáng, Trưa, Chiều, Tối) từ đơn thuốc
 export function inferPeriodsForMed(med) {
   const found = new Set();
@@ -116,4 +118,134 @@ export function inferDaysForMed(med) {
   }
   // Mặc định: Uống hàng ngày cả 7 ngày
   return ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+}
+
+/**
+ * Đồng bộ danh sách thuốc dựa theo các ô đã phân bổ trong ma trận 7x4
+ */
+export function syncMedicationsFromMatrix(medications, matrixData, periodTimes) {
+  return (medications || []).map((med, medIndex) => {
+    const activePeriods = new Set();
+    const activeDays = new Set();
+
+    DAYS.forEach((d) => {
+      PERIODS.forEach((p) => {
+        const key = `${d.key}_${p.key}`;
+        if (matrixData[key] && matrixData[key].includes(medIndex)) {
+          activePeriods.add(p.key);
+          activeDays.add(d.dayIndex);
+        }
+      });
+    });
+
+    const nextTimes = Array.from(activePeriods)
+      .sort((a, b) => PERIODS.findIndex((p) => p.key === a) - PERIODS.findIndex((p) => p.key === b))
+      .map((p) => periodTimes[p]);
+
+    return {
+      ...med,
+      times: nextTimes.length > 0 ? nextTimes : (med.times && med.times.length > 0 ? med.times : [periodTimes.morning]),
+      slots: Array.from(activePeriods),
+      days_of_week: Array.from(activeDays).sort((a, b) => a - b),
+    };
+  });
+}
+
+/**
+ * Lưu trạng thái ma trận 28 ngăn vào localStorage
+ */
+export function saveMatrixToStorage(matrixData, medications) {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return false;
+    const toSave = {
+      _saved: true,
+      timestamp: Date.now(),
+    };
+
+    DAYS.forEach((d) => {
+      PERIODS.forEach((p) => {
+        const key = `${d.key}_${p.key}`;
+        const indices = matrixData[key] || [];
+        toSave[key] = indices
+          .map((idx) => {
+            const med = medications[idx];
+            if (!med) return null;
+            return {
+              id: med.id ?? null,
+              name: med.name || '',
+            };
+          })
+          .filter(Boolean);
+      });
+    });
+
+    localStorage.setItem(MATRIX_STORAGE_KEY, JSON.stringify(toSave));
+    return true;
+  } catch (e) {
+    console.error('saveMatrixToStorage error:', e);
+    return false;
+  }
+}
+
+/**
+ * Tải trạng thái ma trận 28 ngăn từ localStorage
+ */
+export function loadMatrixFromStorage(medications) {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return null;
+    const raw = localStorage.getItem(MATRIX_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (typeof parsed !== 'object' || !parsed) return null;
+
+    const restored = {};
+    let matchedAny = false;
+
+    DAYS.forEach((d) => {
+      PERIODS.forEach((p) => {
+        const key = `${d.key}_${p.key}`;
+        const savedList = parsed[key];
+        if (!Array.isArray(savedList)) {
+          restored[key] = [];
+          return;
+        }
+
+        const indices = [];
+        savedList.forEach((item) => {
+          const targetId = typeof item === 'object' && item !== null ? item.id : item;
+          const targetName =
+            typeof item === 'object' && item !== null
+              ? item.name
+              : typeof item === 'string'
+              ? item
+              : null;
+
+          const idx = (medications || []).findIndex((m) => {
+            if (targetId != null && targetId !== '' && (m.id === targetId || String(m.id) === String(targetId))) {
+              return true;
+            }
+            if (targetName && m.name && m.name.toLowerCase().trim() === targetName.toLowerCase().trim()) {
+              return true;
+            }
+            return false;
+          });
+
+          if (idx !== -1 && !indices.includes(idx)) {
+            indices.push(idx);
+            matchedAny = true;
+          }
+        });
+
+        restored[key] = indices;
+      });
+    });
+
+    // Nếu đã từng lưu (_saved = true) hoặc khớp ít nhất 1 thuốc, trả về restored
+    if (parsed._saved || matchedAny) {
+      return restored;
+    }
+    return null;
+  } catch {
+    return null;
+  }
 }

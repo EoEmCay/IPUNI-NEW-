@@ -8,12 +8,14 @@
 
 * **Tên sản phẩm chính thức:** **CalenDIA+** (Kết hợp giữa *Calendar* - Cuốn lịch nhắc nhở và *DIA+* - Hệ sinh thái chăm sóc sức khỏe tiểu đường).
 * **Đơn vị / Đội ngũ phát triển:** **DIAPLUS TEAM**.
-* **Bộ nhận diện Logo thương hiệu:**
-  * Biểu tượng chính: Chữ `D+` màu xanh dương hoàng gia (Royal Blue `#1E40AF`) với dải lượn sóng màu xanh ngọc (Cyan `#38BDF8`) vắt ngang qua thân chữ.
-  * Định vị trên sản phẩm:
-    1. **Mặt vát chân đế (Front Stand Chin):** In logo `D+` kèm tên `CalenDIA+` và dòng phụ `DIAPLUS` nổi bật, trang nhã.
-    2. **Màn hình OLED đỉnh:** Hiển thị logo số bitmap `D+` và tên `CalenDIA+` cùng lời nhắc *"Ba ơi đến giờ uống thuốc"*.
-    3. **Mặt lưng máy (Part 6):** Khắc chìm 3D (Debossed) logo `D+` sâu 0.8 mm vào thân vỏ nhựa PETG.
+* **Bộ nhận diện Logo thương hiệu CalenDIA+ & DIAPLUS:**
+  * **Biểu tượng chính CalenDIA+:** Chữ `C` cách điệu dải sóng năng lượng xanh ngọc (Cyan `#0077D8` - `#38BDF8`) ôm trọn biểu tượng cuốn lịch số, kết hợp kiểu chữ typographic navy hoàng gia `alenDIA+`.
+  * **Biểu tượng hệ sinh thái:** Chữ `D+` màu xanh dương hoàng gia (Royal Blue `#1E40AF`) với dải lượn sóng màu xanh ngọc (Cyan `#38BDF8`) vắt ngang thân chữ.
+  * **Định vị trang trí trên sản phẩm (4 Phương án tối ưu hình học):**
+    1. **Phương án A (In UV phẳng lì):** In UV trực diện trán máy kèm nhãn 7 ngày trong tuần `T2 - CN` (`calendia_3d_decor_opt1_uv_print.jpg`).
+    2. **Phương án B (Dập nổi 3D Bevel & Emboss):** Khắc nổi đa khối cao 0.8 mm bắt sáng vật lý kèm nẹp chỉ Cyan (`calendia_3d_decor_opt2_3d_embossed.jpg`).
+    3. **Phương án C (Kính OLED thông minh):** Dải kính đen tích hợp logo phát sáng, đồng hồ 08:00 AM và trạng thái cữ thuốc (`calendia_3d_decor_opt3_smart_oled.jpg`).
+    4. **Phương án D (Hero Masterpiece):** Logo 3D nổi bật kết hợp vòng LED sáng hộc thuốc cữ uống hiện tại (`calendia_3d_decor_opt4_complete_hero.jpg`).
 * **Mục tiêu công thái học (Ergonomics):** 
   * Dành cho người cao tuổi, người bệnh tiểu đường/cao huyết áp: **Không cần dùng lực kéo, không cần móng tay, không trơn trượt**.
   * **Cơ chế mở:** **Nhấn để búng mở (Push-to-Open)** — Người dùng chỉ cần dùng một ngón tay ấn nhẹ vào mặt ngăn kéo, khay thuốc sẽ tự động búng thò ra ngoài $20\text{ mm}$ với tiếng "CÁCH" dứt khoát. Người dùng cầm hai bên sườn khay rút ra uống thuốc dễ dàng.
@@ -25,7 +27,16 @@
 
 ## 2. Kích Thước Hình Học Tổng Thể (Bounding Box)
 
-### Bản Vẽ Mô Hình 3D In PETG Cơ Chế Nhấn-Nhả (Push-to-Open) & Bộ Nhận Diện DIAPLUS:
+### Bản Vẽ Mô Hình 3D In PETG Cơ Chế Nhấn-Nhả (Push-to-Open) & Bộ Nhận Diện CalenDIA+:
+![CalenDIA+ Hero Masterpiece](calendia_3d_decor_opt4_complete_hero.jpg)
+*(Mô hình 3D CalenDIA+ hoàn thiện trang trí: Logo CalenDIA+ dập nổi 3D, hàng nhãn T2-CN, LED chỉ báo cữ thuốc)*
+
+![CalenDIA+ Smart OLED Console](calendia_3d_decor_opt3_smart_oled.jpg)
+*(Phương án trang trí Bảng điều khiển OLED thông minh: Logo phát sáng, đồng hồ kỹ thuật số và nhắc giờ uống)*
+
+![CalenDIA+ Studio Photoreal Render](calendia_photoreal_studio_render.jpg)
+*(Bản dựng Studio Product Render thực tế của CalenDIA+ đặt trên bàn làm việc)*
+
 ![CalenDIA+ Tích Hợp Logo DIAPLUS](calendia_plus_diaplus_brand_render.jpg)
 *(Mô hình CalenDIA+ hoàn thiện nhận diện thương hiệu DIAPLUS: Logo D+ dập nổi chân đế, hiển thị OLED thông minh, 28 ngăn kéo nhấn-nhả phẳng lì)*
 ![Bản vẽ 3D PETG CalenDIA+ Nhấn-Nhả Push-to-Open](calendia_push_to_open_3d_render.jpg)

@@ -6,7 +6,14 @@
 
 ## 1. Thông Tin Chung Dự Án & Yêu Cầu Thiết Kế
 
-* **Tên sản phẩm:** Hộp thuốc thông minh để bàn **CalenDIA+** (Smart Desktop Pill Calendar Console).
+* **Tên sản phẩm chính thức:** **CalenDIA+** (Kết hợp giữa *Calendar* - Cuốn lịch nhắc nhở và *DIA+* - Hệ sinh thái chăm sóc sức khỏe tiểu đường).
+* **Đơn vị / Đội ngũ phát triển:** **DIAPLUS TEAM**.
+* **Bộ nhận diện Logo thương hiệu:**
+  * Biểu tượng chính: Chữ `D+` màu xanh dương hoàng gia (Royal Blue `#1E40AF`) với dải lượn sóng màu xanh ngọc (Cyan `#38BDF8`) vắt ngang qua thân chữ.
+  * Định vị trên sản phẩm:
+    1. **Mặt vát chân đế (Front Stand Chin):** In logo `D+` kèm tên `CalenDIA+` và dòng phụ `DIAPLUS` nổi bật, trang nhã.
+    2. **Màn hình OLED đỉnh:** Hiển thị logo số bitmap `D+` và tên `CalenDIA+` cùng lời nhắc *"Ba ơi đến giờ uống thuốc"*.
+    3. **Mặt lưng máy (Part 6):** Khắc chìm 3D (Debossed) logo `D+` sâu 0.8 mm vào thân vỏ nhựa PETG.
 * **Mục tiêu công thái học (Ergonomics):** 
   * Dành cho người cao tuổi, người bệnh tiểu đường/cao huyết áp: **Không cần dùng lực kéo, không cần móng tay, không trơn trượt**.
   * **Cơ chế mở:** **Nhấn để búng mở (Push-to-Open)** — Người dùng chỉ cần dùng một ngón tay ấn nhẹ vào mặt ngăn kéo, khay thuốc sẽ tự động búng thò ra ngoài $20\text{ mm}$ với tiếng "CÁCH" dứt khoát. Người dùng cầm hai bên sườn khay rút ra uống thuốc dễ dàng.
@@ -18,7 +25,9 @@
 
 ## 2. Kích Thước Hình Học Tổng Thể (Bounding Box)
 
-### Bản Vẽ Mô Hình 3D In PETG Cơ Chế Nhấn-Nhả (Push-to-Open):
+### Bản Vẽ Mô Hình 3D In PETG Cơ Chế Nhấn-Nhả (Push-to-Open) & Bộ Nhận Diện DIAPLUS:
+![CalenDIA+ Tích Hợp Logo DIAPLUS](calendia_plus_diaplus_brand_render.jpg)
+*(Mô hình CalenDIA+ hoàn thiện nhận diện thương hiệu DIAPLUS: Logo D+ dập nổi chân đế, hiển thị OLED thông minh, 28 ngăn kéo nhấn-nhả phẳng lì)*
 ![Bản vẽ 3D PETG CalenDIA+ Nhấn-Nhả Push-to-Open](calendia_push_to_open_3d_render.jpg)
 *(Mô hình CAD in 3D PETG CalenDIA+: Kích thước 230 mm × 180 mm, mặt trước phẳng lì không tay nắm, 1 ngăn kéo búng thò ra ngoài 20 mm sau khi nhấn nhẹ)*
 

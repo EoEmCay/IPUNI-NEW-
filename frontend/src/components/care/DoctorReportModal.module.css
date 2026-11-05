@@ -109,7 +109,7 @@
   background: #FFFFFF;
   width: 100%;
   max-width: 790px;
-  padding: 14px 18px;
+  padding: 12px 16px;
   border-radius: 6px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -123,20 +123,20 @@
   justify-content: space-between;
   align-items: center;
   border-bottom: 2px solid #0F766E;
-  padding-bottom: 8px;
-  margin-bottom: 8px;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
 }
 
 .brandGroup {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .logoImg {
-  height: 48px;
+  height: 44px;
   width: auto;
-  max-width: 80px;
+  max-width: 75px;
   object-fit: contain;
   border-radius: 4px;
 }
@@ -147,28 +147,28 @@
 }
 
 .brandTitle {
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 800;
   color: #0F766E;
   letter-spacing: 0.5px;
 }
 
 .brandUrl {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   color: #1E3A8A;
 }
 
 .brandContact {
-  font-size: 9.5px;
+  font-size: 9px;
   color: #64748B;
 }
 
 .docMeta {
   text-align: right;
-  font-size: 10px;
+  font-size: 9.5px;
   color: #475569;
-  line-height: 1.45;
+  line-height: 1.4;
 }
 
 .metaHighlight {
@@ -179,22 +179,22 @@
 /* Tiêu đề tài liệu */
 .reportTitleBox {
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .reportTitle {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
   color: #0F172A;
   margin: 0;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.3px;
 }
 
 .reportSubtitle {
-  font-size: 9.5px;
+  font-size: 9px;
   font-weight: 600;
   color: #64748B;
-  margin: 2px 0 0 0;
+  margin: 1.5px 0 0 0;
 }
 
 /* 2. Khung Hành chính người bệnh */
@@ -202,15 +202,15 @@
   background: #F8FAFC;
   border: 1px solid #E2E8F0;
   border-radius: 6px;
-  padding: 6px 10px;
-  margin-bottom: 8px;
+  padding: 5px 8px;
+  margin-bottom: 6px;
 }
 
 .patientGrid {
   display: grid;
   grid-template-columns: 1.3fr 1fr 1fr 1.1fr;
-  gap: 5px 12px;
-  font-size: 10.5px;
+  gap: 4px 10px;
+  font-size: 10px;
 }
 
 .patientField {
@@ -228,7 +228,7 @@
 .patientName {
   color: #0F766E;
   font-weight: 800;
-  font-size: 11px;
+  font-size: 10.5px;
 }
 
 .diagText {
@@ -236,18 +236,88 @@
   font-weight: 700;
 }
 
-/* 3. Khối 4 Chỉ Số Sinh Hiệu (Vital Metrics Grid) */
+/* 3. KHU VỰC GHI NHẬN SINH HIỆU & XÉT NGHIỆM TẠI CHỖ (ĐIỀU DƯỠNG / BÁC SĨ ĐIỀN BÚT) */
+.clinicIntakeBox {
+  background: #F0FDF4;
+  border: 1.5px dashed #16A34A;
+  border-radius: 6px;
+  padding: 5px 8px;
+  margin-bottom: 6px;
+}
+
+.clinicIntakeHeader {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 4px;
+}
+
+.clinicIntakeTitle {
+  font-size: 9px;
+  font-weight: 800;
+  color: #166534;
+  text-transform: uppercase;
+}
+
+.intakeBadge {
+  margin-left: auto;
+  font-size: 8px;
+  font-weight: 700;
+  color: #15803D;
+  background: #DCFCE7;
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid #BBF7D0;
+}
+
+.intakeGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+}
+
+.intakeCard {
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 4px;
+  padding: 3.5px 5px;
+  text-align: center;
+}
+
+.intakeLabel {
+  font-size: 7.5px;
+  font-weight: 800;
+  color: #334155;
+  text-transform: uppercase;
+  margin-bottom: 1px;
+}
+
+.intakeBlank {
+  font-size: 10px;
+  font-weight: 700;
+  color: #0F172A;
+  padding: 1.5px 0;
+  border-bottom: 1px dotted #94A3B8;
+  margin-bottom: 1px;
+}
+
+.intakeCheckboxes {
+  font-size: 7.5px;
+  color: #64748B;
+}
+
+/* 4. Khối 4 Chỉ Số Sinh Hiệu Tại Nhà */
 .vitalGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-  margin-bottom: 8px;
+  gap: 5px;
+  margin-bottom: 6px;
 }
 
 .vitalCard {
   border: 1px solid #E2E8F0;
   border-radius: 6px;
-  padding: 5px 7px;
+  padding: 4px 6px;
   text-align: center;
   background: #FFFFFF;
 }
@@ -266,14 +336,14 @@
 }
 
 .vitalLabel {
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 800;
   color: #64748B;
   text-transform: uppercase;
 }
 
 .vitalVal {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
   color: #0F766E;
   line-height: 1.15;
@@ -288,24 +358,24 @@
 }
 
 .vitalSub {
-  font-size: 8.5px;
+  font-size: 8px;
   color: #475569;
-  margin-top: 2px;
-  line-height: 1.25;
+  margin-top: 1.5px;
+  line-height: 1.2;
 }
 
 .vitalTiny {
-  font-size: 8px;
+  font-size: 7.5px;
   color: #64748B;
   margin-top: 1px;
 }
 
-/* 4. Ma trận đơn thuốc ngoại trú */
+/* 5. Ma trận đơn thuốc ngoại trú */
 .sectionHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 6px 0 4px 0;
+  margin: 5px 0 3px 0;
   border-bottom: 1.5px solid #0F766E;
   padding-bottom: 2px;
 }
@@ -317,31 +387,31 @@
 }
 
 .sectionTitle {
-  font-size: 10.5px;
+  font-size: 9.5px;
   font-weight: 800;
   color: #0F172A;
   text-transform: uppercase;
 }
 
 .sectionBadge {
-  font-size: 8.5px;
+  font-size: 8px;
   font-weight: 700;
   color: #0F766E;
   background: #CCFBF1;
-  padding: 1px 6px;
+  padding: 1px 5px;
   border-radius: 4px;
 }
 
 .medTable {
   width: 100%;
   border-collapse: collapse;
-  font-size: 9.5px;
-  margin-bottom: 8px;
+  font-size: 9px;
+  margin-bottom: 6px;
 }
 
 .medTable th, .medTable td {
   border: 1px solid #CBD5E1;
-  padding: 3.5px 5px;
+  padding: 3px 4px;
 }
 
 .medTable th {
@@ -363,12 +433,13 @@
 
 .categoryCell {
   color: #475569;
-  font-size: 8.5px;
+  font-size: 8px;
+  line-height: 1.25;
 }
 
 .slotCell {
   text-align: center;
-  font-size: 9.5px;
+  font-size: 9px;
   color: #1E3A8A;
 }
 
@@ -378,13 +449,14 @@
 
 .instructionCell {
   color: #334155;
-  font-size: 8.5px;
+  font-size: 8px;
+  line-height: 1.25;
 }
 
 .totalRow {
   background: #F8FAFC;
   font-weight: 800;
-  font-size: 9px;
+  font-size: 8.5px;
   color: #0F172A;
 }
 
@@ -394,16 +466,16 @@
   font-weight: 800;
 }
 
-/* 5. Khảo sát triệu chứng & An toàn */
+/* 6. Khảo sát triệu chứng & Mục tiêu điều trị */
 .clinicalBox {
   display: grid;
   grid-template-columns: 1.25fr 1fr;
-  gap: 8px;
+  gap: 6px;
   background: #F8FAFC;
   border: 1px solid #E2E8F0;
   border-radius: 6px;
-  padding: 6px 8px;
-  margin-bottom: 8px;
+  padding: 5px 7px;
+  margin-bottom: 6px;
 }
 
 .clinicalCol {
@@ -415,7 +487,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 800;
   color: #0F766E;
   margin-bottom: 3px;
@@ -425,58 +497,67 @@
 .checkGrid {
   display: flex;
   flex-direction: column;
-  gap: 2.5px;
+  gap: 2px;
 }
 
 .checkItem {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 8.5px;
+  font-size: 8px;
   color: #334155;
 }
 
-.normalNote {
-  font-size: 8.5px;
-  color: #475569;
-  margin: 0;
-  line-height: 1.35;
+.targetList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.alertNote {
-  background: #FEF3C7;
-  border: 1px solid #FDE68A;
+.targetItem {
+  font-size: 8px;
+  color: #334155;
+}
+
+.targetItem b {
+  color: #0F172A;
+}
+
+.remindNote {
+  margin-top: 2px;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
   border-radius: 4px;
-  padding: 4px 6px;
-  font-size: 8.5px;
-  color: #92400E;
-  line-height: 1.35;
+  padding: 2.5px 5px;
+  font-size: 7.5px;
+  color: #1E40AF;
+  line-height: 1.25;
 }
 
-/* 6. Khung Bút Phê của Bác Sĩ */
+/* 7. Khung Bút Phê của Bác Sĩ */
 .doctorNotesBox {
   border: 1px dashed #94A3B8;
   border-radius: 6px;
-  padding: 6px 10px;
-  margin-bottom: 6px;
+  padding: 5px 8px;
+  margin-bottom: 5px;
   background: #FFFFFF;
 }
 
 .notesTitle {
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 800;
   color: #0F172A;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 }
 
 .notesDottedLines {
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .dottedLine {
-  font-size: 8px;
+  font-size: 7.5px;
   color: #94A3B8;
-  letter-spacing: 1.2px;
+  letter-spacing: 1.1px;
   overflow: hidden;
   white-space: nowrap;
 }
@@ -485,8 +566,8 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  font-size: 9.5px;
-  margin-top: 2px;
+  font-size: 8.5px;
+  margin-top: 1px;
 }
 
 .nextDate {
@@ -495,28 +576,28 @@
 
 .signBox {
   text-align: center;
-  min-width: 150px;
+  min-width: 140px;
   font-weight: 700;
   color: #0F172A;
 }
 
 .signSpace {
-  font-size: 8px;
+  font-size: 7.5px;
   font-weight: 400;
   color: #64748B;
   font-style: italic;
-  margin-top: 24px;
+  margin-top: 18px;
 }
 
-/* 7. Chân trang Footer */
+/* 8. Chân trang Footer */
 .docFooter {
   border-top: 1px solid #CBD5E1;
-  padding-top: 4px;
+  padding-top: 3px;
   display: flex;
   justify-content: space-between;
-  font-size: 8px;
+  font-size: 7.5px;
   color: #64748B;
-  line-height: 1.3;
+  line-height: 1.25;
 }
 
 .linkText {
@@ -576,7 +657,7 @@
    ========================================================================== */
 @page {
   size: A4 portrait;
-  margin: 5mm 6mm;
+  margin: 4mm 5mm;
 }
 
 @media print {

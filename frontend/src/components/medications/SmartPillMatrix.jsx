@@ -214,10 +214,13 @@ export default function SmartPillMatrix({
           {/* 7 cột ngày trong tuần */}
           {DAYS.map((day) => {
             const isToday = day.key === todayDayKey;
+            const isSunday = day.key === 'sun';
             return (
               <div
                 key={day.key}
-                className={`${styles.headerCell} ${isToday ? styles.headerCellToday : ''}`}
+                className={`${styles.headerCell} ${isToday ? styles.headerCellToday : ''} ${
+                  isSunday && !isToday ? styles.headerCellSunday : ''
+                }`}
               >
                 <div className={styles.headerDayName}>{day.label}</div>
                 <div className={styles.headerDaySub}>

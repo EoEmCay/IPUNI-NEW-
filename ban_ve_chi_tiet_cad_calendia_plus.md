@@ -191,7 +191,11 @@ Cơ chế hoạt động hoàn toàn bằng **cơ học thuần túy (Mechanical
 * **Kết cấu chi tiết 1 hốc đèn LED:**
   * **Gờ chắn sáng (Light Baffle Collar):** Khung viền vuông nhô cao **$14.0	ext{ mm} 	imes 14.0	ext{ mm} 	imes$ cao $1.5	ext{ mm}$**, cắm khít vào cửa sổ sau lưng của Khung tổ ong Part 3, **triệt tiêu 100% ánh sáng lọt sang ngăn bên cạnh**.
   * **Lòng hốc LED:** Kích thước **$12.0	ext{ mm} 	imes 12.0	ext{ mm} 	imes$ sâu $2.0	ext{ mm}$** chứa vừa vặn chip LED SMD 5050 RGB WS2812B ($5.0 	imes 5.0	ext{ mm}$) và tụ lọc nguồn dán $100	ext{nF}$.
-  * **Rãnh luồn dây nối tiếp (Serpentine Wire Tracks):** Rãnh âm **rộng $3.0	ext{ mm} 	imes$ sâu $1.5	ext{ mm}$** chạy liên tục dích dắc hình chữ Z: Hàng 1 (Trái $ightarrow$ Phải), Hàng 2 (Phải $ightarrow$ Trái), Hàng 3 (Trái $ightarrow$ Phải), Hàng 4 (Phải $ightarrow$ Trái), chứa vừa cáp dải FPC hoặc 3 dây điện mềm bọc silicon AWG28.
+  * **Rãnh luồn dây nối tiếp (Serpentine Wire Tracks):** Rãnh âm **rộng $3.0	ext{ mm} 	imes$ sâu $1.5	ext{ mm}$** chạy liên tục dích dắc hình chữ Z: Hàng 1 (Trái $
+ightarrow$ Phải), Hàng 2 (Phải $
+ightarrow$ Trái), Hàng 3 (Trái $
+ightarrow$ Phải), Hàng 4 (Phải $
+ightarrow$ Trái), chứa vừa cáp dải FPC hoặc 3 dây điện mềm bọc silicon AWG28.
 * **Khoang gá bo mạch ESP32-C3 DevKit (Top Electronics Bay):**
   * Vị trí: Đặt ở dải trên đỉnh, nằm ngay trên mảng LED hàng 1.
   * **4 Trụ ốc bắt vít M2:** Tâm lỗ cách nhau chuẩn tuyệt đối **$44.0	ext{ mm} 	imes 20.0	ext{ mm}$**. Đường kính trụ $arnothing 4.5	ext{ mm}$, lỗ lõi $arnothing 1.8	ext{ mm}$ để bắt vít tự ren M2 dài $6	ext{ mm}$.
@@ -203,11 +207,42 @@ Cơ chế hoạt động hoàn toàn bằng **cơ học thuần túy (Mechanical
 
 ---
 
-### PART [5]: Mặt Nạ Màn Hình OLED & Kính Bảo Vệ (OLED Bezel Bracket)
+### PART [5]: Cụm Màn Hình Hiển Thị OLED Đỉnh Máy & Tấm Kính Mica Đen Khói (OLED Bezel & Smoked Acrylic Assembly)
 
-* **Chức năng:** Cố định màn hình OLED 0.96 inch hoặc 1.3 inch I2C phẳng khít với mặt kính ngoài.
-* **Kích thước:** Rộng 67.4 mm × Cao 21.4 mm × Dày 4.5 mm.
-* **Vật liệu:** Mica đen khói cắt laser hoặc in PETG màu đen bóng.
+#### Bản Vẽ Mô Hình 3D CAD & Bản Vẽ Kỹ Thuật Bóc Tách Chi Tiết:
+![Bản vẽ 3D Cụm Màn hình OLED đỉnh CalenDIA+](calendia_top_oled_acrylic_cad_render.jpg)
+*(Mô hình 3D CAD Cụm màn hình OLED đỉnh CalenDIA+: Bóc tách 3 tầng - Kính mica đen khói 192×24×2.0mm, hộc khoét bậc chìm vỏ mặt trước và module OLED hiển thị thông số lâm sàng phát sáng rực rỡ)*
+
+![Bản vẽ kỹ thuật chi tiết Cụm Màn hình OLED đỉnh](ban_ve_man_hinh_oled_dinh_cad.png)
+*(Bản vẽ bóc tách kích thước 3 chiều: Ngang × Dọc × Cao, mặt cắt dọc C-C, chi tiết module OLED 0.96" / 1.3" và hiệu ứng quang học Hidden-Until-Lit)*
+
+---
+
+### Bảng Kích Thước 3 Chiều Chuẩn Xác (Ngang × Dọc × Cao/Dày)
+
+| Thành phần cấu thành cụm | Chiều Ngang (Width) | Chiều Dọc (Height) | Chiều Cao / Độ Dày (Depth/Thk) | Vật liệu / Chức năng cơ học |
+| :--- | :---: | :---: | :---: | :--- |
+| **1. Tấm mặt nạ kính Mica đen khói (Mặt ngoài)** | **$192.0	ext{ mm}$** | **$24.0	ext{ mm}$** | **$2.0	ext{ mm}$** | Mica/PMMA đen khói xuyên quang 40%, bo 4 góc $R = 5.0	ext{ mm}$, phẳng lì ngang vỏ. |
+| **2. Hộc khoét bậc chìm trên vỏ Part 1** | **$192.4	ext{ mm}$** | **$24.4	ext{ mm}$** | **$2.0	ext{ mm}$** *(độ sâu bậc)* | Khe hở trơn $\Delta = 0.4	ext{ mm}$, gờ đỡ viền rộng $3.0	ext{ mm}$ dán keo 3M 300LSE kín nước, chống bụi. |
+| **3. Lỗ khoét xuyên sáng vào lòng máy** | **$186.0	ext{ mm}$** | **$18.0	ext{ mm}$** | Xuyên thủng vỏ ($2.5	ext{ mm}$) | Cho phép ánh sáng từ màn hình OLED và LED trạng thái chiếu qua. |
+| **4. Khung gá giữ màn hình Part 5** | **$190.0	ext{ mm}$** | **$28.0	ext{ mm}$** | **$5.0	ext{ mm}$** | In 3D nhựa PETG đen, có 4 trụ vít M2 bắt vào mặt sau vỏ mặt trước Part 1. |
+| **5. Module Màn hình OLED 0.96" I2C (Chuẩn)** | **$27.0	ext{ mm}$** *(PCB)* | **$27.5	ext{ mm}$** *(PCB)* | **$4.1	ext{ mm}$** *(Cả IC & kính)* | Vùng hiển thị $21.74 	imes 10.86	ext{ mm}$ ($128 	imes 64$ điểm ảnh), hiển thị đường huyết và giờ uống. |
+| **6. Module Màn hình OLED 1.3" I2C (Bản to)** | **$35.4	ext{ mm}$** *(PCB)* | **$33.5	ext{ mm}$** *(PCB)* | **$4.3	ext{ mm}$** | Vùng hiển thị $29.42 	imes 14.70	ext{ mm}$, chữ số to hơn $35\%$ cho người cao tuổi dễ đọc. |
+| **TỔNG CỤM LẮP RÁP HOÀN THIỆN** | **$192.0	ext{ mm}$** | **$28.0	ext{ mm}$** | **$7.5	ext{ mm}$ (Tổng chiều sâu)** | Nằm lọt gọn gàng trong khoang rỗng $18.0	ext{ mm}$ của đỉnh máy CalenDIA+. |
+
+---
+
+### Nguyên Lý Quang Học & Kết Cấu Cơ Khí
+
+1. **Hiệu ứng "Ẩn mình khi tắt - Sáng bừng khi bật" (Hidden-Until-Lit):**
+   * Sử dụng tấm Mica Acrylic màu **đen khói (Smoked Black) có độ truyền dẫn quang học $35\% - 40\%$**.
+   * Khi thiết bị ở trạng thái nghỉ, toàn bộ thanh ngang đỉnh máy là một khối đen bóng liền mạch, sang trọng, che giấu hoàn toàn các viền bo mạch và chip điện tử bên trong.
+   * Khi đến giờ nhắc uống thuốc, màn hình OLED tự động bật sáng, các dòng chữ màu xanh ngọc Cyan (`#38BDF8`) hoặc trắng sáng xuyên qua lớp kính đen cực kỳ sắc nét, tương phản cao và dịu mắt.
+2. **Khung gá chống rung & Chống lọt bụi (Part 5 Bracket):**
+   * Module OLED được cố định chặt vào Khung gá Part 5 bằng 4 vít M2.
+   * Viền ngoài của tấm kính mica được dán kín vào gờ bích vỏ máy bằng dải băng keo chuyên dụng **3M 300LSE dày $0.15	ext{ mm}$**, ngăn chặn tuyệt đối bụi mịn và hơi ẩm lọt vào màn hình theo thời gian.
+3. **Đấu nối I2C tiết kiệm chân:**
+   * Chỉ sử dụng 4 dây: `GND`, `VCC (3.3V)`, `SCL (GPIO 5)`, `SDA (GPIO 4)` cắm trực tiếp vào bo mạch ESP32-C3.
 
 ---
 

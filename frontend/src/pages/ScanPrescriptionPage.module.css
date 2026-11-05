@@ -1484,6 +1484,13 @@
   animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
   border: 1px solid rgba(226, 232, 240, 0.8);
+  transition: max-width 0.25s cubic-bezier(0.16, 1, 0.3, 1), width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wizardModalWide {
+  max-width: 1240px;
+  width: 96vw;
+  max-height: min(94dvh, calc(100vh - 24px));
 }
 
 .wizardHeader {

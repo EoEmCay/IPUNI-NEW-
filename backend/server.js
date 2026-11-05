@@ -108,7 +108,7 @@ const apiLimiter = rateLimit({
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 phút
-  max: envInt('RATE_LIMIT_AUTH_MAX', 100), // 100 lần gọi /auth / 15 phút / IP; dò mật khẩu từng tài khoản còn bị loginAccountLimiter chặn riêng
+  max: process.env.NODE_ENV !== 'production' ? 10000 : envInt('RATE_LIMIT_AUTH_MAX', 600),
   message: { message: 'Thao tác quá nhiều lần. Vui lòng thử lại sau 15 phút.' },
   standardHeaders: true,
   legacyHeaders: false,

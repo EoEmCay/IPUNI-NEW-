@@ -141,7 +141,7 @@ export default function SmartPillMatrixModal({
               'Hệ thống tự động đồng bộ lịch với chuông báo và thông báo người nhà'
             )}
           </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div className={styles.footerActions}>
             <button
               type="button"
               className={styles.saveBtn}

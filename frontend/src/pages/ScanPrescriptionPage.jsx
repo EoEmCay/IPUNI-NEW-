@@ -523,7 +523,7 @@ export default function ScanPrescriptionPage() {
 
           {result && !result.error && (result.isDiabetesPrescription || result.isPrescription || (result.medications && result.medications.length > 0)) && typeof document !== 'undefined' && createPortal(
             <div className={styles.wizardOverlay}>
-              <div className={styles.wizardModal}>
+              <div className={`${styles.wizardModal} ${scanWizardStep === 3 ? styles.wizardModalWide : ''}`}>
                 <div className={styles.wizardHeader}>
                   <h3 className={styles.wizardTitle}>
                     {scanWizardStep === 1 ? (

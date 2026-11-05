@@ -215,6 +215,10 @@ export default function SmartPillMatrix({
         </div>
       </div>
 
+      <div className={styles.mobileScrollHint} aria-hidden="true">
+        ↔ Vuốt hoặc cuộn ngang để xem đủ 7 ngày (Thứ Hai → Chủ Nhật)
+      </div>
+
       {/* ── VÙNG CUỘN MA TRẬN 7x4 (28 NGĂN KÉO) ── */}
       <div className={styles.scrollWrapper}>
         <div className={styles.matrixGrid}>
@@ -273,7 +277,7 @@ export default function SmartPillMatrix({
                       <div className={styles.drawerEmpty}>Ô trống</div>
                     ) : (
                       <div className={styles.pillsList}>
-                        {cellMeds.map((med, mIdx) => {
+                        {cellMeds.slice(0, 3).map((med, mIdx) => {
                           const isInject = INSULIN_PATTERN.test(med.name || '');
                           return (
                             <div key={`${cellKey}-${mIdx}`} className={styles.pillBadge}>
@@ -293,11 +297,15 @@ export default function SmartPillMatrix({
                             </div>
                           );
                         })}
-                        {cellMeds.length > 1 && (
+                        {cellMeds.length > 3 ? (
+                          <div className={styles.morePillsBadge} title="Chạm vào ô để xem tất cả thuốc">
+                            <Layers size={11} /> +{cellMeds.length - 3} thuốc khác
+                          </div>
+                        ) : cellMeds.length > 1 ? (
                           <div className={styles.multipleMedsCount}>
                             <Layers size={10} /> {cellMeds.length} thuốc cùng cữ
                           </div>
-                        )}
+                        ) : null}
                       </div>
                     )}
 

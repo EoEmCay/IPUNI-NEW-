@@ -173,14 +173,33 @@ Cơ chế hoạt động hoàn toàn bằng **cơ học thuần túy (Mechanical
 
 ---
 
-### PART [4]: Khay Gá 28 Lò Xo Nén & Dải Đèn LED (Spring Base & LED Isolation Tray)
+### PART [4]: Khay Bắt Bo Mạch ESP32 & Mảng 28 Đèn LED (ESP32 & LED Carrier Plate)
 
-* **Chức năng:** Chịu lực đẩy của 28 lò xo nén Inox và cách ly ánh sáng tuyệt đối giữa 28 mắt đèn LED WS2812B.
-* **Kích thước:** Rộng 220.0 mm × Cao 100.0 mm × Dày 10.0 mm.
-* **Kết cấu:**
-  * 28 hốc tròn Ø 4.5 mm × sâu 3.0 mm để tì giữ chặt đầu còn lại của 28 lò xo nén Inox.
-  * 28 hốc chữ nhật $12 \times 12\text{ mm}$ đặt vừa mắt LED 5050 WS2812B, có rãnh luồn dây nối tiếp 3 dây (+5V, DATA, GND).
-* **Vật liệu in:** Khuyến nghị in bằng PETG màu đen hoặc sơn đen lòng hốc để chống lọt sáng 100%.
+#### Bản Vẽ Mô Hình 3D CAD & Bản Vẽ Kỹ Thuật Bóc Tách Chi Tiết:
+![Bản vẽ 3D Khay bắt bo mạch ESP32 và Mảng LED CalenDIA+](calendia_esp32_led_carrier_tray_cad_render.jpg)
+*(Mô hình 3D CAD Khay gá điện tử nguyên khối Part 4: Mảng 28 hốc LED WS2812B với rãnh chạy dích dắc Serpentine, gờ chắn sáng 14×14mm, khoang gá vi điều khiển ESP32-C3 DevKit pitch 44×20mm, khe thoát sóng Antenna, gá loa Ø30mm và 6 tai bắt ốc M3)*
+
+![Bản vẽ kỹ thuật chi tiết Khay gá ESP32 và Mảng LED](ban_ve_khay_esp32_led_tray_cad.png)
+*(Bản vẽ bóc tách hình chiếu đứng mảng 28 LED, tọa độ bước Px=28.5mm, Py=22.5mm, chi tiết phóng đại 1 hốc LED 5050 và sơ đồ bus dữ liệu 3 dây)*
+
+* **Chức năng:** Tấm vỉ trung tâm tích hợp toàn bộ hệ thống cơ điện (Opto-Electronic Backbone), định vị chuẩn xác tuyệt đối 28 mắt đèn LED WS2812B thẳng hàng tâm đuôi 28 ngăn kéo, cách ly quang học chống lem sáng, gá cố định vi điều khiển ESP32-C3-DevKitM-1 và dẫn hướng dây tín hiệu gọn gàng.
+* **Kích thước ngoài phủ bì:** **Rộng 218.0 mm × Cao 142.0 mm × Dày 4.5 mm** (độ dày đế nền $3.0	ext{ mm}$, gờ chắn sáng và trụ bắt ốc nhô cao từ $1.5	ext{ mm} - 4.0	ext{ mm}$).
+* **Thông số tọa độ mảng 28 Đèn LED (7 Cột × 4 Hàng):**
+  * **Bước ngang (Pitch X):** **$P_x = 28.5	ext{ mm}$** (khoảng cách tâm giữa các cột: $6 	imes 28.5 = 171.0	ext{ mm}$).
+  * **Bước dọc (Pitch Y):** **$P_y = 22.5	ext{ mm}$** (khoảng cách tâm giữa các hàng: $3 	imes 22.5 = 67.5	ext{ mm}$).
+  * *Độ trùng khớp:* Trục quang học của 28 mắt LED đồng tâm $100\%$ với tâm của 28 cửa sổ xuyên sáng sau lưng Khung tổ ong Part 3.
+* **Kết cấu chi tiết 1 hốc đèn LED:**
+  * **Gờ chắn sáng (Light Baffle Collar):** Khung viền vuông nhô cao **$14.0	ext{ mm} 	imes 14.0	ext{ mm} 	imes$ cao $1.5	ext{ mm}$**, cắm khít vào cửa sổ sau lưng của Khung tổ ong Part 3, **triệt tiêu 100% ánh sáng lọt sang ngăn bên cạnh**.
+  * **Lòng hốc LED:** Kích thước **$12.0	ext{ mm} 	imes 12.0	ext{ mm} 	imes$ sâu $2.0	ext{ mm}$** chứa vừa vặn chip LED SMD 5050 RGB WS2812B ($5.0 	imes 5.0	ext{ mm}$) và tụ lọc nguồn dán $100	ext{nF}$.
+  * **Rãnh luồn dây nối tiếp (Serpentine Wire Tracks):** Rãnh âm **rộng $3.0	ext{ mm} 	imes$ sâu $1.5	ext{ mm}$** chạy liên tục dích dắc hình chữ Z: Hàng 1 (Trái $ightarrow$ Phải), Hàng 2 (Phải $ightarrow$ Trái), Hàng 3 (Trái $ightarrow$ Phải), Hàng 4 (Phải $ightarrow$ Trái), chứa vừa cáp dải FPC hoặc 3 dây điện mềm bọc silicon AWG28.
+* **Khoang gá bo mạch ESP32-C3 DevKit (Top Electronics Bay):**
+  * Vị trí: Đặt ở dải trên đỉnh, nằm ngay trên mảng LED hàng 1.
+  * **4 Trụ ốc bắt vít M2:** Tâm lỗ cách nhau chuẩn tuyệt đối **$44.0	ext{ mm} 	imes 20.0	ext{ mm}$**. Đường kính trụ $arnothing 4.5	ext{ mm}$, lỗ lõi $arnothing 1.8	ext{ mm}$ để bắt vít tự ren M2 dài $6	ext{ mm}$.
+  * **Độ cao Standoff ($4.0	ext{ mm}$):** Tạo khoảng hở cách điện an toàn cho các chân linh kiện xuyên lỗ dưới đáy bo mạch ESP32-C3.
+  * **Vùng cấm Antenna (Antenna Keep-out Zone):** Khoét thủng một khe rỗng **$16.0	ext{ mm} 	imes 8.0	ext{ mm}$** ngay bên dưới ăng-ten PCB onboard của ESP32-C3, giúp sóng Wi-Fi/Bluetooth phát sóng tối đa, không bị suy hao tín hiệu.
+* **Vật liệu in & Chỉ dẫn gia công:**
+  * Bắt buộc dùng **Nhựa PETG MÀU ĐEN ĐẶC (Solid Black PETG)** để hấp thụ toàn bộ quang năng tản mát, ngăn chặn tuyệt đối hiện tượng phản xạ ánh sáng lem nhem bên trong thân máy.
+  * Thông số in: Chiều cao lớp **$0.16	ext{ mm} - 0.20	ext{ mm}$**, 4 lớp vỏ ngoài (Walls), ruột in **$30\%$ Gyroid**.
 
 ---
 

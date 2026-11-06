@@ -115,7 +115,7 @@ CRITICAL INSTRUCTIONS:
 - A valid medical prescription MUST contain a list of prescribed medications (drugs with names and dosages/frequencies).
 - You MUST extract ALL medications found in the prescription without exception. If there are 7 medications, return 7. Do NOT truncate, do NOT summarize, and do NOT skip ANY medication under any circumstances.
 - You MUST explicitly search for and extract the Doctor's name (doctorName), the Prescription Date (prescriptionDate), the Next Appointment Date (nextAppointmentDate), and any Doctor's Notes/Instructions (doctorNotes). These are very important.
-- doctorNotes = the printed "Lời dặn" section PLUS all handwritten notes on the paper (not only the printed line).
+- doctorNotes = ONLY the PRINTED/typed "Lời dặn" text. NEVER put handwritten text in doctorNotes (handwriting goes to handwrittenLines and medications).
 - Extract any patient health metrics (e.g. Glucose, HbA1c, Blood Pressure, Weight, Height) present in the document into the "metrics" array. Do NOT parse diagnostic parameters as medications.
 - If the document is a laboratory test result, diagnostic imaging report, referral letter, or if the text is unreadable, set "isPrescription" to false.
 
@@ -161,7 +161,7 @@ JSON Schema:
   "nextAppointmentDate": "Next appointment date in YYYY-MM-DD format" or null,
   "diagnosis": "Detailed diagnosis in ${targetLang}" or null,
   "handwrittenLines": ["Verbatim transcription (in ${targetLang}, expand shorthand) of EVERY handwritten line on the paper, top to bottom, one array item per line - drug lines, dose lines, advice, anything written by hand. Never skip a line: if it is hard to read, give your best reading and add '(?)'. Empty array only if there is no handwriting at all"],
-  "doctorNotes": "EVERYTHING the doctor wrote as advice/notes in ${targetLang}: the printed 'Lời dặn' text AND every handwritten line under or around it (handwritten notes are often the most important part), transcribed in reading order and joined with '; '. Example: 'Mang đơn này đi khám lần sau; Mua: Insulin 30/70 tiêm sáng 18 đơn vị, chiều 12 đơn vị; Glucophage'. Handwritten drug lines must ALSO appear in medications. Do not drop a handwritten line just because it is hard to read - transcribe your best reading" or null,
+  "doctorNotes": "ONLY the PRINTED (typed) advice text in ${targetLang} - the 'Lời dặn' section copied exactly, without the 'Lời dặn:' label. Example: 'Khám lại xin mang theo đơn này'. Do NOT include any handwritten text here, not even a best reading" or null,
   "medications": [{
     "name": "Drug name only, as written on the prescription after decoding (e.g. Metformin, Diamicron MR, Lantus)",
     "dosage": "Strength per tablet with its unit, exactly as written (e.g. 500mg, 0.5mg). For insulin: units per injection (e.g. 12 IU)",
@@ -260,19 +260,15 @@ function normalizeDrugName(name) {
   return name.replace(new RegExp(hit.word, 'i'), canonical);
 }
 
-// Lời dặn = dòng in "Lời dặn" + MỌI dòng chữ tay + thuốc viết tay (kèm cách dùng). Ghép bằng code để
-// chắc chắn chữ tay luôn hiện ở mục Lời dặn, kể cả khi AI quên đưa vào doctorNotes.
-function composeDoctorNotes(parsed, medications) {
-  const parts = [];
-  // So khớp bỏ dấu/dấu câu, "đv" = "đơn vị": "Sáng 28 đv" và "Sáng 28 đơn vị" là cùng 1 dòng.
-  const key = (text) => String(text).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd')
-    .replace(/\bdv\b/g, 'don vi').replace(/[^a-z0-9]/g, '');
-  const has = (text) => key(parts.join(' ')).includes(key(text));
-  const add = (text) => { const t = String(text || '').trim(); if (t && !has(t)) parts.push(t); };
-  String(parsed.doctorNotes || parsed.doctor_notes || parsed.notes || '').split(/\s*;\s*/).forEach(add);
-  (Array.isArray(parsed.handwrittenLines) ? parsed.handwrittenLines : []).forEach(add);
-  medications.filter(m => m.handwritten && m.name && !has(m.name))
-    .forEach(m => add(`${m.name}${m.instructions ? `: ${m.instructions}` : ''}`));
+// Lời dặn chỉ lấy phần ĐÁNH MÁY. Chữ tay bác sĩ AI đọc ra ký tự vô nghĩa (vd "Fusc (?); asm; f 8y")
+// nên không ghép handwrittenLines vào; thuốc viết tay vẫn nằm trong danh sách thuốc.
+// Đoạn AI tự đánh "(?)" là đoán chữ tay lọt vào -> bỏ.
+function composeDoctorNotes(parsed) {
+  const parts = String(parsed.doctorNotes || parsed.doctor_notes || parsed.notes || '')
+    .replace(/^\s*lời dặn\s*:\s*/iu, '')
+    .split(/\s*;\s*/)
+    .map(p => p.trim())
+    .filter(p => p && !p.includes('(?)'));
   return parts.length ? parts.join('; ') : null;
 }
 
@@ -356,7 +352,7 @@ function shapeResult(parsed) {
     prescriptionDate: parsed.prescriptionDate || parsed.prescription_date || parsed.date || null,
     nextAppointmentDate: parsed.nextAppointmentDate || parsed.next_appointment_date || parsed.follow_up_date || null,
     diagnosis: parsed.diagnosis || null,
-    doctorNotes: composeDoctorNotes(parsed, medications),
+    doctorNotes: composeDoctorNotes(parsed),
     handwrittenLines: Array.isArray(parsed.handwrittenLines) ? parsed.handwrittenLines : [],
     metrics: Array.isArray(parsed.metrics) ? parsed.metrics : [],
     error: parsed.error || null,

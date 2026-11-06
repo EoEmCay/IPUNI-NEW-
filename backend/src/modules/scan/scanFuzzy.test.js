@@ -57,24 +57,16 @@ it('đơn không ghi liều: xoá liều AI tự điền', () => {
   assert.deepStrictEqual(m.times, []);
 });
 
-it('lời dặn luôn có chữ tay: dòng in + dòng chữ tay + thuốc viết tay, không lặp', () => {
+it('lời dặn chỉ hiện chữ đánh máy, bỏ chữ tay AI đọc không ra', () => {
   const r = shapeResult({
-    doctorNotes: 'Mang đơn này đi khám lần sau',
-    handwrittenLines: ['Mua: Insulin 30/70 tiêm', 'Sáng 28 đơn vị', 'Chiều 26 đơn vị', 'Mang đơn này đi khám lần sau'],
-    medications: [
-      { name: 'Insulin 30/70', instructions: 'Tiêm dưới da', handwritten: true },
-      { name: 'Glucophage', instructions: 'Chưa ghi liều - hỏi lại bác sĩ/dược sĩ', handwritten: true },
-      { name: 'Ebitac 25', instructions: 'Uống sáng', handwritten: false },
-    ],
+    doctorNotes: 'LỜI DẶN: Khám lại xin mang theo đơn này; Fusc (?)',
+    handwrittenLines: ['Fusc (?)', 'asm', 'fuce', 'st', 'f 8y'],
+    medications: [{ name: 'Insulin 30/70', instructions: 'Tiêm dưới da', handwritten: true }],
   });
-  assert.strictEqual(r.doctorNotes, 'Mang đơn này đi khám lần sau; Mua: Insulin 30/70 tiêm; Sáng 28 đơn vị; Chiều 26 đơn vị; Glucophage: Chưa ghi liều - hỏi lại bác sĩ/dược sĩ');
-  // AI quên hết lời dặn nhưng có thuốc viết tay -> vẫn có lời dặn
-  assert.strictEqual(shapeResult({ medications: [{ name: 'Glucophage', handwritten: true }] }).doctorNotes, 'Glucophage');
-  assert.strictEqual(shapeResult({ medications: [{ name: 'X', handwritten: false }] }).doctorNotes, null);
-  // Dòng chép nguyên văn trùng ý với lời dặn AI đã viết đầy đủ -> không lặp
-  assert.strictEqual(shapeResult({ doctorNotes: 'Mua Insulin 30/70: Tiêm sáng 28 đơn vị, chiều 26 đơn vị',
-    handwrittenLines: ['Insulin 30/70 : Tiêm', 'Sáng 28 đv', 'Chiều 26 đv'], medications: [] }).doctorNotes,
-  'Mua Insulin 30/70: Tiêm sáng 28 đơn vị, chiều 26 đơn vị');
+  assert.strictEqual(r.doctorNotes, 'Khám lại xin mang theo đơn này');
+  assert.strictEqual(r.medications.length, 1); // thuốc viết tay vẫn giữ trong danh sách thuốc
+  // Chỉ có chữ tay, không có lời dặn in -> không hiện lời dặn
+  assert.strictEqual(shapeResult({ handwrittenLines: ['asm'], medications: [{ name: 'Glucophage', handwritten: true }] }).doctorNotes, null);
 });
 
 console.log(`\n${pass} passed`);

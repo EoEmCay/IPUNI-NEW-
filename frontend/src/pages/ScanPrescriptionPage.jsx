@@ -608,6 +608,7 @@ export default function ScanPrescriptionPage() {
                           )}
                         </div>
 
+                        {/* Backend chỉ trả lời dặn đánh máy; chữ tay đã bị lọc ở composeDoctorNotes */}
                         {result.doctorNotes && (
                           <div className={styles.compactDoctorNoteBox}>
                             <Stethoscope size={13} color="#1d4ed8" className={styles.compactNoteIcon} />

@@ -23,7 +23,7 @@ export default function ScanCamera({ onImageScan }) {
   const handleNative = async (fromCamera) => {
     setErrorMessage(null);
     try {
-      const file = await captureNativePhoto({ fromCamera, quality: 85, maxWidth: 1600 });
+      const file = await captureNativePhoto({ fromCamera, quality: 80, maxWidth: 1600 });
       if (file) {
         onImageScan(file);
       }

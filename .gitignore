@@ -33,3 +33,7 @@ __pycache__/
 # Thu muc cho file cho xoa (scripts/don_dep.ps1) va token ca nhan
 _to_delete/
 /token.txt
+
+# Android build artifacts
+*.apk
+*.aab

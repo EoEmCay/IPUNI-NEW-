@@ -1,18 +1,28 @@
-/* Nền canvas desktop khi hiển thị khung iPhone */
+/* Nền canvas desktop khi hiển thị khung giả lập Android APK / iPhone */
 .desktopCanvas {
   width: 100%;
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #f1f5f9;
+  background: #0f172a linear-gradient(135deg, #0b1329 0%, #1e293b 100%);
   box-sizing: border-box;
   overflow-x: hidden;
-  padding: 16px 0;
+  padding: 18px 0;
+  position: relative;
 }
 
 .pcCanvas {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--color-bg);
+  box-sizing: border-box;
+}
+
+.nativeCanvas {
   width: 100%;
   min-height: 100vh;
   min-height: 100dvh;
@@ -32,9 +42,19 @@
   width: 100%;
   box-sizing: border-box;
   transition:
-    max-width 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.4s ease,
-    border-radius 0.4s ease;
+    max-width 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.3s ease,
+    border-radius 0.3s ease;
+}
+
+.nativeFullWrapper {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 100vh;
+  min-height: 100dvh;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
 }
 
 /* Chế độ PC của Người giám sát (1180px) */
@@ -50,8 +70,199 @@
   min-height: 100vh;
 }
 
-/* Khung iPhone trên màn hình máy tính (>= 600px) */
+/* Bộ chuyển đổi giả lập thiết bị (Android APK vs iOS) */
+.simulatorSwitcher {
+  position: fixed;
+  top: 14px;
+  right: 18px;
+  z-index: 2100;
+  display: flex;
+  gap: 4px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 4px;
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.simBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #94a3b8;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+}
+
+.simBtn:hover {
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.simBtnActive {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 10px rgba(2, 132, 199, 0.45);
+}
+
+.simIcon {
+  font-size: 13.5px;
+  line-height: 1;
+}
+
+/* Vùng cuộn nội dung ứng dụng */
+.appScrollContent {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Khung điện thoại trên màn hình máy tính (>= 600px) */
 @media (min-width: 600px) {
+  /* KHUNG GIẢ LẬP ANDROID APK */
+  .androidFrame {
+    width: 412px;
+    max-width: 412px;
+    height: min(92vh, 870px);
+    max-height: 870px;
+    min-height: auto;
+    border-radius: 36px;
+    border: 8px solid #1e293b;
+    box-shadow:
+      0 0 0 2px #475569,
+      0 25px 65px rgba(0, 0, 0, 0.55);
+    overflow: hidden;
+    position: relative;
+    transform: translateZ(0);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    background: var(--color-bg);
+  }
+
+  /* Thanh trạng thái Android */
+  .androidStatusBar {
+    height: 32px;
+    min-height: 32px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    background: #0f172a;
+    color: #f8fafc;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: system-ui, -apple-system, sans-serif;
+    z-index: 1001;
+    box-sizing: border-box;
+    user-select: none;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .androidTime {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: #f8fafc;
+  }
+
+  .punchHole {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 0 2px rgba(255, 255, 255, 0.25);
+  }
+
+  .punchHoleLens {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #0f172a;
+    border: 1px solid #1e293b;
+  }
+
+  .androidStatusIcons {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #e2e8f0;
+  }
+
+  .batteryGroup {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .batteryText {
+    font-size: 10px;
+    font-weight: 600;
+    color: #94a3b8;
+  }
+
+  /* Thanh điều hướng 3 nút Android ảo */
+  .androidNavBar {
+    height: 44px;
+    min-height: 44px;
+    width: 100%;
+    background: #0f172a;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 24px;
+    z-index: 1001;
+    box-sizing: border-box;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    flex-shrink: 0;
+    user-select: none;
+  }
+
+  .androidNavBtn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    width: 54px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .androidNavBtn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.09);
+  }
+
+  .androidNavBtn:active {
+    transform: scale(0.92);
+    background: rgba(255, 255, 255, 0.16);
+  }
+
+  /* KHUNG GIẢ LẬP IPHONE */
   .iphoneFrame {
     width: 420px;
     max-width: 420px;
@@ -62,11 +273,9 @@
     border: 9px solid #0f172a;
     box-shadow:
       0 0 0 2px #334155,
-      0 20px 60px rgba(15, 23, 42, 0.32);
+      0 25px 65px rgba(0, 0, 0, 0.55);
     overflow: hidden;
     position: relative;
-    /* QUAN TRỌNG: transform tạo ra containing block mới, ép TopBar và BottomNav (position: fixed)
-       phải nằm 100% bên trong khung iPhone, không bao giờ bị tràn hay trôi ra ngoài trình duyệt */
     transform: translateZ(0);
     display: flex;
     flex-direction: column;
@@ -124,6 +333,11 @@
     display: block;
   }
 
+  .simulatorSwitcher {
+    display: none !important;
+  }
+
+  .androidFrame,
   .iphoneFrame {
     width: 100%;
     max-width: 100%;
@@ -136,8 +350,10 @@
     overflow-x: hidden;
   }
 
+  .androidStatusBar,
+  .androidNavBar,
   .dynamicIsland,
   .homeIndicator {
-    display: none;
+    display: none !important;
   }
 }

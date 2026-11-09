@@ -11,9 +11,23 @@ import { isNative } from './native';
 import { notifyWithEffects } from './notify';
 import { medicationsService } from '../services/medications.service';
 import { ALERT_TYPES } from '../services/voiceAlert.service';
+import {
+  MAX_SCHEDULED,
+  VN_OFFSET_MIN,
+  timeSlotNotifId,
+  buildTodayInstant,
+  groupDosesForNotification,
+} from '../utils/reminderCalc';
+
+export {
+  MAX_SCHEDULED,
+  VN_OFFSET_MIN,
+  timeSlotNotifId,
+  buildTodayInstant,
+  groupDosesForNotification,
+};
 
 const STORE_KEY = 'diaplus_reminder_ids';
-const MAX_SCHEDULED = 60; // Giới hạn iOS (tối đa 64 local notifications chờ)
 
 let listenersRegistered = false;
 
@@ -22,39 +36,6 @@ function loadIds() {
 }
 function saveIds(ids) {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(ids)); } catch { /* ignore */ }
-}
-
-/** Tạo id thông báo duy nhất trong khoảng int32 dương từ mốc thời gian */
-function timeSlotNotifId(instantIso, isFollowup = false) {
-  const epochMins = Math.floor(new Date(instantIso).getTime() / 60000);
-  const base = Math.abs(epochMins % 100000000);
-  return isFollowup ? (base + 100000000) : base;
-}
-
-// Việt Nam dùng offset UTC+7 CỐ ĐỊNH (không DST) — PHẢI khớp chính xác với công thức
-// backend/src/modules/medications/medicationSchedule.js (vnWallToInstant), để instant tính
-// ra ở đây trùng khớp tuyệt đối với instant đã dùng lúc đặt lịch trong syncMedicationReminders().
-const VN_OFFSET_MIN = 420;
-
-/**
- * Quy đổi 1 giờ uống dạng 'HH:mm' thành ISO instant của cữ đó trong NGÀY HÔM NAY (giờ VN),
- * bất kể múi giờ hệ điều hành của thiết bị đang đặt là gì.
- * @param {string} slotTime Ví dụ '07:00'
- * @param {Date} [dateObj] Thời điểm hiện tại (mặc định: bây giờ)
- * @returns {string|null} ISO instant, hoặc null nếu slotTime không hợp lệ
- */
-export function buildTodayInstant(slotTime, dateObj = new Date()) {
-  const m = /^(\d{1,2}):(\d{2})$/.exec(String(slotTime || '').trim());
-  if (!m) return null;
-  const hh = parseInt(m[1], 10);
-  const mm = parseInt(m[2], 10);
-  // Quy đổi "bây giờ" sang ngày lịch VN trước khi lấy Y-M-D, tránh lệch ngày khi thiết bị
-  // đặt múi giờ khác VN (ví dụ đang là 23h50 giờ VN nhưng máy để giờ UTC thì vẫn là "hôm nay" ở VN).
-  const shifted = new Date(dateObj.getTime() + VN_OFFSET_MIN * 60000);
-  const y = shifted.getUTCFullYear();
-  const mo = shifted.getUTCMonth();
-  const d = shifted.getUTCDate();
-  return new Date(Date.UTC(y, mo, d, hh, mm, 0) - VN_OFFSET_MIN * 60000).toISOString();
 }
 
 /**
@@ -147,82 +128,13 @@ export async function syncMedicationReminders() {
     return { scheduled: 0, offline: true };
   }
 
-  const now = Date.now();
-
-  // 3. GỘP CÁC THUỐC CÙNG THỜI ĐIỂM (instant) VÀO 1 NHÓM
-  const groupedByTime = {};
-  for (const d of doses) {
-    const timeMs = new Date(d.instant).getTime();
-    if (timeMs <= now + 60000) continue; // Bỏ qua cữ đã qua
-
-    const timeKey = d.instant;
-    if (!groupedByTime[timeKey]) {
-      groupedByTime[timeKey] = {
-        instant: d.instant,
-        slot: d.slot,
-        timeMs,
-        medications: []
-      };
-    }
-    groupedByTime[timeKey].medications.push(d);
-  }
-
-  const sortedGroups = Object.values(groupedByTime).sort((a, b) => a.timeMs - b.timeMs);
-  const items = [];
-
-  for (const group of sortedGroups) {
-    if (items.length >= MAX_SCHEDULED - 2) break;
-
-    const medNames = group.medications.map((m) => `${m.name}${m.dosage ? ` ${m.dosage}` : ''}`);
-    const medShortNames = group.medications.map((m) => m.name);
-    
-    let bodyText = '';
-    if (medNames.length === 1) {
-      bodyText = `${medNames[0]} — cữ ${group.slot}`;
-    } else {
-      bodyText = `${medNames.length} loại thuốc: ${medNames.join(', ')}`;
-    }
-
-    // A) THÔNG BÁO CHÍNH (Đúng giờ uống)
-    items.push({
-      id: timeSlotNotifId(group.instant, false),
-      title: `Đến giờ uống thuốc (cữ ${group.slot})`,
-      body: bodyText,
-      schedule: { at: new Date(group.instant), allowWhileIdle: true },
-      sound: 'default',
-      smallIcon: 'ic_stat_icon',
-      channelId: 'medication_reminders',
-      extra: {
-        slot: group.slot,
-        instant: group.instant,
-        medNames: medShortNames,
-        isFollowup: false
-      },
-    });
-
-    // B) THÔNG BÁO NHẮC LẠI SAU 15 PHÚT (Follow-up Snooze)
-    const followupTime = new Date(group.timeMs + 15 * 60000);
-    items.push({
-      id: timeSlotNotifId(group.instant, true),
-      title: `Nhắc nhở: Chưa xác nhận cữ ${group.slot}`,
-      body: `Đã qua 15 phút. Bạn đừng quên uống: ${medShortNames.join(', ')} nhé!`,
-      schedule: { at: followupTime, allowWhileIdle: true },
-      sound: 'default',
-      smallIcon: 'ic_stat_icon',
-      channelId: 'medication_reminders',
-      extra: {
-        slot: group.slot,
-        instant: group.instant,
-        medNames: medShortNames,
-        isFollowup: true
-      },
-    });
-  }
+  // 3. Gom nhóm cữ thuốc theo thời điểm chính xác
+  const items = groupDosesForNotification(doses, Date.now());
 
   if (items.length) {
     await LocalNotifications.schedule({ notifications: items });
   }
-  
+
   saveIds(items.map((i) => i.id));
   return { scheduled: items.length };
 }

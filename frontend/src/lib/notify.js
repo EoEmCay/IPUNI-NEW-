@@ -1,5 +1,5 @@
-import { blinkFlash } from './native';
-import { voiceAlertService } from '../services/voiceAlert.service';
+import { blinkFlash } from './native.js';
+import { voiceAlertService } from '../services/voiceAlert.service.js';
 
 // Mọi thông báo của app dùng chung hàm này: âm thanh (giọng người thân đã ghi âm cho loại
 // thông báo đó, chưa có thì giọng đọc tự động) + rung + đèn (LED flash trên app điện thoại,

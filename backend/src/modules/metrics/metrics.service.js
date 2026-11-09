@@ -1,14 +1,19 @@
-const db = require('../../config/database');
-const memoryCache = require('../../utils/memoryCache');
-const { daysAgo } = require('../../utils/date.helper');
-const MetricsCalculator = require('./metrics.calculator');
+'use strict';
 
-async function getMetrics(userId, measurementType, measurementCategory, days = 7) {
-  const since = daysAgo(days);
+const db = require('../../config/database');
+const MetricsCalculator = require('./metrics.calculator');
+const memoryCache = require('../../utils/memoryCache');
+
+/**
+ * Get metrics for a user with optional filtering
+ */
+async function getMetrics(userId, measurementType = null, measurementCategory = null, days = 7) {
+  const fromDate = new Date();
+  fromDate.setDate(fromDate.getDate() - days);
 
   let query = db('metrics')
     .where({ user_id: userId })
-    .where('measured_at', '>=', since)
+    .where('measured_at', '>=', fromDate.toISOString())
     .orderBy('measured_at', 'desc');
 
   if (measurementType) {
@@ -22,39 +27,39 @@ async function getMetrics(userId, measurementType, measurementCategory, days = 7
   return query;
 }
 
+/**
+ * Get latest metric of each type for a user (In-memory cached 5m)
+ */
 async function getLatestByType(userId) {
   const cacheKey = `metrics:latest:${userId}`;
   const hit = memoryCache.get(cacheKey);
   if (hit) return hit;
 
-  const types = ['glucose_fasting', 'glucose_postmeal', 'hba1c', 'c_peptide', 'blood_pressure'];
-  const results = {};
+  const types = [
+    'glucose_fasting',
+    'glucose_postprandial',
+    'glucose_random',
+    'blood_pressure',
+    'hba1c',
+    'weight'
+  ];
 
-  // Fetch all in ONE query instead of 5 separate queries (N+1 optimization)
-  const allMetrics = await db('metrics')
-    .where('user_id', userId)
-    .whereIn('measurement_type', types)
-    .orderBy('measured_at', 'desc');
-
-  const seen = {};
-  allMetrics.forEach(metric => {
-    if (!seen[metric.measurement_type]) {
-      results[metric.measurement_type] = metric;
-      seen[metric.measurement_type] = true;
-    }
-  });
-
-  types.forEach(type => {
-    if (!results[type]) results[type] = null;
-  });
+  const results = await Promise.all(
+    types.map(async (type) => {
+      return db('metrics')
+        .where({ user_id: userId, measurement_type: type })
+        .orderBy('measured_at', 'desc')
+        .first();
+    })
+  );
 
   memoryCache.set(cacheKey, results, 5 * 60 * 1000);
   return results;
 }
 
 async function createMetric(userId, data) {
-  memoryCache.delPrefix(`metrics:${userId}`);
-  memoryCache.delPrefix(`care:${userId}`);
+  memoryCache.del(`metrics:latest:${userId}`);
+  memoryCache.delPrefix(`care:timeline:${userId}:`);
   const [insertedRow] = await db('metrics').insert({
     user_id: userId,
     ...data
@@ -64,8 +69,8 @@ async function createMetric(userId, data) {
 }
 
 async function deleteMetric(userId, id) {
-  memoryCache.delPrefix(`metrics:${userId}`);
-  memoryCache.delPrefix(`care:${userId}`);
+  memoryCache.del(`metrics:latest:${userId}`);
+  memoryCache.delPrefix(`care:timeline:${userId}:`);
   const metric = await db('metrics').where({ id, user_id: userId }).first();
   if (!metric) {
     throw { status: 404, message: 'Metric not found' };

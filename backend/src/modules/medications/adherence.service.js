@@ -1,17 +1,20 @@
 'use strict';
 const db = require('../../config/database');
 const sched = require('./medicationSchedule');
-const { queue } = require('../alerts/alert.service');
-const logger = require('../../utils/logger');
-const memoryCache = require('../../utils/memoryCache');
 const events = require('../../services/careEvents.service');
+const memoryCache = require('../../utils/memoryCache');
 
-const POOR_ADHERENCE_THRESHOLD = 0.75; // < 75% = kém (PDC nghiêm hơn dùng 0.80)
+const ALLOWED_STATUS = new Set(['taken', 'missed', 'skipped', 'late']);
 
 async function getActiveMeds(userId) {
-  return db('medications')
-    .where({ user_id: userId })
-    .andWhere((q) => q.where('is_active', 1).orWhereNull('is_active'));
+  const rows = await db('medications')
+    .where({ user_id: userId, is_active: 1 });
+  return rows.map((r) => ({
+    ...r,
+    times: sched.safeJsonArray(r.times),
+    slots: sched.safeJsonArray(r.slots),
+    days_of_week: sched.safeJsonArray(r.days_of_week),
+  }));
 }
 
 /**
@@ -33,91 +36,88 @@ async function computeAdherence(userId, windowDays = 30) {
     perMed.push({ medicationId: med.id, name: med.name, expected: doses.length });
   }
 
-  const takenRows = await db('medication_logs')
-    .where({ user_id: userId, status: 'taken' })
-    .andWhere('scheduled_for', '>=', from.toISOString())
-    .andWhere('scheduled_for', '<=', now.toISOString())
-    .select('medication_id')
-    .count('* as c')
-    .groupBy('medication_id');
-  const takenMap = Object.fromEntries(takenRows.map((r) => [r.medication_id, Number(r.c)]));
+  // Lấy các log đã uống trong cửa sổ: status in ('taken', 'late')
+  const logs = await db('medication_logs')
+    .where({ user_id: userId })
+    .whereIn('status', ['taken', 'late'])
+    .where('scheduled_for', '>=', from.toISOString())
+    .where('scheduled_for', '<=', now.toISOString());
 
-  let taken = 0;
-  for (const pm of perMed) {
-    pm.taken = Math.min(takenMap[pm.medicationId] || 0, pm.expected);
-    pm.rate = pm.expected ? +(pm.taken / pm.expected).toFixed(3) : null;
-    taken += pm.taken;
+  const taken = logs.length;
+  const score = expected === 0 ? 100 : Math.min(100, Math.round((taken / expected) * 100));
+
+  // Phân rã theo từng thuốc
+  const takenByMed = new Map();
+  for (const l of logs) {
+    takenByMed.set(l.medication_id, (takenByMed.get(l.medication_id) || 0) + 1);
   }
 
-  const missed = await db('medication_logs')
-    .where({ user_id: userId, status: 'missed' })
-    .andWhere('scheduled_for', '>=', from.toISOString())
-    .count('* as c')
-    .first();
+  const breakdown = perMed.map((p) => {
+    const t = takenByMed.get(p.medicationId) || 0;
+    const medScore = p.expected === 0 ? 100 : Math.min(100, Math.round((t / p.expected) * 100));
+    return { ...p, taken: t, score: medScore };
+  });
 
-  const rate = expected ? +(taken / expected).toFixed(3) : null;
   return {
     windowDays,
+    score,
     expectedDoses: expected,
     takenDoses: taken,
-    missedDoses: Number((missed && missed.c) || 0),
-    adherenceRate: rate,
-    adherencePercent: rate == null ? null : Math.round(rate * 100),
-    isPoorAdherence: rate != null && rate < POOR_ADHERENCE_THRESHOLD,
-    perMedication: perMed,
+    breakdown,
   };
 }
 
 /**
- * Ghi nhận 1 liều. Idempotent theo (medication_id, scheduled_for).
- * Nếu FE không gửi scheduledFor -> suy ra liều theo lịch gần "bây giờ" nhất (±12h).
+ * Ghi nhận một cữ thuốc:
+ * - Upsert theo (user_id, medication_id, scheduled_for) để người dùng bấm lại không bị trùng.
+ * - Delay minutes tự động tính nếu status === 'taken' mà lệch > 15 phút.
+ * - Phát sự kiện DOSE_CONFIRMED (để Family Alarm huỷ chuông báo).
  */
-// ctx (do server đặt, KHÔNG lấy từ body): { channel: 'app'|'telegram'|'caregiver', actorId }
-async function logDose(userId, medicationId, { status = 'taken', scheduledFor, takenAt, reason } = {}, ctx = {}) {
-  if (!['taken', 'skipped', 'missed'].includes(status)) {
-    throw { status: 400, message: 'Trạng thái không hợp lệ' };
-  }
-  const med = await db('medications').where({ id: medicationId, user_id: userId }).first();
-  if (!med) throw { status: 404, message: 'Thuốc không tồn tại' };
-
-  const now = new Date();
-  let scheduledInstant = scheduledFor ? new Date(scheduledFor) : null;
-
-  if (!scheduledInstant || isNaN(scheduledInstant.getTime())) {
-    const cands = sched.enumerateDoses(
-      med,
-      new Date(now.getTime() - 12 * 3600000),
-      new Date(now.getTime() + 12 * 3600000),
-    );
-    if (cands.length) {
-      scheduledInstant = cands.reduce((best, c) =>
-        Math.abs(c.instant - now) < Math.abs(best.instant - now) ? c : best,
-      ).instant;
-    } else {
-      scheduledInstant = now;
-    }
+async function logDose(userId, medicationId, { scheduledFor, status = 'taken', reason = null, source = 'patient', takenAt = null }, ctx = {}) {
+  if (!ALLOWED_STATUS.has(status)) {
+    throw Object.assign(new Error(`Trạng thái không hợp lệ: ${status}`), { status: 400 });
   }
 
-  const p = sched.vnParts(scheduledInstant);
-  const slot = `${String(p.hh).padStart(2, '0')}:${String(p.mm).padStart(2, '0')}`;
-  const takenInstant = status === 'taken' ? (takenAt ? new Date(takenAt) : now) : null;
-  const delay = takenInstant ? Math.round((takenInstant - scheduledInstant) / 60000) : null;
+  const med = await db('medications')
+    .where({ id: medicationId, user_id: userId, is_active: 1 })
+    .first();
+  if (!med) {
+    throw Object.assign(new Error('Thuốc không tồn tại hoặc đã ngừng'), { status: 404 });
+  }
+
+  const schedDate = new Date(scheduledFor);
+  if (Number.isNaN(schedDate.getTime())) {
+    throw Object.assign(new Error('scheduledFor không hợp lệ'), { status: 400 });
+  }
+
+  // Tự suy slot_time dạng HH:MM theo giờ VN từ scheduled_for
+  const vn = sched.vnParts(schedDate);
+  const slotTime = `${String(vn.hh).padStart(2, '0')}:${String(vn.mm).padStart(2, '0')}`;
+
+  const finalTakenAt = status === 'taken'
+    ? (takenAt ? new Date(takenAt) : new Date())
+    : null;
+
+  let delayMin = 0;
+  if (finalTakenAt) {
+    delayMin = Math.round((finalTakenAt.getTime() - schedDate.getTime()) / 60000);
+  }
 
   const row = {
     user_id: userId,
     medication_id: medicationId,
-    scheduled_for: scheduledInstant.toISOString(),
-    slot_time: slot,
+    scheduled_for: schedDate.toISOString(),
+    slot_time: slotTime,
     status,
-    taken_at: takenInstant ? takenInstant.toISOString() : null,
-    delay_minutes: delay,
-    reason: status === 'skipped' ? (reason || null) : null,
-    source: 'patient',
+    taken_at: finalTakenAt ? finalTakenAt.toISOString() : null,
+    delay_minutes: delayMin,
+    reason: reason || null,
   };
 
-  const previous = status === 'taken'
-    ? await db('medication_logs').where({ medication_id: medicationId, scheduled_for: row.scheduled_for }).first()
-    : null;
+  // Tra cứu xem trước đó cữ này đã được đánh dấu chưa
+  const previous = await db('medication_logs')
+    .where({ user_id: userId, medication_id: medicationId, scheduled_for: row.scheduled_for })
+    .first();
 
   await db('medication_logs')
     .insert(row)
@@ -131,8 +131,8 @@ async function logDose(userId, medicationId, { status = 'taken', scheduledFor, t
     });
 
   // Xóa cache để timeline và dashboard cập nhật tức thì
-  memoryCache.delPrefix(`care:${userId}`);
-  memoryCache.delPrefix(`meds:today:${userId}`);
+  memoryCache.delPrefix(`care:timeline:${userId}:`);
+  memoryCache.del(`meds:today:${userId}`);
 
   // Đo sự kiện "liều đã xác nhận": chỉ lần đầu (bấm lại cùng một cữ không tính thêm).
   if (status === 'taken' && !(previous && previous.status === 'taken')) {
@@ -143,60 +143,69 @@ async function logDose(userId, medicationId, { status = 'taken', scheduledFor, t
       medicationId,
       scheduledFor: row.scheduled_for,
       channel: ctx.channel || 'app',
-      meta: { delay_minutes: delay, late: Boolean(previous && previous.status === 'missed') },
+      meta: { delay_minutes: delayMin, late: Boolean(previous && previous.status === 'missed') },
     });
   }
 
-  // Bỏ qua cữ -> báo cho người trong gia đình (và email/SMS người nhà như khi quên uống)
-  if (status === 'skipped') {
-    await queue(userId, {
-      type: 'skipped_dose',
-      severity: 'warning',
-      title: `Bỏ qua cữ ${med.name}`,
-      detail: `Cữ ${slot} ngày ${sched.vnDayMonth(scheduledInstant)}${row.reason ? ` — Lý do: ${row.reason}` : ''}.`,
-      dedupe_key: `skipped:${med.id}:${row.scheduled_for}`,
-    }).catch((e) => logger.warn(`[Alert] Không tạo được cảnh báo bỏ cữ: ${e.message}`));
-  }
-
-  return db('medication_logs')
-    .where({ medication_id: medicationId, scheduled_for: row.scheduled_for })
-    .first();
-}
-
-/** Lịch sử liều để hiển thị + xuất báo cáo. */
-async function getDoseHistory(userId, days = 30) {
-  const from = new Date(Date.now() - days * 86400000).toISOString();
-  return db('medication_logs as l')
-    .leftJoin('medications as m', 'l.medication_id', 'm.id')
-    .where('l.user_id', userId)
-    .andWhere('l.scheduled_for', '>=', from)
-    .orderBy('l.scheduled_for', 'desc')
-    .select('l.*', 'm.name as medication_name', 'm.dosage');
+  return row;
 }
 
 /**
- * Các liều SẮP TỚI trong `days` ngày — dùng để lên lịch Local Notification trên app native.
- * @returns {Promise<Array<{medicationId, name, dosage, instant, slot}>>}
+ * Lịch sử uống thuốc gần đây (cho trang cá nhân & báo cáo bác sĩ).
  */
-async function getUpcomingDoses(userId, days = 14) {
-  const now = new Date();
-  const until = new Date(now.getTime() + days * 86400000);
-  const meds = await getActiveMeds(userId);
+async function getLogs(userId, days = 30) {
+  const from = new Date(Date.now() - days * 86400000);
+  return db('medication_logs as l')
+    .join('medications as m', 'm.id', 'l.medication_id')
+    .where('l.user_id', userId)
+    .where('l.scheduled_for', '>=', from.toISOString())
+    .select(
+      'l.id',
+      'l.medication_id',
+      'm.name as medication_name',
+      'm.dosage',
+      'l.scheduled_for',
+      'l.slot_time',
+      'l.status',
+      'l.taken_at',
+      'l.delay_minutes',
+      'l.reason',
+      'l.created_at'
+    )
+    .orderBy('l.scheduled_for', 'desc');
+}
 
-  const out = [];
+/**
+ * Danh sách cữ uống dự kiến trong tương lai (cho chuông báo native & push notification).
+ */
+async function getUpcomingDoses(userId, windowDays = 14) {
+  const now = new Date();
+  const to = new Date(now.getTime() + windowDays * 86400000);
+
+  const meds = await getActiveMeds(userId);
+  const doses = [];
   for (const med of meds) {
     if (med.schedule_type === 'as_needed') continue;
-    for (const dose of sched.enumerateDoses(med, now, until)) {
-      out.push({
+    for (const d of sched.enumerateDoses(med, now, to)) {
+      doses.push({
         medicationId: med.id,
         name: med.name,
-        dosage: med.dosage || '',
-        instant: dose.instant.toISOString(),
-        slot: dose.slot,
+        dosage: med.dosage,
+        instructions: med.instructions,
+        image_url: med.image_url,
+        scheduledFor: d.scheduledFor,
+        slotTime: d.slotTime,
       });
     }
   }
-  return out.sort((a, b) => new Date(a.instant) - new Date(b.instant)).slice(0, 200);
+
+  doses.sort((a, b) => new Date(a.scheduledFor) - new Date(b.scheduledFor));
+  return doses;
 }
 
-module.exports = { computeAdherence, logDose, getDoseHistory, getUpcomingDoses, POOR_ADHERENCE_THRESHOLD };
+module.exports = {
+  computeAdherence,
+  logDose,
+  getLogs,
+  getUpcomingDoses,
+};

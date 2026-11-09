@@ -32,6 +32,8 @@ class MemoryCache {
   }
 
   set(key, val, ttlMs = DEFAULT_TTL_MS) {
+    // Ghi đè key đã có thì không cần đuổi phần tử nào (trước đây vẫn đuổi oan 1 key khác khi cache đầy).
+    this.store.delete(key);
     if (this.store.size >= this.maxEntries) {
       // Xóa phần tử cũ nhất (phần tử đầu tiên trong Map iterator)
       const oldestKey = this.store.keys().next().value;

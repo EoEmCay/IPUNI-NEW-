@@ -48,8 +48,8 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const applyDefaultLook = useThemeStore((s) => s.applyDefaultLook);
 
-  const [identifier, setIdentifier] = useState('');
-  const [password, setPassword] = useState('');
+  const [identifier, setIdentifier] = useState(() => (import.meta.env.DEV ? 'khoi@example.com' : ''));
+  const [password, setPassword] = useState(() => (import.meta.env.DEV ? 'admin' : ''));
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);

@@ -120,6 +120,7 @@ export default function LandingPage({ section }) {
           <button type="button" onClick={() => scrollToSection('features')} className={styles.navLink}>{text.navFeatures}</button>
           <button type="button" onClick={() => scrollToSection('impact')} className={styles.navLink}>{text.navImpact}</button>
           <button type="button" onClick={() => scrollToSection('contact')} className={styles.navLink}>{text.navContact}</button>
+          <button type="button" onClick={() => navigate('/login')} className={styles.navLink} style={{ background: '#0284c7', color: '#ffffff', padding: '6px 14px', borderRadius: '999px', fontWeight: 600 }}>📱 Mở App</button>
         </div>
       </nav>
 

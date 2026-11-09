@@ -133,7 +133,7 @@ function AppRoutes() {
       <Routes>
         <Route path="/index.html" element={<Navigate to="/" replace />} />
         <Route path="/" element={
-          isNativeApp
+          (isNativeApp || import.meta.env.DEV)
             ? (isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />)
             : <LandingPage />
         } />

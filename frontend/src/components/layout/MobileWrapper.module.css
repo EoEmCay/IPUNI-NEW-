@@ -136,6 +136,7 @@
 @media (min-width: 600px) {
   /* KHUNG GIẢ LẬP ANDROID APK */
   .androidFrame {
+    --sim-bottom-offset: 44px;
     width: 412px;
     max-width: 412px;
     height: min(92vh, 870px);

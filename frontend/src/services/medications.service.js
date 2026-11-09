@@ -1,7 +1,10 @@
 import api from './api';
 import { cachedGet, invalidate } from './httpCache';
 
-const bust = () => invalidate('/medications');
+const bust = () => {
+  invalidate('/medications');
+  invalidate('/care');
+};
 
 export const medicationsService = {
   getAll: () => cachedGet(api, '/medications', {}, 120_000),
@@ -18,6 +21,8 @@ export const medicationsService = {
     const r = await api.post(`/medications/${id}/logs`, body);
     invalidate('/medications/adherence');
     invalidate('/medications/logs');
+    invalidate('/medications/today');
+    invalidate('/care');
     return r;
   },
 };

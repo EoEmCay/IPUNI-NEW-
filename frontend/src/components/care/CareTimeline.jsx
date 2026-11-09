@@ -1,34 +1,66 @@
 import React, { useState, useEffect } from 'react';
 import careService from '../../services/care.service';
+import { getSyncCache, getLocalCache, setLocalCache, CACHE_KEYS } from '../../services/localCache';
 import DoctorReportModal from './DoctorReportModal';
 import styles from './CareTimeline.module.css';
 
 export default function CareTimeline({ patientId = null }) {
-  const [timelineData, setTimelineData] = useState(null);
-  const [weeklyData, setWeeklyData] = useState(null);
+  // 1. Nạp tức thì từ snapshot bộ nhớ máy (0.00 giây) nếu xem dòng thời gian của chính mình
+  const [timelineData, setTimelineData] = useState(() => {
+    if (patientId) return null;
+    return getSyncCache(CACHE_KEYS.CARE_TIMELINE, null);
+  });
+  const [weeklyData, setWeeklyData] = useState(() => {
+    if (patientId) return null;
+    return getSyncCache(CACHE_KEYS.CARE_WEEKLY, null);
+  });
   const [doctorReport, setDoctorReport] = useState(null);
   const [showDoctorModal, setShowDoctorModal] = useState(false);
-  const [loading, setLoading] = useState(true);
+  // Nếu đã có cache thì KHÔNG chặn màn hình bằng spinner (Stale-While-Revalidate)
+  const [loading, setLoading] = useState(() => {
+    if (patientId) return true;
+    return !getSyncCache(CACHE_KEYS.CARE_TIMELINE, null);
+  });
   const [actionLoading, setActionLoading] = useState(false);
 
   const fetchData = async () => {
     try {
-      setLoading(true);
+      // Chỉ hiện spinner chặn màn hình nếu hoàn toàn chưa có bất kỳ dữ liệu nào
+      if (!timelineData) {
+        setLoading(true);
+      }
       const [tl, wk] = await Promise.all([
         careService.getTimeline(null, patientId),
         careService.getWeeklySummary(patientId),
       ]);
       setTimelineData(tl);
       setWeeklyData(wk);
+      if (!patientId) {
+        setLocalCache(CACHE_KEYS.CARE_TIMELINE, tl);
+        setLocalCache(CACHE_KEYS.CARE_WEEKLY, wk);
+      }
     } catch (err) {
-      console.error('Lỗi khi tải dữ liệu dòng thời gian chăm sóc:', err);
+      console.warn('Lỗi khi tải dòng thời gian chăm sóc, giữ bản đệm:', err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    let cancelled = false;
+    // Nạp nhanh từ IndexedDB nếu snapshot localStorage chưa có
+    if (!patientId && !timelineData) {
+      getLocalCache(CACHE_KEYS.CARE_TIMELINE, null).then((cached) => {
+        if (!cancelled && cached && !timelineData) {
+          setTimelineData(cached);
+          setLoading(false);
+        }
+      });
+    }
     fetchData();
+    return () => {
+      cancelled = true;
+    };
   }, [patientId]);
 
   // Xử lý nút bấm to 1-chạm cho cụ (Option 2B)

@@ -1,4 +1,5 @@
 const db = require('../../config/database');
+const memoryCache = require('../../utils/memoryCache');
 const { daysAgo } = require('../../utils/date.helper');
 const MetricsCalculator = require('./metrics.calculator');
 
@@ -22,6 +23,10 @@ async function getMetrics(userId, measurementType, measurementCategory, days = 7
 }
 
 async function getLatestByType(userId) {
+  const cacheKey = `metrics:latest:${userId}`;
+  const hit = memoryCache.get(cacheKey);
+  if (hit) return hit;
+
   const types = ['glucose_fasting', 'glucose_postmeal', 'hba1c', 'c_peptide', 'blood_pressure'];
   const results = {};
 
@@ -43,10 +48,13 @@ async function getLatestByType(userId) {
     if (!results[type]) results[type] = null;
   });
 
+  memoryCache.set(cacheKey, results, 5 * 60 * 1000);
   return results;
 }
 
 async function createMetric(userId, data) {
+  memoryCache.delPrefix(`metrics:${userId}`);
+  memoryCache.delPrefix(`care:${userId}`);
   const [insertedRow] = await db('metrics').insert({
     user_id: userId,
     ...data
@@ -56,6 +64,8 @@ async function createMetric(userId, data) {
 }
 
 async function deleteMetric(userId, id) {
+  memoryCache.delPrefix(`metrics:${userId}`);
+  memoryCache.delPrefix(`care:${userId}`);
   const metric = await db('metrics').where({ id, user_id: userId }).first();
   if (!metric) {
     throw { status: 404, message: 'Metric not found' };

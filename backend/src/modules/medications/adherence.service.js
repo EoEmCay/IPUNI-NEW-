@@ -3,6 +3,7 @@ const db = require('../../config/database');
 const sched = require('./medicationSchedule');
 const { queue } = require('../alerts/alert.service');
 const logger = require('../../utils/logger');
+const memoryCache = require('../../utils/memoryCache');
 const events = require('../../services/careEvents.service');
 
 const POOR_ADHERENCE_THRESHOLD = 0.75; // < 75% = kém (PDC nghiêm hơn dùng 0.80)
@@ -128,6 +129,10 @@ async function logDose(userId, medicationId, { status = 'taken', scheduledFor, t
       reason: row.reason,
       source: 'patient',
     });
+
+  // Xóa cache để timeline và dashboard cập nhật tức thì
+  memoryCache.delPrefix(`care:${userId}`);
+  memoryCache.delPrefix(`meds:today:${userId}`);
 
   // Đo sự kiện "liều đã xác nhận": chỉ lần đầu (bấm lại cùng một cữ không tính thêm).
   if (status === 'taken' && !(previous && previous.status === 'taken')) {

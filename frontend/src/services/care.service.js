@@ -1,4 +1,5 @@
 import api from './api';
+import { cachedGet, invalidate } from './httpCache';
 
 export const careService = {
   // 1. Lấy dòng thời gian chăm sóc trực tiếp trong ngày (Live Care Timeline kiểu Grab)
@@ -6,13 +7,15 @@ export const careService = {
     const params = {};
     if (date) params.date = date;
     if (patientId) params.patient_id = patientId;
-    const res = await api.get('/care/timeline', { params });
+    const res = await cachedGet(api, '/care/timeline', { params }, 30_000);
     return res.data?.data || res.data;
   },
 
   // 2. Ghi nhận cữ uống thuốc (1 chạm cho người già / người chăm sóc)
   async logDose(payload) {
     const res = await api.post('/care/log-dose', payload);
+    invalidate('/care');
+    invalidate('/medications');
     return res.data?.data || res.data;
   },
 
@@ -20,7 +23,7 @@ export const careService = {
   async getWeeklySummary(patientId = null) {
     const params = {};
     if (patientId) params.patient_id = patientId;
-    const res = await api.get('/care/weekly-summary', { params });
+    const res = await cachedGet(api, '/care/weekly-summary', { params }, 60_000);
     return res.data?.data || res.data;
   },
 
@@ -28,7 +31,7 @@ export const careService = {
   async getDoctorReport(patientId = null) {
     const params = {};
     if (patientId) params.patient_id = patientId;
-    const res = await api.get('/care/doctor-report', { params });
+    const res = await cachedGet(api, '/care/doctor-report', { params }, 60_000);
     return res.data?.data || res.data;
   },
 };

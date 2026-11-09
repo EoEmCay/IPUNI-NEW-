@@ -1,7 +1,15 @@
 'use strict';
 
 const db = require('../../config/database');
-const { isMedicationScheduledOnDate, getDoseTimesForDate } = require('../medications/medicationSchedule');
+const memoryCache = require('../../utils/memoryCache');
+const {
+  isDoseDay,
+  resolveTimes,
+  parseYmd,
+  vnParts,
+  vnDateStr,
+  vnWallToInstant,
+} = require('../medications/medicationSchedule');
 const { logDose } = require('../medications/adherence.service');
 const {
   partOfDay,
@@ -13,13 +21,31 @@ const {
   buildWeeklyText,
 } = require('../insights/insights.logic');
 
-// Helper formatting YYYY-MM-DD
-function toDateStr(d) {
-  const dt = new Date(d);
-  const y = dt.getFullYear();
-  const m = String(dt.getMonth() + 1).padStart(2, '0');
-  const day = String(dt.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
+// Trả về { dateStr, dow, slot } theo GIỜ VIỆT NAM của một Instant (độc lập múi giờ máy chủ).
+function vnDoseFields(instant) {
+  const p = vnParts(new Date(instant));
+  const dateStr = `${p.y}-${String(p.m + 1).padStart(2, '0')}-${String(p.d).padStart(2, '0')}`;
+  const slot = `${String(p.hh).padStart(2, '0')}:${String(p.mm).padStart(2, '0')}`;
+  return { dateStr, dow: p.dow, slot };
+}
+
+// "HH:MM" theo GIỜ VIỆT NAM của một Instant (không phụ thuộc múi giờ máy chủ).
+function vnHm(instant) {
+  const p = vnParts(new Date(instant));
+  return `${String(p.hh).padStart(2, '0')}:${String(p.mm).padStart(2, '0')}`;
+}
+
+/**
+ * 'YYYY-MM-DD' (ngày VN) -> khoảng nửa mở [start, end) dạng ISO UTC.
+ * Ví dụ 2026-11-09 -> [2026-11-08T17:00:00.000Z, 2026-11-09T17:00:00.000Z).
+ * VN không có DST nên +24h luôn đúng. Trả kèm p = {y, m, d}.
+ */
+function dayRangeVn(dateStr) {
+  const p = parseYmd(dateStr);
+  if (!p) throw Object.assign(new Error('Ngày không hợp lệ'), { status: 400 });
+  const start = vnWallToInstant(p.y, p.m, p.d, 0, 0);
+  const end = new Date(start.getTime() + 86400000);
+  return { start: start.toISOString(), end: end.toISOString(), p };
 }
 
 /**
@@ -27,10 +53,15 @@ function toDateStr(d) {
  * Trả về danh sách sự kiện theo thứ tự thời gian từ sáng đến tối.
  */
 async function getTimeline(patientId, targetDateStr = null) {
-  const todayStr = targetDateStr || toDateStr(new Date());
+  // Toàn bộ timeline tính theo NGÀY/GIỜ VIỆT NAM (khớp engine lịch thuốc), không theo múi giờ máy chủ.
   const now = new Date();
-  const currentHourMin = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-  const isToday = todayStr === toDateStr(now);
+  const todayStr = targetDateStr || vnDateStr(now);
+  const currentHourMin = vnHm(now);
+  const isToday = todayStr === vnDateStr(now);
+
+  const cacheKey = `care:timeline:${patientId}:${todayStr}`;
+  const hit = memoryCache.get(cacheKey);
+  if (hit) return hit;
 
   const patient = await db('users').where({ id: patientId }).select('id', 'name', 'user_code').first();
   if (!patient) throw new Error('Không tìm thấy bệnh nhân');
@@ -48,40 +79,48 @@ async function getTimeline(patientId, targetDateStr = null) {
   });
 
   // 2. Lấy nhật ký uống thuốc trong ngày
+  // Khoảng nửa mở [đầu ngày VN, đầu ngày VN kế) thay cho date(cột) = ? để DB dùng được index
+  // (idx_medlog_user_time, metrics(user_id, measured_at)) và để liều/chỉ số trước 07:00 sáng giờ VN
+  // (thuộc ngày UTC hôm trước) không bị rơi khỏi timeline. scheduled_for NOT NULL nên bỏ coalesce.
+  const { start: dayStart, end: dayEnd, p: dv } = dayRangeVn(todayStr);
+
   const logs = await db('medication_logs')
     .where({ user_id: patientId })
-    .whereRaw("date(coalesce(scheduled_for, taken_at)) = ?", [todayStr]);
+    .where('scheduled_for', '>=', dayStart)
+    .where('scheduled_for', '<', dayEnd);
 
   // 3. Lấy chỉ số đường huyết trong ngày
   const metrics = await db('metrics')
     .where({ user_id: patientId })
-    .whereRaw("date(measured_at) = ?", [todayStr])
+    .where('measured_at', '>=', dayStart)
+    .where('measured_at', '<', dayEnd)
     .orderBy('measured_at', 'asc');
 
   const timelineItems = [];
 
   // Tạo các mốc thuốc theo cữ
   for (const med of meds) {
-    if (!isMedicationScheduledOnDate(med, todayStr)) continue;
-    const doseTimes = getDoseTimesForDate(med, todayStr);
+    if (!isDoseDay(med, dv)) continue;
+    const doseTimes = resolveTimes(med);
 
     for (const time of doseTimes) {
-      // Tìm xem cữ này đã được ghi nhận chưa
+      // Khớp ĐÚNG cữ: theo mốc Instant dự kiến của cữ (giờ VN -> UTC) hoặc theo slot_time (giờ VN).
+      // Tuyệt đối không dùng "log taken bất kỳ của thuốc này" làm dự phòng: một cữ sáng đã uống
+      // không được làm cữ trưa/tối hiện "đã uống".
+      const [hh, mm] = time.split(':').map(Number);
+      const expectedMs = vnWallToInstant(dv.y, dv.m, dv.d, hh, mm).getTime();
       const matchingLog = logs.find(
         (l) => l.medication_id === med.id &&
-               l.scheduled_for &&
-               l.scheduled_for.includes(time)
-      ) || logs.find((l) => l.medication_id === med.id && l.status === 'taken');
+               ((l.scheduled_for && new Date(l.scheduled_for).getTime() === expectedMs) ||
+                l.slot_time === time)
+      );
 
       let status = 'pending';
       let takenAtStr = null;
 
       if (matchingLog) {
-        status = matchingLog.status; // 'taken' | 'missed'
-        if (matchingLog.taken_at) {
-          const tDate = new Date(matchingLog.taken_at);
-          takenAtStr = `${String(tDate.getHours()).padStart(2, '0')}:${String(tDate.getMinutes()).padStart(2, '0')}`;
-        }
+        status = matchingLog.status; // 'taken' | 'skipped' | 'missed'
+        if (matchingLog.taken_at) takenAtStr = vnHm(matchingLog.taken_at);
       } else if (isToday && time < currentHourMin) {
         // Cữ đã qua giờ mà chưa xác nhận -> cảnh báo trễ/quên
         status = 'missed';
@@ -103,8 +142,7 @@ async function getTimeline(patientId, targetDateStr = null) {
 
   // Đưa các mốc đo đường huyết vào timeline
   for (const m of metrics) {
-    const mDate = new Date(m.measured_at);
-    const mTime = `${String(mDate.getHours()).padStart(2, '0')}:${String(mDate.getMinutes()).padStart(2, '0')}`;
+    const mTime = vnHm(m.measured_at);
     const val = Number(m.value);
 
     let gStatus = 'normal';
@@ -136,7 +174,7 @@ async function getTimeline(patientId, targetDateStr = null) {
     overallStatus = 'needs_attention';
   }
 
-  return {
+  const result = {
     date: todayStr,
     patient_name: patient.name || 'Người thân',
     patient_id: patient.id,
@@ -148,6 +186,8 @@ async function getTimeline(patientId, targetDateStr = null) {
     },
     items: timelineItems,
   };
+  memoryCache.set(cacheKey, result, 30 * 1000); // 30s cache chống bão request
+  return result;
 }
 
 /**
@@ -164,7 +204,7 @@ async function getWeeklyInsights(patientId) {
   const logs = await db('medication_logs as l')
     .join('medications as m', 'm.id', 'l.medication_id')
     .where('l.user_id', patientId)
-    .where('l.created_at', '>=', past14Days.toISOString())
+    .where('l.scheduled_for', '>=', past14Days.toISOString())
     .select('l.*', 'm.name as med_name');
 
   const metrics = await db('metrics')
@@ -179,9 +219,7 @@ async function getWeeklyInsights(patientId) {
 
   for (const l of logs) {
     const dTime = new Date(l.scheduled_for || l.taken_at || l.created_at);
-    const dateStr = toDateStr(dTime);
-    const dow = dTime.getDay();
-    const slot = `${String(dTime.getHours()).padStart(2, '0')}:${String(dTime.getMinutes()).padStart(2, '0')}`;
+    const { dateStr, dow, slot } = vnDoseFields(dTime);
     const taken = l.status === 'taken';
 
     const item = { medName: l.med_name || 'Thuốc', dateStr, dow, slot, taken };
@@ -235,16 +273,17 @@ async function getDoctorBriefing(patientId) {
   const logs = await db('medication_logs as l')
     .join('medications as m', 'm.id', 'l.medication_id')
     .where('l.user_id', patientId)
-    .where('l.created_at', '>=', thirtyDaysAgo.toISOString())
+    .where('l.scheduled_for', '>=', thirtyDaysAgo.toISOString())
     .select('l.*', 'm.name as med_name');
 
   const doses30d = logs.map((l) => {
     const dTime = new Date(l.scheduled_for || l.taken_at || l.created_at);
+    const { dateStr, dow, slot } = vnDoseFields(dTime);
     return {
       medName: l.med_name || 'Thuốc',
-      dateStr: toDateStr(dTime),
-      dow: dTime.getDay(),
-      slot: `${String(dTime.getHours()).padStart(2, '0')}:${String(dTime.getMinutes()).padStart(2, '0')}`,
+      dateStr,
+      dow,
+      slot,
       taken: l.status === 'taken',
     };
   });

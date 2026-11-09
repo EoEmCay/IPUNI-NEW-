@@ -87,3 +87,76 @@ export async function blinkFlash(count = 4, interval = 0.15) {
   }
 }
 
+/**
+ * Chụp hoặc chọn ảnh native qua Capacitor Camera với độ nén tối ưu phần cứng.
+ * Tự động kiểm tra quyền, nén ảnh xuống max 1600px và trả về đối tượng File chuẩn web.
+ * @param {Object} options
+ * @param {boolean} options.fromCamera - true: chụp ảnh từ camera; false: chọn từ thư viện ảnh
+ * @param {number} options.quality - chất lượng ảnh (0-100, mặc định 85)
+ * @param {number} options.maxWidth - độ phân giải tối đa (mặc định 1600px)
+ * @returns {Promise<File|null>}
+ */
+export async function captureNativePhoto({ fromCamera = true, quality = 85, maxWidth = 1600 } = {}) {
+  if (!isNative) return null;
+
+  const { Camera, CameraResultType, CameraSource } = await import('@capacitor/camera');
+
+  // 1. Kiểm tra và yêu cầu quyền thiết bị
+  try {
+    const permStatus = await Camera.checkPermissions();
+    const needed = fromCamera ? permStatus.camera : permStatus.photos;
+    if (needed !== 'granted') {
+      const requested = await Camera.requestPermissions({
+        permissions: fromCamera ? ['camera'] : ['photos']
+      });
+      const result = fromCamera ? requested.camera : requested.photos;
+      if (result !== 'granted' && result !== 'limited') {
+        const err = new Error('PERMISSION_DENIED');
+        err.code = 'PERMISSION_DENIED';
+        throw err;
+      }
+    }
+  } catch (permErr) {
+    if (permErr.code === 'PERMISSION_DENIED') throw permErr;
+    // Bỏ qua lỗi checkPermissions trên một số bản Capacitor webview giả lập
+  }
+
+  // 2. Chụp/chọn ảnh với các thông số nén tối ưu ngay từ tầng OS
+  const photo = await Camera.getPhoto({
+    quality,
+    width: maxWidth,
+    height: maxWidth,
+    preserveAspectRatio: true,
+    correctOrientation: true,
+    allowEditing: false,
+    resultType: CameraResultType.Uri,
+    source: fromCamera ? CameraSource.Camera : CameraSource.Photos,
+  });
+
+  // 3. Chuyển đổi thành File object tương thích với luồng Web
+  let blob = null;
+  if (photo.webPath) {
+    try {
+      const res = await fetch(photo.webPath);
+      blob = await res.blob();
+    } catch {
+      // Fallback nếu fetch webPath bị chặn
+    }
+  }
+
+  if (!blob && photo.dataUrl) {
+    const res = await fetch(photo.dataUrl);
+    blob = await res.blob();
+  }
+
+  if (!blob) {
+    throw new Error('FAILED_TO_LOAD_IMAGE');
+  }
+
+  const ext = photo.format || 'jpg';
+  const fileName = `prescription_${Date.now()}.${ext}`;
+  return new File([blob], fileName, {
+    type: blob.type || `image/${ext === 'png' ? 'png' : 'jpeg'}`,
+    lastModified: Date.now(),
+  });
+}

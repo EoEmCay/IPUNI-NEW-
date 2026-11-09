@@ -1,32 +1,19 @@
 import { useRef, useState } from 'react';
-import { Camera, Upload, ImagePlus } from 'lucide-react';
+import { Camera, Upload, ImagePlus, AlertCircle } from 'lucide-react';
 import { useT } from '../../hooks/useT';
-import { isNative } from '../../lib/native';
+import { isNative, captureNativePhoto } from '../../lib/native';
 import styles from './ScanCamera.module.css';
-
-/** Lấy ảnh qua camera/thư viện của iOS/Android (Capacitor). Trả về File dùng chung với luồng web. */
-async function nativeGetPhoto(fromCamera) {
-  const { Camera: CapCamera, CameraResultType, CameraSource } = await import('@capacitor/camera');
-  const photo = await CapCamera.getPhoto({
-    quality: 80,
-    allowEditing: false,
-    resultType: CameraResultType.Uri,
-    source: fromCamera ? CameraSource.Camera : CameraSource.Photos,
-  });
-  const res = await fetch(photo.webPath);
-  const blob = await res.blob();
-  return new File([blob], `prescription.${photo.format || 'jpg'}`, { type: blob.type || 'image/jpeg' });
-}
 
 export default function ScanCamera({ onImageScan }) {
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
-  const [cameraFailed, setCameraFailed] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
   const t = useT();
 
   const handleFileSelect = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (file) {
+      setErrorMessage(null);
       onImageScan(file);
     }
     // Reset input value so the same file can be selected again
@@ -34,11 +21,19 @@ export default function ScanCamera({ onImageScan }) {
   };
 
   const handleNative = async (fromCamera) => {
+    setErrorMessage(null);
     try {
-      const file = await nativeGetPhoto(fromCamera);
-      onImageScan(file);
+      const file = await captureNativePhoto({ fromCamera, quality: 85, maxWidth: 1600 });
+      if (file) {
+        onImageScan(file);
+      }
     } catch (err) {
-      if (!/cancel/i.test(err?.message || '')) setCameraFailed(true);
+      if (/cancel/i.test(err?.message || '')) return; // Người dùng chủ động hủy/quay lại
+      if (err?.code === 'PERMISSION_DENIED' || /permission/i.test(err?.message || '')) {
+        setErrorMessage('Vui lòng cấp quyền Camera/Thư viện trong Cài đặt điện thoại để DIA+ quét đơn thuốc.');
+      } else {
+        setErrorMessage(t.scan?.cameraError || 'Không thể mở máy ảnh. Bạn có thể chọn ảnh từ thư viện.');
+      }
     }
   };
 
@@ -74,10 +69,24 @@ export default function ScanCamera({ onImageScan }) {
               {t.scan.gallery}
             </button>
           </div>
-          {cameraFailed && (
-            <span className={styles.cameraNote}>
-              {t.scan.cameraError}
-            </span>
+          {errorMessage && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 14px',
+              backgroundColor: '#FEF2F2',
+              border: '1px solid #FECACA',
+              borderRadius: '8px',
+              color: '#DC2626',
+              fontSize: '14px',
+              maxWidth: '320px',
+              textAlign: 'left',
+              marginTop: '8px'
+            }}>
+              <AlertCircle size={18} style={{ flexShrink: 0 }} />
+              <span>{errorMessage}</span>
+            </div>
           )}
         </div>
       </div>

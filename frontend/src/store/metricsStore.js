@@ -1,9 +1,10 @@
 import { create } from 'zustand';
+import { getSyncCache, CACHE_KEYS } from '../services/localCache';
 
 const useMetricsStore = create((set) => ({
-  // Glucose & HbA1c readings
-  metrics: [],
-  latestMetrics: null,
+  // Khởi tạo ngay từ snapshot bộ nhớ đệm để hiển thị chỉ số tức thì khi mở app
+  metrics: getSyncCache(CACHE_KEYS.METRICS_LIST, []),
+  latestMetrics: getSyncCache(CACHE_KEYS.LATEST_METRICS, null),
   statistics: null,
 
   // UI state
@@ -15,7 +16,7 @@ const useMetricsStore = create((set) => ({
   setLatestMetrics: (latestMetrics) => set({ latestMetrics }),
   setStatistics: (statistics) => set({ statistics }),
   setLoading: (loading) => set({ loading }),
-  setError: (error) => set({ error })
+  setError: (error) => set({ error }),
 }));
 
 export default useMetricsStore;

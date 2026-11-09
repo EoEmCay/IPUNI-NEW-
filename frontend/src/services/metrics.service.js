@@ -1,25 +1,36 @@
 import api from './api';
+import { cachedGet, invalidate } from './httpCache';
 
 export const metricsService = {
   getMetrics: (measurementType, days = 7) =>
-    api.get('/metrics', {
+    cachedGet(api, '/metrics', {
       params: {
         measurement_type: measurementType,
-        days
-      }
-    }),
+        days,
+      },
+    }, 30_000),
 
-  getLatest: () => api.get('/metrics/latest'),
+  getLatest: () => cachedGet(api, '/metrics/latest', {}, 30_000),
 
   getStatistics: (measurementType, days = 90) =>
-    api.get('/metrics/statistics', {
+    cachedGet(api, '/metrics/statistics', {
       params: {
         measurement_type: measurementType,
-        days
-      }
-    }),
+        days,
+      },
+    }, 60_000),
 
-  create: (data) => api.post('/metrics', data),
+  create: async (data) => {
+    const r = await api.post('/metrics', data);
+    invalidate('/metrics');
+    invalidate('/care');
+    return r;
+  },
 
-  delete: (id) => api.delete(`/metrics/${id}`)
+  delete: async (id) => {
+    const r = await api.delete(`/metrics/${id}`);
+    invalidate('/metrics');
+    invalidate('/care');
+    return r;
+  },
 };

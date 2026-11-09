@@ -1,4 +1,5 @@
 const db = require('../../config/database');
+const memoryCache = require('../../utils/memoryCache');
 
 const JSON_ARRAY_FIELDS = ['times', 'days_of_week', 'slots'];
 const WRITABLE_FIELDS = [
@@ -35,19 +36,38 @@ function pickWritable(data) {
   return payload;
 }
 
+function invalidateUserMedCache(userId) {
+  memoryCache.delPrefix(`meds:all:${userId}`);
+  memoryCache.delPrefix(`meds:today:${userId}`);
+  memoryCache.delPrefix(`care:${userId}`);
+}
+
 async function getMedications(userId) {
+  const cacheKey = `meds:all:${userId}`;
+  const hit = memoryCache.get(cacheKey);
+  if (hit) return hit;
+
   const meds = await db('medications')
     .where({ user_id: userId, is_active: 1 })
     .orderBy('created_at', 'desc');
-  return meds.map(parseMed);
+  const result = meds.map(parseMed);
+  memoryCache.set(cacheKey, result, 10 * 60 * 1000); // 10 phút
+  return result;
 }
 
 async function getTodayMedications(userId) {
+  const cacheKey = `meds:today:${userId}`;
+  const hit = memoryCache.get(cacheKey);
+  if (hit) return hit;
+
   const meds = await db('medications').where({ user_id: userId, is_active: 1 });
-  return meds.map(parseMed);
+  const result = meds.map(parseMed);
+  memoryCache.set(cacheKey, result, 10 * 60 * 1000);
+  return result;
 }
 
 async function createMedication(userId, data) {
+  invalidateUserMedCache(userId);
   const payload = { ...pickWritable(data), user_id: userId };
   if (payload.times === undefined) payload.times = JSON.stringify([]);
   const [insertedRow] = await db('medications').insert(payload).returning('id');
@@ -56,6 +76,7 @@ async function createMedication(userId, data) {
 }
 
 async function updateMedication(userId, id, data) {
+  invalidateUserMedCache(userId);
   const med = await db('medications').where({ id, user_id: userId }).first();
   if (!med) throw { status: 404, message: 'Thuốc không tồn tại' };
 
@@ -67,12 +88,14 @@ async function updateMedication(userId, id, data) {
 }
 
 async function deleteMedication(userId, id) {
+  invalidateUserMedCache(userId);
   const med = await db('medications').where({ id, user_id: userId }).first();
   if (!med) throw { status: 404, message: 'Thuốc không tồn tại' };
   await db('medications').where({ id, user_id: userId }).delete();
 }
 
 module.exports = {
+  invalidateUserMedCache,
   getMedications,
   getTodayMedications,
   createMedication,

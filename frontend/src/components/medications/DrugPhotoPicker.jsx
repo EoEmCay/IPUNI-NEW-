@@ -6,6 +6,7 @@ import {
   saveCustomDrugImage,
   compressUploadedDrugPhoto
 } from '../../utils/drugVisuals';
+import { isNative, captureNativePhoto } from '../../lib/native';
 
 export default function DrugPhotoPicker({ drugName, onVisualChange }) {
   const [visual, setVisual] = useState(() => getSavedDrugVisual(drugName));
@@ -38,8 +39,7 @@ export default function DrugPhotoPicker({ drugName, onVisualChange }) {
     };
   }, [drugName]);
 
-  const handleUploadFile = async (e) => {
-    const file = e.target.files?.[0];
+  const processDrugFile = async (file) => {
     if (!file || !drugName) return;
     const base64 = await compressUploadedDrugPhoto(file);
     if (base64) {
@@ -52,7 +52,27 @@ export default function DrugPhotoPicker({ drugName, onVisualChange }) {
         if (onVisualChange) onVisualChange(updated);
       }
     }
+  };
+
+  const handleUploadFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (file) await processDrugFile(file);
     e.target.value = '';
+  };
+
+  const handlePickPhoto = async () => {
+    if (isNative) {
+      try {
+        const file = await captureNativePhoto({ fromCamera: true, maxWidth: 1000, quality: 80 });
+        if (file) {
+          await processDrugFile(file);
+          return;
+        }
+      } catch (err) {
+        if (/cancel/i.test(err?.message || '')) return;
+      }
+    }
+    fileInputRef.current?.click();
   };
 
   const handleAppearanceBlur = () => {
@@ -186,7 +206,7 @@ export default function DrugPhotoPicker({ drugName, onVisualChange }) {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             <button
               type="button"
-              onClick={() => fileInputRef.current?.click()}
+              onClick={handlePickPhoto}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',

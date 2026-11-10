@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%">
+  <defs>
+    <linearGradient id="navySolid2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0A192F" />
+      <stop offset="100%" stop-color="#0B203E" />
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="800" fill="#ffffff" />
+
+  <!-- Monogram Centered -->
+  <g transform="translate(400, 400)">
+    
+    <!-- MASTER SOLID 'D' FORM with precision cutouts -->
+    <!-- Outer perimeter of majestic D -->
+    <path d="M -140 -200 
+             L 0 -200 
+             C 140 -200, 210 -100, 210 0 
+             C 210 100, 140 200, 0 200 
+             L -140 200 
+             Z" 
+          fill="url(#navySolid2)" />
+
+    <!-- INNER COUNTER 1: THE BOWL OF 'P' (Negative Space Cavity) -->
+    <!-- Carved out of the upper section to sculpt the unmistakable P loop -->
+    <path d="M -70 -140 
+             L -10 -140 
+             C 70 -140, 120 -105, 120 -45 
+             C 120 15, 70 50, -10 50 
+             L -70 50 
+             Z" 
+          fill="#ffffff" />
+
+    <!-- INNER COUNTER 2: LOWER APERTURE OF 'D' -->
+    <!-- Carved out of the lower section, leaving the bottom arch of D intact -->
+    <path d="M -70 95 
+             L 0 95 
+             C 70 95, 125 120, 125 140 
+             L -70 140 
+             Z" 
+          fill="#ffffff" opacity="0.96" />
+
+    <!-- THE PLUS SIGN (+) EMBEDDED AT THE WAISTLINE -->
+    <!-- Seamlessly bridge between P's lower loop and D's interior -->
+    <!-- Positive Navy Plus floating inside the P cavity OR bridging the junction -->
+    <g transform="translate(-10, 50)">
+      <!-- Outer circular halo cut -->
+      <circle cx="0" cy="0" r="32" fill="#ffffff" />
+      <!-- Crisp Navy Plus Sign -->
+      <rect x="-24" y="-7" width="48" height="14" rx="3" fill="#0A192F" />
+      <rect x="-7" y="-24" width="14" height="48" rx="3" fill="#0A192F" />
+    </g>
+
+    <!-- Refined Vertical Spine Slit -->
+    <rect x="-155" y="-180" width="6" height="360" rx="3" fill="#0A192F" />
+  </g>
+</svg>

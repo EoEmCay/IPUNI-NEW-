@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%">
+  <defs>
+    <style>
+      .mono-path {
+        fill: none;
+        stroke: #0A1E3F;
+        stroke-width: 32;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .mono-plus {
+        fill: #0A1E3F;
+      }
+    </style>
+  </defs>
+
+  <rect width="800" height="800" fill="#ffffff" />
+
+  <g transform="translate(400, 400)">
+    
+    <!-- MAIN STEM & P-LOOP & D-ARCH CONTINUOUS FLOW -->
+    <!-- Left Stem of D & P -->
+    <line x1="-120" y1="-190" x2="-120" y2="190" class="mono-path" />
+
+    <!-- UPPER BOWL OF 'P' -->
+    <!-- Curves out gracefully from top, returns to stem at y=0 -->
+    <path d="M -120 -190 
+             C 40 -190, 110 -130, 110 -65 
+             C 110 0, 40 20, -120 20" 
+          class="mono-path" />
+
+    <!-- OUTER SWEEPING BOWL OF 'D' -->
+    <!-- Starts from top of stem, sweeps wide (radius 220), anchors at bottom -->
+    <path d="M -120 -190 
+             C 120 -190, 200 -70, 200 20 
+             C 200 110, 110 190, -120 190" 
+          class="mono-path" />
+
+    <!-- THE INTEGRATED PLUS SIGN (+) -->
+    <!-- Placed cleanly at the right terminal / nexus where P's baseline anchors -->
+    <g transform="translate(0, 20)">
+      <!-- Horizontal crossbar -->
+      <rect x="-38" y="-12" width="76" height="24" rx="6" class="mono-plus" />
+      <!-- Vertical crossbar -->
+      <rect x="-12" y="-38" width="24" height="76" rx="6" class="mono-plus" />
+      <!-- Inner crisp medical core dot -->
+      <circle cx="0" cy="0" r="4" fill="#ffffff" />
+    </g>
+
+    <!-- Subtle accent anchor dots on stem ends for balance -->
+    <circle cx="-120" cy="-190" r="16" fill="#0A1E3F" />
+    <circle cx="-120" cy="190" r="16" fill="#0A1E3F" />
+  </g>
+</svg>

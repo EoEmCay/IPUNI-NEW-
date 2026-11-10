@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%">
+  <defs>
+    <linearGradient id="navyBio" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0A1B38" />
+      <stop offset="100%" stop-color="#10366D" />
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="800" fill="#ffffff" />
+
+  <g transform="translate(400, 400)">
+    <!-- OUTER D SILHOUETTE (Smooth, modern, authoritative) -->
+    <path d="M -110 -200 
+             C 60 -200, 190 -110, 190 0 
+             C 190 110, 60 200, -110 200 
+             L -110 155 
+             C 30 155, 138 85, 138 0 
+             C 138 -85, 30 -155, -110 -155 
+             Z" 
+          fill="url(#navyBio)" />
+
+    <!-- INNER P LOOP (Sculpted in the upper chamber) -->
+    <path d="M -110 -155 
+             C -20 -155, 60 -115, 60 -50 
+             C 60 15, -20 40, -110 40 
+             L -110 -5 
+             C -40 -5, 15 -20, 15 -50 
+             C 15 -80, -40 -115, -110 -115 
+             Z" 
+          fill="url(#navyBio)" />
+
+    <!-- VERTICAL SHARED STEM WITH EMBEDDED PLUS SIGN -->
+    <!-- Upper stem segment -->
+    <rect x="-145" y="-200" width="30" height="150" rx="6" fill="#0A1B38" />
+    
+    <!-- Lower stem segment -->
+    <rect x="-145" y="50" width="30" height="150" rx="6" fill="#0A1B38" />
+
+    <!-- PLUS SIGN INTERLOCK (+) connecting upper and lower stem at the waistline -->
+    <g transform="translate(-130, 0)">
+      <!-- Horizontal arm -->
+      <rect x="-35" y="-12" width="70" height="24" rx="6" fill="#0A1B38" />
+      <!-- Vertical arm bridging stems -->
+      <rect x="-15" y="-35" width="30" height="70" rx="6" fill="#0A1B38" />
+      <!-- Center jewel cut -->
+      <circle cx="0" cy="0" r="5" fill="#ffffff" />
+    </g>
+
+    <!-- Visual Echo of Plus on the right horizon -->
+    <g transform="translate(45, 0)">
+      <rect x="-16" y="-5" width="32" height="10" rx="3" fill="#10366D" opacity="0.6" />
+      <rect x="-5" y="-16" width="10" height="32" rx="3" fill="#10366D" opacity="0.6" />
+    </g>
+  </g>
+</svg>

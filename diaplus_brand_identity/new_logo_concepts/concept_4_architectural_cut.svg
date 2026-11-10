@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%">
+  <defs>
+    <linearGradient id="navyBevel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#081A36" />
+      <stop offset="100%" stop-color="#0E2E5B" />
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="800" fill="#ffffff" />
+
+  <g transform="translate(400, 400)">
+    
+    <!-- LEFT PILLAR (Shared Stem) -->
+    <path d="M -130 -190 
+             L -80 -190 
+             L -80 190 
+             L -130 190 
+             Z" 
+          fill="url(#navyBevel)" />
+
+    <!-- UPPER 'P' LOOP -->
+    <!-- Clearly visible, elegant arc with internal counter -->
+    <path d="M -70 -190 
+             L 10 -190 
+             C 85 -190, 130 -140, 130 -80 
+             C 130 -20, 85 15, 10 15 
+             L -70 15 
+             L -70 -25 
+             L 5 -25 
+             C 50 -25, 80 -48, 80 -80 
+             C 80 -115, 50 -150, 5 -150 
+             L -70 -150 
+             Z" 
+          fill="url(#navyBevel)" />
+
+    <!-- LOWER 'D' EXTENSION LOOP -->
+    <!-- Completes the D envelope while preserving the distinction of P -->
+    <path d="M -70 45 
+             L 25 45 
+             C 105 45, 175 10, 175 -60 
+             C 175 -75, 170 -90, 162 -105 
+             L 198 -125 
+             C 215 -95, 225 -65, 225 -30 
+             C 225 75, 140 190, -70 190 
+             Z" 
+          fill="#0A1E3F" opacity="0.95" />
+
+    <!-- INTEGRATED PLUS SIGN (+) -->
+    <!-- Precision medical plus seamlessly nestled between the stem and the P loop termination -->
+    <g transform="translate(-25, 105)">
+      <rect x="-30" y="-8" width="60" height="16" rx="4" fill="#0A1E3F" />
+      <rect x="-8" y="-30" width="16" height="60" rx="4" fill="#0A1E3F" />
+      <circle cx="0" cy="0" r="3" fill="#ffffff" />
+    </g>
+
+    <!-- Top and bottom anchor accents -->
+    <rect x="-142" y="-190" width="12" height="12" rx="2" fill="#0A1E3F" />
+    <rect x="-142" y="178" width="12" height="12" rx="2" fill="#0A1E3F" />
+  </g>
+</svg>

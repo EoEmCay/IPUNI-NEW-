@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1100" width="100%" height="100%">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap');
+      .navy-fill { fill: #0A192F; }
+      .navy-stroke { stroke: #0A192F; fill: none; }
+      .gold-accent { fill: #C5A059; }
+      .white-cut { fill: #FFFFFF; }
+      .brand-title {
+        font-family: 'Cinzel', 'Bodoni MT', 'Times New Roman', serif;
+        font-size: 56px;
+        font-weight: 700;
+        letter-spacing: 0.38em;
+        text-anchor: middle;
+        fill: #0A192F;
+      }
+      .brand-sub {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.55em;
+        text-anchor: middle;
+        fill: #64748B;
+      }
+    </style>
+    <linearGradient id="imperialNavy" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#061224" />
+      <stop offset="50%" stop-color="#0A192F" />
+      <stop offset="100%" stop-color="#0E2A52" />
+    </linearGradient>
+  </defs>
+
+  <!-- Crisp White Background -->
+  <rect width="1000" height="1100" fill="#FFFFFF" />
+
+  <!-- MAIN EMBLEM: HUE IMPERIAL CITADEL ORTHOGONAL GEOMETRY -->
+  <g id="citadel-emblem" transform="translate(500, 410)">
+    
+    <!-- LAYER 1: OUTER MOAT & VAUBAN BASTION PERIMETER (Kinh Thành Hào) -->
+    <!-- Distinctive protruding bastions on corners and edges -->
+    <path d="M -230 -230 
+             L -80 -230 
+             L -70 -245 L 70 -245 L 80 -230 
+             L 230 -230 
+             L 230 -80 
+             L 245 -70 L 245 70 L 230 80 
+             L 230 230 
+             L 80 230 
+             L 70 245 L -70 245 L -80 230 
+             L -230 230 
+             L -230 80 
+             L -245 70 L -245 -70 L -230 -80 
+             Z" 
+          fill="none" stroke="#0A192F" stroke-width="6" stroke-linejoin="round" />
+
+    <!-- Outer moat inner hairline -->
+    <rect x="-215" y="-215" width="430" height="430" rx="4" fill="none" stroke="#0A192F" stroke-width="2" opacity="0.35" />
+
+    <!-- LAYER 2: THE SECOND ENCLOSURE (Hoàng Thành Wall) -->
+    <!-- Solid Navy perimeter with entrance portals -->
+    <rect x="-185" y="-185" width="370" height="370" rx="2" fill="url(#imperialNavy)" />
+
+    <!-- LAYER 3: THE WATER COURTYARD / GREEN BELT (Khoảng Sân Thở & Hào Trong) -->
+    <rect x="-165" y="-165" width="330" height="330" rx="2" fill="#FFFFFF" />
+
+    <!-- LAYER 4: THE INNER QUADRANTS (Tứ Cung Cố Đô) -->
+    <!-- 4 balanced square palace quadrants -->
+    <!-- Top-Left Quadrant -->
+    <rect x="-150" y="-150" width="118" height="118" rx="2" fill="url(#imperialNavy)" opacity="0.9" />
+    <rect x="-136" y="-136" width="90" height="90" fill="#FFFFFF" opacity="0.9" />
+    <rect x="-124" y="-124" width="66" height="66" fill="url(#imperialNavy)" opacity="0.3" />
+
+    <!-- Top-Right Quadrant -->
+    <rect x="32" y="-150" width="118" height="118" rx="2" fill="url(#imperialNavy)" opacity="0.9" />
+    <rect x="46" y="-136" width="90" height="90" fill="#FFFFFF" opacity="0.9" />
+    <rect x="58" y="-124" width="66" height="66" fill="url(#imperialNavy)" opacity="0.3" />
+
+    <!-- Bottom-Left Quadrant -->
+    <rect x="-150" y="32" width="118" height="118" rx="2" fill="url(#imperialNavy)" opacity="0.9" />
+    <rect x="-136" y="46" width="90" height="90" fill="#FFFFFF" opacity="0.9" />
+    <rect x="-124" y="58" width="66" height="66" fill="url(#imperialNavy)" opacity="0.3" />
+
+    <!-- Bottom-Right Quadrant -->
+    <rect x="32" y="32" width="118" height="118" rx="2" fill="url(#imperialNavy)" opacity="0.9" />
+    <rect x="46" y="46" width="90" height="90" fill="#FFFFFF" opacity="0.9" />
+    <rect x="58" y="58" width="66" height="66" fill="url(#imperialNavy)" opacity="0.3" />
+
+    <!-- LAYER 5: THE IMPERIAL AXIS & SACRED PLUS (+) NEXUS (Trục Thần Đạo & Trục Hoành) -->
+    <!-- The vertical Meridian & horizontal avenue form a glorious PLUS SIGN (+) at the center -->
+    <!-- Central Crossbar Background -->
+    <g id="sacred-plus">
+      <!-- The Center Pavilion Base (Tử Cấm Thành - Điện Thái Hòa) -->
+      <rect x="-26" y="-26" width="52" height="52" rx="2" fill="url(#imperialNavy)" />
+      
+      <!-- The Radiant Plus Sign (+) carved in White & Gold -->
+      <rect x="-18" y="-5" width="36" height="10" rx="1.5" fill="#FFFFFF" />
+      <rect x="-5" y="-18" width="10" height="36" rx="1.5" fill="#FFFFFF" />
+      
+      <!-- Inner micro-jewel -->
+      <circle cx="0" cy="0" r="2.5" fill="#C5A059" />
+
+      <!-- North-South Meridian Path Indicator (Trục Thần Đạo) -->
+      <line x1="0" y1="-165" x2="0" y2="-26" stroke="#0A192F" stroke-width="4" stroke-dasharray="8 4" />
+      <line x1="0" y1="26" x2="0" y2="165" stroke="#0A192F" stroke-width="4" stroke-dasharray="8 4" />
+
+      <!-- East-West Transverse Path Indicator -->
+      <line x1="-165" y1="0" x2="-26" y2="0" stroke="#0A192F" stroke-width="4" stroke-dasharray="8 4" />
+      <line x1="26" y1="0" x2="165" y2="0" stroke="#0A192F" stroke-width="4" stroke-dasharray="8 4" />
+    </g>
+
+    <!-- SOUTH GATE: CỬA NGỌ MÔN (Stylized 5-Portal Crown) -->
+    <g transform="translate(0, 185)">
+      <polygon points="-38,0 38,0 28,-14 -28,-14" fill="#0A192F" />
+      <!-- 5 Archway slits -->
+      <rect x="-24" y="-8" width="4" height="8" rx="1" fill="#FFFFFF" />
+      <rect x="-13" y="-10" width="5" height="10" rx="1" fill="#FFFFFF" />
+      <rect x="-3" y="-12" width="6" height="12" rx="1" fill="#FFFFFF" />
+      <rect x="8" y="-10" width="5" height="10" rx="1" fill="#FFFFFF" />
+      <rect x="20" y="-8" width="4" height="8" rx="1" fill="#FFFFFF" />
+    </g>
+  </g>
+
+  <!-- REFINED LUXURY DIVIDER -->
+  <line x1="430" y1="740" x2="570" y2="740" stroke="#0A192F" stroke-width="1.5" opacity="0.3" />
+  <circle cx="500" cy="740" r="3" fill="#C5A059" />
+
+  <!-- TYPOGRAPHY WORDMARK: DIAPLUS -->
+  <!-- Pure Haute Couture serif typography with balanced tracking -->
+  <g transform="translate(500, 835)">
+    <text x="0" y="0" class="brand-title">DIAPLUS</text>
+    <text x="0" y="44" class="brand-sub">HUE HERITAGE EDITION</text>
+  </g>
+</svg>

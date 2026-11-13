@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const defaultBaseUrl = import.meta.env.DEV ? 'http://localhost:3001/api/v1' : 'https://dia-5hzu.onrender.com/api/v1';
+const defaultBaseUrl = import.meta.env.DEV ? 'http://localhost:3001/api/v1' : 'https://diaplus-backend.onrender.com/api/v1';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || defaultBaseUrl,

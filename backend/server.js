@@ -51,6 +51,7 @@ const allowedOrigins = new Set([
   'capacitor://localhost',     // WebView Capacitor iOS
   'http://localhost',
   'https://diaplus-v2.vercel.app',
+  'https://ipuni-new.vercel.app',
   'https://diaplus.vn',
   'https://www.diaplus.vn',
   'https://web.vn',

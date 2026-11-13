@@ -47,7 +47,7 @@ services:
     buildCommand: npm install --omit=dev
     startCommand: >
       node -e "
-      const url = (process.env.BACKEND_URL || 'https://dia-5hzu.onrender.com') + '/api/v1/jobs/missed-dose-check';
+      const url = (process.env.BACKEND_URL || 'https://diaplus-backend.onrender.com') + '/api/v1/jobs/missed-dose-check';
       fetch(url, { method: 'POST', headers: { 'X-Cron-Secret': process.env.CRON_SECRET || '' } })
         .then(async (r) => { console.log('[Cron] status', r.status, await r.text()); if (!r.ok) process.exit(1); })
         .catch((e) => { console.error('[Cron] lỗi gọi job:', e.message); process.exit(1); });
@@ -56,4 +56,4 @@ services:
       - key: CRON_SECRET
         sync: false # PHẢI đặt giống hệt giá trị CRON_SECRET của web service "diaplus-backend" ở trên
       - key: BACKEND_URL
-        value: https://dia-5hzu.onrender.com # Đổi nếu domain backend thay đổi
+        value: https://diaplus-backend.onrender.com # Đổi nếu domain backend thay đổi
